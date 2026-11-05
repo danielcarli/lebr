@@ -1,0 +1,613 @@
+{
+  "grupo": "Vento (NBR 6123)",
+  "descricao": "Fatores S2 e S3, pressão dinâmica, forças por pavimento, combinações com as quatro direções de vento e esforços no pórtico do edifício.",
+  "casos": [
+    {
+      "id": "vento-s2-iv-a",
+      "titulo": "Fator S2: categoria IV, classe A, z = 10 m",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Categoria IV, classe A: b = 0,86, p = 0,12, Fr = 1,00 → S2 = 0,86 em z = 10 m.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 10,
+          "categoria": "IV",
+          "classe": "A"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 0.86,
+          "unidade": "",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "vento-s2-ii-a",
+      "titulo": "Fator S2: categoria II, classe A, z = 10 m (referência das isopletas)",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Categoria II, classe A: b = 1,00, Fr = 1,00 → S2 = 1,00 em z = 10 m (é a condição em que V0 é definida).",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 10,
+          "categoria": "II",
+          "classe": "A"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 1.0,
+          "unidade": "",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "vento-s2-iii-b",
+      "titulo": "Fator S2: categoria III, classe B, z = 25 m",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Categoria III, classe B: b = 0,94, p = 0,105, Fr = 0,98 → S2 = 0,94·0,98·2,5^0,105 = 1,014.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 25,
+          "categoria": "III",
+          "classe": "B"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 1.0142,
+          "unidade": "",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "vento-s2-v-c",
+      "titulo": "Fator S2: categoria V, classe C, z = 60 m",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Categoria V, classe C: b = 0,71, p = 0,175, Fr = 0,95 → S2 = 0,71·0,95·6^0,175 = 0,923.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 60,
+          "categoria": "V",
+          "classe": "C"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 0.92291,
+          "unidade": "",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "vento-pressao",
+      "titulo": "Pressão dinâmica para Vk = 40 m/s",
+      "fonte": "NBR 6123:1988, 4.2: q = 0,613·Vk² = 0,613·40² = 980,8 N/m² = 0,9808 kN/m².",
+      "alvo": "motor",
+      "funcao": "vento.pressaoDinamica",
+      "args": [
+        40
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "",
+          "valor": 0.9808,
+          "unidade": "kN/m²",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "vento-forcas-pavimentos",
+      "titulo": "Forças por pavimento: 3 pavimentos (3, 6 e 9 m), planta 8 × 12 m, V0 = 40 m/s, categoria III, Ca = 1,3 (X) e 1,1 (Y)",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Classe A (maior dimensão 12 m ≤ 20 m): b = 0,94, p = 0,10. Altura de influência: 3,0; 3,0 e 1,5 m (metade do pé-direito acima e abaixo). q = 0,681; 0,782; 0,849 kN/m². Vento em X (0°): face exposta l1 = 12 m → F = 1,3·q·12·h; vento em Y (90°): l1 = 8 m → F = 1,1·q·8·h. Cortante na base: 88,355 kN (X) e 49,841 kN (Y); momento de tombamento ΣF·z = 494,062 kN·m (X).",
+      "alvo": "motor",
+      "funcao": "vento.forcasDeVento",
+      "args": [
+        {
+          "V0": 40.0,
+          "S1": 1,
+          "categoria": "III",
+          "grupo": 2,
+          "Lx": 8.0,
+          "Ly": 12.0,
+          "Ca": {
+            "x": 1.3,
+            "y": 1.1
+          },
+          "niveis": [
+            {
+              "id": "p1",
+              "nome": "1º",
+              "z": 3.0
+            },
+            {
+              "id": "p2",
+              "nome": "2º",
+              "z": 6.0
+            },
+            {
+              "id": "p3",
+              "nome": "3º",
+              "z": 9.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "q no 1º pavimento (z = 3 m)",
+          "caminho": "pavimentos.0.q",
+          "valor": 0.68118,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "q na cobertura (z = 9 m)",
+          "caminho": "pavimentos.2.q",
+          "valor": 0.84856,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "F em X no 1º pavimento",
+          "caminho": "pavimentos.0.Fx",
+          "valor": 31.879,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "F em X na cobertura",
+          "caminho": "pavimentos.2.Fx",
+          "valor": 19.856,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "F em Y no 2º pavimento",
+          "caminho": "pavimentos.1.Fy",
+          "valor": 20.657,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Cortante na base em X",
+          "caminho": "totais.Fx",
+          "valor": 88.355,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Cortante na base em Y",
+          "caminho": "totais.Fy",
+          "valor": 49.841,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento de tombamento em X",
+          "caminho": "totais.Mx",
+          "valor": 494.06,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "vento-grupo-s3",
+      "titulo": "Grupo 1 (S3 = 1,10), classe B pela altura: 1 pavimento a 30 m, planta 10 × 10 m, V0 = 35 m/s, categoria IV, Ca = 1,2",
+      "fonte": "NBR 6123:1988, 5.3 e Tabela 1: S2 = b·Fr·(z/10)^p; 4.2: q = 0,613·Vk² (N/m²) com Vk = V0·S1·S2·S3; 4.2.1: Fa = Ca·q·Ae. Cálculo manual. Maior dimensão 30 m → classe B: b = 0,85, p = 0,125, Fr = 0,98. Vk = 35·0,956·1,10; q = 0,830 kN/m²; altura de influência 15 m (metade de 30 m).",
+      "alvo": "motor",
+      "funcao": "vento.forcasDeVento",
+      "args": [
+        {
+          "V0": 35,
+          "categoria": "IV",
+          "grupo": 1,
+          "Lx": 10,
+          "Ly": 10,
+          "Ca": {
+            "x": 1.2,
+            "y": 1.2
+          },
+          "niveis": [
+            {
+              "id": "c",
+              "nome": "Cobertura",
+              "z": 30
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "pavimentos.0.S2",
+          "valor": 0.95562,
+          "unidade": "",
+          "tolerancia": 0.0005
+        },
+        {
+          "grandeza": "S3",
+          "caminho": "S3",
+          "valor": 1.1,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "F em X",
+          "caminho": "pavimentos.0.Fx",
+          "valor": 149.36,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "vento-combinacoes",
+      "titulo": "Combinações com G, Q (residencial) e vento em 0°, 90°, 180° e 270°",
+      "fonte": "NBR 6118:2023, 11.8.2.1 e Tabela 11.2 (vento ψ0 = 0,6, ψ1 = 0,3, ψ2 = 0). As quatro direções de vento são exclusivas: nunca duas na mesma combinação. ELU com γg = 1,4 e 1,0: para cada direção, Q principal (0,84·V) e V principal (0,7·Q), V sem Q, mais Q sem vento e G sozinho: 2 × (4·3 + 2) = 28. ELS: quase permanente 1; frequentes 1 + 4; raras 2·4 + 1 = 9. Total 43.",
+      "alvo": "motor",
+      "funcao": "combinacoes.gerarCombinacoes",
+      "args": [
+        [
+          {
+            "id": "G",
+            "nome": "Permanentes",
+            "tipo": "permanente"
+          },
+          {
+            "id": "Q",
+            "nome": "Uso",
+            "tipo": "variavel",
+            "psi0": 0.5,
+            "psi1": 0.4,
+            "psi2": 0.3
+          },
+          {
+            "id": "V1",
+            "nome": "Vento 0°",
+            "tipo": "variavel",
+            "grupo": "vento",
+            "psi0": 0.6,
+            "psi1": 0.3,
+            "psi2": 0
+          },
+          {
+            "id": "V2",
+            "nome": "Vento 90°",
+            "tipo": "variavel",
+            "grupo": "vento",
+            "psi0": 0.6,
+            "psi1": 0.3,
+            "psi2": 0
+          },
+          {
+            "id": "V3",
+            "nome": "Vento 180°",
+            "tipo": "variavel",
+            "grupo": "vento",
+            "psi0": 0.6,
+            "psi1": 0.3,
+            "psi2": 0
+          },
+          {
+            "id": "V4",
+            "nome": "Vento 270°",
+            "tipo": "variavel",
+            "grupo": "vento",
+            "psi0": 0.6,
+            "psi1": 0.3,
+            "psi2": 0
+          }
+        ],
+        {
+          "gg": 1.4,
+          "ggFav": 1.0,
+          "gq": 1.4
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Número de combinações",
+          "caminho": "length",
+          "valor": 43,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "ELU2 (V1 principal) — fator de V1",
+          "caminho": "[id=ELU2].fatores.V1",
+          "valor": 1.4,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "ELU2 (V1 principal) — fator de Q",
+          "caminho": "[id=ELU2].fatores.Q",
+          "valor": 0.7,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "ELU2 — V2 ausente (direções exclusivas)",
+          "caminho": "[id=ELU2].fatores.V2",
+          "valor": 0,
+          "unidade": "",
+          "tolerancia": 0.01,
+          "toleranciaAbs": 1e-09,
+          "ausenteVale": 0
+        },
+        {
+          "grandeza": "ELU1 (Q principal) — fator de V1",
+          "caminho": "[id=ELU1].fatores.V1",
+          "valor": 0.84,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "ELU15 (G favorável, V1 principal) — fator de G",
+          "caminho": "[id=ELU15].fatores.G",
+          "valor": 1.0,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Frequente com V1 principal — fator de V1",
+          "caminho": "[id=FREQ2].fatores.V1",
+          "valor": 0.3,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Rara com V4 principal — fator de Q",
+          "caminho": "[id=RARA8].fatores.Q",
+          "valor": 0.4,
+          "unidade": "",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "vento-portico",
+      "titulo": "Pórtico do edifício com vento: 4 pilares 40 × 20 cm de 3 m (planta 6 × 4 m), duas vigas 20 × 50 cm em X, V0 = 45 m/s, categoria IV, Ca = 1,2",
+      "fonte": "Planta envolvente 6,4 × 4,2 m (faces dos pilares); q = 0,613·(45·0,744)² = 0,688 kN/m² em z = 3 m; altura de influência 1,5 m; F(0°) = 1,2·q·4,2·1,5 = 5,199 kN e F(90°) = 1,2·q·6,4·1,5 = 7,922 kN. Diafragma rígido e simetria: cada pilar recebe F/4. Em X (pórtico com as vigas), inclinação-deflexão com deslocamento lateral: θ = 6kc·ψ/(4kc + 6kb), kc = Ecs·Ic/h, kb = Ecs·Ib/L; V·h = kc(12ψ − 6θ) → |M| no topo = kc|4θ − 6ψ| = 1,665 kN·m e na base = kc|2θ − 6ψ| = 2,234 kN·m (base traciona a face a barlavento, −x: Mx > 0; topo traciona +x: Mx < 0); normal por tombamento = (F/2·h − 2|Mbase|)/L = 0,555 kN (tração a barlavento). Em Y não há viga e os dois pilares de cada viga giram igual (a viga não torce): o pilar trabalha em balanço, |My| na base = F/4·h = 5,942 kN·m. Valores característicos do caso. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.pilar",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 3.0
+        }
+      ],
+      "parametros": {
+        "analiseGlobal": {
+          "pilares": "portico"
+        },
+        "vento": {
+          "ativo": true,
+          "V0": 45,
+          "categoria": "IV",
+          "grupo": 2,
+          "topografia": "plano",
+          "classe": "auto",
+          "Ca": {
+            "x": 1.2,
+            "y": 1.2
+          }
+        }
+      },
+      "outros": [
+        {
+          "id": "v1",
+          "modulo": "concreto.viga",
+          "codigo": "V1",
+          "nome": "V1",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 6
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "pesoProprio": false,
+          "cargas": [
+            {
+              "id": "a",
+              "tipo": "distribuida",
+              "natureza": "g",
+              "valor": 10,
+              "vao": "todos"
+            }
+          ],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 0,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "v2",
+          "modulo": "concreto.viga",
+          "codigo": "V2",
+          "nome": "V2",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 6
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "pesoProprio": false,
+          "cargas": [
+            {
+              "id": "a",
+              "tipo": "distribuida",
+              "natureza": "g",
+              "valor": 10,
+              "vao": "todos"
+            }
+          ],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 4,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "p2",
+          "modulo": "concreto.pilar",
+          "codigo": "P2",
+          "nome": "P2",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 3.0,
+          "pesoProprio": false,
+          "cargas": [],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 6,
+            "y": 0,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "p3",
+          "modulo": "concreto.pilar",
+          "codigo": "P3",
+          "nome": "P3",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 3.0,
+          "pesoProprio": false,
+          "cargas": [],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 4,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "p4",
+          "modulo": "concreto.pilar",
+          "codigo": "P4",
+          "nome": "P4",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 3.0,
+          "pesoProprio": false,
+          "cargas": [],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 6,
+            "y": 4,
+            "angulo": 0
+          }
+        }
+      ],
+      "elemento": {
+        "bx": 40,
+        "by": 20,
+        "comprimento": 3.0,
+        "pesoProprio": false,
+        "cargas": [],
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 0,
+          "y": 0,
+          "angulo": 0
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Força de vento em X no pavimento",
+          "caminho": "portico.vento.forcas.0.Fx",
+          "valor": 5.1989,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Força de vento em Y no pavimento",
+          "caminho": "portico.vento.forcas.0.Fy",
+          "valor": 7.9222,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "V1 — cortante no pilar (F/4)",
+          "caminho": "portico.vento.lance.V1.Vx",
+          "valor": -1.2997,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "V1 — Mx no topo",
+          "caminho": "portico.vento.lance.V1.Mx.topo",
+          "valor": -1.6654,
+          "unidade": "kN·m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "V1 — Mx na base (traciona a face a barlavento)",
+          "caminho": "portico.vento.lance.V1.Mx.base",
+          "valor": 2.2338,
+          "unidade": "kN·m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "V1 — normal (tração a barlavento, negativa)",
+          "caminho": "portico.vento.lance.V1.N",
+          "valor": -0.55512,
+          "unidade": "kN",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "V2 — My na base (balanço)",
+          "caminho": "portico.vento.lance.V2.My.base",
+          "valor": -5.9416,
+          "unidade": "kN·m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Combinações do pilar com vento",
+          "caminho": "combinacoes.length",
+          "valor": 43,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    }
+  ]
+}

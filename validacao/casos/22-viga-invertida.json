@@ -1,0 +1,92 @@
+{
+  "grupo": "Vigas invertidas",
+  "descricao": "Laje apoiada na face inferior da viga: carga pendurada e estribos de suspensão (NBR 6118, 18.3.6).",
+  "casos": [
+    {
+      "id": "viga-invertida-suspensao",
+      "titulo": "Viga invertida biapoiada de 4 m (20 × 50) com a laje quadrada 4 × 4 m pendurada na face inferior",
+      "fonte": "Laje apoiada nas quatro bordas, processo das áreas (triângulos a 45°): reação por borda = p·l/4 → g = 3,5·4/4 = 3,500 kN/m, q = 1,5·4/4 = 1,500 kN/m. Na viga invertida a laje se apoia na face inferior e a carga sobe por estribos de suspensão (NBR 6118, 18.3.6): pd = 1,4·(3,500 + 1,500) = 7,000 kN/m; Asw,susp/s = pd/fywd = 7,000/43,48 = 0,161 cm²/m, somada à armadura da cortante. Tolerância de 1,2 %: o LEBR integra as áreas de influência numa malha (0,9 % abaixo do triângulo exato nesta borda). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "outros": [
+        {
+          "id": "lq",
+          "modulo": "concreto.laje.macica",
+          "codigo": "L1",
+          "nome": "L1",
+          "lx": 4,
+          "ly": 4,
+          "h": 10,
+          "pesoProprio": true,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          },
+          "cargas": {
+            "revestimento": 1.0,
+            "acidental": 1.5,
+            "outras": 0
+          }
+        }
+      ],
+      "elemento": {
+        "vaos": [
+          {
+            "L": 4.0
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "pesoProprio": false,
+        "invertida": true,
+        "cargas": [
+          {
+            "id": "c1",
+            "tipo": "elemento",
+            "elementoId": "lq",
+            "ligacao": "y0",
+            "vao": "todos"
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Carga pendurada de cálculo",
+          "caminho": "vaos.0.suspensao.pd",
+          "valor": 7.0,
+          "unidade": "kN/m",
+          "tolerancia": 0.012
+        },
+        {
+          "grandeza": "Asw de suspensão",
+          "caminho": "vaos.0.suspensao.asw",
+          "valor": 0.161,
+          "unidade": "cm²/m",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "Reação g no apoio 1",
+          "caminho": "apoios.0.Rg",
+          "valor": 7.0,
+          "unidade": "kN",
+          "tolerancia": 0.012
+        },
+        {
+          "grandeza": "Viga invertida",
+          "caminho": "invertida",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1406 @@
+{
+  "grupo": "Detalhamento de vigas",
+  "descricao": "Aderência, ancoragem básica e necessária, decalagem, traspasse, cortes de barras, ganchos, porta-estribos, estribos e emendas de barras longas.",
+  "casos": [
+    {
+      "id": "det-fbd",
+      "titulo": "Aderência de barras nervuradas CA-50 em concreto C25: fbd em boa e em má aderência",
+      "fonte": "NBR 6118, 9.3.2.1: fctd = 0,7·0,3·fck^(2/3)/γc = 1,282 MPa; fbd = η1·η2·η3·fctd = 2,25·1,0·1,0·1,282 = 2,886 MPa (boa) e ×0,7 = 2,020 MPa (má).",
+      "alvo": "motor",
+      "funcao": "detalhamento.fbd",
+      "args": [
+        {
+          "fctd": 1.2824819600075228,
+          "boa": true,
+          "phi": 10
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "fbd (boa)",
+          "caminho": "",
+          "valor": 2.8856,
+          "unidade": "MPa",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-fbd-ma",
+      "titulo": "fbd em região de má aderência (η2 = 0,7)",
+      "fonte": "NBR 6118, 9.3.2.1: 2,020 MPa.",
+      "alvo": "motor",
+      "funcao": "detalhamento.fbd",
+      "args": [
+        {
+          "fctd": 1.2824819600075228,
+          "boa": false,
+          "phi": 10
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "fbd (má)",
+          "caminho": "",
+          "valor": 2.0199,
+          "unidade": "MPa",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-lb",
+      "titulo": "Comprimento de ancoragem básico de ø 10 CA-50 em C25, boa aderência",
+      "fonte": "NBR 6118, 9.4.2.4: lb = (ø/4)·(fyd/fbd) = (1,0/4)·(434,783/2,886) = 37,669 cm ≥ 25ø = 25 cm → 37,669 cm (≈ 38ø).",
+      "alvo": "motor",
+      "funcao": "detalhamento.ancoragemBasica",
+      "args": [
+        {
+          "phi": 10,
+          "fyd": 434.7826086956522,
+          "fbd": 2.8855844100169263
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "lb",
+          "caminho": "",
+          "valor": 37.669,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-lb-min",
+      "titulo": "Ancoragem básica limitada a 25ø (fbd alto)",
+      "fonte": "NBR 6118, 9.4.2.4: com fbd = 10 MPa, (1,6/4)·(434,8/10) = 17,4 cm < 25ø = 40 cm → 40 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.ancoragemBasica",
+      "args": [
+        {
+          "phi": 16,
+          "fyd": 434.7826086956522,
+          "fbd": 10
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "lb",
+          "caminho": "",
+          "valor": 40.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-lbnec",
+      "titulo": "Ancoragem necessária com gancho e As,calc/As,ef = 0,5",
+      "fonte": "NBR 6118, 9.4.2.5: lb,nec = α·lb·As,calc/As,ef = 0,7·37,669·0,5 = 13,184 cm ≥ lb,mín = máx(0,3·lb = 11,301; 10ø = 10; 10 cm) → 13,184 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.ancoragemNecessaria",
+      "args": [
+        {
+          "lb": 37.668505484223715,
+          "phi": 10,
+          "AsCalc": 1,
+          "AsEf": 2,
+          "gancho": true
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "lb,nec",
+          "caminho": "",
+          "valor": 13.184,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-lbnec-min",
+      "titulo": "Ancoragem necessária governada pelo mínimo (As,calc/As,ef = 0,2)",
+      "fonte": "0,7·37,669·0,2 = 5,274 cm < 0,3·lb = 11,301 cm → lb,mín.",
+      "alvo": "motor",
+      "funcao": "detalhamento.ancoragemNecessaria",
+      "args": [
+        {
+          "lb": 37.668505484223715,
+          "phi": 10,
+          "AsCalc": 1,
+          "AsEf": 5,
+          "gancho": true
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "lb,nec",
+          "caminho": "",
+          "valor": 11.301,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-al",
+      "titulo": "Decalagem do diagrama de momentos (modelo I): d = 45 cm, VSd = 200 kN, Vc = 50 kN",
+      "fonte": "NBR 6118, 17.4.2.2: aℓ = d·VSd/[2·(VSd − Vc)] = 45·200/(2·150) = 30 cm, entre 0,5·d = 22,5 e d = 45 → 30 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 45,
+          "Vd": 200,
+          "Vc": 50
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "aℓ",
+          "caminho": "",
+          "valor": 30.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-al-d",
+      "titulo": "Decalagem com VSd ≤ Vc: aℓ = d",
+      "fonte": "NBR 6118, 17.4.2.2: com VSd ≤ Vc, aℓ = d = 45 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 45,
+          "Vd": 40,
+          "Vc": 60
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "aℓ",
+          "caminho": "",
+          "valor": 45.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-l0t",
+      "titulo": "Traspasse de barras tracionadas, 50 % emendadas na seção (α0t = 1,8)",
+      "fonte": "NBR 6118, 9.5.2.2: l0t = α0t·lb,nec = 1,8·30 = 54 cm ≥ máx(0,3·1,8·38 = 20,5; 15ø = 15; 20 cm) → 54 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.traspasse",
+      "args": [
+        {
+          "lbNec": 30,
+          "lb": 38,
+          "phi": 10
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "l0t",
+          "caminho": "",
+          "valor": 54.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-viga-biapoiada",
+      "titulo": "Viga biapoiada 20 × 50 cm, vão de 5 m, 3 ø 12,5 positivas, apoios de 20 cm, C25, cobrimento 3 cm",
+      "fonte": "Duas barras de canto correm a viga até a face externa dos apoios menos o cobrimento (500 + 2·7 cm) com ganchos a 90° (+2·10ø): 539,000 → 540 cm. A terceira é necessária onde M ≥ 2/3·Mmáx: ξ = (1 − √(1/3))/2 → x = 1,057 m de cada apoio; com aℓ = d = 45 cm (VSd ≤ Vc) e lb = 47,086 cm (ø 12,5, boa aderência) vai de 0,136 a 4,864 m: 472,846 → 475 cm, sem ganchos. Porta-estribos 2 ø 6,3: 514 + 2·6,3 → 530 cm. Estribos ø 5 c/ 15 no vão livre de 480 cm: ⌈480/15⌉ + 1 = 33; 2·(20 − 6) + 2·(50 − 6) + 2·6 (ganchos de 8ø ≥ 6 cm) = 128 → 130 cm. Cálculo manual (NBR 6118, 9.4, 17.4.2.2 e 18.3).",
+      "alvo": "motor",
+      "funcao": "detalhamento.detalharViga",
+      "args": [
+        {
+          "L": [
+            5
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "b": 20,
+          "h": 50,
+          "cob": 3,
+          "fctd": 1.2824819600075228,
+          "fyd": 434.7826086956522,
+          "largura": 20,
+          "pts": [
+            {
+              "x": 0.0,
+              "Md": 0.0,
+              "MdMin": 0
+            },
+            {
+              "x": 0.05,
+              "Md": 3.168,
+              "MdMin": 0
+            },
+            {
+              "x": 0.1,
+              "Md": 6.272,
+              "MdMin": 0
+            },
+            {
+              "x": 0.15,
+              "Md": 9.312,
+              "MdMin": 0
+            },
+            {
+              "x": 0.2,
+              "Md": 12.288,
+              "MdMin": 0
+            },
+            {
+              "x": 0.25,
+              "Md": 15.2,
+              "MdMin": 0
+            },
+            {
+              "x": 0.3,
+              "Md": 18.048,
+              "MdMin": 0
+            },
+            {
+              "x": 0.35,
+              "Md": 20.832,
+              "MdMin": 0
+            },
+            {
+              "x": 0.4,
+              "Md": 23.552000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 0.45,
+              "Md": 26.208,
+              "MdMin": 0
+            },
+            {
+              "x": 0.5,
+              "Md": 28.8,
+              "MdMin": 0
+            },
+            {
+              "x": 0.55,
+              "Md": 31.328000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 0.6,
+              "Md": 33.792,
+              "MdMin": 0
+            },
+            {
+              "x": 0.65,
+              "Md": 36.192,
+              "MdMin": 0
+            },
+            {
+              "x": 0.7,
+              "Md": 38.528,
+              "MdMin": 0
+            },
+            {
+              "x": 0.75,
+              "Md": 40.8,
+              "MdMin": 0
+            },
+            {
+              "x": 0.8,
+              "Md": 43.008,
+              "MdMin": 0
+            },
+            {
+              "x": 0.85,
+              "Md": 45.151999999999994,
+              "MdMin": 0
+            },
+            {
+              "x": 0.9,
+              "Md": 47.232,
+              "MdMin": 0
+            },
+            {
+              "x": 0.95,
+              "Md": 49.248,
+              "MdMin": 0
+            },
+            {
+              "x": 1.0,
+              "Md": 51.2,
+              "MdMin": 0
+            },
+            {
+              "x": 1.05,
+              "Md": 53.08800000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 1.1,
+              "Md": 54.912000000000006,
+              "MdMin": 0
+            },
+            {
+              "x": 1.15,
+              "Md": 56.672,
+              "MdMin": 0
+            },
+            {
+              "x": 1.2,
+              "Md": 58.367999999999995,
+              "MdMin": 0
+            },
+            {
+              "x": 1.25,
+              "Md": 60.0,
+              "MdMin": 0
+            },
+            {
+              "x": 1.3,
+              "Md": 61.568,
+              "MdMin": 0
+            },
+            {
+              "x": 1.35,
+              "Md": 63.072,
+              "MdMin": 0
+            },
+            {
+              "x": 1.4,
+              "Md": 64.512,
+              "MdMin": 0
+            },
+            {
+              "x": 1.45,
+              "Md": 65.88799999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 1.5,
+              "Md": 67.19999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 1.55,
+              "Md": 68.448,
+              "MdMin": 0
+            },
+            {
+              "x": 1.6,
+              "Md": 69.63199999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 1.65,
+              "Md": 70.752,
+              "MdMin": 0
+            },
+            {
+              "x": 1.7,
+              "Md": 71.80799999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 1.75,
+              "Md": 72.8,
+              "MdMin": 0
+            },
+            {
+              "x": 1.8,
+              "Md": 73.728,
+              "MdMin": 0
+            },
+            {
+              "x": 1.85,
+              "Md": 74.592,
+              "MdMin": 0
+            },
+            {
+              "x": 1.9,
+              "Md": 75.392,
+              "MdMin": 0
+            },
+            {
+              "x": 1.95,
+              "Md": 76.128,
+              "MdMin": 0
+            },
+            {
+              "x": 2.0,
+              "Md": 76.8,
+              "MdMin": 0
+            },
+            {
+              "x": 2.05,
+              "Md": 77.408,
+              "MdMin": 0
+            },
+            {
+              "x": 2.1,
+              "Md": 77.952,
+              "MdMin": 0
+            },
+            {
+              "x": 2.15,
+              "Md": 78.432,
+              "MdMin": 0
+            },
+            {
+              "x": 2.2,
+              "Md": 78.848,
+              "MdMin": 0
+            },
+            {
+              "x": 2.25,
+              "Md": 79.2,
+              "MdMin": 0
+            },
+            {
+              "x": 2.3,
+              "Md": 79.488,
+              "MdMin": 0
+            },
+            {
+              "x": 2.35,
+              "Md": 79.712,
+              "MdMin": 0
+            },
+            {
+              "x": 2.4,
+              "Md": 79.872,
+              "MdMin": 0
+            },
+            {
+              "x": 2.45,
+              "Md": 79.968,
+              "MdMin": 0
+            },
+            {
+              "x": 2.5,
+              "Md": 80.0,
+              "MdMin": 0
+            },
+            {
+              "x": 2.55,
+              "Md": 79.96799999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 2.6,
+              "Md": 79.872,
+              "MdMin": 0
+            },
+            {
+              "x": 2.65,
+              "Md": 79.712,
+              "MdMin": 0
+            },
+            {
+              "x": 2.7,
+              "Md": 79.488,
+              "MdMin": 0
+            },
+            {
+              "x": 2.75,
+              "Md": 79.19999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 2.8,
+              "Md": 78.848,
+              "MdMin": 0
+            },
+            {
+              "x": 2.85,
+              "Md": 78.432,
+              "MdMin": 0
+            },
+            {
+              "x": 2.9,
+              "Md": 77.952,
+              "MdMin": 0
+            },
+            {
+              "x": 2.95,
+              "Md": 77.40799999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 3.0,
+              "Md": 76.80000000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 3.05,
+              "Md": 76.128,
+              "MdMin": 0
+            },
+            {
+              "x": 3.1,
+              "Md": 75.39200000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 3.15,
+              "Md": 74.592,
+              "MdMin": 0
+            },
+            {
+              "x": 3.2,
+              "Md": 73.728,
+              "MdMin": 0
+            },
+            {
+              "x": 3.25,
+              "Md": 72.8,
+              "MdMin": 0
+            },
+            {
+              "x": 3.3,
+              "Md": 71.808,
+              "MdMin": 0
+            },
+            {
+              "x": 3.35,
+              "Md": 70.752,
+              "MdMin": 0
+            },
+            {
+              "x": 3.4,
+              "Md": 69.632,
+              "MdMin": 0
+            },
+            {
+              "x": 3.45,
+              "Md": 68.448,
+              "MdMin": 0
+            },
+            {
+              "x": 3.5,
+              "Md": 67.20000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 3.55,
+              "Md": 65.888,
+              "MdMin": 0
+            },
+            {
+              "x": 3.6,
+              "Md": 64.512,
+              "MdMin": 0
+            },
+            {
+              "x": 3.65,
+              "Md": 63.072,
+              "MdMin": 0
+            },
+            {
+              "x": 3.7,
+              "Md": 61.568000000000005,
+              "MdMin": 0
+            },
+            {
+              "x": 3.75,
+              "Md": 60.0,
+              "MdMin": 0
+            },
+            {
+              "x": 3.8,
+              "Md": 58.367999999999995,
+              "MdMin": 0
+            },
+            {
+              "x": 3.85,
+              "Md": 56.672,
+              "MdMin": 0
+            },
+            {
+              "x": 3.9,
+              "Md": 54.912,
+              "MdMin": 0
+            },
+            {
+              "x": 3.95,
+              "Md": 53.087999999999994,
+              "MdMin": 0
+            },
+            {
+              "x": 4.0,
+              "Md": 51.19999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 4.05,
+              "Md": 49.24800000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 4.1,
+              "Md": 47.232000000000006,
+              "MdMin": 0
+            },
+            {
+              "x": 4.15,
+              "Md": 45.15199999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 4.2,
+              "Md": 43.00799999999998,
+              "MdMin": 0
+            },
+            {
+              "x": 4.25,
+              "Md": 40.800000000000004,
+              "MdMin": 0
+            },
+            {
+              "x": 4.3,
+              "Md": 38.528,
+              "MdMin": 0
+            },
+            {
+              "x": 4.35,
+              "Md": 36.19200000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 4.4,
+              "Md": 33.79199999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 4.45,
+              "Md": 31.327999999999996,
+              "MdMin": 0
+            },
+            {
+              "x": 4.5,
+              "Md": 28.799999999999994,
+              "MdMin": 0
+            },
+            {
+              "x": 4.55,
+              "Md": 26.208000000000023,
+              "MdMin": 0
+            },
+            {
+              "x": 4.6,
+              "Md": 23.552000000000017,
+              "MdMin": 0
+            },
+            {
+              "x": 4.65,
+              "Md": 20.831999999999987,
+              "MdMin": 0
+            },
+            {
+              "x": 4.7,
+              "Md": 18.047999999999984,
+              "MdMin": 0
+            },
+            {
+              "x": 4.75,
+              "Md": 15.200000000000014,
+              "MdMin": 0
+            },
+            {
+              "x": 4.8,
+              "Md": 12.288000000000011,
+              "MdMin": 0
+            },
+            {
+              "x": 4.85,
+              "Md": 9.312000000000008,
+              "MdMin": 0
+            },
+            {
+              "x": 4.9,
+              "Md": 6.271999999999971,
+              "MdMin": 0
+            },
+            {
+              "x": 4.95,
+              "Md": 3.168000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 5.0,
+              "Md": 0.0,
+              "MdMin": 0
+            }
+          ],
+          "vaos": [
+            {
+              "barras": {
+                "phi": 12.5,
+                "n": 3
+              },
+              "d": 45,
+              "Vd": 40,
+              "Vc": 60,
+              "estribo": {
+                "phi": 5,
+                "s": 15
+              }
+            }
+          ],
+          "negs": [
+            null,
+            null
+          ],
+          "Rd": [
+            40,
+            40
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "N1: barras de canto",
+          "caminho": "posicoes.0.n",
+          "valor": 2,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N1: comprimento",
+          "caminho": "posicoes.0.comprimento",
+          "valor": 540,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N2: barra cortada",
+          "caminho": "posicoes.1.n",
+          "valor": 1,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N2: comprimento",
+          "caminho": "posicoes.1.comprimento",
+          "valor": 475,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N2: ganchos",
+          "caminho": "posicoes.1.ganchos",
+          "valor": 0,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N3: porta-estribos",
+          "caminho": "posicoes.2.comprimento",
+          "valor": 530,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N4: estribos",
+          "caminho": "posicoes.3.n",
+          "valor": 33,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N4: comprimento do estribo",
+          "caminho": "posicoes.3.comprimento",
+          "valor": 130,
+          "unidade": "cm",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-viga-emenda",
+      "titulo": "Viga biapoiada de 14 m: barras de canto acima de 12 m levam uma emenda por traspasse",
+      "fonte": "Barra de 1400 + 14 + 2·10ø: maior que 12 m → 1 emenda; l0t = 1,8·lb (as de canto ancoram com lb,nec = lb no traspasse) somado ao comprimento. NBR 6118, 9.5.2.",
+      "alvo": "motor",
+      "funcao": "detalhamento.detalharViga",
+      "args": [
+        {
+          "L": [
+            14
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "b": 20,
+          "h": 90,
+          "cob": 3,
+          "fctd": 1.2824819600075228,
+          "fyd": 434.7826086956522,
+          "largura": 30,
+          "pts": [
+            {
+              "x": 0.0,
+              "Md": 0.0,
+              "MdMin": 0
+            },
+            {
+              "x": 0.14,
+              "Md": 11.879999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 0.28,
+              "Md": 23.52,
+              "MdMin": 0
+            },
+            {
+              "x": 0.42,
+              "Md": 34.92,
+              "MdMin": 0
+            },
+            {
+              "x": 0.56,
+              "Md": 46.08,
+              "MdMin": 0
+            },
+            {
+              "x": 0.7,
+              "Md": 57.0,
+              "MdMin": 0
+            },
+            {
+              "x": 0.84,
+              "Md": 67.67999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 0.98,
+              "Md": 78.12,
+              "MdMin": 0
+            },
+            {
+              "x": 1.12,
+              "Md": 88.32000000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 1.26,
+              "Md": 98.28,
+              "MdMin": 0
+            },
+            {
+              "x": 1.4,
+              "Md": 108.0,
+              "MdMin": 0
+            },
+            {
+              "x": 1.54,
+              "Md": 117.48,
+              "MdMin": 0
+            },
+            {
+              "x": 1.68,
+              "Md": 126.72,
+              "MdMin": 0
+            },
+            {
+              "x": 1.82,
+              "Md": 135.72,
+              "MdMin": 0
+            },
+            {
+              "x": 1.96,
+              "Md": 144.48000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 2.1,
+              "Md": 153.0,
+              "MdMin": 0
+            },
+            {
+              "x": 2.24,
+              "Md": 161.28,
+              "MdMin": 0
+            },
+            {
+              "x": 2.38,
+              "Md": 169.32000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 2.52,
+              "Md": 177.12,
+              "MdMin": 0
+            },
+            {
+              "x": 2.66,
+              "Md": 184.68,
+              "MdMin": 0
+            },
+            {
+              "x": 2.8,
+              "Md": 192.0,
+              "MdMin": 0
+            },
+            {
+              "x": 2.94,
+              "Md": 199.08,
+              "MdMin": 0
+            },
+            {
+              "x": 3.08,
+              "Md": 205.92000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 3.22,
+              "Md": 212.52,
+              "MdMin": 0
+            },
+            {
+              "x": 3.36,
+              "Md": 218.88,
+              "MdMin": 0
+            },
+            {
+              "x": 3.5,
+              "Md": 225.0,
+              "MdMin": 0
+            },
+            {
+              "x": 3.64,
+              "Md": 230.88,
+              "MdMin": 0
+            },
+            {
+              "x": 3.78,
+              "Md": 236.51999999999998,
+              "MdMin": 0
+            },
+            {
+              "x": 3.92,
+              "Md": 241.92000000000004,
+              "MdMin": 0
+            },
+            {
+              "x": 4.06,
+              "Md": 247.07999999999998,
+              "MdMin": 0
+            },
+            {
+              "x": 4.2,
+              "Md": 251.99999999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 4.34,
+              "Md": 256.68,
+              "MdMin": 0
+            },
+            {
+              "x": 4.48,
+              "Md": 261.12,
+              "MdMin": 0
+            },
+            {
+              "x": 4.62,
+              "Md": 265.32,
+              "MdMin": 0
+            },
+            {
+              "x": 4.76,
+              "Md": 269.28000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 4.9,
+              "Md": 273.0,
+              "MdMin": 0
+            },
+            {
+              "x": 5.04,
+              "Md": 276.48,
+              "MdMin": 0
+            },
+            {
+              "x": 5.18,
+              "Md": 279.72,
+              "MdMin": 0
+            },
+            {
+              "x": 5.32,
+              "Md": 282.71999999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 5.46,
+              "Md": 285.48,
+              "MdMin": 0
+            },
+            {
+              "x": 5.6,
+              "Md": 288.0,
+              "MdMin": 0
+            },
+            {
+              "x": 5.74,
+              "Md": 290.28000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 5.88,
+              "Md": 292.32000000000005,
+              "MdMin": 0
+            },
+            {
+              "x": 6.02,
+              "Md": 294.12,
+              "MdMin": 0
+            },
+            {
+              "x": 6.16,
+              "Md": 295.68,
+              "MdMin": 0
+            },
+            {
+              "x": 6.3,
+              "Md": 297.0,
+              "MdMin": 0
+            },
+            {
+              "x": 6.44,
+              "Md": 298.08000000000004,
+              "MdMin": 0
+            },
+            {
+              "x": 6.58,
+              "Md": 298.92,
+              "MdMin": 0
+            },
+            {
+              "x": 6.72,
+              "Md": 299.52,
+              "MdMin": 0
+            },
+            {
+              "x": 6.86,
+              "Md": 299.88,
+              "MdMin": 0
+            },
+            {
+              "x": 7.0,
+              "Md": 300.0,
+              "MdMin": 0
+            },
+            {
+              "x": 7.14,
+              "Md": 299.88,
+              "MdMin": 0
+            },
+            {
+              "x": 7.28,
+              "Md": 299.52,
+              "MdMin": 0
+            },
+            {
+              "x": 7.42,
+              "Md": 298.91999999999996,
+              "MdMin": 0
+            },
+            {
+              "x": 7.56,
+              "Md": 298.08,
+              "MdMin": 0
+            },
+            {
+              "x": 7.7,
+              "Md": 296.99999999999994,
+              "MdMin": 0
+            },
+            {
+              "x": 7.84,
+              "Md": 295.68,
+              "MdMin": 0
+            },
+            {
+              "x": 7.98,
+              "Md": 294.12,
+              "MdMin": 0
+            },
+            {
+              "x": 8.12,
+              "Md": 292.32000000000005,
+              "MdMin": 0
+            },
+            {
+              "x": 8.26,
+              "Md": 290.28000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 8.4,
+              "Md": 288.0,
+              "MdMin": 0
+            },
+            {
+              "x": 8.54,
+              "Md": 285.48,
+              "MdMin": 0
+            },
+            {
+              "x": 8.68,
+              "Md": 282.72,
+              "MdMin": 0
+            },
+            {
+              "x": 8.82,
+              "Md": 279.71999999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 8.96,
+              "Md": 276.48,
+              "MdMin": 0
+            },
+            {
+              "x": 9.1,
+              "Md": 273.0,
+              "MdMin": 0
+            },
+            {
+              "x": 9.24,
+              "Md": 269.28,
+              "MdMin": 0
+            },
+            {
+              "x": 9.38,
+              "Md": 265.32,
+              "MdMin": 0
+            },
+            {
+              "x": 9.52,
+              "Md": 261.12,
+              "MdMin": 0
+            },
+            {
+              "x": 9.66,
+              "Md": 256.68,
+              "MdMin": 0
+            },
+            {
+              "x": 9.8,
+              "Md": 252.00000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 9.94,
+              "Md": 247.08000000000004,
+              "MdMin": 0
+            },
+            {
+              "x": 10.08,
+              "Md": 241.92000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 10.22,
+              "Md": 236.52,
+              "MdMin": 0
+            },
+            {
+              "x": 10.36,
+              "Md": 230.88,
+              "MdMin": 0
+            },
+            {
+              "x": 10.5,
+              "Md": 225.0,
+              "MdMin": 0
+            },
+            {
+              "x": 10.64,
+              "Md": 218.88,
+              "MdMin": 0
+            },
+            {
+              "x": 10.78,
+              "Md": 212.51999999999998,
+              "MdMin": 0
+            },
+            {
+              "x": 10.92,
+              "Md": 205.92,
+              "MdMin": 0
+            },
+            {
+              "x": 11.06,
+              "Md": 199.07999999999996,
+              "MdMin": 0
+            },
+            {
+              "x": 11.2,
+              "Md": 191.99999999999994,
+              "MdMin": 0
+            },
+            {
+              "x": 11.34,
+              "Md": 184.67999999999998,
+              "MdMin": 0
+            },
+            {
+              "x": 11.48,
+              "Md": 177.12000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 11.62,
+              "Md": 169.32000000000005,
+              "MdMin": 0
+            },
+            {
+              "x": 11.76,
+              "Md": 161.28000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 11.9,
+              "Md": 153.00000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 12.04,
+              "Md": 144.48000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 12.18,
+              "Md": 135.72,
+              "MdMin": 0
+            },
+            {
+              "x": 12.32,
+              "Md": 126.72,
+              "MdMin": 0
+            },
+            {
+              "x": 12.46,
+              "Md": 117.47999999999999,
+              "MdMin": 0
+            },
+            {
+              "x": 12.6,
+              "Md": 107.99999999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 12.74,
+              "Md": 98.27999999999997,
+              "MdMin": 0
+            },
+            {
+              "x": 12.88,
+              "Md": 88.31999999999995,
+              "MdMin": 0
+            },
+            {
+              "x": 13.02,
+              "Md": 78.11999999999995,
+              "MdMin": 0
+            },
+            {
+              "x": 13.16,
+              "Md": 67.68000000000006,
+              "MdMin": 0
+            },
+            {
+              "x": 13.3,
+              "Md": 57.00000000000005,
+              "MdMin": 0
+            },
+            {
+              "x": 13.44,
+              "Md": 46.08000000000004,
+              "MdMin": 0
+            },
+            {
+              "x": 13.58,
+              "Md": 34.92000000000003,
+              "MdMin": 0
+            },
+            {
+              "x": 13.72,
+              "Md": 23.52000000000002,
+              "MdMin": 0
+            },
+            {
+              "x": 13.86,
+              "Md": 11.88000000000001,
+              "MdMin": 0
+            },
+            {
+              "x": 14.0,
+              "Md": 0.0,
+              "MdMin": 0
+            }
+          ],
+          "vaos": [
+            {
+              "barras": {
+                "phi": 16,
+                "n": 2
+              },
+              "d": 84,
+              "Vd": 100,
+              "Vc": 120,
+              "estribo": {
+                "phi": 6.3,
+                "s": 25
+              }
+            }
+          ],
+          "negs": [
+            null,
+            null
+          ],
+          "Rd": [
+            100,
+            100
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Emendas",
+          "caminho": "posicoes.0.emendas",
+          "valor": 1,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "l0t",
+          "caminho": "posicoes.0.l0t",
+          "valor": 108,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Comprimento",
+          "caminho": "posicoes.0.comprimento",
+          "valor": 1565,
+          "unidade": "cm",
+          "tolerancia": 0
+        }
+      ]
+    }
+  ]
+}

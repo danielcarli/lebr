@@ -1,0 +1,312 @@
+{
+  "grupo": "Lajes — punção",
+  "descricao": "Contornos C, C' e C'' (NBR 6118, 19.5): perímetros interno, de borda e de canto, τRd1, τRd2, armadura de punção e laje maciça com carga concentrada.",
+  "casos": [
+    {
+      "id": "puncao-perimetro-interno",
+      "titulo": "Contorno C' de pilar interno 30 × 30 cm, d = 15 cm",
+      "fonte": "NBR 6118:2023, 19.5.2.1: u = 2·(c1 + c2) + 2π·(2d) = 120 + 60π.",
+      "alvo": "motor",
+      "funcao": "puncao.perimetro",
+      "args": [
+        {
+          "posicao": "interna",
+          "c1": 30,
+          "c2": 30,
+          "d": 15,
+          "r": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u (C')",
+          "caminho": "u",
+          "valor": 308.5,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "puncao-perimetro-borda",
+      "titulo": "Contorno C'* de pilar de borda 30 (⊥) × 40 (∥) cm, d = 15 cm",
+      "fonte": "NBR 6118:2023, 19.5.2.4: perímetro reduzido u* = 2a + c2 + π·2d, com a ≤ 1,5d = 22,5 e a ≤ 0,5·c1 = 15 → a = 15.",
+      "alvo": "motor",
+      "funcao": "puncao.perimetro",
+      "args": [
+        {
+          "posicao": "borda",
+          "c1": 30,
+          "c2": 40,
+          "d": 15,
+          "r": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "a",
+          "caminho": "a1",
+          "valor": 15.0,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "u* (C')",
+          "caminho": "u",
+          "valor": 164.25,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "puncao-perimetro-canto",
+      "titulo": "Contorno C'* de pilar de canto 30 × 30 cm, d = 15 cm",
+      "fonte": "NBR 6118:2023, 19.5.2.5: u* = a1 + a2 + (π/2)·2d, com a1 = a2 = min(1,5d; 0,5c) = 15.",
+      "alvo": "motor",
+      "funcao": "puncao.perimetro",
+      "args": [
+        {
+          "posicao": "canto",
+          "c1": 30,
+          "c2": 30,
+          "d": 15,
+          "r": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u* (C')",
+          "caminho": "u",
+          "valor": 77.124,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "puncao-tau-rd1",
+      "titulo": "τRd1 com d = 15 cm, ρ = 1 %, C30",
+      "fonte": "NBR 6118:2023, 19.5.3.2: τRd1 = 0,13·(1 + √(20/d))·(100·ρ·fck)^(1/3); 1 + √(20/15) = 2,155, limitado a 2 (critério do LEBR, a conferir na norma) → τRd1 = 0,26·30^(1/3) = 0,808 MPa.",
+      "alvo": "motor",
+      "funcao": "puncao.resistenciaConcreto",
+      "args": [
+        {
+          "d": 15,
+          "rho": 0.01,
+          "fck": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 2.0,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τRd1",
+          "caminho": "tauRd1",
+          "valor": 0.80788,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "puncao-k-tabela",
+      "titulo": "Coeficiente K para c1/c2 = 1,5",
+      "fonte": "NBR 6118:2023, Tabela 19.2: K = 0,6 (c1/c2 = 1) e 0,7 (c1/c2 = 2), interpolado → 0,65.",
+      "alvo": "motor",
+      "funcao": "puncao.coeficienteK",
+      "args": [
+        45,
+        30
+      ],
+      "esperado": [
+        {
+          "grandeza": "K",
+          "caminho": "",
+          "valor": 0.65,
+          "unidade": "",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "puncao-com-armadura",
+      "titulo": "Pilar interno 30 × 30 cm, FSd = 500 kN, h = 18 cm, d = 15 cm, ρ = 1 %, C30 / CA-50",
+      "fonte": "NBR 6118:2023, 19.5.3. C: τSd = 500/(120·15) = 2,778 ≤ τRd2 = 0,27·0,88·fcd = 5,091 MPa. C': u = 308,5 cm, τSd = 1,081 > τRd1 = 0,808 → armadura. sr = 11 cm ≤ 0,75d, s0 = 7,5 cm ≤ 0,5d, fywd = 250 + 185·(18−15)/20 = 277,8 MPa (19.5.3.3); Asw,nec = (τSd − 0,10·k·(100ρfck)^(1/3))·u·d/(1,5·(d/sr)·fywd) = 3,739 cm²; 8 linhas (mínimo do LEBR, espaçamento ≤ 2d) → ø 8, Asw = 4,021 cm², τRd3 = 1,115 MPa. C'' a s0 + (n−1)·sr + 2d da face: n = 2 → 48,5 cm, u = 424,7 cm, τSd = 0,785 ≤ τRd1. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 500,
+          "posicao": "interna",
+          "c1": 30,
+          "c2": 30,
+          "d": 15,
+          "h": 18,
+          "rho": 0.01,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "τRd2",
+          "caminho": "tauRd2",
+          "valor": 5.0914,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd em C",
+          "caminho": "C.tauSd",
+          "valor": 2.7778,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd em C'",
+          "caminho": "C1.tauSd",
+          "valor": 1.0805,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "fywd",
+          "caminho": "armadura.fywd",
+          "valor": 277.75,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "sr",
+          "caminho": "armadura.sr",
+          "valor": 11.0,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "s0",
+          "caminho": "armadura.s0",
+          "valor": 7.5,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Asw necessária",
+          "caminho": "armadura.AswNec",
+          "valor": 3.7391,
+          "unidade": "cm²",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Linhas radiais",
+          "caminho": "armadura.linhas",
+          "valor": 8,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Bitola",
+          "caminho": "armadura.phi",
+          "valor": 8,
+          "unidade": "mm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "τRd3",
+          "caminho": "armadura.tauRd3",
+          "valor": 1.1151,
+          "unidade": "MPa",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Contornos de conectores",
+          "caminho": "armadura.contornos",
+          "valor": 2,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "τSd em C''",
+          "caminho": "C2.tauSd",
+          "valor": 0.7848,
+          "unidade": "MPa",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "modulo-laje-puncao",
+      "titulo": "Módulo Laje maciça: carga concentrada interna 20 × 20 cm, Fg = 20 kN, Fq = 10 kN",
+      "fonte": "FSd = 1,4·20 + 1,4·10 = 42 kN (ELU1, Tabela 11.3). d médio das duas camadas inferiores = 10 − 2,5 − 1,0 = 6,5 cm; contorno C: u = 80 cm; C': u = 80 + 2π·13 = 161,7 cm; com a malha mínima τSd ≤ τRd1, sem armadura de punção. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.laje.macica",
+      "elemento": {
+        "cargasConcentradas": [
+          {
+            "id": "p",
+            "posicao": "interna",
+            "c1": 20,
+            "c2": 20,
+            "g": 20,
+            "q": 10,
+            "phi": "auto"
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "FSd",
+          "caminho": "puncao.0.FSd",
+          "valor": 42.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "d médio",
+          "caminho": "puncao.0.d",
+          "valor": 6.5,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "u em C",
+          "caminho": "puncao.0.C.u",
+          "valor": 80.0,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "u em C'",
+          "caminho": "puncao.0.C1.u",
+          "valor": 161.68,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "τSd em C'",
+          "caminho": "puncao.0.C1.tauSd",
+          "valor": 0.39965,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Armadura de punção",
+          "caminho": "puncao.0.armadura",
+          "valor": null,
+          "unidade": "",
+          "tolerancia": 0
+        }
+      ]
+    }
+  ]
+}

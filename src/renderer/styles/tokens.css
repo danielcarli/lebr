@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Tokens de design — LEBR
+   Tema claro: papel bege, tinta preta, terracota.
+   Tema escuro: fundo preto, cartões cinza-claro, terracota clara.
+   ========================================================================== */
+
+/* Livvic (Fonthausen, licença OFL 1.1) — pesos 400 a 900; letras gregas e símbolos
+   matemáticos que ela não tem caem na sem serifa do sistema. */
+@font-face {
+  font-family: 'Livvic';
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url('../assets/fonts/livvic-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Livvic';
+  font-style: normal;
+  font-display: block;
+  font-weight: 500;
+  src: url('../assets/fonts/livvic-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Livvic';
+  font-style: normal;
+  font-display: block;
+  font-weight: 600;
+  src: url('../assets/fonts/livvic-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Livvic';
+  font-style: normal;
+  font-display: block;
+  font-weight: 700;
+  src: url('../assets/fonts/livvic-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Livvic';
+  font-style: normal;
+  font-display: block;
+  font-weight: 900;
+  src: url('../assets/fonts/livvic-latin-900-normal.woff2') format('woff2');
+}
+
+:root {
+  --fonte: 'Livvic', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --fonte-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace;
+
+  /* superfícies */
+  --fundo: #EEEBE4;          /* janela, barra de título */
+  --papel: #F4F1EC;          /* área do editor */
+  --lateral: #EBE7E0;        /* barra lateral */
+  --atividade: #E4E0D8;      /* barra de atividades */
+  --cartao: #EBE8E1;         /* cartões de instrumento e caixas */
+  --cartao-tinta: #161514;
+  --campo: #F9F7F3;
+  --sobreposicao: rgba(22, 21, 20, 0.28);
+  --flutuante: #F7F5F1;      /* menus, paleta, diálogos */
+
+  /* tinta */
+  --tinta: #161514;
+  --tinta-2: #45413B;
+  --suave: #857664;          /* marrom das datas ("2026", "VEN") */
+  --tenue: #A69C8E;
+  --filete: #DBD6CD;
+  --filete-forte: #161514;
+  --hover: rgba(22, 21, 20, 0.06);
+  --selecao: rgba(184, 84, 56, 0.14);
+
+  /* acento */
+  --acento: #B85438;
+  --acento-forte: #9A422A;
+  --acento-tinta: #E2E8F0;  /* texto sobre terracota (barra de status, botões principais, menus) */
+  --acento-suave: rgba(184, 84, 56, 0.12);
+
+  /* pontos (calendário) */
+  --ponto-apagado: #E0DBD4;
+  --ponto-aceso: #161514;
+
+  /* instrumentos */
+  --degrade-ini: #161514;
+  --degrade-fim: #8E8A84;
+
+  /* layout */
+  --alt-titulo: 36px;
+  --alt-status: 24px;
+  --larg-atividade: 48px;
+  --larg-lateral: 272px;
+  --alt-painel: 170px;
+  --alt-abas: 36px;
+  --raio: 12px;
+  --raio-p: 7px;
+  --sombra: 0 12px 40px rgba(22, 21, 20, 0.18), 0 2px 6px rgba(22, 21, 20, 0.08);
+
+  color-scheme: light;
+}
+
+:root[data-tema='escuro'] {
+  --fundo: #050505;
+  --papel: #0B0B0B;
+  --lateral: #0E0E0E;
+  --atividade: #050505;
+  --cartao: #D9D9D9;
+  --cartao-tinta: #0A0A0A;
+  --campo: #161616;
+  --sobreposicao: rgba(0, 0, 0, 0.6);
+  --flutuante: #171717;
+
+  --tinta: #ECECEC;
+  --tinta-2: #B5B5B5;
+  --suave: #A08F7A;
+  --tenue: #6F6F6F;
+  --filete: #262626;
+  --filete-forte: #ECECEC;
+  --hover: rgba(255, 255, 255, 0.06);
+  --selecao: rgba(196, 104, 74, 0.28);
+
+  --acento: #C4684A;
+  --acento-forte: #D47C5E;
+  --acento-tinta: #E2E8F0;  /* texto sobre terracota (barra de status, botões principais, menus) */
+  --acento-suave: rgba(196, 104, 74, 0.2);
+
+  --ponto-apagado: #2A2A2A;
+  --ponto-aceso: #ECECEC;
+
+  --degrade-ini: #000000;
+  --degrade-fim: #7A7A7A;
+
+  --sombra: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px #262626;
+  color-scheme: dark;
+}

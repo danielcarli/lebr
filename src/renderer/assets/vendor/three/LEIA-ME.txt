@@ -1,0 +1,2 @@
+Three.js r180 (https://threejs.org), licença MIT — arquivos de build sem alteração.
+Usado pela visualização 3D (src/renderer/views/visualizacao3d.js).

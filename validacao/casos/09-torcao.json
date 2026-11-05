@@ -1,0 +1,264 @@
+{
+  "grupo": "Vigas — torção",
+  "descricao": "Seção vazada equivalente, TRd2, armaduras de torção, interação com a cortante e torção de equilíbrio vinda de laje em balanço.",
+  "casos": [
+    {
+      "id": "torcao-secao-vazada-esbelta",
+      "titulo": "Seção vazada equivalente: 20 × 50 cm, c1 = 4 cm (A/u < 2c1)",
+      "fonte": "NBR 6118:2023, 17.5.1.4 (seção vazada equivalente: he ≤ A/u, he ≥ 2c1; se A/u < 2c1, he = A/u ≤ bw − 2c1), 17.5.1.5 (TRd2 = 0,5·αv2·fcd·Ae·he, θ = 45°), 17.5.1.6 (A90/s = TSd/(2·Ae·fywd); Asl/ue = TSd/(2·Ae·fyd)) e 17.7.2.2 (VSd/VRd2 + TSd/TRd2 ≤ 1). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "torcao.secaoVazada",
+      "args": [
+        {
+          "b": 20,
+          "h": 50,
+          "c1": 4.0
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "he",
+          "caminho": "he",
+          "valor": 7.1429,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Ae",
+          "caminho": "Ae",
+          "valor": 551.02,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "ue",
+          "caminho": "ue",
+          "valor": 111.43,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "torcao-30x60",
+      "titulo": "Torção: 30 × 60 cm, c1 = 4 cm, TSd = 30 kN·m, VSd = 100 kN, VRd2 = 400 kN (C25, CA-50)",
+      "fonte": "NBR 6118:2023, 17.5.1.4 (seção vazada equivalente: he ≤ A/u, he ≥ 2c1; se A/u < 2c1, he = A/u ≤ bw − 2c1), 17.5.1.5 (TRd2 = 0,5·αv2·fcd·Ae·he, θ = 45°), 17.5.1.6 (A90/s = TSd/(2·Ae·fywd); Asl/ue = TSd/(2·Ae·fyd)) e 17.7.2.2 (VSd/VRd2 + TSd/TRd2 ≤ 1). Cálculo manual. Taxa mínima ρ = 0,2·fct,m/fywk na parede de espessura he.",
+      "alvo": "motor",
+      "funcao": "torcao.dimensionarTorcao",
+      "args": [
+        {
+          "Td": 30,
+          "Vd": 100,
+          "VRd2": 400,
+          "b": 30,
+          "h": 60,
+          "c1": 4.0,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "he",
+          "caminho": "he",
+          "valor": 10.0,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Ae",
+          "caminho": "Ae",
+          "valor": 1000.0,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "TRd2",
+          "caminho": "TRd2",
+          "valor": 80.357,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "A90/s por ramo",
+          "caminho": "A90",
+          "valor": 3.45,
+          "unidade": "cm²/m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Asl",
+          "caminho": "Asl",
+          "valor": 4.83,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Interação das bielas",
+          "caminho": "interacao",
+          "valor": 0.62333,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "A90 mínimo",
+          "caminho": "A90Min",
+          "valor": 1.026,
+          "unidade": "cm²/m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Asl mínima",
+          "caminho": "AslMin",
+          "valor": 1.4364,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-torcao-balanco",
+      "titulo": "Módulo Viga: 20 × 50 cm, L = 4 m, recebe laje maciça em balanço de 1,5 m (h = 10 cm, revestimento 1,0, q = 1,5 kN/m²)",
+      "fonte": "Torção de equilíbrio (17.5.1.1): o momento do engaste do balanço, m = p·a²/2 por metro, vira torque distribuído na viga: tg = (2,5 + 1,0)·1,5²/2 = 3,94 kN·m/m e tq = 1,5·1,5²/2 = 1,69 kN·m/m. Com os apoios restringindo a torção, TSd = 1,4·(tg + tq)·L/2 = 15,75 kN·m (ELU1). NBR 6118:2023, 17.5.1.4 (seção vazada equivalente: he ≤ A/u, he ≥ 2c1; se A/u < 2c1, he = A/u ≤ bw − 2c1), 17.5.1.5 (TRd2 = 0,5·αv2·fcd·Ae·he, θ = 45°), 17.5.1.6 (A90/s = TSd/(2·Ae·fywd); Asl/ue = TSd/(2·Ae·fyd)) e 17.7.2.2 (VSd/VRd2 + TSd/TRd2 ≤ 1). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "outros": [
+        {
+          "id": "lm",
+          "modulo": "concreto.laje.macica",
+          "codigo": "L1",
+          "nome": "Varanda",
+          "lx": 1.5,
+          "ly": 4,
+          "h": 10,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "livre",
+            "y0": "livre",
+            "y1": "livre"
+          },
+          "pesoProprio": true,
+          "cargas": {
+            "revestimento": 1.0,
+            "acidental": 1.5,
+            "outras": 0
+          }
+        }
+      ],
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 4
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": true,
+        "cargas": [
+          {
+            "id": "r",
+            "tipo": "elemento",
+            "elementoId": "lm",
+            "ligacao": "x0",
+            "vao": "todos"
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "TSd",
+          "caminho": "vaos.0.torcao.Td",
+          "valor": 15.75,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Combinação",
+          "caminho": "vaos.0.torcao.comb",
+          "valor": "ELU1",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "TRd2",
+          "caminho": "vaos.0.torcao.TRd2",
+          "valor": 31.627,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "A90/s por ramo",
+          "caminho": "vaos.0.torcao.A90Calc",
+          "valor": 3.2871,
+          "unidade": "cm²/m",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-torcao-informada",
+      "titulo": "Módulo Viga: torção distribuída informada, g = 2 e q = 1 kN·m/m, L = 5 m",
+      "fonte": "Torque distribuído entre dois apoios que restringem a torção: T = t·(L/2 − x), máximo t·L/2 nos apoios; TSd = 1,4·(2 + 1)·5/2 = 10,5 kN·m.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 5
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 10
+          },
+          {
+            "id": "tg",
+            "tipo": "torcao",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 2
+          },
+          {
+            "id": "tq",
+            "tipo": "torcao",
+            "natureza": "q",
+            "vao": "todos",
+            "valor": 1
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "TSd",
+          "caminho": "vaos.0.torcao.Td",
+          "valor": 10.5,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

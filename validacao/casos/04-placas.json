@@ -1,0 +1,139 @@
+{
+  "grupo": "Lajes — placas",
+  "descricao": "Motor de placas por elementos finitos comparado com a teoria de placas.",
+  "casos": [
+    {
+      "id": "placa-apoiada-quadrada",
+      "titulo": "Placa quadrada 4 × 4 m apoiada nas quatro bordas",
+      "fonte": "Teoria de placas (Kirchhoff), solução de Navier em série dupla com ν = 0,2; com ν = 0,3 a mesma série reproduz a Tabela 8 de Timoshenko e Woinowsky-Krieger (Theory of Plates and Shells). Coeficientes para q = 1 e D = 1, referidos ao menor vão. Reação média por borda = q·a/4 (equilíbrio).",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 4,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Flecha (coef.)",
+          "caminho": "coef.w",
+          "valor": 0.0040624,
+          "unidade": "·qa⁴/D",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "mx no centro (coef.)",
+          "caminho": "coef.mxPos",
+          "valor": 0.044203,
+          "unidade": "·qa²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Reação média na borda x0",
+          "caminho": "reacoes.x0",
+          "valor": 1.0,
+          "unidade": "kN/m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Soma das reações",
+          "caminho": "totalReacoes",
+          "valor": 16.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "placa-apoiada-1x2",
+      "titulo": "Placa 4 × 8 m apoiada nas quatro bordas (ly/lx = 2)",
+      "fonte": "Teoria de placas (Kirchhoff), solução de Navier em série dupla com ν = 0,2; com ν = 0,3 a mesma série reproduz a Tabela 8 de Timoshenko e Woinowsky-Krieger (Theory of Plates and Shells). Coeficientes para q = 1 e D = 1, referidos ao menor vão. Para ly/lx = 2 o maior my não fica no centro, e sim perto de y = 0,28·ly (e da borda oposta); o valor esperado é o máximo da série ao longo de x = lx/2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 8,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Flecha (coef.)",
+          "caminho": "coef.w",
+          "valor": 0.010129,
+          "unidade": "·qa⁴/D",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "mx no centro (coef.)",
+          "caminho": "coef.mxPos",
+          "valor": 0.099942,
+          "unidade": "·qa²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "my máximo (coef.)",
+          "caminho": "coef.myPos",
+          "valor": 0.038272,
+          "unidade": "·qa²",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "placa-engastada-quadrada",
+      "titulo": "Placa quadrada 4 × 4 m engastada nas quatro bordas",
+      "fonte": "Timoshenko e Woinowsky-Krieger, Theory of Plates and Shells, Tabela 35 (ν = 0,3): w = 0,00126·qa⁴/D e M no meio da borda = −0,0513·qa² (não dependem de ν); M no centro = 0,0231·qa² com ν = 0,3, ou 0,0231·1,2/1,3 = 0,0213·qa² com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 4,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Flecha (coef.)",
+          "caminho": "coef.w",
+          "valor": 0.00126,
+          "unidade": "·qa⁴/D",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "m na borda (coef.)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.0513,
+          "unidade": "·qa²",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "m no centro (coef.)",
+          "caminho": "coef.mxPos",
+          "valor": 0.021323,
+          "unidade": "·qa²",
+          "tolerancia": 0.015
+        }
+      ]
+    }
+  ]
+}

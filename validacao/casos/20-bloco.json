@@ -1,0 +1,933 @@
+{
+  "grupo": "Bloco sobre estacas",
+  "descricao": "Distribuição da carga do pilar entre as estacas e dimensionamento pelo método das bielas e tirantes (Blévot): blocos de 1, 2, 3 e 4 estacas, faixa de altura útil e número automático de estacas.",
+  "casos": [
+    {
+      "id": "bloco-4-estacas",
+      "titulo": "Bloco sobre 4 estacas hélice ø 40 cm (e = 120 cm), pilar 30 × 30 cm, Nk = 500 + 100 kN, bloco 190 × 190 × 95 cm",
+      "fonte": "Estacas no perfil do caso estaca-helice (topo 10 cm acima do fundo do bloco, a 1,0 m): Padm = 1,25·Rl/2 = 178,757 kN. Peso próprio 25·1,9·1,9·0,95 = 85,737 kN → Rk = (600 + PP)/4 = 171,434 kN. Blévot, 4 estacas: Nd = 1,4·600 = 840,000 kN, d = 95 − 15 = 80 cm, tg α = d/(√2/2·(e − a/2)) = 80/74,246 → α = 47,136°; tirante em cada lado Rs = Nd·(2e − a)/(16d) = 137,812 kN, As = Rs/fyd = 3,170 cm². σ na biela junto ao pilar = Nd/(Ap·sen²α) = 17,372 MPa e junto à estaca = Rd/(Ae·sen²α) = 3,111 MPa, limite 2,1·KR·fcd = 2,1·0,9·25/1,4 = 33,750 MPa. Blévot e Frémy (1967); Bastos, Blocos de fundação (UNESP, 2023). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.bloco",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 500,
+          "q": 100
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "n": 4,
+        "espacamento": null,
+        "profundidade": 1.1,
+        "geometria": {
+          "modo": "manual",
+          "A": 190,
+          "B": 190,
+          "h": 95
+        },
+        "cobrimento": 3.0,
+        "estaca": {
+          "tipo": "helice",
+          "secao": "circular",
+          "D": 40,
+          "L": 8,
+          "topo": 1.0,
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "pilarId": null,
+          "sondagemId": null,
+          "limitarPonta": null,
+          "cargaTrabalho": null,
+          "estrutural": {
+            "fck": null,
+            "gc": null,
+            "catalogo": null
+          }
+        },
+        "armadura": {
+          "phiPilar": 12.5
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Padm da estaca",
+          "caminho": "Padm",
+          "valor": 178.76,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Peso próprio",
+          "caminho": "PP",
+          "valor": 85.737,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação característica",
+          "caminho": "Rk.0",
+          "valor": 171.43,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Nd",
+          "caminho": "Nd",
+          "valor": 840.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α das bielas",
+          "caminho": "bielas.alfa",
+          "valor": 47.136,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Tirante em cada lado",
+          "caminho": "bielas.lado",
+          "valor": 137.81,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As de cada lado",
+          "caminho": "armadura.x.AsFaixa",
+          "valor": 3.1697,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σ biela junto ao pilar",
+          "caminho": "bielas.sigmaPil",
+          "valor": 17.372,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σ biela junto à estaca",
+          "caminho": "bielas.sigmaEst",
+          "valor": 3.1105,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Limite das bielas",
+          "caminho": "bielas.limite",
+          "valor": 33.75,
+          "unidade": "MPa",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Boletim de verificações",
+          "caminho": "ok",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "bloco-2-estacas",
+      "titulo": "Bloco sobre 2 estacas hélice ø 30 cm (e = 90 cm), pilar 20 × 40 cm, Nk = 200 + 50 kN, bloco 150 × 60 × 60 cm",
+      "fonte": "Dimensões: A = 90 + 30 + 2·15 = 150 cm, B = 30 + 2·15 = 60 cm. Faixa de d para 45°–55°: 0,5·(e − ap/2) = 40 a 0,71·(e − ap/2) = 56,8 cm; d = 60 − 15 = 45 cm. Padm (ø 30, mesmo perfil, ponta limitada) = 1,25·Rl/2 = 134,067 kN; PP = 13,500 kN → Rk = 131,750 kN. tg α = d/(e/2 − ap/4) = 45/40 → α = 48,366°; Rs = Nd·(2e − ap)/(8d) = 350·160/360 = 155,556 kN; As = 1,15·Rs/fyd = 4,114 cm² (15 % a mais, Blévot). σ junto ao pilar = 7,832 MPa ≤ 1,4·KR·fcd = 22,500 MPa. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.bloco",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "pilarId": null,
+        "ap": 20,
+        "bp": 40,
+        "cargas": {
+          "g": 200,
+          "q": 50
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "n": 2,
+        "espacamento": null,
+        "profundidade": 1.1,
+        "geometria": {
+          "modo": "manual",
+          "A": 150,
+          "B": 60,
+          "h": 60
+        },
+        "cobrimento": 3.0,
+        "estaca": {
+          "tipo": "helice",
+          "secao": "circular",
+          "D": 30,
+          "L": 8,
+          "topo": 1.0,
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "pilarId": null,
+          "sondagemId": null,
+          "limitarPonta": null,
+          "cargaTrabalho": null,
+          "estrutural": {
+            "fck": null,
+            "gc": null,
+            "catalogo": null
+          }
+        },
+        "armadura": {
+          "phiPilar": 12.5
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Padm da estaca",
+          "caminho": "Padm",
+          "valor": 134.07,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação característica",
+          "caminho": "Rk.1",
+          "valor": 131.75,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "α das bielas",
+          "caminho": "bielas.alfa",
+          "valor": 48.366,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Tirante",
+          "caminho": "bielas.Tx",
+          "valor": 155.56,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As do tirante",
+          "caminho": "armadura.x.As",
+          "valor": 4.1144,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σ biela junto ao pilar",
+          "caminho": "bielas.sigmaPil",
+          "valor": 7.8318,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Limite das bielas",
+          "caminho": "bielas.limite",
+          "valor": 22.5,
+          "unidade": "MPa",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "bloco-3-estacas",
+      "titulo": "Blévot, 3 estacas: e = 90 cm, pilar 25 × 25 cm, d = 55 cm, Nd = 900 kN",
+      "fonte": "tg α = d/(e·√3/3 − 0,3·a) = 55/44,462 → α = 51,048°. Rs na mediana = Nd·(√3·e − 0,9·a)/(9d) = 242,517 kN; nos três lados Rs/√3 = 140,017 kN. Faixa de d: 0,58·(e − a/2) = 44,950 a 0,825·(e − a/2) = 63,938 cm. Limite 1,75·KR·fcd. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 3,
+          "e": 90,
+          "ap": 25,
+          "bp": 25,
+          "d": 55,
+          "D": 30,
+          "Nd": 900,
+          "R": [
+            300,
+            300,
+            300
+          ],
+          "pos": [
+            {
+              "x": 0,
+              "y": 51.96152422706632
+            },
+            {
+              "x": -45,
+              "y": -25.98076211353316
+            },
+            {
+              "x": 45,
+              "y": -25.98076211353316
+            }
+          ],
+          "fcd": 17.857142857142858
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α",
+          "caminho": "alfa",
+          "valor": 51.048,
+          "unidade": "°",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Rs na mediana",
+          "caminho": "tirantes.mediana",
+          "valor": 242.52,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Rs em cada lado",
+          "caminho": "tirantes.lado",
+          "valor": 140.02,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Limite das bielas",
+          "caminho": "limite",
+          "valor": 28.125,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "bloco-faixa-d-3",
+      "titulo": "Faixa de altura útil para 3 estacas (45° a 55°): e = 90 cm, pilar 25 × 25 cm",
+      "fonte": "0,58·(e − a/2) ≤ d ≤ 0,825·(e − a/2), a = 25 cm → 44,95 a 63,94 cm (Blévot).",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 3,
+          "e": 90,
+          "ap": 25,
+          "bp": 25
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 44.95,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 63.938,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "bloco-reacoes-momento",
+      "titulo": "Reações em 4 estacas (e = 90 cm) com N = 1000 kN e Mx = 90 kN·m",
+      "fonte": "Ri = N/n + Mx·xi/Σx²: Σx² = 4·0,45² = 0,81 m² → Ri = 250 ± 90·0,45/0,81 = 250 ± 50 kN. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "bloco.reacoesEstacas",
+      "args": [
+        {
+          "N": 1000,
+          "Mx": 90,
+          "pos": [
+            {
+              "x": -45,
+              "y": -45
+            },
+            {
+              "x": 45,
+              "y": -45
+            },
+            {
+              "x": -45,
+              "y": 45
+            },
+            {
+              "x": 45,
+              "y": 45
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estaca do lado comprimido",
+          "caminho": "1",
+          "valor": 300.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Estaca do lado aliviado",
+          "caminho": "0",
+          "valor": 200.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "bloco-1-estaca",
+      "titulo": "Bloco de transição sobre 1 estaca ø 40 cm, pilar 30 × 30 cm, Nk = 100 + 30 kN, bloco 70 × 70 × 60 cm",
+      "fonte": "Tração de fendilhamento Td = 0,25·Nd·(A − ap)/A = 0,25·182,000·40/70 = 26,000 kN; As = Td/fyd = 0,598 cm² em estribos horizontais. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.bloco",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 100,
+          "q": 30
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "n": 1,
+        "espacamento": null,
+        "profundidade": 1.1,
+        "geometria": {
+          "modo": "manual",
+          "A": 70,
+          "B": 70,
+          "h": 60
+        },
+        "cobrimento": 3.0,
+        "estaca": {
+          "tipo": "helice",
+          "secao": "circular",
+          "D": 40,
+          "L": 8,
+          "topo": 1.0,
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "pilarId": null,
+          "sondagemId": null,
+          "limitarPonta": null,
+          "cargaTrabalho": null,
+          "estrutural": {
+            "fck": null,
+            "gc": null,
+            "catalogo": null
+          }
+        },
+        "armadura": {
+          "phiPilar": 12.5
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Td",
+          "caminho": "armadura.Td.x",
+          "valor": 26.0,
+          "unidade": "kN",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "As de fendilhamento",
+          "caminho": "armadura.As",
+          "valor": 0.598,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bloco-automatico",
+      "titulo": "Número de estacas e dimensões automáticos: Nk = 500 + 100 kN, estacas hélice ø 40 cm de 178,8 kN",
+      "fonte": "Com 3 estacas a reação passa de 200 kN > Padm. Com 4: A = B = 120 + 40 + 30 = 190 cm; d no meio da faixa 74,55–105 cm = 89,8 → h = 89,8 + 15 → 105 cm; PP = 94,763 kN → Rk = 173,691 kN ≤ 178,757 kN. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.bloco",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 500,
+          "q": 100
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "n": "auto",
+        "espacamento": null,
+        "profundidade": 1.1,
+        "geometria": {
+          "modo": "automatica"
+        },
+        "cobrimento": 3.0,
+        "estaca": {
+          "tipo": "helice",
+          "secao": "circular",
+          "D": 40,
+          "L": 8,
+          "topo": 1.0,
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "pilarId": null,
+          "sondagemId": null,
+          "limitarPonta": null,
+          "cargaTrabalho": null,
+          "estrutural": {
+            "fck": null,
+            "gc": null,
+            "catalogo": null
+          }
+        },
+        "armadura": {
+          "phiPilar": 12.5
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Número de estacas",
+          "caminho": "n",
+          "valor": 4,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "A",
+          "caminho": "A",
+          "valor": 190.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "h",
+          "caminho": "h",
+          "valor": 105.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Reação característica",
+          "caminho": "Rk.0",
+          "valor": 173.69,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

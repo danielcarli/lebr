@@ -1,0 +1,421 @@
+{
+  "grupo": "Sondagem SPT",
+  "descricao": "Estados de compacidade e consistência pelo NSPT, organização das camadas e ensaios, cotas e nível d’água de um furo.",
+  "casos": [
+    {
+      "id": "spt-estado-areia-4",
+      "titulo": "Areia com NSPT = 4",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        4,
+        {
+          "solo": "areia",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "fofa",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-areia-9",
+      "titulo": "Areia com NSPT = 9",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        9,
+        {
+          "solo": "areia",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "medianamente compacta",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-areia-41",
+      "titulo": "Areia com NSPT = 41",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        41,
+        {
+          "solo": "areia",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "muito compacta",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-silte-arenoso-19",
+      "titulo": "Silte arenoso com NSPT = 19",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        19,
+        {
+          "solo": "silte",
+          "secundario": "arenoso"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "compacto",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-argila-2",
+      "titulo": "Argila com NSPT = 2",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        2,
+        {
+          "solo": "argila",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "muito mole",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-argila-10",
+      "titulo": "Argila com NSPT = 10",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        10,
+        {
+          "solo": "argila",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "média",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-argila-20",
+      "titulo": "Argila com NSPT = 20",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        20,
+        {
+          "solo": "argila",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "muito rija",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-argila-31",
+      "titulo": "Argila com NSPT = 31",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        31,
+        {
+          "solo": "argila",
+          "secundario": ""
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "dura",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-estado-silte-argiloso-15",
+      "titulo": "Silte argiloso com NSPT = 15",
+      "fonte": "NBR 6484:2020, Anexo A: areias e siltes arenosos ≤ 4 fofa(o), 5 a 8 pouco compacta(o), 9 a 18 medianamente compacta(o), 19 a 40 compacta(o), > 40 muito compacta(o); argilas e siltes argilosos ≤ 2 muito mole, 3 a 5 mole, 6 a 10 média(o), 11 a 19 rija(o), 20 a 30 muito rija(o), > 30 dura(o).",
+      "alvo": "motor",
+      "funcao": "sondagem.estadoPeloN",
+      "args": [
+        15,
+        {
+          "solo": "silte",
+          "secundario": "argiloso"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado",
+          "caminho": "",
+          "valor": "rijo",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "spt-furo",
+      "titulo": "Furo de 6,45 m: argila arenosa até 2 m e areia siltosa até o fim; NA a 2,30 m; último ensaio 32/20",
+      "fonte": "NBR 6484:2020, Anexo A. Cada ensaio começa a cada metro e cobre 45 cm; a camada é a do ponto médio dos 30 cm finais (prof. + 0,30 m): o ensaio de 1 m (N = 2) fica na argila; os de 2 a 6 m na areia. Argila: N = 2 → muito mole. Areia: N = 4 a 48 → fofa a muito compacta, com 32/20 equivalente a 32·30/20 = 48 golpes/30 cm; média (4 + 7 + 11 + 18 + 48)/5 = 17,6. Cotas: NA na 97,70; fundo na 93,55. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "sondagem.analisarSondagem",
+      "args": [
+        {
+          "cotaBoca": 100.0,
+          "limite": 6.45,
+          "nivelAgua": {
+            "inicial": 2.3,
+            "final": 2.1,
+            "seco": false
+          },
+          "camadas": [
+            {
+              "ate": 2.0,
+              "solo": "argila",
+              "secundario": "arenoso",
+              "cor": "vermelha"
+            },
+            {
+              "ate": 6.45,
+              "solo": "areia",
+              "secundario": "siltoso",
+              "cor": "amarela"
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 2
+            },
+            {
+              "prof": 2,
+              "n": 4
+            },
+            {
+              "prof": 3,
+              "n": 7
+            },
+            {
+              "prof": 4,
+              "n": 11
+            },
+            {
+              "prof": 5,
+              "n": 18
+            },
+            {
+              "prof": 6,
+              "n": 32,
+              "pen": 20
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estado da argila",
+          "caminho": "camadas.0.estado",
+          "valor": "muito mole",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Estado da areia",
+          "caminho": "camadas.1.estado",
+          "valor": "fofa a muito compacta",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "NSPT mínimo da areia",
+          "caminho": "camadas.1.nMin",
+          "valor": 4.0,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "NSPT equivalente do último ensaio",
+          "caminho": "ensaios.5.neq",
+          "valor": 48.0,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "NSPT médio da areia",
+          "caminho": "camadas.1.nMedio",
+          "valor": 17.6,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Cota do nível d’água",
+          "caminho": "nivelAgua.cotaInicial",
+          "valor": 97.7,
+          "unidade": "m",
+          "tolerancia": 1e-05
+        },
+        {
+          "grandeza": "Cota do fundo do furo",
+          "caminho": "cotaFundo",
+          "valor": 93.55,
+          "unidade": "m",
+          "tolerancia": 1e-05
+        },
+        {
+          "grandeza": "Cota da base da argila",
+          "caminho": "camadas.0.cotaBase",
+          "valor": 98.0,
+          "unidade": "m",
+          "tolerancia": 1e-05
+        }
+      ]
+    },
+    {
+      "id": "spt-modulo",
+      "titulo": "Módulo Sondagem SPT: o mesmo furo como elemento do projeto",
+      "fonte": "Mesmo furo do caso anterior, calculado pelo módulo: boletim completo (camadas até o limite, ensaio a cada metro, NA registrado).",
+      "alvo": "elemento",
+      "modulo": "geotecnia.sondagem",
+      "elemento": {
+        "cotaBoca": 100.0,
+        "limite": 6.45,
+        "nivelAgua": {
+          "inicial": 2.3,
+          "final": 2.1,
+          "seco": false
+        },
+        "camadas": [
+          {
+            "ate": 2.0,
+            "solo": "argila",
+            "secundario": "arenoso",
+            "cor": "vermelha"
+          },
+          {
+            "ate": 6.45,
+            "solo": "areia",
+            "secundario": "siltoso",
+            "cor": "amarela"
+          }
+        ],
+        "spt": [
+          {
+            "prof": 1,
+            "n": 2
+          },
+          {
+            "prof": 2,
+            "n": 4
+          },
+          {
+            "prof": 3,
+            "n": 7
+          },
+          {
+            "prof": 4,
+            "n": 11
+          },
+          {
+            "prof": 5,
+            "n": 18
+          },
+          {
+            "prof": 6,
+            "n": 32,
+            "pen": 20
+          }
+        ],
+        "local": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Boletim conferido",
+          "caminho": "ok",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Número de camadas",
+          "caminho": "camadas.length",
+          "valor": 2,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Rótulo do último ensaio",
+          "caminho": "ensaios.5.rotulo",
+          "valor": "32/20",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Profundidade",
+          "caminho": "limite",
+          "valor": 6.45,
+          "unidade": "m",
+          "tolerancia": 1e-05
+        }
+      ]
+    }
+  ]
+}

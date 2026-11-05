@@ -1,0 +1,307 @@
+{
+  "grupo": "Cargas — NBR 6120",
+  "descricao": "Catálogo de cargas: paredes (Tabela 2), revestimentos (Tabela 1) e cargas de uso (Tabela 10), sozinhos e dentro das vigas.",
+  "casos": [
+    {
+      "id": "parede-ceramico-14-2cm",
+      "titulo": "Parede de bloco cerâmico de vedação 14 cm, 2 cm por face, h = 2,80 m",
+      "fonte": "NBR 6120:2019, Tabela 2 (alvenarias): peso da parede por área com o revestimento indicado em cada face. Carga sobre a viga = peso por área × altura × (1 − aberturas). Valor da tabela: 1,9 kN/m²; 1,9 × 2,80 = 5,32 kN/m.",
+      "alvo": "motor",
+      "funcao": "cargas.cargaParede",
+      "args": [
+        {
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.8
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Peso por área",
+          "caminho": "porArea",
+          "valor": 1.9,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Carga na viga",
+          "caminho": "g",
+          "valor": 5.32,
+          "unidade": "kN/m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "parede-ceramico-14-aberturas",
+      "titulo": "Mesma parede com 1 cm por face, h = 3,00 m e 20 % de aberturas",
+      "fonte": "NBR 6120:2019, Tabela 2 (alvenarias): peso da parede por área com o revestimento indicado em cada face. Carga sobre a viga = peso por área × altura × (1 − aberturas). Valor da tabela: 1,5 kN/m²; 1,5 × 3,00 × 0,80 = 3,60 kN/m.",
+      "alvo": "motor",
+      "funcao": "cargas.cargaParede",
+      "args": [
+        {
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 1,
+          "altura": 3.0,
+          "aberturas": 20
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Peso por área",
+          "caminho": "porArea",
+          "valor": 1.5,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Carga na viga",
+          "caminho": "g",
+          "valor": 3.6,
+          "unidade": "kN/m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "parede-concreto-estrutural-19",
+      "titulo": "Parede de bloco de concreto estrutural 19 cm, sem revestimento, h = 2,60 m",
+      "fonte": "NBR 6120:2019, Tabela 2 (alvenarias): peso da parede por área com o revestimento indicado em cada face. Carga sobre a viga = peso por área × altura × (1 − aberturas). Valor da tabela: 2,7 kN/m²; 2,7 × 2,60 = 7,02 kN/m.",
+      "alvo": "motor",
+      "funcao": "cargas.cargaParede",
+      "args": [
+        {
+          "material": "concreto-estrutural",
+          "espessura": 19,
+          "revestimento": 0,
+          "altura": 2.6
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Carga na viga",
+          "caminho": "g",
+          "valor": 7.02,
+          "unidade": "kN/m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "revestimento-camadas",
+      "titulo": "Revestimento de laje: contrapiso 3 cm, porcelanato 1 cm, gesso 1 cm no teto e forro de gesso acartonado",
+      "fonte": "NBR 6120:2019, Tabela 1: argamassa de cimento e areia 21 kN/m³, porcelanato 23 kN/m³, argamassa de gesso 15 kN/m³; forro de gesso acartonado 0,25 kN/m². Soma: 0,03·21 + 0,01·23 + 0,01·15 + 0,25 = 1,26 kN/m².",
+      "alvo": "motor",
+      "funcao": "cargas.cargaRevestimento",
+      "args": [
+        {
+          "contrapiso": 3,
+          "piso": "porcelanato",
+          "pisoEsp": 1,
+          "teto": "gesso",
+          "tetoEsp": 1,
+          "forro": "gesso-acartonado"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Revestimento total",
+          "caminho": "total",
+          "valor": 1.26,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Contrapiso",
+          "caminho": "camadas.0.p",
+          "valor": 0.63,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "uso-area-servico",
+      "titulo": "Carga de uso: despensa, área de serviço e lavanderia",
+      "fonte": "NBR 6120:2019, Tabela 10, edifícios residenciais: 2,0 kN/m².",
+      "alvo": "motor",
+      "funcao": "cargas.cargaUso",
+      "args": [
+        "res-servico"
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "q",
+          "valor": 2.0,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "uso-varanda",
+      "titulo": "Carga de uso: terraços, sacadas e varandas residenciais",
+      "fonte": "NBR 6120:2019, Tabela 10: 2,5 kN/m².",
+      "alvo": "motor",
+      "funcao": "cargas.cargaUso",
+      "args": [
+        "varanda-res"
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "q",
+          "valor": 2.5,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-parede-tabela2",
+      "titulo": "Módulo Viga: 20 × 50 cm, L = 5 m, só uma parede cerâmica de vedação 14 cm (1 cm por face), h = 2,70 m",
+      "fonte": "NBR 6120:2019, Tabela 2 (alvenarias): peso da parede por área com o revestimento indicado em cada face. Carga sobre a viga = peso por área × altura × (1 − aberturas). g = 1,5 × 2,70 = 4,05 kN/m; R = g·L/2; Md = 1,4·g·L²/8.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 5
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "p",
+            "tipo": "alvenaria",
+            "vao": "todos",
+            "material": "ceramico-vedacao",
+            "espessura": 14,
+            "revestimento": 1,
+            "altura": 2.7
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Reação permanente",
+          "caminho": "apoios.0.Rg",
+          "valor": 10.125,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Md positivo",
+          "caminho": "vaos.0.Mdpos",
+          "valor": 17.719,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-parede-antiga",
+      "titulo": "Módulo Viga: parede no formato antigo (até 0.8), e = 15 cm, h = 2,70 m, γ = 13 kN/m³",
+      "fonte": "Compatibilidade com arquivos antigos: sem tipo de alvenaria, a carga continua sendo γ·e·h = 13 × 0,15 × 2,70 = 5,265 kN/m.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 5
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "p",
+            "tipo": "alvenaria",
+            "vao": "todos",
+            "espessura": 15,
+            "altura": 2.7,
+            "peso": 13
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Reação permanente",
+          "caminho": "apoios.0.Rg",
+          "valor": 13.163,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-madeira-parede",
+      "titulo": "Módulo Viga de madeira: C24 6 × 24 cm, L = 3 m, parede cerâmica de vedação 9 cm (1 cm por face), h = 2,50 m",
+      "fonte": "NBR 6120:2019, Tabela 2 (alvenarias): peso da parede por área com o revestimento indicado em cada face. Carga sobre a viga = peso por área × altura × (1 − aberturas). g = 1,1 × 2,50 = 2,75 kN/m; Md = 1,4·g·L²/8 (γg = 1,4 da madeira).",
+      "alvo": "elemento",
+      "modulo": "madeira.viga",
+      "elemento": {
+        "classe": "C24",
+        "secao": {
+          "b": 6,
+          "h": 24
+        },
+        "vaos": [
+          {
+            "L": 3
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "p",
+            "tipo": "alvenaria",
+            "vao": "todos",
+            "material": "ceramico-vedacao",
+            "espessura": 9,
+            "revestimento": 1,
+            "altura": 2.5
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Reação permanente",
+          "caminho": "apoios.0.Rg",
+          "valor": 4.125,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Md",
+          "caminho": "MdPos",
+          "valor": 4.3312,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

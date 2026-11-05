@@ -1,0 +1,309 @@
+{
+  "grupo": "Materiais",
+  "descricao": "Propriedades do concreto conferidas com a Tabela 8.1 e com as expressões da NBR 6118:2023.",
+  "casos": [
+    {
+      "id": "concreto-c20-modulos",
+      "titulo": "C20 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        20,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 25000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 21000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 0.85,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c30-modulos",
+      "titulo": "C30 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        30,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 31000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 27000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 0.88,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c40-modulos",
+      "titulo": "C40 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        40,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 35000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 32000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 0.9,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c50-modulos",
+      "titulo": "C50 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        50,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 40000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 37000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 0.93,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c70-modulos",
+      "titulo": "C70 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        70,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 43000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 42000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 0.98,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c90-modulos",
+      "titulo": "C90 com granito: módulos de elasticidade",
+      "fonte": "NBR 6118:2023, Tabela 8.1 (agregado granito, αE = 1,0). A tabela arredonda os módulos em GPa, por isso a tolerância de 2,5 %.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        90,
+        {
+          "agregado": "granito"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Eci",
+          "caminho": "Eci",
+          "valor": 47000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "Ecs",
+          "caminho": "Ecs",
+          "valor": 47000.0,
+          "unidade": "MPa",
+          "tolerancia": 0.025
+        },
+        {
+          "grandeza": "αi",
+          "caminho": "alfaI",
+          "valor": 1.0,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "concreto-c25-tracao",
+      "titulo": "C25: resistência à tração e tensão do bloco retangular",
+      "fonte": "NBR 6118:2023, 8.2.5 (fct,m = 0,3·fck^(2/3)) e 17.2.2 (σcd = αc·ηc·fcd, ηc = 1 para fck ≤ 40 MPa). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        25
+      ],
+      "esperado": [
+        {
+          "grandeza": "fct,m",
+          "caminho": "fctm",
+          "valor": 2.565,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "fctk,inf",
+          "caminho": "fctkInf",
+          "valor": 1.7955,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "fcd",
+          "caminho": "fcd",
+          "valor": 17.857,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "σcd",
+          "caminho": "sigmaCd",
+          "valor": 15.179,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "concreto-c60-grupo2",
+      "titulo": "C60 (grupo II): tração, ηc e parâmetros do diagrama",
+      "fonte": "NBR 6118:2023, 8.2.5 (fct,m = 2,12·ln(1 + 0,11·fck)), 8.2.10.1 (εcu) e 17.2.2 (λ, αc, ηc = (40/fck)^(1/3)). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "materiais.concreto",
+      "args": [
+        60
+      ],
+      "esperado": [
+        {
+          "grandeza": "fct,m",
+          "caminho": "fctm",
+          "valor": 4.2997,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "ηc",
+          "caminho": "etaC",
+          "valor": 0.87358,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "λ",
+          "caminho": "lambda",
+          "valor": 0.775,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "αc",
+          "caminho": "alfaC",
+          "valor": 0.8075,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "εcu",
+          "caminho": "ecu",
+          "valor": 2.8835,
+          "unidade": "‰",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

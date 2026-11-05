@@ -1,0 +1,415 @@
+{
+  "grupo": "Estabilidade global",
+  "descricao": "Desaprumo global e comparação com o vento, parâmetro α, coeficiente γz com rigidez reduzida e majoração dos esforços horizontais por 0,95·γz.",
+  "casos": [
+    {
+      "id": "desaprumo-9m",
+      "titulo": "Desaprumo: H = 9 m, 9 pilares",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: θ1 = 1/(100·√H), 1/300 ≤ θ1 ≤ 1/200 (θ1,mín para estruturas reticuladas), θa = θ1·√((1 + 1/n)/2). Cálculo manual. θ1 = 1/(100·3) = 1/300; θa = (1/300)·√((1 + 1/9)/2) = 0.0024845.",
+      "alvo": "motor",
+      "funcao": "estabilidade.desaprumo",
+      "args": [
+        {
+          "H": 9,
+          "n": 9
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "θ1",
+          "caminho": "theta1",
+          "valor": 0.0033333,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "θa",
+          "caminho": "thetaA",
+          "valor": 0.0024845,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "desaprumo-36m",
+      "titulo": "Desaprumo: H = 36 m, 4 pilares (θ1 abaixo do mínimo)",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: θ1 = 1/(100·√H), 1/300 ≤ θ1 ≤ 1/200 (θ1,mín para estruturas reticuladas), θa = θ1·√((1 + 1/n)/2). Cálculo manual. 1/(100·6) = 1/600 < 1/300 → θ1 = 1/300 (só o desaprumo); sem θ1,mín (vento + desaprumo) θ1 = 1/600. θa = θ1·√(0,625).",
+      "alvo": "motor",
+      "funcao": "estabilidade.desaprumo",
+      "args": [
+        {
+          "H": 36,
+          "n": 4
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "θ1 (com o mínimo)",
+          "caminho": "theta1",
+          "valor": 0.0033333,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "θ1 sem o mínimo",
+          "caminho": "theta1SemMin",
+          "valor": 0.0016667,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "θa",
+          "caminho": "thetaA",
+          "valor": 0.0026352,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "θa sem o mínimo",
+          "caminho": "thetaASemMin",
+          "valor": 0.0013176,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "desaprumo-2m",
+      "titulo": "Desaprumo: H = 2 m, 1 pilar (θ1 acima do máximo)",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: θ1 = 1/(100·√H), 1/300 ≤ θ1 ≤ 1/200 (θ1,mín para estruturas reticuladas), θa = θ1·√((1 + 1/n)/2). Cálculo manual. 1/(100·√2) = 1/141 > 1/200 → θ1 = 1/200; com n = 1, θa = θ1.",
+      "alvo": "motor",
+      "funcao": "estabilidade.desaprumo",
+      "args": [
+        {
+          "H": 2,
+          "n": 1
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "θ1",
+          "caminho": "theta1",
+          "valor": 0.005,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "θa",
+          "caminho": "thetaA",
+          "valor": 0.005,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "desaprumo-so-vento",
+      "titulo": "Vento × desaprumo: 30 % do vento maior que o desaprumo → só o vento",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: com Mvento = 400 kN·m e Mdesaprumo = 100 kN·m, 0,3·400 = 120 > 100.",
+      "alvo": "motor",
+      "funcao": "estabilidade.acaoHorizontal",
+      "args": [
+        400,
+        100
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ação considerada",
+          "caminho": "",
+          "valor": "vento",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "desaprumo-so-desaprumo",
+      "titulo": "Vento × desaprumo: vento menor que 30 % do desaprumo → só o desaprumo",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: com Mvento = 25 kN·m e Mdesaprumo = 100 kN·m, 25 < 0,3·100 = 30.",
+      "alvo": "motor",
+      "funcao": "estabilidade.acaoHorizontal",
+      "args": [
+        25,
+        100
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ação considerada",
+          "caminho": "",
+          "valor": "desaprumo",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "desaprumo-combinado",
+      "titulo": "Vento × desaprumo: caso intermediário → vento + desaprumo",
+      "fonte": "NBR 6118:2023, 11.3.3.4.1: com Mvento = 200 kN·m e Mdesaprumo = 100 kN·m, 0,3·200 = 60 < 100 e 200 > 30: soma das duas ações, sem θ1,mín.",
+      "alvo": "motor",
+      "funcao": "estabilidade.acaoHorizontal",
+      "args": [
+        200,
+        100
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ação considerada",
+          "caminho": "",
+          "valor": "combinado",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "alfa1-niveis",
+      "titulo": "α e α1 com 2 níveis",
+      "fonte": "NBR 6118:2023, 15.5.2: α = H·√(Nk/(Ecs·Ic)); α1 = 0,2 + 0,1·n para n ≤ 3 → 0,4 com 2 níveis.",
+      "alvo": "motor",
+      "funcao": "estabilidade.parametroAlfa",
+      "args": [
+        {
+          "H": 6,
+          "Nk": 1000,
+          "EI": 1000000.0,
+          "nNiveis": 2
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α = 6·√(1000/10⁶)",
+          "caminho": "alfa",
+          "valor": 0.18974,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α1",
+          "caminho": "alfa1",
+          "valor": 0.4,
+          "unidade": "",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "alfa1-porticos",
+      "titulo": "α1 com 6 níveis, só pórticos",
+      "fonte": "NBR 6118:2023, 15.5.2: n ≥ 4 e contraventamento só por pórticos → α1 = 0,5.",
+      "alvo": "motor",
+      "funcao": "estabilidade.parametroAlfa",
+      "args": [
+        {
+          "H": 18,
+          "Nk": 20000,
+          "EI": 50000000.0,
+          "nNiveis": 6,
+          "contraventamento": "porticos"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α = 18·√(20000/5·10⁷)",
+          "caminho": "alfa",
+          "valor": 0.36,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α1",
+          "caminho": "alfa1",
+          "valor": 0.5,
+          "unidade": "",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "gamaz-formula",
+      "titulo": "γz com M1,tot,d = 1200 kN·m e ΔMtot,d = 150 kN·m",
+      "fonte": "NBR 6118:2023, 15.5.3: γz = 1/(1 − 150/1200) = 1,1429 → nós móveis; 15.7.2: esforços horizontais × 0,95·γz = 1,0857.",
+      "alvo": "motor",
+      "funcao": "estabilidade.gamaZ",
+      "args": [
+        {
+          "M1": 1200,
+          "dM": 150
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "γz",
+          "caminho": "gz",
+          "valor": 1.1429,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Classificação",
+          "caminho": "classe",
+          "valor": "moveis",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Majoração 0,95·γz",
+          "caminho": "fator",
+          "valor": 1.0857,
+          "unidade": "",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "rigidez-equivalente",
+      "titulo": "Pilar equivalente: forças de 10 kN a 3, 6 e 9 m, deslocamento do topo de 12 mm",
+      "fonte": "Balanço engastado: δtopo = Σ F·h²·(3H − h)/(6EI) → EI = 10·(9·24 + 36·21 + 81·18)/(6·0,012) = 10·2430/0,072 = 337 500 kN·m².",
+      "alvo": "motor",
+      "funcao": "estabilidade.rigidezEquivalente",
+      "args": [
+        [
+          {
+            "h": 3,
+            "F": 10
+          },
+          {
+            "h": 6,
+            "F": 10
+          },
+          {
+            "h": 9,
+            "F": 10
+          }
+        ],
+        9,
+        0.012
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ecs·Ic equivalente",
+          "caminho": "",
+          "valor": 337500.0,
+          "unidade": "kN·m²",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "estabilidade-pilar-balanco",
+      "titulo": "Pilar isolado em balanço 30 × 30 cm, 3 m (C25), G = 500 kN e Q = 100 kN no topo, só desaprumo",
+      "fonte": "Desaprumo: 1/(100·√3) = 1/173 > 1/200 → θ1 = 1/200; n = 1 → θa = 1/200; F = θa·(G + Q) = 3,000 kN no topo. α = H·√(Nk/(Ecs·Ic)) = 3·√(600/(24 150 000·0,3⁴/12)) = 0,576 > α1 = 0,2 + 0,1·1 = 0,3 → nós móveis. γz com 0,8·Eci·Ic (Eci = 28 000 MPa): δ = F·H³/(3·0,8·Eci·Ic) = 1.7857 mm; combinação 1,4·G + 1,4·Q + 1,4·D (desaprumo sozinho, ψ0 = 1): ΔMd = 1,4·600·δ e M1d = 1,4·F·H → γz = 1/(1 − 600·δ/(F·H)) = 1,200; esforços horizontais × 0,95·γz = 1,140. Momento de cálculo na base: 1,4·1,140·F·H = 14,364 kN·m com Nd = 1,4·600 = 840 kN. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.pilar",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 3.0
+        }
+      ],
+      "parametros": {
+        "analiseGlobal": {
+          "pilares": "portico"
+        },
+        "estabilidade": {
+          "desaprumo": true,
+          "rigidez": "separada",
+          "majorar": true
+        }
+      },
+      "elemento": {
+        "bx": 30,
+        "by": 30,
+        "comprimento": 3.0,
+        "pesoProprio": false,
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 0,
+          "y": 0,
+          "angulo": 0
+        },
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "concentrada",
+            "natureza": "g",
+            "valor": 500
+          },
+          {
+            "id": "q",
+            "tipo": "concentrada",
+            "natureza": "q",
+            "valor": 100
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "θa",
+          "caminho": "portico.estabilidade.desaprumo.thetaA",
+          "valor": 0.005,
+          "unidade": "rad",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Desaprumo no topo: Mx na base (característico)",
+          "caminho": "portico.horizontais.lance.V1.Mx.base",
+          "valor": 9.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "α em X",
+          "caminho": "portico.estabilidade.x.alfa",
+          "valor": 0.57555,
+          "unidade": "",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "α1",
+          "caminho": "portico.estabilidade.x.alfa1",
+          "valor": 0.3,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "γz em X",
+          "caminho": "portico.estabilidade.x.gz",
+          "valor": 1.2,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "γz em Y",
+          "caminho": "portico.estabilidade.y.gz",
+          "valor": 1.2,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Majoração 0,95·γz",
+          "caminho": "portico.estabilidade.x.fator",
+          "valor": 1.14,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Nd",
+          "caminho": "portico.prumada.0.Nd",
+          "valor": 840.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Mxd na base (majorado)",
+          "caminho": "portico.prumada.0.Mx.base",
+          "valor": 14.364,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,420 @@
+{
+  "grupo": "Detalhamento de pilares e lajes",
+  "descricao": "Traspasse de barras comprimidas, barras protegidas e grampos suplementares, lance de pilar com arranques, laje maciça com positivas e negativa, resumo do aço com perdas.",
+  "casos": [
+    {
+      "id": "det-l0c",
+      "titulo": "Traspasse de barras comprimidas ø 10 em C25 (boa aderência)",
+      "fonte": "NBR 6118, 9.5.2.3: l0c = lb,nec ≥ máx(0,6·lb; 15ø; 20 cm); com As,calc/As,ef = 1, l0c = lb = 37,669 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.traspasseComprimido",
+      "args": [
+        {
+          "lb": 37.668505484223715,
+          "phi": 10
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "l0c",
+          "caminho": "",
+          "valor": 37.669,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-l0c-min",
+      "titulo": "Traspasse comprimido governado pelo mínimo de 20 cm",
+      "fonte": "Com lb = 18 cm e ø 8: máx(18; 10,8; 12; 20) = 20 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.traspasseComprimido",
+      "args": [
+        {
+          "lb": 18,
+          "phi": 8
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "l0c",
+          "caminho": "",
+          "valor": 20.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "det-protegidas-6",
+      "titulo": "Pilar 25 × 40 com 6 barras e estribo ø 5: barras do meio a 16 cm do canto",
+      "fonte": "NBR 6118, 18.2.4: protegidas as barras a até 20·øt = 10 cm do canto. As do meio das faces de 40 cm estão a 16 cm → um grampo suplementar ligando as duas.",
+      "alvo": "motor",
+      "funcao": "detalhamento.barrasProtegidas",
+      "args": [
+        [
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 21,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 20
+          },
+          {
+            "x": 21,
+            "y": 20
+          },
+          {
+            "x": 4,
+            "y": 36
+          },
+          {
+            "x": 21,
+            "y": 36
+          }
+        ],
+        5
+      ],
+      "esperado": [
+        {
+          "grandeza": "Grampos",
+          "caminho": "grampos.length",
+          "valor": 1,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Grampo na altura das barras do meio",
+          "caminho": "grampos.0.em",
+          "valor": 20,
+          "unidade": "cm",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-protegidas-ok",
+      "titulo": "Mesma seção com estribo ø 8 (20·øt = 16 cm): as barras do meio ficam protegidas",
+      "fonte": "NBR 6118, 18.2.4: 20·8 mm = 16 cm ≥ 16 cm do canto e uma barra só no trecho → sem grampo.",
+      "alvo": "motor",
+      "funcao": "detalhamento.barrasProtegidas",
+      "args": [
+        [
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 21,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 20
+          },
+          {
+            "x": 21,
+            "y": 20
+          },
+          {
+            "x": 4,
+            "y": 36
+          },
+          {
+            "x": 21,
+            "y": 36
+          }
+        ],
+        8
+      ],
+      "esperado": [
+        {
+          "grandeza": "Grampos",
+          "caminho": "grampos.length",
+          "valor": 0,
+          "unidade": "",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-pilar-fundacao",
+      "titulo": "Lance de 3 m de pilar 20 × 30 com 4 ø 10 e estribos ø 5 c/ 12, sobre bloco de 60 cm, com pilar acima",
+      "fonte": "Barras do lance: 300 + l0c = 300 + 37,669 → 340 cm. Arranques no bloco: (60 − 5) cm embutidos + l0c + pé de 15 cm (máx(15ø; 15 cm)) = 107,669 → 110 cm. Estribos: ⌊300/12⌋ + 1 = 26, perímetro 2·(20 − 6) + 2·(30 − 6) + 2·6 = 88 cm. NBR 6118, 9.5.2.3 e 18.4; cálculo manual.",
+      "alvo": "motor",
+      "funcao": "detalhamento.detalharPilar",
+      "args": [
+        {
+          "bx": 20,
+          "by": 30,
+          "cob": 3,
+          "L": 3,
+          "barras": {
+            "phi": 10,
+            "n": 4
+          },
+          "pontos": [
+            {
+              "x": 4,
+              "y": 4
+            },
+            {
+              "x": 16,
+              "y": 4
+            },
+            {
+              "x": 4,
+              "y": 26
+            },
+            {
+              "x": 16,
+              "y": 26
+            }
+          ],
+          "estribo": {
+            "phi": 5,
+            "s": 12
+          },
+          "fctd": 1.2824819600075228,
+          "fyd": 434.7826086956522,
+          "acima": true,
+          "base": {
+            "tipo": "fundacao",
+            "h": 60,
+            "cob": 5
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "N1: comprimento",
+          "caminho": "posicoes.0.comprimento",
+          "valor": 340,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N2: arranque",
+          "caminho": "posicoes.1.comprimento",
+          "valor": 110,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N3: estribos",
+          "caminho": "posicoes.2.n",
+          "valor": 26,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "N3: comprimento",
+          "caminho": "posicoes.2.comprimento",
+          "valor": 90,
+          "unidade": "cm",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-pilar-topo",
+      "titulo": "Último lance (sem pilar acima, sobre outro pilar): barras até o topo menos o cobrimento, sem arranques",
+      "fonte": "300 − 3 = 297 → 300 cm; o pilar de baixo fornece as esperas (as barras dele sobem l0c).",
+      "alvo": "motor",
+      "funcao": "detalhamento.detalharPilar",
+      "args": [
+        {
+          "bx": 20,
+          "by": 30,
+          "cob": 3,
+          "L": 3,
+          "barras": {
+            "phi": 10,
+            "n": 4
+          },
+          "pontos": [
+            {
+              "x": 4,
+              "y": 4
+            },
+            {
+              "x": 16,
+              "y": 4
+            },
+            {
+              "x": 4,
+              "y": 26
+            },
+            {
+              "x": 16,
+              "y": 26
+            }
+          ],
+          "estribo": {
+            "phi": 5,
+            "s": 12
+          },
+          "fctd": 1.2824819600075228,
+          "fyd": 434.7826086956522,
+          "acima": false,
+          "base": {
+            "tipo": "pilar"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "N1: comprimento",
+          "caminho": "posicoes.0.comprimento",
+          "valor": 300,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Posições",
+          "caminho": "posicoes.length",
+          "valor": 2,
+          "unidade": "",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-laje",
+      "titulo": "Laje maciça 4 × 5 m, h = 10 cm, sobre vigas de 15 cm, com uma borda engastada numa laje vizinha de 4 m",
+      "fonte": "Positiva x: 400 + 2·(15/2 − 2,5) = 410,000 cm, distribuída em 500 − 15 = 485 cm a cada 10 → ⌈48,5⌉ + 1 = 50 barras. Positiva y: 510,000 cm, 27 barras. Negativa na borda x1: 0,25·400 = 100 cm para cada lado + 2 dobras de h − 2c = 5 cm = 210,000 cm; ao longo de 500 − 2·2,5 cm a cada 12 → 43 barras. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "detalhamento.detalharLaje",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 5,
+          "h": 10,
+          "cob": 2.5,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "engastada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          },
+          "apoios": {
+            "x0": 15,
+            "x1": 15,
+            "y0": 15,
+            "y1": 15
+          },
+          "positivas": {
+            "x": {
+              "phi": 5,
+              "s": 10
+            },
+            "y": {
+              "phi": 5,
+              "s": 15
+            }
+          },
+          "negativos": [
+            {
+              "borda": "x1",
+              "phi": 8,
+              "s": 12,
+              "As": 4.19,
+              "t0": 0,
+              "t1": 5,
+              "a1": 100,
+              "a2": 100
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Positiva x: C",
+          "caminho": "posicoes.0.comprimento",
+          "valor": 410,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Positiva x: n",
+          "caminho": "posicoes.0.n",
+          "valor": 50,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Positiva y: C",
+          "caminho": "posicoes.1.comprimento",
+          "valor": 510,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Positiva y: n",
+          "caminho": "posicoes.1.n",
+          "valor": 27,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Negativa: C",
+          "caminho": "posicoes.2.comprimento",
+          "valor": 210,
+          "unidade": "cm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Negativa: n",
+          "caminho": "posicoes.2.n",
+          "valor": 43,
+          "unidade": "",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "det-resumo-perdas",
+      "titulo": "Resumo do aço com 10 % de perdas: 10 barras ø 10 de 5 m e 20 estribos ø 5 de 1 m",
+      "fonte": "Massa: 50 m × 0,617 + 20 m × 0,154 = 33,910 kg; com perdas 1,10 × 33,910 = 37,301 kg.",
+      "alvo": "motor",
+      "funcao": "detalhamento.resumoComPerdas",
+      "args": [
+        [
+          {
+            "phi": 10,
+            "n": 10,
+            "comprimento": 500
+          },
+          {
+            "phi": 5,
+            "n": 20,
+            "comprimento": 100
+          }
+        ],
+        10
+      ],
+      "esperado": [
+        {
+          "grandeza": "Total",
+          "caminho": "total",
+          "valor": 33.91,
+          "unidade": "kg",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Total com perdas",
+          "caminho": "totalPerdas",
+          "valor": 37.301,
+          "unidade": "kg",
+          "tolerancia": 0.0001
+        }
+      ]
+    }
+  ]
+}

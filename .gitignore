@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+*.log
+.DS_Store
+
+# relatório gerado por npm run validar
+validacao/relatorio.html
+validacao/relatorio.json
+Thumbs.db

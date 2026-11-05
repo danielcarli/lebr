@@ -1,0 +1,388 @@
+{
+  "grupo": "Vigas — esforços",
+  "descricao": "Motor de vigas contínuas comparado com soluções fechadas da resistência dos materiais.",
+  "casos": [
+    {
+      "id": "viga-biapoiada",
+      "titulo": "Biapoiada, q = 10 kN/m, L = 6 m, EI = 10⁴ kN·m²",
+      "fonte": "Resistência dos materiais: M = qL²/8, R = qL/2, f = 5qL⁴/(384EI).",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            6
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "q": [
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento máximo",
+          "caminho": "vaos.0.Mpos",
+          "valor": 45.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação",
+          "caminho": "reacoes.0.V",
+          "valor": 30.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Flecha",
+          "caminho": "vaos.0.flecha",
+          "valor": 0.016875,
+          "unidade": "m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-biengastada",
+      "titulo": "Biengastada, q = 10 kN/m, L = 6 m",
+      "fonte": "Resistência dos materiais: M− = qL²/12, M+ = qL²/24, f = qL⁴/(384EI).",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            6
+          ],
+          "apoios": [
+            "engaste",
+            "engaste"
+          ],
+          "q": [
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no engaste",
+          "caminho": "vaos.0.Mneg",
+          "valor": -30.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento no meio do vão",
+          "caminho": "vaos.0.Mpos",
+          "valor": 15.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Flecha",
+          "caminho": "vaos.0.flecha",
+          "valor": 0.003375,
+          "unidade": "m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-engaste-apoio",
+      "titulo": "Engastada e apoiada, q = 10 kN/m, L = 6 m",
+      "fonte": "Resistência dos materiais: M− = qL²/8, M+ = 9qL²/128, R(apoio) = 3qL/8, R(engaste) = 5qL/8.",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            6
+          ],
+          "apoios": [
+            "engaste",
+            "apoio"
+          ],
+          "q": [
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no engaste",
+          "caminho": "vaos.0.Mneg",
+          "valor": -45.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento positivo máximo",
+          "caminho": "vaos.0.Mpos",
+          "valor": 25.312,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação no engaste",
+          "caminho": "reacoes.0.V",
+          "valor": 37.5,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação no apoio",
+          "caminho": "reacoes.1.V",
+          "valor": 22.5,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-balanco",
+      "titulo": "Balanço, q = 10 kN/m, L = 2 m",
+      "fonte": "Resistência dos materiais: M = qL²/2, V = qL, f = qL⁴/(8EI).",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            2
+          ],
+          "apoios": [
+            "engaste",
+            "livre"
+          ],
+          "q": [
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no engaste",
+          "caminho": "vaos.0.Mneg",
+          "valor": -20.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Cortante",
+          "caminho": "vaos.0.Vmax",
+          "valor": 20,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Flecha na ponta",
+          "caminho": "vaos.0.flecha",
+          "valor": 0.002,
+          "unidade": "m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-continua-2-vaos",
+      "titulo": "Contínua com 2 vãos iguais de 5 m, q = 10 kN/m",
+      "fonte": "Tabela clássica de vigas contínuas: M(apoio central) = −qL²/8, M+ = 9qL²/128, R = 3qL/8, 10qL/8, 3qL/8.",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            5,
+            5
+          ],
+          "apoios": [
+            "apoio",
+            "apoio",
+            "apoio"
+          ],
+          "q": [
+            10,
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0,
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no apoio central",
+          "caminho": "vaos.0.Mneg",
+          "valor": -31.25,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento positivo",
+          "caminho": "vaos.0.Mpos",
+          "valor": 17.578,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação central",
+          "caminho": "reacoes.1.V",
+          "valor": 62.5,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação de extremidade",
+          "caminho": "reacoes.0.V",
+          "valor": 18.75,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-continua-3-vaos",
+      "titulo": "Contínua com 3 vãos iguais de 4 m, q = 10 kN/m",
+      "fonte": "Tabela clássica de vigas contínuas: M(apoios internos) = −0,1·qL², M+ = 0,08·qL² (extremos) e 0,025·qL² (central), R = 0,4·qL e 1,1·qL.",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            4,
+            4,
+            4
+          ],
+          "apoios": [
+            "apoio",
+            "apoio",
+            "apoio",
+            "apoio"
+          ],
+          "q": [
+            10,
+            10,
+            10
+          ],
+          "P": [],
+          "EI": [
+            10000.0,
+            10000.0,
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no apoio interno",
+          "caminho": "vaos.0.Mneg",
+          "valor": -16.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento no vão extremo",
+          "caminho": "vaos.0.Mpos",
+          "valor": 12.8,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Momento no vão central",
+          "caminho": "vaos.1.Mpos",
+          "valor": 4.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação de extremidade",
+          "caminho": "reacoes.0.V",
+          "valor": 16.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação interna",
+          "caminho": "reacoes.1.V",
+          "valor": 44.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "viga-carga-concentrada",
+      "titulo": "Biapoiada, P = 20 kN no meio de L = 4 m",
+      "fonte": "Resistência dos materiais: M = PL/4, R = P/2, f = PL³/(48EI).",
+      "alvo": "motor",
+      "funcao": "viga.analisarViga",
+      "args": [
+        {
+          "vaos": [
+            4
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "q": [
+            0
+          ],
+          "P": [
+            {
+              "vao": 0,
+              "x": 2,
+              "P": 20
+            }
+          ],
+          "EI": [
+            10000.0
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento máximo",
+          "caminho": "vaos.0.Mpos",
+          "valor": 20.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação",
+          "caminho": "reacoes.0.V",
+          "valor": 10.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Flecha",
+          "caminho": "vaos.0.flecha",
+          "valor": 0.0026667,
+          "unidade": "m",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

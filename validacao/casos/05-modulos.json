@@ -1,0 +1,325 @@
+{
+  "grupo": "Módulos",
+  "descricao": "Elementos completos calculados pelos módulos do LEBR e conferidos à mão.",
+  "casos": [
+    {
+      "id": "modulo-viga-biapoiada",
+      "titulo": "Módulo Viga: 20 × 50 cm, L = 5 m, g = 10 kN/m, q = 5 kN/m, sem peso próprio",
+      "fonte": "Cálculo manual: Md = 1,4·(g + q)·L²/8; Vd = 1,4·(g + q)·L/2; d = h − c − øt − øl/2 com c = 3 cm, øt = 5 mm e øl = 12,5 mm; As pelo diagrama retangular (17.2.2); VRd2 e Vc pelo modelo I (17.4.2.2).",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 5
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 10
+          },
+          {
+            "id": "q",
+            "tipo": "distribuida",
+            "natureza": "q",
+            "vao": "todos",
+            "valor": 5
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Md positivo",
+          "caminho": "vaos.0.Mdpos",
+          "valor": 65.625,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vd",
+          "caminho": "vaos.0.Vd",
+          "valor": 52.5,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação permanente",
+          "caminho": "apoios.0.Rg",
+          "valor": 25.0,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação variável",
+          "caminho": "apoios.0.Rq",
+          "valor": 12.5,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As calculado",
+          "caminho": "vaos.0.positiva.AsCalc",
+          "valor": 3.4791,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd2",
+          "caminho": "vaos.0.estribos.VRd2",
+          "valor": 398.13,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "vaos.0.estribos.Vc",
+          "valor": 70.601,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "modulo-laje-macica-quadrada",
+      "titulo": "Módulo Laje maciça: 4 × 4 m, h = 10 cm, apoiada nas quatro bordas",
+      "fonte": "Cálculo manual com os coeficientes de placa da série de Navier (ν = 0,2): Md = 1,4·p·mx·lx² com p = 2,5 (peso próprio) + 1,0 + 1,5 kN/m²; reações pelo processo das áreas (NBR 6118 14.7.6.1): cada borda recebe um triângulo de 4 m², logo pd·4/4 kN/m; flecha imediata f0 = w·pser·lx⁴/D com pser = g + ψ2·q e D = Ecs·h³/(12·(1 − ν²)).",
+      "alvo": "elemento",
+      "modulo": "concreto.laje.macica",
+      "elemento": {
+        "lx": 4,
+        "ly": 4,
+        "h": 10,
+        "bordas": {
+          "x0": "apoiada",
+          "x1": "apoiada",
+          "y0": "apoiada",
+          "y1": "apoiada"
+        },
+        "pesoProprio": true,
+        "cargas": {
+          "revestimento": 1,
+          "acidental": 1.5,
+          "outras": 0
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "pd",
+          "caminho": "cargas.pd",
+          "valor": 7.0,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Mx",
+          "caminho": "momentos.Mx",
+          "valor": 4.9507,
+          "unidade": "kN·m/m",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "Reação na borda x0",
+          "caminho": "reacoes[id=x0].d",
+          "valor": 7.0,
+          "unidade": "kN/m",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Flecha imediata",
+          "caminho": "flecha.f0",
+          "valor": 1.9595,
+          "unidade": "mm",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "modulo-pilar-segunda-ordem",
+      "titulo": "Módulo Pilar: 20 × 30 cm, le = 2,80 m, Nd = 1000 kN, sem momentos aplicados",
+      "fonte": "Cálculo manual, NBR 6118:2023 15.8.3.3.2 (pilar-padrão com curvatura aproximada): λ = 3,46·le/h; M1d,mín = Nd·(0,015 + 0,03·h); λ1 = 35 com αb = 1; 1/r = 0,005/(h·(ν + 0,5)) ≤ 0,005/h; M2 = Nd·le²/10·(1/r).",
+      "alvo": "elemento",
+      "modulo": "concreto.pilar",
+      "elemento": {
+        "bx": 20,
+        "by": 30,
+        "comprimento": 2.8,
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "n",
+            "tipo": "concentrada",
+            "natureza": "g",
+            "valor": 714.2857142857143
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Nd",
+          "caminho": "Nd",
+          "valor": 1000.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "λx",
+          "caminho": "dirX.lambda",
+          "valor": 48.44,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "M1d,mín x",
+          "caminho": "dirX.M1min",
+          "valor": 21.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "M2 x",
+          "caminho": "dirX.M2",
+          "valor": 13.674,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Md total x",
+          "caminho": "dirX.Md",
+          "valor": 34.674,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "λy",
+          "caminho": "dirY.lambda",
+          "valor": 32.293,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Md total y (sem 2ª ordem)",
+          "caminho": "dirY.Md",
+          "valor": 24.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-madeira",
+      "titulo": "Módulo Viga de madeira: C24, 6 × 24 cm, L = 3,5 m, g = 1,5 kN/m, q = 1,0 kN/m",
+      "fonte": "Cálculo manual: Md = (1,4·g + 1,5·q)·L²/8 (γg = 1,4, γq = 1,5); σM,d = Md/W; τd = 1,5·Vd/(b·h); flechas instantâneas u = 5·p·L⁴/(384·E0,med·I) com E0,med = 11 000 MPa (classe C24); final (uG + ψ2·uQ)·(1 + φ) com ψ2 = 0,3 e φ = 0,8 (classes de umidade 1 e 2, carga permanente).",
+      "alvo": "elemento",
+      "modulo": "madeira.viga",
+      "elemento": {
+        "classe": "C24",
+        "secao": {
+          "b": 6,
+          "h": 24
+        },
+        "vaos": [
+          {
+            "L": 3.5
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 1.5
+          },
+          {
+            "id": "q",
+            "tipo": "distribuida",
+            "natureza": "q",
+            "vao": "todos",
+            "valor": 1.0
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Md",
+          "caminho": "MdPos",
+          "valor": 5.5125,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vd",
+          "caminho": "VdMax",
+          "valor": 6.3,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "uG",
+          "caminho": "vaos.0.flecha.uG",
+          "valor": 3.8548,
+          "unidade": "mm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "uQ",
+          "caminho": "vaos.0.flecha.uQ",
+          "valor": 2.5699,
+          "unidade": "mm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "u final",
+          "caminho": "vaos.0.flecha.ufin",
+          "valor": 8.3264,
+          "unidade": "mm",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "madeira-c24-flexao",
+      "titulo": "Madeira C24: tensão de flexão da mesma viga, pelo motor",
+      "fonte": "Cálculo manual: σM,d = Md/W com W = b·h²/6; τd = 1,5·Vd/(b·h).",
+      "alvo": "motor",
+      "funcao": "madeira.flexaoMadeira",
+      "args": [
+        {
+          "Md": 5.512499999999999,
+          "b": 6,
+          "h": 24,
+          "m": {
+            "$madeira": "C24"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σM,d",
+          "caminho": "sigma",
+          "valor": 9.5703,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

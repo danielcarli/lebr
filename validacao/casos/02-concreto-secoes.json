@@ -1,0 +1,268 @@
+{
+  "grupo": "Concreto — seções",
+  "descricao": "Flexão simples e dupla, armadura mínima e cortante, conferidos à mão e com a Tabela 17.3.",
+  "casos": [
+    {
+      "id": "flexao-simples-20x50",
+      "titulo": "Seção 20 × 50 cm, d = 45 cm, Md = 150 kN·m (C25, CA-50)",
+      "fonte": "Cálculo manual com o diagrama retangular simplificado, NBR 6118:2023 17.2.2: Kmd = Md/(b·d²·σcd), ξ = (1 − √(1 − 2·Kmd))/λ, z = d·(1 − λ·ξ/2), As = Md/(z·fyd).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 150,
+          "b": 20,
+          "h": 50,
+          "d": 45,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Kmd",
+          "caminho": "Kmd",
+          "valor": 0.24401,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "x/d",
+          "caminho": "xi",
+          "valor": 0.35559,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "As",
+          "caminho": "As",
+          "valor": 8.938,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Domínio",
+          "caminho": "dominio",
+          "valor": "3",
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "flexao-dupla-20x50",
+      "titulo": "Seção 20 × 50 cm, d = 45 cm, Md = 200 kN·m: armadura dupla",
+      "fonte": "Cálculo manual, NBR 6118:2023 17.2.2 e 14.6.4.3: x limitado a 0,45·d (fck ≤ 50 MPa); o excedente de momento vai para um binário As₂ + A's com braço d − d' (d' = 4 cm).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 200,
+          "b": 20,
+          "h": 50,
+          "d": 45,
+          "dl": 4,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Armadura dupla",
+          "caminho": "dupla",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "As (tração)",
+          "caminho": "As",
+          "valor": 12.351,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "A's (compressão)",
+          "caminho": "Asl",
+          "valor": 1.0395,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "armadura-minima-c25",
+      "titulo": "Armadura mínima de flexão, C25, seção 20 × 50 cm",
+      "fonte": "NBR 6118:2023, Tabela 17.3: ρmín = 0,15 % para seção retangular (valores da tabela supõem d/h = 0,8, γc = 1,4 e γs = 1,15). Tabela arredondada em 0,001 %.",
+      "alvo": "motor",
+      "funcao": "flexao.armaduraMinima",
+      "args": [
+        {
+          "b": 20,
+          "h": 50,
+          "d": 40,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As,mín",
+          "caminho": "",
+          "valor": 1.5,
+          "unidade": "cm²",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "armadura-minima-c40",
+      "titulo": "Armadura mínima de flexão, C40, seção 20 × 50 cm",
+      "fonte": "NBR 6118:2023, Tabela 17.3: ρmín = 0,179 % para seção retangular (valores da tabela supõem d/h = 0,8, γc = 1,4 e γs = 1,15). Tabela arredondada em 0,001 %.",
+      "alvo": "motor",
+      "funcao": "flexao.armaduraMinima",
+      "args": [
+        {
+          "b": 20,
+          "h": 50,
+          "d": 40,
+          "c": {
+            "$concreto": 40
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As,mín",
+          "caminho": "",
+          "valor": 1.79,
+          "unidade": "cm²",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "armadura-minima-c50",
+      "titulo": "Armadura mínima de flexão, C50, seção 20 × 50 cm",
+      "fonte": "NBR 6118:2023, Tabela 17.3: ρmín = 0,208 % para seção retangular (valores da tabela supõem d/h = 0,8, γc = 1,4 e γs = 1,15). Tabela arredondada em 0,001 %.",
+      "alvo": "motor",
+      "funcao": "flexao.armaduraMinima",
+      "args": [
+        {
+          "b": 20,
+          "h": 50,
+          "d": 40,
+          "c": {
+            "$concreto": 50
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As,mín",
+          "caminho": "",
+          "valor": 2.08,
+          "unidade": "cm²",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "armadura-minima-c90",
+      "titulo": "Armadura mínima de flexão, C90, seção 20 × 50 cm",
+      "fonte": "NBR 6118:2023, Tabela 17.3: ρmín = 0,256 % para seção retangular (valores da tabela supõem d/h = 0,8, γc = 1,4 e γs = 1,15). Tabela arredondada em 0,001 %.",
+      "alvo": "motor",
+      "funcao": "flexao.armaduraMinima",
+      "args": [
+        {
+          "b": 20,
+          "h": 50,
+          "d": 40,
+          "c": {
+            "$concreto": 90
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As,mín",
+          "caminho": "",
+          "valor": 2.56,
+          "unidade": "cm²",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "cortante-modelo-1",
+      "titulo": "Estribos, bw = 20 cm, d = 45 cm, Vd = 150 kN (C25, CA-50)",
+      "fonte": "Cálculo manual, NBR 6118:2023 17.4.2.2 (modelo de cálculo I): VRd2 = 0,27·αv2·fcd·bw·d, Vc = 0,6·fctd·bw·d, Asw/s = Vsw/(0,9·d·fywd); ρsw,mín = 0,2·fct,m/fywk (17.4.1.1.1).",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 150,
+          "bw": 20,
+          "d": 45,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 390.54,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "Vc",
+          "valor": 69.254,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Asw/s calculado",
+          "caminho": "aswCalc",
+          "valor": 4.5856,
+          "unidade": "cm²/m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Asw/s mínimo",
+          "caminho": "aswMin",
+          "valor": 2.052,
+          "unidade": "cm²/m",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,346 @@
+{
+  "grupo": "Escadas",
+  "descricao": "Degraus (Blondel), cargas do lance com a espessura média e do patamar, tramo biapoiado por trechos, escada em U completa e a reação concentrada na viga de apoio.",
+  "casos": [
+    {
+      "id": "escada-degraus",
+      "titulo": "Degraus para vencer 300 cm com espelho alvo de 16,7 cm e piso de 30 cm",
+      "fonte": "n = arred(300/16,7) = 18 espelhos; e = 300/18 = 16,667 cm; Blondel 2e + p = 63,333 cm (63 a 65, NBR 9050:2020, 6.8.2); tg α = e/p → α = 29,055°.",
+      "alvo": "motor",
+      "funcao": "escada.degraus",
+      "args": [
+        {
+          "H": 300,
+          "espelhoAlvo": 16.7,
+          "piso": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Espelhos",
+          "caminho": "n",
+          "valor": 18,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Espelho",
+          "caminho": "e",
+          "valor": 16.667,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "2e + p",
+          "caminho": "blondel",
+          "valor": 63.333,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α",
+          "caminho": "alfa",
+          "valor": 29.055,
+          "unidade": "°",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "escada-cargas",
+      "titulo": "Cargas do lance e do patamar: h = 12 cm, e = 17,5 cm, p = 28 cm, revestimento 1,0 kN/m², guarda-corpo 0,5 kN/m em 1,0 m",
+      "fonte": "cos α = p/√(p² + e²) = 0,848; espessura média na vertical hm = h/cos α + e/2 = 14,151 + 8,75 = 22,901 cm; lance g = 25·0,229 + 1,0 + 0,5/1,0 = 7,225 kN/m² (projeção horizontal); patamar g = 25·0,12 + 1,0 + 0,5 = 4,5 kN/m². Cálculo manual (Bastos, Escadas, UNESP).",
+      "alvo": "motor",
+      "funcao": "escada.cargasEscada",
+      "args": [
+        {
+          "h": 12,
+          "e": 17.5,
+          "p": 28,
+          "revestimento": 1.0,
+          "guardaCorpo": 0.5,
+          "largura": 1.0,
+          "q": 2.5
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "cos α",
+          "caminho": "cos",
+          "valor": 0.848,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "hm",
+          "caminho": "lance.hm",
+          "valor": 22.901,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Peso próprio do lance",
+          "caminho": "lance.pp",
+          "valor": 5.7252,
+          "unidade": "kN/m²",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "g do lance",
+          "caminho": "lance.g",
+          "valor": 7.2252,
+          "unidade": "kN/m²",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "g do patamar",
+          "caminho": "patamar.g",
+          "valor": 4.5,
+          "unidade": "kN/m²",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "escada-tramo",
+      "titulo": "Tramo biapoiado de 3,6 m: lance de 2,4 m com 10 kN/m e patamar de 1,2 m com 6 kN/m",
+      "fonte": "RB = (24·1,2 + 7,2·3,0)/3,6 = 14,000 kN; RA = 31,2 − RB = 17,200 kN; V = 0 em x = RA/10 = 1,720 m (no lance) → Mmáx = RA·x − 10·x²/2 = 14,792 kN·m. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "escada.tramoBiapoiado",
+      "args": [
+        {
+          "L": 3.6,
+          "trechos": [
+            {
+              "a": 0,
+              "b": 2.4,
+              "w": 10
+            },
+            {
+              "a": 2.4,
+              "b": 3.6,
+              "w": 6
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "RA",
+          "caminho": "RA",
+          "valor": 17.2,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "RB",
+          "caminho": "RB",
+          "valor": 14.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Posição do máximo",
+          "caminho": "xM",
+          "valor": 1.72,
+          "unidade": "m",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Mmáx",
+          "caminho": "Mmax",
+          "valor": 14.792,
+          "unidade": "kN·m",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "escada-u",
+      "titulo": "Escada em U de 300 cm: 18 espelhos, piso 30 cm, lances de 1,0 m com vão central de 0,10 m, patamar de 1,2 m, h = 13 cm (C25)",
+      "fonte": "Lances de 9 espelhos (8 pisos → projeção 2,4 m). e = 16,667 cm, cos α = 0,874, hm = 23,205 cm → g lance = 6,801 kN/m²; patamar g = 25·0,13 + 1,0 = 4,250 kN/m², na faixa de cada lance com o fator (b + vão/2)/b = 1,05 → 4,463 kN/m² e q = 2,625 kN/m²; q = 2,5 kN/m² (NBR 6120, escadas sem acesso ao público). Tramo 1 biapoiado de 3,6 m: RA,g = 11,774, RB,g = 9,903, RA,q = 4,525, RB,q = 4,625 kN/m. Cálculo: RA,d = 22,819 kN/m; V = 0 em x = 1,752 m → Md = 19,994 kN·m/m; d = 13 − 2,5 − 0,5 = 10 cm, Kmd = 0,132, As = 4,950 cm²/m. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.escada",
+      "elemento": {
+        "tipo": "U",
+        "desnivel": 300,
+        "espelhoAlvo": 16.7,
+        "piso": 30,
+        "largura": 1.0,
+        "vaoCentral": 0.1,
+        "patamar": 1.2,
+        "patamarInferior": 0,
+        "patamarSuperior": 0,
+        "h": 13,
+        "revestimento": 1.0,
+        "guardaCorpo": 0,
+        "uso": "privativa",
+        "posicao": null
+      },
+      "esperado": [
+        {
+          "grandeza": "Espelhos",
+          "caminho": "degraus.n",
+          "valor": 18,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "Vão do tramo 1",
+          "caminho": "tramos.0.L",
+          "valor": 3.6,
+          "unidade": "m",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "hm do lance",
+          "caminho": "cargas.lance.hm",
+          "valor": 23.205,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "g do lance",
+          "caminho": "cargas.lance.g",
+          "valor": 6.8012,
+          "unidade": "kN/m²",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação g no início",
+          "caminho": "tramos.0.apoios.0.g",
+          "valor": 11.774,
+          "unidade": "kN/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação g no patamar",
+          "caminho": "tramos.0.apoios.1.g",
+          "valor": 9.9035,
+          "unidade": "kN/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação q no início",
+          "caminho": "tramos.0.apoios.0.q",
+          "valor": 4.525,
+          "unidade": "kN/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação q no patamar",
+          "caminho": "tramos.0.apoios.1.q",
+          "valor": 4.625,
+          "unidade": "kN/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Md",
+          "caminho": "tramos.0.Md",
+          "valor": 19.994,
+          "unidade": "kN·m/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "VSd",
+          "caminho": "tramos.0.Vd",
+          "valor": 22.819,
+          "unidade": "kN/m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As,calc",
+          "caminho": "tramos.0.AsCalc",
+          "valor": 4.9495,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Boletim de verificações",
+          "caminho": "ok",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "escada-reacao-viga",
+      "titulo": "Viga biapoiada de 4 m recebendo o início do tramo 1 da escada em U (faixa de 1,0 m, centro a 1,5 m do apoio 1)",
+      "fonte": "A reação da faixa entra como resultante concentrada: Pg = 11,774·1,0 = 11,774 kN, Pq = 4,525 kN, a 1,5 m do apoio 1, sem peso próprio. Reações da viga: R1 = P·2,5/4 → g 7,359 kN, q 2,828 kN; R2 = P·1,5/4 → g 4,415 kN. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "outros": [
+        {
+          "id": "es",
+          "modulo": "concreto.escada",
+          "codigo": "ES1",
+          "nome": "ES1",
+          "tipo": "U",
+          "desnivel": 300,
+          "espelhoAlvo": 16.7,
+          "piso": 30,
+          "largura": 1.0,
+          "vaoCentral": 0.1,
+          "patamar": 1.2,
+          "patamarInferior": 0,
+          "patamarSuperior": 0,
+          "h": 13,
+          "revestimento": 1.0,
+          "guardaCorpo": 0,
+          "uso": "privativa",
+          "posicao": null
+        }
+      ],
+      "elemento": {
+        "vaos": [
+          {
+            "L": 4.0
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "secao": {
+          "b": 15,
+          "h": 40
+        },
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "c1",
+            "tipo": "elemento",
+            "elementoId": "es",
+            "ligacao": "t1-ini",
+            "vao": 0,
+            "posicao": 1.5
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "R1 permanente",
+          "caminho": "apoios.0.Rg",
+          "valor": 7.359,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "R1 variável",
+          "caminho": "apoios.0.Rq",
+          "valor": 2.8281,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "R2 permanente",
+          "caminho": "apoios.1.Rg",
+          "valor": 4.4154,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    }
+  ]
+}

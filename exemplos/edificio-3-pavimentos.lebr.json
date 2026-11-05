@@ -1,0 +1,5393 @@
+{
+  "formato": "lebr.projeto",
+  "versao": 1,
+  "meta": {
+    "nome": "Edifício residencial de 3 pavimentos",
+    "autor": "LEBR",
+    "descricao": "Edifício residencial com dois pavimentos-tipo e cobertura: 9 pilares por lance, vigas em grelha, lajes maciças, caixa de escada com duas escadas em U e o reservatório elevado sobre ela, nível de baldrame com vigas baldrame e as lajes de piso do térreo, dois furos de sondagem SPT e fundação em blocos sobre estacas hélice contínua.",
+    "criadoEm": "2026-11-02T12:00:00.000Z",
+    "modificadoEm": "2026-11-03T18:01:11.846Z",
+    "aplicativo": "LEBR 0.25.0"
+  },
+  "parametros": {
+    "norma": "NBR 6118:2023",
+    "classeAgressividade": "II",
+    "concreto": {
+      "fck": 30,
+      "agregado": "granito",
+      "pesoEspecifico": 25
+    },
+    "aco": {
+      "fyk": 500,
+      "Es": 210000
+    },
+    "agregadoDmax": 19,
+    "cobrimento": {
+      "viga": 3,
+      "pilar": 3,
+      "laje": 2.5
+    },
+    "coeficientes": {
+      "gc": 1.4,
+      "gs": 1.15,
+      "gg": 1.4,
+      "ggFav": 1,
+      "gq": 1.4,
+      "psi0": 0.5,
+      "psi1": 0.4,
+      "psi2": 0.3
+    },
+    "uso": "residencial",
+    "els": {
+      "t0": 1
+    },
+    "unidades": {
+      "comprimento": "cm"
+    },
+    "analiseGlobal": {
+      "pilares": "elementos"
+    },
+    "vento": {
+      "ativo": false,
+      "V0": 45,
+      "referencia": "",
+      "topografia": "plano",
+      "S1": 1,
+      "categoria": "IV",
+      "classe": "auto",
+      "grupo": 2,
+      "Ca": {
+        "x": null,
+        "y": null
+      }
+    },
+    "estabilidade": {
+      "desaprumo": true,
+      "rigidez": "separada",
+      "contraventamento": "porticos",
+      "majorar": true
+    },
+    "madeira": {
+      "classe": "C24",
+      "umidade": 2,
+      "carregamento": "longa",
+      "tipo": "serrada",
+      "gwc": 1.4,
+      "gwv": 1.8,
+      "gg": 1.4,
+      "gq": 1.5,
+      "flecha": 200
+    }
+  },
+  "pavimentos": [
+    {
+      "id": "pav1",
+      "nome": "1º pavimento",
+      "cota": 3,
+      "analise": "grelha"
+    },
+    {
+      "id": "pav2",
+      "nome": "2º pavimento",
+      "cota": 6,
+      "analise": "grelha"
+    },
+    {
+      "id": "pav3",
+      "nome": "Cobertura",
+      "cota": 9,
+      "analise": "grelha"
+    },
+    {
+      "id": "pav0",
+      "nome": "Baldrame",
+      "cota": 0,
+      "tipo": "baldrame",
+      "analise": "grelha"
+    }
+  ],
+  "elementos": [
+    {
+      "id": "e001",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc1jk",
+          "tipo": "elemento",
+          "elementoId": "e013",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdcghj",
+          "tipo": "elemento",
+          "elementoId": "e019",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdc68h",
+          "tipo": "elemento",
+          "elementoId": "e033",
+          "ligacao": "base",
+          "descricao": "Canto (2º lance)"
+        }
+      ],
+      "codigo": "P101",
+      "nome": "Canto (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e002",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcmoh",
+          "tipo": "elemento",
+          "elementoId": "e013",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdc25m",
+          "tipo": "elemento",
+          "elementoId": "e021",
+          "ligacao": "apoio-0",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdcy5l",
+          "tipo": "elemento",
+          "elementoId": "e034",
+          "ligacao": "base",
+          "descricao": "Intermediário (2º lance)"
+        }
+      ],
+      "codigo": "P102",
+      "nome": "Intermediário (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e003",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc2q3",
+          "tipo": "elemento",
+          "elementoId": "e013",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdck5n",
+          "tipo": "elemento",
+          "elementoId": "e023",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdc555",
+          "tipo": "elemento",
+          "elementoId": "e035",
+          "ligacao": "base",
+          "descricao": "Canto (2º lance)"
+        }
+      ],
+      "codigo": "P103",
+      "nome": "Canto (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e004",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcvg4",
+          "tipo": "elemento",
+          "elementoId": "e015",
+          "ligacao": "apoio-0",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdc3h0",
+          "tipo": "elemento",
+          "elementoId": "e019",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdcjlm",
+          "tipo": "elemento",
+          "elementoId": "e036",
+          "ligacao": "base",
+          "descricao": "Intermediário (2º lance)"
+        }
+      ],
+      "codigo": "P104",
+      "nome": "Intermediário (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e005",
+      "modulo": "concreto.pilar",
+      "bx": 25,
+      "by": 40,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdclf8",
+          "tipo": "elemento",
+          "elementoId": "e015",
+          "ligacao": "apoio-1",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdcohr",
+          "tipo": "elemento",
+          "elementoId": "e021",
+          "ligacao": "apoio-1",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdc9k0",
+          "tipo": "elemento",
+          "elementoId": "e037",
+          "ligacao": "base",
+          "descricao": "Central (2º lance)"
+        }
+      ],
+      "codigo": "P105",
+      "nome": "Central (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e006",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdchlp",
+          "tipo": "elemento",
+          "elementoId": "e015",
+          "ligacao": "apoio-2",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdcbi5",
+          "tipo": "elemento",
+          "elementoId": "e023",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdc765",
+          "tipo": "elemento",
+          "elementoId": "e038",
+          "ligacao": "base",
+          "descricao": "Intermediário (2º lance)"
+        }
+      ],
+      "codigo": "P106",
+      "nome": "Intermediário (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e007",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc3xa",
+          "tipo": "elemento",
+          "elementoId": "e017",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdcix3",
+          "tipo": "elemento",
+          "elementoId": "e019",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdcgmo",
+          "tipo": "elemento",
+          "elementoId": "e039",
+          "ligacao": "base",
+          "descricao": "Canto (2º lance)"
+        }
+      ],
+      "codigo": "P107",
+      "nome": "Canto (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e008",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcllk",
+          "tipo": "elemento",
+          "elementoId": "e017",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdcji9",
+          "tipo": "elemento",
+          "elementoId": "e021",
+          "ligacao": "apoio-2",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdc1kb",
+          "tipo": "elemento",
+          "elementoId": "e040",
+          "ligacao": "base",
+          "descricao": "Intermediário (2º lance)"
+        }
+      ],
+      "codigo": "P108",
+      "nome": "Intermediário (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e009",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc2xt",
+          "tipo": "elemento",
+          "elementoId": "e017",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdcdg9",
+          "tipo": "elemento",
+          "elementoId": "e023",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdcjjq",
+          "tipo": "elemento",
+          "elementoId": "e041",
+          "ligacao": "base",
+          "descricao": "Canto (2º lance)"
+        }
+      ],
+      "codigo": "P109",
+      "nome": "Canto (1º lance)",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "es1",
+      "modulo": "concreto.escada",
+      "codigo": "ES1",
+      "nome": "Térreo → 1º pavimento",
+      "tipo": "U",
+      "desnivel": null,
+      "espelhoAlvo": 16.7,
+      "piso": 30,
+      "largura": 0.9,
+      "patamar": 1.2,
+      "vaoCentral": 0.05,
+      "patamarInferior": 0,
+      "patamarSuperior": 0,
+      "h": 12,
+      "revestimento": 1,
+      "guardaCorpo": 0.3,
+      "uso": "privativa",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0.075,
+        "y": 5,
+        "angulo": 0
+      },
+      "armadura": {
+        "inferior": "auto"
+      },
+      "resultado": null
+    },
+    {
+      "id": "es2",
+      "modulo": "concreto.escada",
+      "codigo": "ES2",
+      "nome": "1º → 2º pavimento",
+      "tipo": "U",
+      "desnivel": null,
+      "espelhoAlvo": 16.7,
+      "piso": 30,
+      "largura": 0.9,
+      "patamar": 1.2,
+      "vaoCentral": 0.05,
+      "patamarInferior": 0,
+      "patamarSuperior": 0,
+      "h": 12,
+      "revestimento": 1,
+      "guardaCorpo": 0.3,
+      "uso": "privativa",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0.075,
+        "y": 5,
+        "angulo": 0
+      },
+      "armadura": {
+        "inferior": "auto"
+      },
+      "resultado": null
+    },
+    {
+      "id": "rs1",
+      "modulo": "concreto.reservatorio",
+      "codigo": "RS1",
+      "nome": "Caixa d’água sobre a escada",
+      "tipo": "elevado",
+      "a": 1.85,
+      "b": 4.85,
+      "H": 1.5,
+      "hAgua": 1.2,
+      "e": 15,
+      "hf": 15,
+      "ht": 10,
+      "tampa": true,
+      "revestimento": {
+        "fundo": 0.5,
+        "tampa": 1
+      },
+      "qTampa": 1,
+      "apoio": "vigas",
+      "solo": {
+        "gama": 18,
+        "phi": 30,
+        "sobrecarga": 10,
+        "sigmaAdm": 150
+      },
+      "cobrimento": 3,
+      "wkLim": 0.1,
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "armadura": {
+        "phi": "auto"
+      },
+      "resultado": null
+    },
+    {
+      "id": "e013",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e012",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdby5f",
+          "tipo": "elemento",
+          "elementoId": "e027",
+          "ligacao": "y0",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdb6r6",
+          "tipo": "elemento",
+          "elementoId": "e028",
+          "ligacao": "y0",
+          "descricao": "Cozinha",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdc08z",
+          "tipo": "elemento",
+          "elementoId": "e032",
+          "ligacao": "y1",
+          "descricao": "Sacada",
+          "vao": 0
+        }
+      ],
+      "codigo": "V101",
+      "nome": "Fachada frontal",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e015",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e014",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 10,
+          "descricao": "Alvenaria interna"
+        },
+        {
+          "id": "cmvzyspdbbua",
+          "tipo": "elemento",
+          "elementoId": "e027",
+          "ligacao": "y1",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdb05p",
+          "tipo": "elemento",
+          "elementoId": "e028",
+          "ligacao": "y1",
+          "descricao": "Cozinha",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdck2w",
+          "tipo": "elemento",
+          "elementoId": "e030",
+          "ligacao": "y0",
+          "descricao": "Quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcps5",
+          "tipo": "elemento",
+          "elementoId": "e031",
+          "ligacao": "y0",
+          "descricao": "Suíte",
+          "vao": 1
+        },
+        {
+          "id": "cmw0synvc1wp",
+          "tipo": "elemento",
+          "elementoId": "es2",
+          "ligacao": "t1-ini",
+          "descricao": "1º → 2º pavimento",
+          "vao": 0,
+          "posicao": 0.525
+        },
+        {
+          "id": "cmw0ykz95s38",
+          "tipo": "elemento",
+          "elementoId": "es1",
+          "ligacao": "t2-fim",
+          "descricao": "Térreo → 1º pavimento",
+          "vao": 0,
+          "posicao": 1.475
+        }
+      ],
+      "codigo": "V102",
+      "nome": "Interna",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e017",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e016",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdcv7p",
+          "tipo": "elemento",
+          "elementoId": "e030",
+          "ligacao": "y1",
+          "descricao": "Quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdc404",
+          "tipo": "elemento",
+          "elementoId": "e031",
+          "ligacao": "y1",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V103",
+      "nome": "Fachada dos fundos",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e019",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e018",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdbq7y",
+          "tipo": "elemento",
+          "elementoId": "e027",
+          "ligacao": "x0",
+          "descricao": "Sala",
+          "vao": 0
+        }
+      ],
+      "codigo": "V104",
+      "nome": "Lateral esquerda",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e021",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e020",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 10,
+          "descricao": "Alvenaria interna"
+        },
+        {
+          "id": "cmvzyspdb6b6",
+          "tipo": "elemento",
+          "elementoId": "e027",
+          "ligacao": "x1",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdbatt",
+          "tipo": "elemento",
+          "elementoId": "e028",
+          "ligacao": "x0",
+          "descricao": "Cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcjfp",
+          "tipo": "elemento",
+          "elementoId": "e030",
+          "ligacao": "x1",
+          "descricao": "Quarto 2",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdc6gg",
+          "tipo": "elemento",
+          "elementoId": "e031",
+          "ligacao": "x0",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V105",
+      "nome": "Central",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e023",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e022",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdb1ba",
+          "tipo": "elemento",
+          "elementoId": "e028",
+          "ligacao": "x1",
+          "descricao": "Cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdc9go",
+          "tipo": "elemento",
+          "elementoId": "e031",
+          "ligacao": "x1",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V106",
+      "nome": "Lateral direita",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e026",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e025",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 9,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "descricao": "Divisória dos quartos"
+        },
+        {
+          "id": "cmvzyspdc5ki",
+          "tipo": "elemento",
+          "elementoId": "e030",
+          "ligacao": "x0",
+          "descricao": "Quarto 2",
+          "vao": "todos"
+        }
+      ],
+      "codigo": "V107",
+      "nome": "Apoiada em vigas",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 2,
+        "y": 5,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "l001",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-sala",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L001",
+      "nome": "Sala (térreo)",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "l002",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-servico",
+        "revestimento": 1,
+        "acidental": 2,
+        "outras": 0
+      },
+      "codigo": "L002",
+      "nome": "Cozinha (térreo)",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "l004",
+      "modulo": "concreto.laje.macica",
+      "lx": 2,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L004",
+      "nome": "Quarto (térreo)",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 2,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "l005",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L005",
+      "nome": "Suíte (térreo)",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e027",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-sala",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L101",
+      "nome": "Sala",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e028",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-servico",
+        "revestimento": 1,
+        "acidental": 2,
+        "outras": 0
+      },
+      "codigo": "L102",
+      "nome": "Cozinha",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e030",
+      "modulo": "concreto.laje.macica",
+      "lx": 2,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L104",
+      "nome": "Quarto",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 2,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e031",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L105",
+      "nome": "Suíte",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e032",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 1.2,
+      "h": 12,
+      "bordas": {
+        "x0": "livre",
+        "x1": "livre",
+        "y0": "livre",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "varanda-res",
+        "revestimento": 1,
+        "acidental": 2.5,
+        "outras": 0
+      },
+      "codigo": "L106",
+      "nome": "Sacada",
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": -1.2,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e033",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc712",
+          "tipo": "elemento",
+          "elementoId": "e045",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdcjsw",
+          "tipo": "elemento",
+          "elementoId": "e051",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdc9xk",
+          "tipo": "elemento",
+          "elementoId": "e065",
+          "ligacao": "base",
+          "descricao": "Canto (3º lance)"
+        }
+      ],
+      "codigo": "P201",
+      "nome": "Canto (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e034",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc8h5",
+          "tipo": "elemento",
+          "elementoId": "e045",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdcm3a",
+          "tipo": "elemento",
+          "elementoId": "e053",
+          "ligacao": "apoio-0",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdc37n",
+          "tipo": "elemento",
+          "elementoId": "e066",
+          "ligacao": "base",
+          "descricao": "Intermediário (3º lance)"
+        }
+      ],
+      "codigo": "P202",
+      "nome": "Intermediário (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e035",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcs4c",
+          "tipo": "elemento",
+          "elementoId": "e045",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdc9wp",
+          "tipo": "elemento",
+          "elementoId": "e055",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdcecy",
+          "tipo": "elemento",
+          "elementoId": "e067",
+          "ligacao": "base",
+          "descricao": "Canto (3º lance)"
+        }
+      ],
+      "codigo": "P203",
+      "nome": "Canto (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 8,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e036",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcmvw",
+          "tipo": "elemento",
+          "elementoId": "e047",
+          "ligacao": "apoio-0",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdc0f8",
+          "tipo": "elemento",
+          "elementoId": "e051",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdc1vn",
+          "tipo": "elemento",
+          "elementoId": "e068",
+          "ligacao": "base",
+          "descricao": "Intermediário (3º lance)"
+        }
+      ],
+      "codigo": "P204",
+      "nome": "Intermediário (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e037",
+      "modulo": "concreto.pilar",
+      "bx": 25,
+      "by": 40,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcma6",
+          "tipo": "elemento",
+          "elementoId": "e047",
+          "ligacao": "apoio-1",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdckve",
+          "tipo": "elemento",
+          "elementoId": "e053",
+          "ligacao": "apoio-1",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdcpv6",
+          "tipo": "elemento",
+          "elementoId": "e069",
+          "ligacao": "base",
+          "descricao": "Central (3º lance)"
+        }
+      ],
+      "codigo": "P205",
+      "nome": "Central (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e038",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcaae",
+          "tipo": "elemento",
+          "elementoId": "e047",
+          "ligacao": "apoio-2",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdc44y",
+          "tipo": "elemento",
+          "elementoId": "e055",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdc6ja",
+          "tipo": "elemento",
+          "elementoId": "e070",
+          "ligacao": "base",
+          "descricao": "Intermediário (3º lance)"
+        }
+      ],
+      "codigo": "P206",
+      "nome": "Intermediário (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 8,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e039",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdc94q",
+          "tipo": "elemento",
+          "elementoId": "e049",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdctwf",
+          "tipo": "elemento",
+          "elementoId": "e051",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvzyspdcw6k",
+          "tipo": "elemento",
+          "elementoId": "e071",
+          "ligacao": "base",
+          "descricao": "Canto (3º lance)"
+        }
+      ],
+      "codigo": "P207",
+      "nome": "Canto (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e040",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcd8n",
+          "tipo": "elemento",
+          "elementoId": "e049",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdcnat",
+          "tipo": "elemento",
+          "elementoId": "e053",
+          "ligacao": "apoio-2",
+          "descricao": "Central"
+        },
+        {
+          "id": "cmvzyspdcc1f",
+          "tipo": "elemento",
+          "elementoId": "e072",
+          "ligacao": "base",
+          "descricao": "Intermediário (3º lance)"
+        }
+      ],
+      "codigo": "P208",
+      "nome": "Intermediário (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e041",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcj5i",
+          "tipo": "elemento",
+          "elementoId": "e049",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdc9wf",
+          "tipo": "elemento",
+          "elementoId": "e055",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral direita"
+        },
+        {
+          "id": "cmvzyspdcnud",
+          "tipo": "elemento",
+          "elementoId": "e073",
+          "ligacao": "base",
+          "descricao": "Canto (3º lance)"
+        }
+      ],
+      "codigo": "P209",
+      "nome": "Canto (2º lance)",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 8,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e045",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e044",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdcdsu",
+          "tipo": "elemento",
+          "elementoId": "e059",
+          "ligacao": "y0",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcbok",
+          "tipo": "elemento",
+          "elementoId": "e060",
+          "ligacao": "y0",
+          "descricao": "Cozinha",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdcv84",
+          "tipo": "elemento",
+          "elementoId": "e064",
+          "ligacao": "y1",
+          "descricao": "Sacada",
+          "vao": 0
+        }
+      ],
+      "codigo": "V201",
+      "nome": "Fachada frontal",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e047",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e046",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 10,
+          "descricao": "Alvenaria interna"
+        },
+        {
+          "id": "cmvzyspdcwap",
+          "tipo": "elemento",
+          "elementoId": "e059",
+          "ligacao": "y1",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdczri",
+          "tipo": "elemento",
+          "elementoId": "e060",
+          "ligacao": "y1",
+          "descricao": "Cozinha",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdcdav",
+          "tipo": "elemento",
+          "elementoId": "e062",
+          "ligacao": "y0",
+          "descricao": "Quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcv5j",
+          "tipo": "elemento",
+          "elementoId": "e063",
+          "ligacao": "y0",
+          "descricao": "Suíte",
+          "vao": 1
+        },
+        {
+          "id": "cmw0synvcv11",
+          "tipo": "elemento",
+          "elementoId": "es2",
+          "ligacao": "t2-fim",
+          "descricao": "1º → 2º pavimento",
+          "vao": 0,
+          "posicao": 1.475
+        }
+      ],
+      "codigo": "V202",
+      "nome": "Interna",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e049",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e048",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdcg5y",
+          "tipo": "elemento",
+          "elementoId": "e062",
+          "ligacao": "y1",
+          "descricao": "Quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdczb2",
+          "tipo": "elemento",
+          "elementoId": "e063",
+          "ligacao": "y1",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V203",
+      "nome": "Fachada dos fundos",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e051",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e050",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdcvcu",
+          "tipo": "elemento",
+          "elementoId": "e059",
+          "ligacao": "x0",
+          "descricao": "Sala",
+          "vao": 0
+        }
+      ],
+      "codigo": "V204",
+      "nome": "Lateral esquerda",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e053",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e052",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 10,
+          "descricao": "Alvenaria interna"
+        },
+        {
+          "id": "cmvzyspdcxvw",
+          "tipo": "elemento",
+          "elementoId": "e059",
+          "ligacao": "x1",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcdkd",
+          "tipo": "elemento",
+          "elementoId": "e060",
+          "ligacao": "x0",
+          "descricao": "Cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcyap",
+          "tipo": "elemento",
+          "elementoId": "e062",
+          "ligacao": "x1",
+          "descricao": "Quarto 2",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdc9o6",
+          "tipo": "elemento",
+          "elementoId": "e063",
+          "ligacao": "x0",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V205",
+      "nome": "Central",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e055",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e054",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 20,
+          "descricao": "Alvenaria de fachada"
+        },
+        {
+          "id": "cmvzyspdciqs",
+          "tipo": "elemento",
+          "elementoId": "e060",
+          "ligacao": "x1",
+          "descricao": "Cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcai2",
+          "tipo": "elemento",
+          "elementoId": "e063",
+          "ligacao": "x1",
+          "descricao": "Suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V206",
+      "nome": "Lateral direita",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e058",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e057",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 9,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "descricao": "Divisória dos quartos"
+        },
+        {
+          "id": "cmvzyspdcoav",
+          "tipo": "elemento",
+          "elementoId": "e062",
+          "ligacao": "x0",
+          "descricao": "Quarto 2",
+          "vao": "todos"
+        }
+      ],
+      "codigo": "V207",
+      "nome": "Apoiada em vigas",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 2,
+        "y": 5,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e059",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-sala",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L201",
+      "nome": "Sala",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e060",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-servico",
+        "revestimento": 1,
+        "acidental": 2,
+        "outras": 0
+      },
+      "codigo": "L202",
+      "nome": "Cozinha",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e062",
+      "modulo": "concreto.laje.macica",
+      "lx": 2,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L204",
+      "nome": "Quarto",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 2,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e063",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-dormitorio",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "codigo": "L205",
+      "nome": "Suíte",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e064",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 1.2,
+      "h": 12,
+      "bordas": {
+        "x0": "livre",
+        "x1": "livre",
+        "y0": "livre",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "varanda-res",
+        "revestimento": 1,
+        "acidental": 2.5,
+        "outras": 0
+      },
+      "codigo": "L206",
+      "nome": "Sacada",
+      "posicao": {
+        "pavimento": "pav2",
+        "x": 0,
+        "y": -1.2,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e065",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdco90",
+          "tipo": "elemento",
+          "elementoId": "e076",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdcyjb",
+          "tipo": "elemento",
+          "elementoId": "e081",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral esquerda"
+        }
+      ],
+      "codigo": "P301",
+      "nome": "Canto (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e066",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcr6i",
+          "tipo": "elemento",
+          "elementoId": "e076",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdcbdf",
+          "tipo": "elemento",
+          "elementoId": "e082",
+          "ligacao": "apoio-0",
+          "descricao": "Central"
+        }
+      ],
+      "codigo": "P302",
+      "nome": "Intermediário (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e067",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdca0l",
+          "tipo": "elemento",
+          "elementoId": "e076",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvzyspdc8h7",
+          "tipo": "elemento",
+          "elementoId": "e084",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral direita"
+        }
+      ],
+      "codigo": "P303",
+      "nome": "Canto (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 8,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e068",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcq1a",
+          "tipo": "elemento",
+          "elementoId": "e077",
+          "ligacao": "apoio-0",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdctkw",
+          "tipo": "elemento",
+          "elementoId": "e081",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral esquerda"
+        }
+      ],
+      "codigo": "P304",
+      "nome": "Intermediário (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e069",
+      "modulo": "concreto.pilar",
+      "bx": 25,
+      "by": 40,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcj0a",
+          "tipo": "elemento",
+          "elementoId": "e077",
+          "ligacao": "apoio-1",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdcz1y",
+          "tipo": "elemento",
+          "elementoId": "e082",
+          "ligacao": "apoio-1",
+          "descricao": "Central"
+        }
+      ],
+      "codigo": "P305",
+      "nome": "Central (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e070",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcunw",
+          "tipo": "elemento",
+          "elementoId": "e077",
+          "ligacao": "apoio-2",
+          "descricao": "Interna"
+        },
+        {
+          "id": "cmvzyspdck1d",
+          "tipo": "elemento",
+          "elementoId": "e084",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral direita"
+        }
+      ],
+      "codigo": "P306",
+      "nome": "Intermediário (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 8,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e071",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdctiv",
+          "tipo": "elemento",
+          "elementoId": "e079",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdc9i6",
+          "tipo": "elemento",
+          "elementoId": "e081",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral esquerda"
+        }
+      ],
+      "codigo": "P307",
+      "nome": "Canto (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e072",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdca8x",
+          "tipo": "elemento",
+          "elementoId": "e079",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdcndf",
+          "tipo": "elemento",
+          "elementoId": "e082",
+          "ligacao": "apoio-2",
+          "descricao": "Central"
+        }
+      ],
+      "codigo": "P308",
+      "nome": "Intermediário (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e073",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdchdl",
+          "tipo": "elemento",
+          "elementoId": "e079",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada dos fundos"
+        },
+        {
+          "id": "cmvzyspdc55d",
+          "tipo": "elemento",
+          "elementoId": "e084",
+          "ligacao": "apoio-2",
+          "descricao": "Lateral direita"
+        }
+      ],
+      "codigo": "P309",
+      "nome": "Canto (3º lance)",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 8,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e076",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e075",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 1,
+          "aberturas": 0,
+          "descricao": "Platibanda"
+        },
+        {
+          "id": "cmvzyspdcynl",
+          "tipo": "elemento",
+          "elementoId": "e086",
+          "ligacao": "y0",
+          "descricao": "Cobertura — sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcfgw",
+          "tipo": "elemento",
+          "elementoId": "e087",
+          "ligacao": "y0",
+          "descricao": "Cobertura — cozinha",
+          "vao": 1
+        }
+      ],
+      "codigo": "V301",
+      "nome": "Fachada frontal",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e077",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcxdo",
+          "tipo": "elemento",
+          "elementoId": "e086",
+          "ligacao": "y1",
+          "descricao": "Cobertura — sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcv00",
+          "tipo": "elemento",
+          "elementoId": "e087",
+          "ligacao": "y1",
+          "descricao": "Cobertura — cozinha",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdcxfx",
+          "tipo": "elemento",
+          "elementoId": "e089",
+          "ligacao": "y0",
+          "descricao": "Cobertura — quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdc8vk",
+          "tipo": "elemento",
+          "elementoId": "e090",
+          "ligacao": "y0",
+          "descricao": "Cobertura — suíte",
+          "vao": 1
+        },
+        {
+          "id": "cmw0zut6e8kr",
+          "tipo": "elemento",
+          "elementoId": "rs1",
+          "ligacao": "y0",
+          "descricao": "Caixa d’água sobre a escada",
+          "vao": 0,
+          "trecho": [
+            0,
+            2
+          ]
+        }
+      ],
+      "codigo": "V302",
+      "nome": "Interna",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e079",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e078",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 1,
+          "aberturas": 0,
+          "descricao": "Platibanda"
+        },
+        {
+          "id": "cmvzyspdcfl4",
+          "tipo": "elemento",
+          "elementoId": "e089",
+          "ligacao": "y1",
+          "descricao": "Cobertura — quarto 2",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcknv",
+          "tipo": "elemento",
+          "elementoId": "e090",
+          "ligacao": "y1",
+          "descricao": "Cobertura — suíte",
+          "vao": 1
+        },
+        {
+          "id": "cmw0zut6ejoi",
+          "tipo": "elemento",
+          "elementoId": "rs1",
+          "ligacao": "y1",
+          "descricao": "Caixa d’água sobre a escada",
+          "vao": 0,
+          "trecho": [
+            0,
+            2
+          ]
+        }
+      ],
+      "codigo": "V303",
+      "nome": "Fachada dos fundos",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e081",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e080",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 1,
+          "aberturas": 0,
+          "descricao": "Platibanda"
+        },
+        {
+          "id": "cmvzyspdcoqt",
+          "tipo": "elemento",
+          "elementoId": "e086",
+          "ligacao": "x0",
+          "descricao": "Cobertura — sala",
+          "vao": 0
+        },
+        {
+          "id": "cmw0zut6eky7",
+          "tipo": "elemento",
+          "elementoId": "rs1",
+          "ligacao": "x0",
+          "descricao": "Caixa d’água sobre a escada",
+          "vao": 1
+        }
+      ],
+      "codigo": "V304",
+      "nome": "Lateral esquerda",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e082",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdckqi",
+          "tipo": "elemento",
+          "elementoId": "e086",
+          "ligacao": "x1",
+          "descricao": "Cobertura — sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcu1x",
+          "tipo": "elemento",
+          "elementoId": "e087",
+          "ligacao": "x0",
+          "descricao": "Cobertura — cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdcr4y",
+          "tipo": "elemento",
+          "elementoId": "e089",
+          "ligacao": "x1",
+          "descricao": "Cobertura — quarto 2",
+          "vao": 1
+        },
+        {
+          "id": "cmvzyspdcdgn",
+          "tipo": "elemento",
+          "elementoId": "e090",
+          "ligacao": "x0",
+          "descricao": "Cobertura — suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V305",
+      "nome": "Central",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e084",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "e083",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 1,
+          "aberturas": 0,
+          "descricao": "Platibanda"
+        },
+        {
+          "id": "cmvzyspdca96",
+          "tipo": "elemento",
+          "elementoId": "e087",
+          "ligacao": "x1",
+          "descricao": "Cobertura — cozinha",
+          "vao": 0
+        },
+        {
+          "id": "cmvzyspdc7mg",
+          "tipo": "elemento",
+          "elementoId": "e090",
+          "ligacao": "x1",
+          "descricao": "Cobertura — suíte",
+          "vao": 1
+        }
+      ],
+      "codigo": "V306",
+      "nome": "Lateral direita",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e085",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 15,
+        "h": 60
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": 16,
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmvzyspdcrv4",
+          "tipo": "elemento",
+          "elementoId": "e089",
+          "ligacao": "x0",
+          "descricao": "Cobertura — quarto 2",
+          "vao": "todos"
+        },
+        {
+          "id": "cmw0zut6er6h",
+          "tipo": "elemento",
+          "elementoId": "rs1",
+          "ligacao": "x1",
+          "descricao": "Caixa d’água sobre a escada",
+          "vao": "todos"
+        }
+      ],
+      "codigo": "V307",
+      "nome": "Apoiada em vigas",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 2,
+        "y": 5,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "e086",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 0
+      },
+      "codigo": "L301",
+      "nome": "Cobertura — sala",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e087",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "engastada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 0
+      },
+      "codigo": "L302",
+      "nome": "Cobertura — cozinha",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e089",
+      "modulo": "concreto.laje.macica",
+      "lx": 2,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 0
+      },
+      "codigo": "L304",
+      "nome": "Cobertura — quarto 2",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 2,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "e090",
+      "modulo": "concreto.laje.macica",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "engastada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 0
+      },
+      "codigo": "L305",
+      "nome": "Cobertura — suíte",
+      "posicao": {
+        "pavimento": "pav3",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "sp1",
+      "modulo": "geotecnia.sondagem",
+      "local": {
+        "x": -1.5,
+        "y": -1.5
+      },
+      "cotaBoca": 0.2,
+      "data": "15/10/2026",
+      "empresa": "Sondagem de exemplo",
+      "responsavel": "",
+      "observacoes": "",
+      "nivelAgua": {
+        "inicial": 3.5,
+        "final": 3.6,
+        "seco": false
+      },
+      "limite": 10.45,
+      "paralisacao": "impenetravel",
+      "camadas": [
+        {
+          "id": "k1",
+          "ate": 1,
+          "solo": "aterro",
+          "secundario": "",
+          "cor": "marrom",
+          "origem": "aterro",
+          "descricao": "argila arenosa com entulho"
+        },
+        {
+          "id": "k2",
+          "ate": 4.2,
+          "solo": "argila",
+          "secundario": "siltoso",
+          "cor": "vermelha",
+          "origem": "coluvionar",
+          "descricao": ""
+        },
+        {
+          "id": "k3",
+          "ate": 8,
+          "solo": "silte",
+          "secundario": "arenoso",
+          "cor": "amarelo",
+          "origem": "residual",
+          "descricao": ""
+        },
+        {
+          "id": "k4",
+          "ate": 10.45,
+          "solo": "areia",
+          "secundario": "siltoso",
+          "cor": "cinza",
+          "origem": "residual",
+          "descricao": ""
+        }
+      ],
+      "spt": [
+        {
+          "prof": 1,
+          "n": 3,
+          "pen": 30
+        },
+        {
+          "prof": 2,
+          "n": 4,
+          "pen": 30
+        },
+        {
+          "prof": 3,
+          "n": 5,
+          "pen": 30
+        },
+        {
+          "prof": 4,
+          "n": 7,
+          "pen": 30
+        },
+        {
+          "prof": 5,
+          "n": 9,
+          "pen": 30
+        },
+        {
+          "prof": 6,
+          "n": 12,
+          "pen": 30
+        },
+        {
+          "prof": 7,
+          "n": 16,
+          "pen": 30
+        },
+        {
+          "prof": 8,
+          "n": 21,
+          "pen": 30
+        },
+        {
+          "prof": 9,
+          "n": 29,
+          "pen": 30
+        },
+        {
+          "prof": 10,
+          "n": 50,
+          "pen": 15
+        }
+      ],
+      "codigo": "SP1",
+      "nome": "Furo junto a P101",
+      "resultado": null
+    },
+    {
+      "id": "sp2",
+      "modulo": "geotecnia.sondagem",
+      "local": {
+        "x": 9.7,
+        "y": 11.8
+      },
+      "cotaBoca": -0.15,
+      "data": "15/10/2026",
+      "empresa": "Sondagem de exemplo",
+      "responsavel": "",
+      "observacoes": "",
+      "nivelAgua": {
+        "inicial": null,
+        "final": null,
+        "seco": true
+      },
+      "limite": 12.45,
+      "paralisacao": "impenetravel",
+      "camadas": [
+        {
+          "id": "k1",
+          "ate": 0.6,
+          "solo": "organico",
+          "secundario": "",
+          "cor": "preto",
+          "origem": "",
+          "descricao": "camada vegetal com raízes"
+        },
+        {
+          "id": "k2",
+          "ate": 5,
+          "solo": "argila",
+          "secundario": "arenoso",
+          "cor": "marrom",
+          "origem": "coluvionar",
+          "descricao": "porosa"
+        },
+        {
+          "id": "k3",
+          "ate": 9,
+          "solo": "silte",
+          "secundario": "argiloso",
+          "cor": "variegado",
+          "origem": "residual",
+          "descricao": ""
+        },
+        {
+          "id": "k4",
+          "ate": 12.45,
+          "solo": "areia",
+          "secundario": "comPedregulhos",
+          "cor": "amarela",
+          "origem": "residual",
+          "descricao": ""
+        }
+      ],
+      "spt": [
+        {
+          "prof": 1,
+          "n": 2,
+          "pen": 30
+        },
+        {
+          "prof": 2,
+          "n": 3,
+          "pen": 30
+        },
+        {
+          "prof": 3,
+          "n": 4,
+          "pen": 30
+        },
+        {
+          "prof": 4,
+          "n": 6,
+          "pen": 30
+        },
+        {
+          "prof": 5,
+          "n": 8,
+          "pen": 30
+        },
+        {
+          "prof": 6,
+          "n": 10,
+          "pen": 30
+        },
+        {
+          "prof": 7,
+          "n": 13,
+          "pen": 30
+        },
+        {
+          "prof": 8,
+          "n": 17,
+          "pen": 30
+        },
+        {
+          "prof": 9,
+          "n": 22,
+          "pen": 30
+        },
+        {
+          "prof": 10,
+          "n": 27,
+          "pen": 30
+        },
+        {
+          "prof": 11,
+          "n": 38,
+          "pen": 30
+        },
+        {
+          "prof": 12,
+          "n": 50,
+          "pen": 8
+        }
+      ],
+      "codigo": "SP2",
+      "nome": "Furo junto a P309",
+      "resultado": null
+    },
+    {
+      "id": "bl101",
+      "modulo": "concreto.bloco",
+      "codigo": "B101",
+      "nome": "Bloco de P101",
+      "pilarId": "p_ing062kz8j",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl102",
+      "modulo": "concreto.bloco",
+      "codigo": "B102",
+      "nome": "Bloco de P102",
+      "pilarId": "p_mwopg7kz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl103",
+      "modulo": "concreto.bloco",
+      "codigo": "B103",
+      "nome": "Bloco de P103",
+      "pilarId": "p_tg5q9akz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl104",
+      "modulo": "concreto.bloco",
+      "codigo": "B104",
+      "nome": "Bloco de P104",
+      "pilarId": "p_cvij5wkz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl105",
+      "modulo": "concreto.bloco",
+      "codigo": "B105",
+      "nome": "Bloco de P105",
+      "pilarId": "p_2wnh3hkz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl106",
+      "modulo": "concreto.bloco",
+      "codigo": "B106",
+      "nome": "Bloco de P106",
+      "pilarId": "p_iyzjhzkz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl107",
+      "modulo": "concreto.bloco",
+      "codigo": "B107",
+      "nome": "Bloco de P107",
+      "pilarId": "p_8eimj3kz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl108",
+      "modulo": "concreto.bloco",
+      "codigo": "B108",
+      "nome": "Bloco de P108",
+      "pilarId": "p_ohgwhfkz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 40,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "bl109",
+      "modulo": "concreto.bloco",
+      "codigo": "B109",
+      "nome": "Bloco de P109",
+      "pilarId": "p_6gg8q2kz8k",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 400,
+        "q": 100
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "n": "auto",
+      "espacamento": null,
+      "profundidade": 1.5,
+      "geometria": {
+        "modo": "automatica",
+        "A": 160,
+        "B": 70,
+        "h": 60
+      },
+      "cobrimento": 3,
+      "estaca": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_ing062kz8j",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz933x7",
+          "tipo": "elemento",
+          "elementoId": "vb001",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V101"
+        },
+        {
+          "id": "cmw0ykz93749",
+          "tipo": "elemento",
+          "elementoId": "vb004",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V104"
+        },
+        {
+          "id": "cmw0ykz936u7",
+          "tipo": "elemento",
+          "elementoId": "e001",
+          "ligacao": "base",
+          "descricao": "Canto (1º lance)"
+        }
+      ],
+      "codigo": "PB101",
+      "nome": "Arranque de P101",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_mwopg7kz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz93h0x",
+          "tipo": "elemento",
+          "elementoId": "vb001",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V101"
+        },
+        {
+          "id": "cmw0ykz93n9d",
+          "tipo": "elemento",
+          "elementoId": "vb005",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V105"
+        },
+        {
+          "id": "cmw0ykz935ij",
+          "tipo": "elemento",
+          "elementoId": "e002",
+          "ligacao": "base",
+          "descricao": "Intermediário (1º lance)"
+        }
+      ],
+      "codigo": "PB102",
+      "nome": "Arranque de P102",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_tg5q9akz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz934l8",
+          "tipo": "elemento",
+          "elementoId": "vb001",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V101"
+        },
+        {
+          "id": "cmw0ykz93jo1",
+          "tipo": "elemento",
+          "elementoId": "vb006",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V106"
+        },
+        {
+          "id": "cmw0ykz93wab",
+          "tipo": "elemento",
+          "elementoId": "e003",
+          "ligacao": "base",
+          "descricao": "Canto (1º lance)"
+        }
+      ],
+      "codigo": "PB103",
+      "nome": "Arranque de P103",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 8,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_cvij5wkz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz931wa",
+          "tipo": "elemento",
+          "elementoId": "vb002",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V102"
+        },
+        {
+          "id": "cmw0ykz93sbb",
+          "tipo": "elemento",
+          "elementoId": "vb004",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V104"
+        },
+        {
+          "id": "cmw0ykz93gwb",
+          "tipo": "elemento",
+          "elementoId": "e004",
+          "ligacao": "base",
+          "descricao": "Intermediário (1º lance)"
+        }
+      ],
+      "codigo": "PB104",
+      "nome": "Arranque de P104",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_2wnh3hkz8k",
+      "modulo": "concreto.pilar",
+      "bx": 25,
+      "by": 40,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz939xg",
+          "tipo": "elemento",
+          "elementoId": "vb002",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V102"
+        },
+        {
+          "id": "cmw0ykz93h1i",
+          "tipo": "elemento",
+          "elementoId": "vb005",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V105"
+        },
+        {
+          "id": "cmw0ykz938jv",
+          "tipo": "elemento",
+          "elementoId": "e005",
+          "ligacao": "base",
+          "descricao": "Central (1º lance)"
+        }
+      ],
+      "codigo": "PB105",
+      "nome": "Arranque de P105",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_iyzjhzkz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz93j8y",
+          "tipo": "elemento",
+          "elementoId": "vb002",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V102"
+        },
+        {
+          "id": "cmw0ykz93pp5",
+          "tipo": "elemento",
+          "elementoId": "vb006",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V106"
+        },
+        {
+          "id": "cmw0ykz93ub1",
+          "tipo": "elemento",
+          "elementoId": "e006",
+          "ligacao": "base",
+          "descricao": "Intermediário (1º lance)"
+        }
+      ],
+      "codigo": "PB106",
+      "nome": "Arranque de P106",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 8,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_8eimj3kz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz93faf",
+          "tipo": "elemento",
+          "elementoId": "vb003",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V103"
+        },
+        {
+          "id": "cmw0ykz93twb",
+          "tipo": "elemento",
+          "elementoId": "vb004",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V104"
+        },
+        {
+          "id": "cmw0ykz93g32",
+          "tipo": "elemento",
+          "elementoId": "e007",
+          "ligacao": "base",
+          "descricao": "Canto (1º lance)"
+        }
+      ],
+      "codigo": "PB107",
+      "nome": "Arranque de P107",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_ohgwhfkz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz93t13",
+          "tipo": "elemento",
+          "elementoId": "vb003",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V103"
+        },
+        {
+          "id": "cmw0ykz93vg5",
+          "tipo": "elemento",
+          "elementoId": "vb005",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V105"
+        },
+        {
+          "id": "cmw0ykz933u4",
+          "tipo": "elemento",
+          "elementoId": "e008",
+          "ligacao": "base",
+          "descricao": "Intermediário (1º lance)"
+        }
+      ],
+      "codigo": "PB108",
+      "nome": "Arranque de P108",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "p_6gg8q2kz8k",
+      "modulo": "concreto.pilar",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz938gy",
+          "tipo": "elemento",
+          "elementoId": "vb003",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V103"
+        },
+        {
+          "id": "cmw0ykz9340a",
+          "tipo": "elemento",
+          "elementoId": "vb006",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V106"
+        },
+        {
+          "id": "cmw0ykz93kdb",
+          "tipo": "elemento",
+          "elementoId": "e009",
+          "ligacao": "base",
+          "descricao": "Canto (1º lance)"
+        }
+      ],
+      "codigo": "PB109",
+      "nome": "Arranque de P109",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 8,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "vb001",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8k1ny",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92t66",
+          "tipo": "elemento",
+          "elementoId": "l001",
+          "ligacao": "y0",
+          "descricao": "Sala (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz92g3t",
+          "tipo": "elemento",
+          "elementoId": "l002",
+          "ligacao": "y0",
+          "descricao": "Cozinha (térreo)",
+          "vao": 1
+        }
+      ],
+      "codigo": "V001",
+      "nome": "Baldrame sob V101",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb002",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8k5wp",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92lna",
+          "tipo": "elemento",
+          "elementoId": "l001",
+          "ligacao": "y1",
+          "descricao": "Sala (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz92czy",
+          "tipo": "elemento",
+          "elementoId": "l002",
+          "ligacao": "y1",
+          "descricao": "Cozinha (térreo)",
+          "vao": 1
+        },
+        {
+          "id": "cmw0ykz924u4",
+          "tipo": "elemento",
+          "elementoId": "l004",
+          "ligacao": "y0",
+          "descricao": "Quarto (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz92v1q",
+          "tipo": "elemento",
+          "elementoId": "l005",
+          "ligacao": "y0",
+          "descricao": "Suíte (térreo)",
+          "vao": 1
+        },
+        {
+          "id": "cmw0ykz9595j",
+          "tipo": "elemento",
+          "elementoId": "es1",
+          "ligacao": "t1-ini",
+          "descricao": "Térreo → 1º pavimento",
+          "vao": 0,
+          "posicao": 0.525
+        }
+      ],
+      "codigo": "V002",
+      "nome": "Baldrame sob V102",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb003",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8kpbb",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92i2x",
+          "tipo": "elemento",
+          "elementoId": "l004",
+          "ligacao": "y1",
+          "descricao": "Quarto (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz92yt4",
+          "tipo": "elemento",
+          "elementoId": "l005",
+          "ligacao": "y1",
+          "descricao": "Suíte (térreo)",
+          "vao": 1
+        }
+      ],
+      "codigo": "V003",
+      "nome": "Baldrame sob V103",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 10,
+        "angulo": 0
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb004",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8kg2w",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92hig",
+          "tipo": "elemento",
+          "elementoId": "l001",
+          "ligacao": "x0",
+          "descricao": "Sala (térreo)",
+          "vao": 0
+        }
+      ],
+      "codigo": "V004",
+      "nome": "Baldrame sob V104",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb005",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8kwhx",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz923x3",
+          "tipo": "elemento",
+          "elementoId": "l001",
+          "ligacao": "x1",
+          "descricao": "Sala (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz923yg",
+          "tipo": "elemento",
+          "elementoId": "l002",
+          "ligacao": "x0",
+          "descricao": "Cozinha (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz922bm",
+          "tipo": "elemento",
+          "elementoId": "l004",
+          "ligacao": "x1",
+          "descricao": "Quarto (térreo)",
+          "vao": 1
+        },
+        {
+          "id": "cmw0ykz928ug",
+          "tipo": "elemento",
+          "elementoId": "l005",
+          "ligacao": "x0",
+          "descricao": "Suíte (térreo)",
+          "vao": 1
+        }
+      ],
+      "codigo": "V005",
+      "nome": "Baldrame sob V105",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb006",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        },
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8kr2n",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92mvc",
+          "tipo": "elemento",
+          "elementoId": "l002",
+          "ligacao": "x1",
+          "descricao": "Cozinha (térreo)",
+          "vao": 0
+        },
+        {
+          "id": "cmw0ykz922tf",
+          "tipo": "elemento",
+          "elementoId": "l005",
+          "ligacao": "x1",
+          "descricao": "Suíte (térreo)",
+          "vao": 1
+        }
+      ],
+      "codigo": "V006",
+      "nome": "Baldrame sob V106",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "vb007",
+      "modulo": "concreto.viga",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw0ykz8k52v",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.5,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        },
+        {
+          "id": "cmw0ykz92ydq",
+          "tipo": "elemento",
+          "elementoId": "l004",
+          "ligacao": "x0",
+          "descricao": "Quarto (térreo)",
+          "vao": "todos"
+        }
+      ],
+      "codigo": "V007",
+      "nome": "Baldrame sob V107",
+      "posicao": {
+        "pavimento": "pav0",
+        "x": 2,
+        "y": 5,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    }
+  ]
+}

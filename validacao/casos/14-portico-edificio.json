@@ -1,0 +1,132 @@
+{
+  "grupo": "Pórtico espacial do edifício",
+  "descricao": "Modelo do edifício gerado da montagem: pilares e vigas de todos os pavimentos, diafragma rígido, esforços dos pilares e conferência das cargas verticais.",
+  "casos": [
+    {
+      "id": "portico-edificio-portal",
+      "titulo": "Pórtico do edifício: viga de 6 m (20 × 50 cm, q = 10 kN/m) sobre dois pilares 40 × 20 cm de 3 m engastados na fundação (C25)",
+      "fonte": "Processo de inclinação-deflexão (simetria, sem deslocamento lateral): rigidez do pilar no topo 4·Ecs·Ic/h, da viga 2·Ecs·Ib/L (giros iguais e opostos); θ = (qL²/12)/(2EIb/L + 4EIc/h); M no topo do pilar = 4EIc/h·θ = 20,157 kN·m e na base = metade, com sinal oposto = 10,079 kN·m. Ecs = 24 150 MPa. Md = 1,4·M; Nd = 1,4·qL/2 = 42 kN. Sinal: Mx > 0 traciona a face −x do pilar (a externa, no pilar da esquerda). Só cargas verticais (desaprumo desligado). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.pilar",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 3.0
+        }
+      ],
+      "parametros": {
+        "analiseGlobal": {
+          "pilares": "portico"
+        },
+        "estabilidade": {
+          "desaprumo": false
+        }
+      },
+      "outros": [
+        {
+          "id": "v1",
+          "modulo": "concreto.viga",
+          "codigo": "V1",
+          "nome": "V1",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 6
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "pesoProprio": false,
+          "cargas": [
+            {
+              "id": "a",
+              "tipo": "distribuida",
+              "natureza": "g",
+              "valor": 10.0,
+              "vao": "todos"
+            }
+          ],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 0,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "p2",
+          "modulo": "concreto.pilar",
+          "codigo": "P2",
+          "nome": "P2",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 3.0,
+          "pesoProprio": false,
+          "cargas": [],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 6,
+            "y": 0,
+            "angulo": 0
+          }
+        }
+      ],
+      "elemento": {
+        "bx": 40,
+        "by": 20,
+        "comprimento": 3.0,
+        "pesoProprio": false,
+        "cargas": [],
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 0,
+          "y": 0,
+          "angulo": 0
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Nd do pórtico",
+          "caminho": "Nd",
+          "valor": 42.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Mxd no topo (traciona a face externa, −x)",
+          "caminho": "portico.prumada.0.Mx.topo",
+          "valor": 28.22,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Mxd na base (traciona a face interna, +x)",
+          "caminho": "portico.prumada.0.Mx.base",
+          "valor": -14.11,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Reações na fundação (G)",
+          "caminho": "portico.totais.reacoesG",
+          "valor": 60.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Soma das cargas dos pavimentos (G)",
+          "caminho": "portico.totais.somaPavG",
+          "valor": 60.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

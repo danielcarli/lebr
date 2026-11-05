@@ -1,0 +1,19 @@
+{
+  "name": "lebr",
+  "productName": "LEBR",
+  "version": "0.31.0",
+  "description": "LEBR — Laboratório de Estruturas Brasil: sistema aberto e modular para cálculo de estruturas de concreto armado e de madeira segundo as normas brasileiras.",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "src/main/main.cjs",
+  "author": "Daniel Michelon De Carli",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test test/*.test.js",
+    "validar": "node scripts/validar.mjs"
+  },
+  "devDependencies": {
+    "electron": "^45.2.1"
+  }
+}

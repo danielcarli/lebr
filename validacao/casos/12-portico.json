@@ -1,0 +1,650 @@
+{
+  "grupo": "Pórtico espacial",
+  "descricao": "Motor de barras com 6 graus de liberdade por nó comparado com soluções clássicas: balanço, biapoiada, pórtico plano, grelha, rótula interna, pilar com flexão nos dois eixos e torção, viga contínua.",
+  "casos": [
+    {
+      "id": "portico-balanco",
+      "titulo": "Barra em balanço de 3 m (20 × 40 cm, E = 20 GPa), força de 10 kN na ponta, para baixo",
+      "fonte": "Resistência dos materiais: δ = P·L³/(3·E·I), M = P·L no engaste, com I = b·h³/12.",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            },
+            {
+              "id": "B",
+              "x": 3.0,
+              "y": 0,
+              "z": 0
+            }
+          ],
+          "barras": [
+            {
+              "id": "b",
+              "i": "A",
+              "j": "B",
+              "secao": {
+                "b": 20,
+                "h": 40
+              }
+            }
+          ],
+          "cargas": [
+            {
+              "no": "B",
+              "Fz": -10.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Flecha na ponta",
+          "caminho": "deslocamentos[id=B].u.2",
+          "valor": -0.0042187,
+          "unidade": "m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Rotação na ponta",
+          "caminho": "deslocamentos[id=B].u.4",
+          "valor": 0.0021094,
+          "unidade": "rad",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação vertical",
+          "caminho": "reacoes[id=A].R.2",
+          "valor": 10.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento no engaste (Mz local)",
+          "caminho": "barras[id=b].extremos.i.Mz",
+          "valor": -30.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "portico-biapoiada",
+      "titulo": "Viga biapoiada de 6 m em duas barras, q = 10 kN/m",
+      "fonte": "Resistência dos materiais: M = qL²/8 = 45 kN·m, R = qL/2 = 30 kN, δ = 5qL⁴/(384EI).",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "111100"
+            },
+            {
+              "id": "M",
+              "x": 3,
+              "y": 0,
+              "z": 0
+            },
+            {
+              "id": "B",
+              "x": 6,
+              "y": 0,
+              "z": 0,
+              "apoio": "011000"
+            }
+          ],
+          "barras": [
+            {
+              "id": "b1",
+              "i": "A",
+              "j": "M",
+              "secao": {
+                "b": 20,
+                "h": 40
+              },
+              "q": {
+                "Z": -10.0
+              }
+            },
+            {
+              "id": "b2",
+              "i": "M",
+              "j": "B",
+              "secao": {
+                "b": 20,
+                "h": 40
+              },
+              "q": {
+                "Z": -10.0
+              }
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no meio",
+          "caminho": "barras[id=b1].extremos.j.Mz",
+          "valor": 45.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação em A",
+          "caminho": "reacoes[id=A].R.2",
+          "valor": 30.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Flecha no meio",
+          "caminho": "deslocamentos[id=M].u.2",
+          "valor": -0.0079102,
+          "unidade": "m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Cortante junto a A",
+          "caminho": "barras[id=b1].extremos.i.Vy",
+          "valor": 30.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "portico-plano-horizontal",
+      "titulo": "Pórtico plano engastado (pilares 3 m, viga 6 m, mesma inércia), força horizontal de 10 kN no topo",
+      "fonte": "Processo de inclinação-deflexão (deformação axial desprezada: A muito grande): θB = θC, ψ = Δ/h; equilíbrio do nó B e da cortante dos pilares. M na base = 9.375 kN·m, M no topo = 5.625 kN·m, Δ = 0.984 mm. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "tipo": "plano-xz",
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "secao": {
+            "A": 100.0,
+            "Iy": 0.001,
+            "Iz": 0.001,
+            "J": 0.001
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            },
+            {
+              "id": "B",
+              "x": 0,
+              "y": 0,
+              "z": 3.0
+            },
+            {
+              "id": "C",
+              "x": 6.0,
+              "y": 0,
+              "z": 3.0
+            },
+            {
+              "id": "D",
+              "x": 6.0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            }
+          ],
+          "barras": [
+            {
+              "id": "P1",
+              "i": "A",
+              "j": "B"
+            },
+            {
+              "id": "V1",
+              "i": "B",
+              "j": "C"
+            },
+            {
+              "id": "P2",
+              "i": "D",
+              "j": "C"
+            }
+          ],
+          "cargas": [
+            {
+              "no": "B",
+              "Fx": 10.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Deslocamento horizontal do topo",
+          "caminho": "deslocamentos[id=B].u.0",
+          "valor": 0.00098438,
+          "unidade": "m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Momento na base A (em torno de Y)",
+          "caminho": "reacoes[id=A].R.4",
+          "valor": -9.375,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Momento na viga junto ao nó B",
+          "caminho": "barras[id=V1].extremos.i.Mz",
+          "valor": 5.625,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Reação horizontal em A",
+          "caminho": "reacoes[id=A].R.0",
+          "valor": -5.0,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "portico-grelha-l",
+      "titulo": "Grelha em L engastada: braço de 3 m em X e de 2 m em Y, 10 kN para baixo na ponta",
+      "fonte": "Flexão dos dois braços e torção do primeiro: δ = P·a³/(3EI) + P·b³/(3EI) + P·a·b²/(GJ); no engaste, torçor T = P·b e momento M = P·a. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "tipo": "grelha",
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "secao": {
+            "A": 0.08,
+            "Iy": 0.001,
+            "Iz": 0.001,
+            "J": 0.002
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            },
+            {
+              "id": "B",
+              "x": 3.0,
+              "y": 0,
+              "z": 0
+            },
+            {
+              "id": "C",
+              "x": 3.0,
+              "y": 2.0,
+              "z": 0
+            }
+          ],
+          "barras": [
+            {
+              "id": "b1",
+              "i": "A",
+              "j": "B"
+            },
+            {
+              "id": "b2",
+              "i": "B",
+              "j": "C"
+            }
+          ],
+          "cargas": [
+            {
+              "no": "C",
+              "Fz": -10.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Flecha na ponta",
+          "caminho": "deslocamentos[id=C].u.2",
+          "valor": -0.013033,
+          "unidade": "m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Torçor no engaste (em torno de X)",
+          "caminho": "reacoes[id=A].R.3",
+          "valor": 20.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento fletor no engaste (em torno de Y)",
+          "caminho": "reacoes[id=A].R.4",
+          "valor": -30.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação vertical",
+          "caminho": "reacoes[id=A].R.2",
+          "valor": 10.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "portico-rotula",
+      "titulo": "Viga engastada em A com rótula a 2 m e apoio a 6 m (Gerber), q = 10 kN/m",
+      "fonte": "Isostática: o trecho rotulado de 4 m é biapoiado (rótula com 20 kN, apoio C com 20 kN); o balanço de 2 m recebe q e os 20 kN da rótula → RA = 40 kN, MA = −(20·2 + 10·2²/2) = −60 kN·m, M na rótula = 0.",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "tipo": "plano-xz",
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "secao": {
+            "b": 20,
+            "h": 40
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            },
+            {
+              "id": "H",
+              "x": 2,
+              "y": 0,
+              "z": 0
+            },
+            {
+              "id": "C",
+              "x": 6,
+              "y": 0,
+              "z": 0,
+              "apoio": "apoio"
+            }
+          ],
+          "barras": [
+            {
+              "id": "b1",
+              "i": "A",
+              "j": "H",
+              "liberar": {
+                "j": [
+                  "Mz"
+                ]
+              },
+              "q": {
+                "Z": -10.0
+              }
+            },
+            {
+              "id": "b2",
+              "i": "H",
+              "j": "C",
+              "q": {
+                "Z": -10.0
+              }
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Reação em A",
+          "caminho": "reacoes[id=A].R.2",
+          "valor": 40.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação em C",
+          "caminho": "reacoes[id=C].R.2",
+          "valor": 20.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento no engaste",
+          "caminho": "barras[id=b1].extremos.i.Mz",
+          "valor": -60.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento na rótula",
+          "caminho": "barras[id=b2].extremos.i.Mz",
+          "valor": 0.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001,
+          "toleranciaAbs": 1e-06
+        },
+        {
+          "grandeza": "Momento máximo no trecho rotulado",
+          "caminho": "barras[id=b2].max.Mz.max",
+          "valor": 20.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "portico-pilar-3d",
+      "titulo": "Pilar vertical em balanço de 3 m, 20 (Y) × 40 (X) cm: Fx = 5 kN, Fy = 3 kN e torção de 2 kN·m no topo",
+      "fonte": "Barra vertical: y local = X (h = 40 cm) e z local = Y (b = 20 cm). δx = Fx·L³/(3E·b·h³/12); δy = Fy·L³/(3E·h·b³/12); giro φ = T·L/(G·J), J = β·a·b³ do retângulo (Roark: J = a·b³·[1/3 − 0,21·(b/a)·(1 − (b/a)⁴/12)]).",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "engaste"
+            },
+            {
+              "id": "B",
+              "x": 0,
+              "y": 0,
+              "z": 3.0
+            }
+          ],
+          "barras": [
+            {
+              "id": "P",
+              "i": "A",
+              "j": "B",
+              "secao": {
+                "b": 20,
+                "h": 40
+              }
+            }
+          ],
+          "cargas": [
+            {
+              "no": "B",
+              "Fx": 5.0,
+              "Fy": 3.0,
+              "Mz": 2.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "δx no topo",
+          "caminho": "deslocamentos[id=B].u.0",
+          "valor": 0.0021094,
+          "unidade": "m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "δy no topo",
+          "caminho": "deslocamentos[id=B].u.1",
+          "valor": 0.0050625,
+          "unidade": "m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Giro no topo",
+          "caminho": "deslocamentos[id=B].u.5",
+          "valor": 0.00098305,
+          "unidade": "rad",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento na base em torno de Y",
+          "caminho": "reacoes[id=A].R.4",
+          "valor": -15.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento na base em torno de X",
+          "caminho": "reacoes[id=A].R.3",
+          "valor": 9.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "portico-continua",
+      "titulo": "Viga contínua de dois vãos iguais de 5 m, q = 10 kN/m",
+      "fonte": "Tabelas de vigas contínuas: reação central 1,25·qL = 62,5 kN, extremas 0,375·qL = 18,75 kN, momento no apoio central −qL²/8 = −31,25 kN·m.",
+      "alvo": "motor",
+      "funcao": "portico.analisarPortico",
+      "args": [
+        {
+          "tipo": "plano-xz",
+          "material": {
+            "E": 20000000.0,
+            "nu": 0.2
+          },
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "nos": [
+            {
+              "id": "A",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "apoio": "apoio"
+            },
+            {
+              "id": "B",
+              "x": 5.0,
+              "y": 0,
+              "z": 0,
+              "apoio": "011000"
+            },
+            {
+              "id": "C",
+              "x": 10.0,
+              "y": 0,
+              "z": 0,
+              "apoio": "011000"
+            }
+          ],
+          "barras": [
+            {
+              "id": "v1",
+              "i": "A",
+              "j": "B",
+              "q": {
+                "Z": -10.0
+              }
+            },
+            {
+              "id": "v2",
+              "i": "B",
+              "j": "C",
+              "q": {
+                "Z": -10.0
+              }
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Reação central",
+          "caminho": "reacoes[id=B].R.2",
+          "valor": 62.5,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação extrema",
+          "caminho": "reacoes[id=A].R.2",
+          "valor": 18.75,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento no apoio central",
+          "caminho": "barras[id=v1].extremos.j.Mz",
+          "valor": -31.25,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Momento máximo no vão",
+          "caminho": "barras[id=v1].max.Mz.max",
+          "valor": 17.578,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

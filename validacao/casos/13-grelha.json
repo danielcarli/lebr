@@ -1,0 +1,327 @@
+{
+  "grupo": "Grelha de pavimento",
+  "descricao": "Vigas do pavimento analisadas como grelha: viga apoiada em viga (compatibilidade de flechas) e engastamento elástico nos pilares.",
+  "casos": [
+    {
+      "id": "grelha-cruzamento",
+      "titulo": "Grelha: V2 (2 × 4 m, q = 8 kN/m) apoiada no meio de V1 (6 m, q = 10 kN/m), vigas 20 × 50 cm iguais",
+      "fonte": "Vigas cruzadas no meio dos vãos (simetria: sem torção). Compatibilidade da flecha no cruzamento: 5q1L1⁴/384 + X·L1³/48 = 5q2L2⁴/384 − X·L2³/48 (EI iguais) → X = 17,005 kN. V1: M = q1L1²/8 + X·L1/4 = 70,508 kN·m; V2: R = q2L2/2 − X/2 = 23,497 kN e M+ = R²/(2q2) = 34,508 kN·m. Md = 1,4·M (só carga permanente). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 2.8,
+          "analise": "grelha"
+        }
+      ],
+      "outros": [
+        {
+          "id": "v1",
+          "modulo": "concreto.viga",
+          "codigo": "V1",
+          "nome": "V1",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 6
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ],
+          "pesoProprio": false,
+          "cargas": [
+            {
+              "id": "a",
+              "tipo": "distribuida",
+              "natureza": "g",
+              "valor": 10.0,
+              "vao": "todos"
+            }
+          ],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 0,
+            "angulo": 0
+          }
+        }
+      ],
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 4
+          },
+          {
+            "L": 4
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "a",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "valor": 8.0,
+            "vao": "todos"
+          }
+        ],
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 3,
+          "y": -4,
+          "angulo": 90
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Reação de V1 no apoio central de V2",
+          "caminho": "apoios.1.Rg",
+          "valor": 17.005,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Md+ de V2 na grelha",
+          "caminho": "vaos.0.Mdpos",
+          "valor": 48.311,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Md+ de V2 isolada (comparação)",
+          "caminho": "grelha.comparacao.vaos.0.iso",
+          "valor": 12.6,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Força no encontro (Fg,k)",
+          "caminho": "grelha.interacoes.0.Rg",
+          "valor": 17.005,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "grelha-cruzamento-v1",
+      "titulo": "Grelha: V1 (6 m) recebe V2 no meio do vão",
+      "fonte": "Mesmo modelo do caso anterior: M de V1 = q1L1²/8 + X·L1/4 = 70,508 kN·m → Md = 1,4·M.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 2.8,
+          "analise": "grelha"
+        }
+      ],
+      "outros": [
+        {
+          "id": "v2",
+          "modulo": "concreto.viga",
+          "codigo": "V2",
+          "nome": "V2",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 4
+            },
+            {
+              "L": 4
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio",
+            "apoio"
+          ],
+          "pesoProprio": false,
+          "cargas": [
+            {
+              "id": "a",
+              "tipo": "distribuida",
+              "natureza": "g",
+              "valor": 8.0,
+              "vao": "todos"
+            }
+          ],
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 3,
+            "y": -4,
+            "angulo": 90
+          }
+        }
+      ],
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 6
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "a",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "valor": 10.0,
+            "vao": "todos"
+          }
+        ],
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 0,
+          "y": 0,
+          "angulo": 0
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Md+ de V1 na grelha",
+          "caminho": "vaos.0.Mdpos",
+          "valor": 98.712,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Reação em cada apoio de V1",
+          "caminho": "apoios.0.Rg",
+          "valor": 38.503,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "grelha-pilares",
+      "titulo": "Grelha: viga de 6 m (20 × 50 cm, q = 10 kN/m) sobre dois pilares 40 × 20 cm de 2,80 m (C25)",
+      "fonte": "Engastamento elástico: mola do pilar k = 4·Ecs·I/ℓ = 36800 kN·m/rad (I = 0,20·0,40³/12, Ecs = 24 150 MPa); por simetria, M = (qL²/12)·k/(k + 2EI/L) = 20,608 kN·m nos apoios e qL²/8 − M = 24,392 kN·m no vão. Md = 1,4·M. Inclinação-deflexão; cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "pavimentos": [
+        {
+          "id": "pav1",
+          "nome": "1º pavimento",
+          "cota": 2.8,
+          "analise": "grelha"
+        }
+      ],
+      "outros": [
+        {
+          "id": "p1",
+          "modulo": "concreto.pilar",
+          "codigo": "P1",
+          "nome": "P1",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 2.8,
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 0,
+            "y": 0,
+            "angulo": 0
+          }
+        },
+        {
+          "id": "p2",
+          "modulo": "concreto.pilar",
+          "codigo": "P2",
+          "nome": "P2",
+          "bx": 40,
+          "by": 20,
+          "comprimento": 2.8,
+          "posicao": {
+            "pavimento": "pav1",
+            "x": 6,
+            "y": 0,
+            "angulo": 0
+          }
+        }
+      ],
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 6
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "a",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "valor": 10.0,
+            "vao": "todos"
+          }
+        ],
+        "posicao": {
+          "pavimento": "pav1",
+          "x": 0,
+          "y": 0,
+          "angulo": 0
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Md− no apoio",
+          "caminho": "apoios.0.Mdneg",
+          "valor": -28.852,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Md+ no vão",
+          "caminho": "vaos.0.Mdpos",
+          "valor": 34.148,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Md+ isolada (comparação)",
+          "caminho": "grelha.comparacao.vaos.0.iso",
+          "valor": 63.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.003
+        }
+      ]
+    }
+  ]
+}

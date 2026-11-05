@@ -1,0 +1,1625 @@
+{
+  "formato": "lebr.projeto",
+  "versao": 1,
+  "meta": {
+    "nome": "Residência térrea com baldrame",
+    "autor": "LEBR",
+    "descricao": "Casa térrea de um pavimento: duas lajes maciças, cinco vigas e seis pilares na cobertura; nível de baldrame com os arranques dos pilares e as vigas baldrame sob as paredes; sapatas isoladas com a tensão admissível pelo SPT.",
+    "criadoEm": "2026-11-03T14:20:17.991Z",
+    "modificadoEm": "2026-11-03T14:20:21.441Z",
+    "aplicativo": "LEBR 0.23.1"
+  },
+  "parametros": {
+    "norma": "NBR 6118:2023",
+    "classeAgressividade": "II",
+    "concreto": {
+      "fck": 25,
+      "agregado": "granito",
+      "pesoEspecifico": 25
+    },
+    "aco": {
+      "fyk": 500,
+      "Es": 210000
+    },
+    "agregadoDmax": 19,
+    "cobrimento": {
+      "viga": 3,
+      "pilar": 3,
+      "laje": 2.5
+    },
+    "coeficientes": {
+      "gc": 1.4,
+      "gs": 1.15,
+      "gg": 1.4,
+      "ggFav": 1,
+      "gq": 1.4,
+      "psi0": 0.5,
+      "psi1": 0.4,
+      "psi2": 0.3
+    },
+    "uso": "residencial",
+    "els": {
+      "t0": 1
+    },
+    "unidades": {
+      "comprimento": "cm"
+    },
+    "analiseGlobal": {
+      "pilares": "elementos"
+    },
+    "vento": {
+      "ativo": false,
+      "V0": 45,
+      "referencia": "",
+      "topografia": "plano",
+      "S1": 1,
+      "categoria": "IV",
+      "classe": "auto",
+      "grupo": 2,
+      "Ca": {
+        "x": null,
+        "y": null
+      }
+    },
+    "estabilidade": {
+      "desaprumo": true,
+      "rigidez": "separada",
+      "contraventamento": "porticos",
+      "majorar": true
+    },
+    "madeira": {
+      "classe": "C24",
+      "umidade": 2,
+      "carregamento": "longa",
+      "tipo": "serrada",
+      "gwc": 1.4,
+      "gwv": 1.8,
+      "gg": 1.4,
+      "gq": 1.5,
+      "flecha": 200
+    }
+  },
+  "elementos": [
+    {
+      "id": "l1",
+      "modulo": "concreto.laje.macica",
+      "codigo": "L1",
+      "nome": "Sala",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "engastada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "cargas": {
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "l2",
+      "modulo": "concreto.laje.macica",
+      "codigo": "L2",
+      "nome": "Dormitório",
+      "lx": 3.5,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "engastada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "cargas": {
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v1",
+      "modulo": "concreto.viga",
+      "codigo": "V1",
+      "nome": "Fachada frontal",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 3.5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "espessura": 15,
+          "altura": 2.6,
+          "peso": 13,
+          "descricao": "Parede de fachada"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "y0",
+          "vao": 0,
+          "descricao": "Laje da sala"
+        },
+        {
+          "id": "c3",
+          "tipo": "elemento",
+          "elementoId": "l2",
+          "ligacao": "y0",
+          "vao": 1,
+          "descricao": "Laje do dormitório"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v2",
+      "modulo": "concreto.viga",
+      "codigo": "V2",
+      "nome": "Lateral esquerda",
+      "secao": {
+        "b": 15,
+        "h": 45
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "espessura": 15,
+          "altura": 2.6,
+          "peso": 13,
+          "descricao": "Parede lateral"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "x0",
+          "vao": "todos",
+          "descricao": "Laje da sala"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      }
+    },
+    {
+      "id": "v3",
+      "modulo": "concreto.viga",
+      "codigo": "V3",
+      "nome": "Viga central",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "x1",
+          "vao": "todos",
+          "descricao": "Laje da sala"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "l2",
+          "ligacao": "x0",
+          "vao": "todos",
+          "descricao": "Laje do dormitório"
+        },
+        {
+          "id": "c3",
+          "tipo": "distribuida",
+          "natureza": "g",
+          "valor": 4,
+          "vao": "todos",
+          "descricao": "Divisória leve"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      }
+    },
+    {
+      "id": "v4",
+      "modulo": "concreto.viga",
+      "codigo": "V4",
+      "nome": "Fundos",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 3.5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "espessura": 15,
+          "altura": 2.6,
+          "peso": 13,
+          "descricao": "Parede de fachada"
+        },
+        {
+          "id": "cmvyp5660nd8",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "y1",
+          "descricao": "Sala",
+          "vao": 0
+        },
+        {
+          "id": "cmvyp5660pru",
+          "tipo": "elemento",
+          "elementoId": "l2",
+          "ligacao": "y1",
+          "descricao": "Dormitório",
+          "vao": 1
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v5",
+      "modulo": "concreto.viga",
+      "codigo": "V5",
+      "nome": "Lateral direita",
+      "secao": {
+        "b": 15,
+        "h": 45
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "espessura": 15,
+          "altura": 2.6,
+          "peso": 13,
+          "descricao": "Parede lateral"
+        },
+        {
+          "id": "cmvyp5660319",
+          "tipo": "elemento",
+          "elementoId": "l2",
+          "ligacao": "x1",
+          "descricao": "Dormitório",
+          "vao": "todos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 7.5,
+        "y": 0,
+        "angulo": 90
+      }
+    },
+    {
+      "id": "p1",
+      "modulo": "concreto.pilar",
+      "codigo": "P1",
+      "nome": "Canto",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 120,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "v1",
+          "ligacao": "apoio-0",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "c3",
+          "tipo": "elemento",
+          "elementoId": "v2",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral esquerda"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p2",
+      "modulo": "concreto.pilar",
+      "codigo": "P2",
+      "nome": "Intermediário",
+      "bx": 19,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 200,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "v1",
+          "ligacao": "apoio-1",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "c3",
+          "tipo": "elemento",
+          "elementoId": "v3",
+          "ligacao": "apoio-0",
+          "descricao": "Viga central"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p3",
+      "modulo": "concreto.pilar",
+      "codigo": "P3",
+      "nome": "Canto direito",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 120,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "c2",
+          "tipo": "elemento",
+          "elementoId": "v1",
+          "ligacao": "apoio-2",
+          "descricao": "Fachada frontal"
+        },
+        {
+          "id": "cmvyp5660sa4",
+          "tipo": "elemento",
+          "elementoId": "v5",
+          "ligacao": "apoio-0",
+          "descricao": "Lateral direita"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 7.5,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p4",
+      "modulo": "concreto.pilar",
+      "codigo": "P4",
+      "nome": "Canto fundos",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 120,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "cmvyp5660v1p",
+          "tipo": "elemento",
+          "elementoId": "v2",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral esquerda"
+        },
+        {
+          "id": "cmvyp5660n7w",
+          "tipo": "elemento",
+          "elementoId": "v4",
+          "ligacao": "apoio-0",
+          "descricao": "Fundos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p5",
+      "modulo": "concreto.pilar",
+      "codigo": "P5",
+      "nome": "Intermediário fundos",
+      "bx": 19,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 200,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "cmvyp5660unp",
+          "tipo": "elemento",
+          "elementoId": "v3",
+          "ligacao": "apoio-1",
+          "descricao": "Viga central"
+        },
+        {
+          "id": "cmvyp5660vc3",
+          "tipo": "elemento",
+          "elementoId": "v4",
+          "ligacao": "apoio-1",
+          "descricao": "Fundos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p6",
+      "modulo": "concreto.pilar",
+      "codigo": "P6",
+      "nome": "Canto direito fundos",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 120,
+          "descricao": "Cobertura"
+        },
+        {
+          "id": "cmvyp5660qje",
+          "tipo": "elemento",
+          "elementoId": "v4",
+          "ligacao": "apoio-2",
+          "descricao": "Fundos"
+        },
+        {
+          "id": "cmvyp5660ywe",
+          "tipo": "elemento",
+          "elementoId": "v5",
+          "ligacao": "apoio-1",
+          "descricao": "Lateral direita"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 7.5,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "sp1",
+      "modulo": "geotecnia.sondagem",
+      "local": {
+        "x": 3.75,
+        "y": -1
+      },
+      "cotaBoca": 0,
+      "data": "15/10/2026",
+      "empresa": "Sondagem de exemplo",
+      "responsavel": "",
+      "observacoes": "",
+      "nivelAgua": {
+        "inicial": null,
+        "final": null,
+        "seco": true
+      },
+      "limite": 8.45,
+      "paralisacao": "impenetravel",
+      "camadas": [
+        {
+          "id": "k1",
+          "ate": 0.6,
+          "solo": "aterro",
+          "secundario": "",
+          "cor": "marrom",
+          "origem": "aterro",
+          "descricao": "argila com restos de construção"
+        },
+        {
+          "id": "k2",
+          "ate": 3.2,
+          "solo": "argila",
+          "secundario": "arenoso",
+          "cor": "vermelha",
+          "origem": "coluvionar",
+          "descricao": ""
+        },
+        {
+          "id": "k3",
+          "ate": 7,
+          "solo": "silte",
+          "secundario": "arenoso",
+          "cor": "amarelo",
+          "origem": "residual",
+          "descricao": ""
+        },
+        {
+          "id": "k4",
+          "ate": 8.45,
+          "solo": "areia",
+          "secundario": "siltoso",
+          "cor": "cinza",
+          "origem": "residual",
+          "descricao": ""
+        }
+      ],
+      "spt": [
+        {
+          "prof": 1,
+          "n": 6,
+          "pen": 30
+        },
+        {
+          "prof": 2,
+          "n": 9,
+          "pen": 30
+        },
+        {
+          "prof": 3,
+          "n": 11,
+          "pen": 30
+        },
+        {
+          "prof": 4,
+          "n": 13,
+          "pen": 30
+        },
+        {
+          "prof": 5,
+          "n": 15,
+          "pen": 30
+        },
+        {
+          "prof": 6,
+          "n": 18,
+          "pen": 30
+        },
+        {
+          "prof": 7,
+          "n": 24,
+          "pen": 30
+        },
+        {
+          "prof": 8,
+          "n": 50,
+          "pen": 15
+        }
+      ],
+      "codigo": "SP1",
+      "nome": "Furo na frente do lote",
+      "resultado": null
+    },
+    {
+      "id": "p_i2675eyuq9",
+      "modulo": "concreto.pilar",
+      "codigo": "PB1",
+      "nome": "Arranque de P1",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqek21",
+          "tipo": "elemento",
+          "elementoId": "v_ctqwv9yuqa",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw0ryuqe72g",
+          "tipo": "elemento",
+          "elementoId": "v_liazosyuqa",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V2"
+        },
+        {
+          "id": "cmw0ryuqecbt",
+          "tipo": "elemento",
+          "elementoId": "p1",
+          "ligacao": "base",
+          "descricao": "Canto"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_4cv912yuqa",
+      "modulo": "concreto.pilar",
+      "codigo": "PB2",
+      "nome": "Arranque de P2",
+      "bx": 19,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqe5qi",
+          "tipo": "elemento",
+          "elementoId": "v_ctqwv9yuqa",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw0ryuqe2qj",
+          "tipo": "elemento",
+          "elementoId": "v_rmwhkmyuqa",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V3"
+        },
+        {
+          "id": "cmw0ryuqeepu",
+          "tipo": "elemento",
+          "elementoId": "p2",
+          "ligacao": "base",
+          "descricao": "Intermediário"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_hleuusyuqa",
+      "modulo": "concreto.pilar",
+      "codigo": "PB3",
+      "nome": "Arranque de P3",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqepc4",
+          "tipo": "elemento",
+          "elementoId": "v_ctqwv9yuqa",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw0ryuqegai",
+          "tipo": "elemento",
+          "elementoId": "v_t52wp9yuqa",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V5"
+        },
+        {
+          "id": "cmw0ryuqepkb",
+          "tipo": "elemento",
+          "elementoId": "p3",
+          "ligacao": "base",
+          "descricao": "Canto direito"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 7.5,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_7ybzm1yuqa",
+      "modulo": "concreto.pilar",
+      "codigo": "PB4",
+      "nome": "Arranque de P4",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqeho1",
+          "tipo": "elemento",
+          "elementoId": "v_liazosyuqa",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V2"
+        },
+        {
+          "id": "cmw0ryuqeni3",
+          "tipo": "elemento",
+          "elementoId": "v_pq1e22yuqa",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V4"
+        },
+        {
+          "id": "cmw0ryuqefa8",
+          "tipo": "elemento",
+          "elementoId": "p4",
+          "ligacao": "base",
+          "descricao": "Canto fundos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_jz5vzbyuqa",
+      "modulo": "concreto.pilar",
+      "codigo": "PB5",
+      "nome": "Arranque de P5",
+      "bx": 19,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqe6fq",
+          "tipo": "elemento",
+          "elementoId": "v_rmwhkmyuqa",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V3"
+        },
+        {
+          "id": "cmw0ryuqebfj",
+          "tipo": "elemento",
+          "elementoId": "v_pq1e22yuqa",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V4"
+        },
+        {
+          "id": "cmw0ryuqepz8",
+          "tipo": "elemento",
+          "elementoId": "p5",
+          "ligacao": "base",
+          "descricao": "Intermediário fundos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_9evoqpyuqa",
+      "modulo": "concreto.pilar",
+      "codigo": "PB6",
+      "nome": "Arranque de P6",
+      "bx": 15,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqeqg4",
+          "tipo": "elemento",
+          "elementoId": "v_pq1e22yuqa",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V4"
+        },
+        {
+          "id": "cmw0ryuqe7zh",
+          "tipo": "elemento",
+          "elementoId": "v_t52wp9yuqa",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V5"
+        },
+        {
+          "id": "cmw0ryuqe0us",
+          "tipo": "elemento",
+          "elementoId": "p6",
+          "ligacao": "base",
+          "descricao": "Canto direito fundos"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 7.5,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v_ctqwv9yuqa",
+      "modulo": "concreto.viga",
+      "codigo": "VB1",
+      "nome": "Baldrame sob V1",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 3.5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqakfr",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "baldrame": true
+    },
+    {
+      "id": "v_liazosyuqa",
+      "modulo": "concreto.viga",
+      "codigo": "VB2",
+      "nome": "Baldrame sob V2",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqa5gv",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "baldrame": true
+    },
+    {
+      "id": "v_rmwhkmyuqa",
+      "modulo": "concreto.viga",
+      "codigo": "VB3",
+      "nome": "Baldrame sob V3",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqa9we",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "baldrame": true
+    },
+    {
+      "id": "v_pq1e22yuqa",
+      "modulo": "concreto.viga",
+      "codigo": "VB4",
+      "nome": "Baldrame sob V4",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 3.5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqadff",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "baldrame": true
+    },
+    {
+      "id": "v_t52wp9yuqa",
+      "modulo": "concreto.viga",
+      "codigo": "VB5",
+      "nome": "Baldrame sob V5",
+      "secao": {
+        "b": 15,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "phiT": 5
+      },
+      "cargas": [
+        {
+          "id": "cmw0ryuqakkb",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "baldrame",
+        "x": 7.5,
+        "y": 0,
+        "angulo": 90
+      },
+      "baldrame": true
+    },
+    {
+      "id": "s_wzk6r9yuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S1",
+      "nome": "Sapata de PB1",
+      "pilarId": "p_i2675eyuq9",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_l78oqwyuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S2",
+      "nome": "Sapata de PB2",
+      "pilarId": "p_4cv912yuqa",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_mycj9ryuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S3",
+      "nome": "Sapata de PB3",
+      "pilarId": "p_hleuusyuqa",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_37yz59yuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S4",
+      "nome": "Sapata de PB4",
+      "pilarId": "p_7ybzm1yuqa",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_mk1gllyuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S5",
+      "nome": "Sapata de PB5",
+      "pilarId": "p_jz5vzbyuqa",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_444gg8yuqf",
+      "modulo": "concreto.sapata",
+      "codigo": "S6",
+      "nome": "Sapata de PB6",
+      "pilarId": "p_9evoqpyuqa",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "spt",
+        "tensao": 200,
+        "sondagemId": "sp1",
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    }
+  ],
+  "pavimentos": [
+    {
+      "id": "pav1",
+      "nome": "Cobertura",
+      "cota": 2.8
+    },
+    {
+      "id": "baldrame",
+      "nome": "Baldrame",
+      "cota": 0,
+      "tipo": "baldrame",
+      "analise": "isolada"
+    }
+  ]
+}

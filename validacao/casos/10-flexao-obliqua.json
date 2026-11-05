@@ -1,0 +1,225 @@
+{
+  "grupo": "Pilares — flexão oblíqua",
+  "descricao": "Esforços resistentes com linha neutra inclinada e pontos de cálculo do pilar (topo, seção intermediária e envoltória mínima).",
+  "casos": [
+    {
+      "id": "obliqua-compressao-pura",
+      "titulo": "Seção 20 × 40 cm, 6 ø 16: compressão uniforme (linha neutra fora da seção, ε = 2 ‰)",
+      "fonte": "NBR 6118:2023, 17.2.2 e 8.2.10: com toda a seção a εc2 = 2 ‰, N = 0,9·σcd·Ac + Es·εc2·As (0,9 pela linha neutra inclinada; aço a 420 MPa < fyd). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "obliqua.esforcosObliqua",
+      "args": [
+        0.7853981633974483,
+        100000.0,
+        {
+          "bx": 20,
+          "by": 40,
+          "barras": [
+            {
+              "x": 4.3,
+              "y": 4.3,
+              "A": 2.0106192982974678
+            },
+            {
+              "x": 15.7,
+              "y": 4.3,
+              "A": 2.0106192982974678
+            },
+            {
+              "x": 4.3,
+              "y": 20,
+              "A": 2.0106192982974678
+            },
+            {
+              "x": 15.7,
+              "y": 20,
+              "A": 2.0106192982974678
+            },
+            {
+              "x": 4.3,
+              "y": 35.7,
+              "A": 2.0106192982974678
+            },
+            {
+              "x": 15.7,
+              "y": 35.7,
+              "A": 2.0106192982974678
+            }
+          ]
+        },
+        {
+          "$concreto": 25
+        },
+        {
+          "$aco": 500
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "N resistente",
+          "caminho": "N",
+          "valor": 1599.5,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Mx (praticamente nulo)",
+          "caminho": "Mx",
+          "valor": 0.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.01,
+          "toleranciaAbs": 0.05
+        },
+        {
+          "grandeza": "My (praticamente nulo)",
+          "caminho": "My",
+          "valor": 0.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.01,
+          "toleranciaAbs": 0.05
+        }
+      ]
+    },
+    {
+      "id": "obliqua-45-graus",
+      "titulo": "Seção 30 × 30 cm, 4 ø 20, linha neutra a 45° com x = 10 cm",
+      "fonte": "Equilíbrio da seção com a linha neutra na diagonal (17.2): bloco comprimido triangular de catetos λ·x·√2 junto ao canto mais comprimido, centroide a 1/3 dos catetos, tensão 0,9·σcd; barras pela compatibilidade de deformações (domínio 2, pivô A em εs = 10 ‰). Conta independente; por simetria Mx = My.",
+      "alvo": "motor",
+      "funcao": "obliqua.esforcosObliqua",
+      "args": [
+        0.7853981633974483,
+        10.0,
+        {
+          "bx": 30,
+          "by": 30,
+          "barras": [
+            {
+              "x": 4,
+              "y": 4,
+              "A": 3.141592653589793
+            },
+            {
+              "x": 26,
+              "y": 4,
+              "A": 3.141592653589793
+            },
+            {
+              "x": 4,
+              "y": 26,
+              "A": 3.141592653589793
+            },
+            {
+              "x": 26,
+              "y": 26,
+              "A": 3.141592653589793
+            }
+          ]
+        },
+        {
+          "$concreto": 25
+        },
+        {
+          "$aco": 500
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "N",
+          "caminho": "N",
+          "valor": -222.06,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Mx",
+          "caminho": "Mx",
+          "valor": 35.874,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "My",
+          "caminho": "My",
+          "valor": 35.874,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "modulo-pilar-obliquo",
+      "titulo": "Módulo Pilar: 20 × 40 cm, le = 2,80 m, Nd = 1000 kN, MA,x = 21 kN·m e MA,y = 28 kN·m (MB = 0)",
+      "fonte": "Pilar-padrão (15.8.3.3.2) em cada direção e pontos da flexão oblíqua: topo (MA,x; MA,y) = (21; 28). Seção intermediária: em x, ν = Nd/(Ac·fcd) = 0,70, 1/r = 0,005/(h·(ν + 0,5)) = 0,0208 m⁻¹, M2 = Nd·le²/10·(1/r) = 16,33; e1 = 2,1 cm, αb = 0,6, λ1 = (25 + 12,5·e1/h)/αb = 43,9 < λ = 48,4 → Md = αb·MA + M2 = 0,6·21 + 16,33 = 28,93; em y, λ = 32,3 < λ1 → 28. Envoltória mínima (11.3.3.4.3): semieixos M1d,mín,x + M2,x = 21 + 16,33 = 37,33 e M1d,mín,y = 1000·(0,015 + 0,03·0,40) = 27 kN·m.",
+      "alvo": "elemento",
+      "modulo": "concreto.pilar",
+      "elemento": {
+        "bx": 20,
+        "by": 40,
+        "comprimento": 2.8,
+        "pesoProprio": false,
+        "cargas": [
+          {
+            "id": "n",
+            "tipo": "concentrada",
+            "natureza": "g",
+            "valor": 714.2857142857143
+          }
+        ],
+        "momentos": {
+          "x": {
+            "A": 15,
+            "B": 0
+          },
+          "y": {
+            "A": 20,
+            "B": 0
+          }
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Topo: Mx",
+          "caminho": "armadura.obliqua.pontos.0.Mx",
+          "valor": 21.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Topo: My",
+          "caminho": "armadura.obliqua.pontos.0.My",
+          "valor": 28.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Intermediária: Mx",
+          "caminho": "armadura.obliqua.pontos.1.Mx",
+          "valor": 28.933,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Intermediária: My",
+          "caminho": "armadura.obliqua.pontos.1.My",
+          "valor": 28.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Semieixo mínimo x",
+          "caminho": "minimos.x",
+          "valor": 37.333,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Semieixo mínimo y",
+          "caminho": "minimos.y",
+          "valor": 27.0,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "grupo": "Vigas — serviço (ELS)",
+  "descricao": "Estádio II, abertura de fissuras, fluência e limites das Tabelas 13.3 e 13.4.",
+  "casos": [
+    {
+      "id": "estadio-ii-retangular",
+      "titulo": "Estádio II: seção 20 cm, d = 45 cm, As = 4,0 cm², αe = 15",
+      "fonte": "Equilíbrio da seção fissurada: b·x²/2 = αe·As·(d − x); III = b·x³/3 + αe·As·(d − x)². Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "fissuracao.estadioII",
+      "args": [
+        {
+          "b": 20,
+          "d": 45,
+          "As": 4.0,
+          "ae": 15
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Linha neutra x",
+          "caminho": "x",
+          "valor": 13.703,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Inércia III",
+          "caminho": "I",
+          "valor": 75924.0,
+          "unidade": "cm⁴",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "fissuras-3phi12-5",
+      "titulo": "Abertura de fissuras: 20 × 50 cm, 3 ø 12,5, Ms = 40 kN·m, C25, cobrimento 3 cm",
+      "fonte": "NBR 6118:2023, 17.3.3.2: wk = menor de φ/(12,5·η1)·σs/Es·3σs/fct,m e φ/(12,5·η1)·σs/Es·(4/ρr + 45), com η1 = 2,25 (CA-50), σs no estádio II com αe = 15. Acr: retângulo de lados a até 7,5·φ do eixo da barra, limitado pelas faces, pela metade da distância à barra vizinha e pela linha neutra (critério adotado pelo LEBR, docs/ELS.md). Cálculo manual independente.",
+      "alvo": "motor",
+      "funcao": "fissuracao.aberturaFissuras",
+      "args": [
+        {
+          "Ms": 40.0,
+          "b": 20,
+          "h": 50,
+          "d": 45.875,
+          "phi": 12.5,
+          "n": 3,
+          "cob": 3,
+          "phiT": 5,
+          "fctm": 2.564963920015045,
+          "eta1": 2.25,
+          "Es": 210000
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σs",
+          "caminho": "sigma",
+          "valor": 262.37,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Acr da barra de canto",
+          "caminho": "Acr",
+          "valor": 95.344,
+          "unidade": "cm²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "w1",
+          "caminho": "w1",
+          "valor": 0.1704,
+          "unidade": "mm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "w2",
+          "caminho": "w2",
+          "valor": 0.19755,
+          "unidade": "mm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "wk",
+          "caminho": "wk",
+          "valor": 0.1704,
+          "unidade": "mm",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "fluencia-xi",
+      "titulo": "Flecha diferida: αf com carga aos 30 dias, sem armadura de compressão",
+      "fonte": "NBR 6118:2023, 17.3.2.1.2 e Tabela 17.1: ξ(1 mês) = 0,68, ξ(3 meses) = 0,95, ξ(≥ 70 meses) = 2; αf = Δξ/(1 + 50ρ'). Com t0 = 1 e ρ' = 0: αf = 1,32.",
+      "alvo": "motor",
+      "funcao": "fissuracao.alfaFluencia",
+      "args": [
+        1,
+        0
+      ],
+      "esperado": [
+        {
+          "grandeza": "αf (t0 = 1 mês)",
+          "caminho": "alfaF",
+          "valor": 1.32,
+          "unidade": "",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "fluencia-xi-3meses",
+      "titulo": "Flecha diferida: carga aos 3 meses, ρ' = 0,5 %",
+      "fonte": "NBR 6118:2023, Tabela 17.1: αf = (2 − 0,95)/(1 + 50·0,005) = 0,84.",
+      "alvo": "motor",
+      "funcao": "fissuracao.alfaFluencia",
+      "args": [
+        3,
+        0.005
+      ],
+      "esperado": [
+        {
+          "grandeza": "αf",
+          "caminho": "alfaF",
+          "valor": 0.84,
+          "unidade": "",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-els",
+      "titulo": "Módulo Viga: 20 × 50 cm, L = 6 m, g = 15 kN/m, q = 8 kN/m, com peso próprio (CAA II)",
+      "fonte": "Combinação frequente (NBR 6118, 11.8.3): Ms = (g + pp + ψ1·q)·L²/8 = (15 + 2,5 + 0,4·8)·36/8 = 93,15 kN·m; limite wk = 0,3 mm para CAA II (Tabela 13.4); αf = 1,32 com carga aos 30 dias; flecha acidental limitada a l/350 = 17,14 mm (Tabela 13.3).",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 6
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": true,
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 15
+          },
+          {
+            "id": "q",
+            "tipo": "distribuida",
+            "natureza": "q",
+            "vao": "todos",
+            "valor": 8
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Ms frequente",
+          "caminho": "vaos.0.fissuras.Ms",
+          "valor": 93.15,
+          "unidade": "kN·m",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Combinação",
+          "caminho": "vaos.0.fissuras.comb",
+          "valor": "FREQ1",
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Limite wk",
+          "caminho": "vaos.0.fissuras.lim",
+          "valor": 0.3,
+          "unidade": "mm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "αf",
+          "caminho": "vaos.0.flecha.alfaF",
+          "valor": 1.32,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Limite da flecha acidental",
+          "caminho": "vaos.0.flecha.limQ",
+          "valor": 17.143,
+          "unidade": "mm",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "modulo-viga-caa-iv",
+      "titulo": "Módulo Viga em CAA IV (C40): limite de abertura de fissuras",
+      "fonte": "NBR 6118:2023, Tabela 13.4: concreto armado em CAA IV, wk ≤ 0,2 mm (combinação frequente).",
+      "alvo": "elemento",
+      "modulo": "concreto.viga",
+      "parametros": {
+        "classeAgressividade": "IV",
+        "concreto": {
+          "fck": 40
+        },
+        "cobrimento": {
+          "viga": 5.0
+        }
+      },
+      "elemento": {
+        "secao": {
+          "b": 20,
+          "h": 50
+        },
+        "vaos": [
+          {
+            "L": 6
+          }
+        ],
+        "apoios": [
+          "apoio",
+          "apoio"
+        ],
+        "pesoProprio": true,
+        "cargas": [
+          {
+            "id": "g",
+            "tipo": "distribuida",
+            "natureza": "g",
+            "vao": "todos",
+            "valor": 15
+          },
+          {
+            "id": "q",
+            "tipo": "distribuida",
+            "natureza": "q",
+            "vao": "todos",
+            "valor": 8
+          }
+        ]
+      },
+      "esperado": [
+        {
+          "grandeza": "Limite wk",
+          "caminho": "vaos.0.fissuras.lim",
+          "valor": 0.2,
+          "unidade": "mm",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

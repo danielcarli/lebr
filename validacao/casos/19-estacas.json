@@ -1,0 +1,410 @@
+{
+  "grupo": "Estacas",
+  "descricao": "Capacidade de carga pelo SPT por Aoki-Velloso e Décourt-Quaresma, carga admissível com FS = 2 e o limite de ponta das escavadas, carga estrutural.",
+  "casos": [
+    {
+      "id": "estaca-helice",
+      "titulo": "Estaca hélice contínua ø 40 cm, L = 8 m, topo a 1 m: Aoki-Velloso e Décourt-Quaresma",
+      "fonte": "Perfil: argila arenosa até 4 m (N = 4, 5, 6), silte arenoso até 8 m (N = 8, 10, 12, 14), areia até 12,45 m (N = 18, 22, 26, 30, 35). Trechos de 1 m com o NSPT do ensaio que começa no trecho. Aoki-Velloso (1975): K·α = 350·0,024 = 8,4 kPa (argila arenosa), 550·0,022 = 12,1 (silte arenoso), 1000·0,014 = 14 (areia). Hélice: F1 = 2, F2 = 4 (Cintra e Aoki, 2010). Ponta a 9 m em areia, Np = 22: Rp = 1000·22/2·Ap = 1382,301 kN; Rl = U·ΣαKN/F2 = π·0,4·910,400/4 = 286,011 kN; R = 1668,311 kN. Décourt-Quaresma: Np = (18 + 22 + 26)/3 = 22, C = 400 kPa, α = 0,3 (hélice) → Rp = 331,752 kN; Nl = média do fuste sem o ensaio de 8 m = 59/7 = 8,429, β = 1,0 → rl = 10·(Nl/3 + 1) = 38,095 kPa em 7 m: Rl = 335,103 kN. NBR 6122: Padm = R/2, e nas escavadas no máximo 20 % pela ponta → 1,25·Rl/2: AV 178,757 kN, DQ 209,440 kN. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "geotecnia.estaca",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 40,
+        "L": 8,
+        "topo": 1.0,
+        "local": {
+          "x": 0,
+          "y": 0
+        },
+        "pilarId": null,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "cargaTrabalho": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "AV — Rp",
+          "caminho": "av.Rp",
+          "valor": 1382.3,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — Rl",
+          "caminho": "av.Rl",
+          "valor": 286.01,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — R",
+          "caminho": "av.R",
+          "valor": 1668.3,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — Padm (ponta limitada)",
+          "caminho": "av.Padm",
+          "valor": 178.76,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Np",
+          "caminho": "dq.Np",
+          "valor": 22.0,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "DQ — Nl",
+          "caminho": "dq.Nl",
+          "valor": 8.4286,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Rp",
+          "caminho": "dq.Rp",
+          "valor": 331.75,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Rl",
+          "caminho": "dq.Rl",
+          "valor": 335.1,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Padm (ponta limitada)",
+          "caminho": "dq.Padm",
+          "valor": 209.44,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Carga admissível adotada",
+          "caminho": "Padm",
+          "valor": 178.76,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "estaca-premoldada",
+      "titulo": "Estaca pré-moldada ø 30 cm, L = 8 m, topo a 1 m, no mesmo perfil",
+      "fonte": "Perfil: argila arenosa até 4 m (N = 4, 5, 6), silte arenoso até 8 m (N = 8, 10, 12, 14), areia até 12,45 m (N = 18, 22, 26, 30, 35). Trechos de 1 m com o NSPT do ensaio que começa no trecho. Aoki-Velloso (1975): K·α = 350·0,024 = 8,4 kPa (argila arenosa), 550·0,022 = 12,1 (silte arenoso), 1000·0,014 = 14 (areia). Pré-moldada: F1 = 1 + D/0,80 = 1,375, F2 = 2·F1 = 2,750 → Rp = 1130,973 kN, Rl = 312,012 kN, Padm = 721,492 kN. Décourt-Quaresma, cravada: α = β = 1 → Rp = 400·22·Ap = 622,035 kN, Rl = 38,095·U·7 = 251,327 kN, Padm = 436,681 kN. Sem limite de ponta (cravada). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "geotecnia.estaca",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 12.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 4.0,
+              "solo": "argila",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 8.0,
+              "solo": "silte",
+              "secundario": "arenoso"
+            },
+            {
+              "ate": 12.45,
+              "solo": "areia",
+              "secundario": ""
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 8,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 12,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 14,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 18,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 26,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 35,
+              "pen": 30
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "tipo": "premoldada",
+        "secao": "circular",
+        "D": 30,
+        "L": 8,
+        "topo": 1.0,
+        "local": {
+          "x": 0,
+          "y": 0
+        },
+        "pilarId": null,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "cargaTrabalho": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "AV — F1",
+          "caminho": "av.F1",
+          "valor": 1.375,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — Rp",
+          "caminho": "av.Rp",
+          "valor": 1131.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — Rl",
+          "caminho": "av.Rl",
+          "valor": 312.01,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "AV — Padm",
+          "caminho": "av.Padm",
+          "valor": 721.49,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Rp",
+          "caminho": "dq.Rp",
+          "valor": 622.04,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Rl",
+          "caminho": "dq.Rl",
+          "valor": 251.33,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "DQ — Padm",
+          "caminho": "dq.Padm",
+          "valor": 436.68,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Adotada (menor dos dois)",
+          "caminho": "Padm",
+          "valor": 436.68,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "estaca-estrutural",
+      "titulo": "Carga estrutural de estaca hélice ø 40 cm (fck 20 MPa, γc = 1,8)",
+      "fonte": "0,85·fck/γc·A/γf = 0,85·20 000/1,8·0,126/1,4 = 847,731 kN (parâmetros usuais da NBR 6122 para hélice contínua — conferir na edição em vigor).",
+      "alvo": "motor",
+      "funcao": "estacas.cargaEstrutural",
+      "args": [
+        {
+          "tipo": "helice",
+          "D": 40
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Carga estrutural",
+          "caminho": "",
+          "valor": 847.73,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        }
+      ]
+    }
+  ]
+}

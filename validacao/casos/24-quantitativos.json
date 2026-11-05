@@ -1,0 +1,211 @@
+{
+  "grupo": "Quantitativos",
+  "descricao": "Massa nominal das barras, leitura dos rótulos e quantidades de concreto, fôrma e aço de uma viga e de uma laje.",
+  "casos": [
+    {
+      "id": "quant-massa",
+      "titulo": "Massa nominal das barras ø 10 e ø 16 mm",
+      "fonte": "NBR 7480: massa = π·ø²/4·7850 kg/m³ → ø 10: 0,617 kg/m; ø 16: 1,578 kg/m.",
+      "alvo": "motor",
+      "funcao": "quantitativos.massaLinear",
+      "args": [
+        10
+      ],
+      "esperado": [
+        {
+          "grandeza": "ø 10",
+          "caminho": "",
+          "valor": 0.61654,
+          "unidade": "kg/m",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "quant-rotulo",
+      "titulo": "Leitura do rótulo \"9 ø 12,5 c/ 14,5\"",
+      "fonte": "9 barras de 12,5 mm a cada 14,5 cm.",
+      "alvo": "motor",
+      "funcao": "quantitativos.lerBarras",
+      "args": [
+        "9 ø 12,5 c/ 14,5"
+      ],
+      "esperado": [
+        {
+          "grandeza": "n",
+          "caminho": "n",
+          "valor": 9,
+          "unidade": "",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "ø",
+          "caminho": "phi",
+          "valor": 12.5,
+          "unidade": "mm",
+          "tolerancia": 0
+        },
+        {
+          "grandeza": "s",
+          "caminho": "s",
+          "valor": 14.5,
+          "unidade": "cm",
+          "tolerancia": 0
+        }
+      ]
+    },
+    {
+      "id": "quant-viga",
+      "titulo": "Viga biapoiada 20 × 50 cm, vão de 5 m, 3 ø 10 positivas e estribos ø 5 c/ 15",
+      "fonte": "Concreto 0,20·0,50·5 = 0,5 m³; fôrma (0,20 + 2·0,50)·5 = 6,0 m². Positivas 3·(5 + 2·20·0,010) m × 0,617 kg/m = 9,988 kg; estribos: 35 unidades de 2·(20 − 6) + 2·(50 − 6) cm + ganchos 2·10ø = 1,260 m → 6,797 kg de ø 5; porta-estribos 2 ø 6,3 × 5 m = 2,447 kg. Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "quantitativos.doElemento",
+      "args": [
+        {
+          "modulo": "concreto.viga",
+          "secao": {
+            "b": 20,
+            "h": 50
+          },
+          "vaos": [
+            {
+              "L": 5
+            }
+          ],
+          "apoios": [
+            "apoio",
+            "apoio"
+          ]
+        },
+        {
+          "vaos": [
+            {
+              "positiva": {
+                "barras": {
+                  "phi": 10,
+                  "n": 3
+                }
+              },
+              "estribos": {
+                "phi": 5,
+                "s": 15
+              }
+            }
+          ],
+          "apoios": [
+            {},
+            {}
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Concreto",
+          "caminho": "concreto",
+          "valor": 0.5,
+          "unidade": "m³",
+          "tolerancia": 1e-06
+        },
+        {
+          "grandeza": "Fôrma",
+          "caminho": "forma",
+          "valor": 6.0,
+          "unidade": "m²",
+          "tolerancia": 1e-06
+        },
+        {
+          "grandeza": "Aço ø 10",
+          "caminho": "aco.10",
+          "valor": 9.9879,
+          "unidade": "kg",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Aço ø 5 (estribos)",
+          "caminho": "aco.5",
+          "valor": 6.7973,
+          "unidade": "kg",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Aço ø 6,3 (porta-estribos)",
+          "caminho": "aco.6\\.3",
+          "valor": 2.447,
+          "unidade": "kg",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "quant-laje",
+      "titulo": "Laje maciça 4 × 5 m, h = 10 cm, positiva x ø 8 c/ 15 e negativa x ø 10 c/ 20 numa borda engastada",
+      "fonte": "Concreto 4·5·0,10 = 2 m³; fôrma 20 m². Positiva: 0,785·3,35 cm²/m·5 m·(4 + 0,2) m = 55,225 kg de ø 8; negativa na borda x1: 0,785·3,93·5·(0,25·4 + 0,15) = 17,739 kg de ø 10 (a laje vizinha conta a sua parte). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "quantitativos.doElemento",
+      "args": [
+        {
+          "modulo": "concreto.laje.macica",
+          "lx": 4,
+          "ly": 5,
+          "h": 10,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "engastada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        },
+        {
+          "armaduras": [
+            {
+              "rotulo": "Positiva x",
+              "barras": {
+                "phi": 8,
+                "s": 15,
+                "AsEf": 3.35
+              }
+            },
+            {
+              "rotulo": "Negativa x (bordas esquerda/direita)",
+              "barras": {
+                "phi": 10,
+                "s": 20,
+                "AsEf": 3.93
+              }
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Concreto",
+          "caminho": "concreto",
+          "valor": 2.0,
+          "unidade": "m³",
+          "tolerancia": 1e-06
+        },
+        {
+          "grandeza": "Fôrma",
+          "caminho": "forma",
+          "valor": 20.0,
+          "unidade": "m²",
+          "tolerancia": 1e-06
+        },
+        {
+          "grandeza": "Aço ø 8",
+          "caminho": "aco.8",
+          "valor": 55.225,
+          "unidade": "kg",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Aço ø 10",
+          "caminho": "aco.10",
+          "valor": 17.739,
+          "unidade": "kg",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

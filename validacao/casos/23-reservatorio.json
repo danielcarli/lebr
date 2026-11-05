@@ -1,0 +1,249 @@
+{
+  "grupo": "Reservatórios",
+  "descricao": "Placas com pressão hidrostática, compatibilização nas arestas, viga-parede, pesos e reações de um reservatório elevado e empuxo e tensão no solo do enterrado.",
+  "casos": [
+    {
+      "id": "res-placa-balanco",
+      "titulo": "Pressão hidrostática numa faixa larga engastada na base e livre no topo (H = 3 m, p máx. = 1)",
+      "fonte": "Placa 12 × 3 m com as laterais e o topo livres: no meio funciona como viga em balanço com carga triangular, M = p·H²/6 = 1,5 kN·m/m; força total p·H/2·12 = 18 kN. Tolerância de 2 %: o efeito de Poisson junto às bordas livres.",
+      "alvo": "motor",
+      "funcao": "reservatorio.placaUnitaria",
+      "args": [
+        {
+          "lx": 12,
+          "ly": 3,
+          "bordas": {
+            "x0": "livre",
+            "x1": "livre",
+            "y0": "engastada",
+            "y1": "livre"
+          },
+          "tipo": "hidrostatica",
+          "ate": 3
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento no engaste",
+          "caminho": "myNeg",
+          "valor": -1.5,
+          "unidade": "kN·m/m",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Força total",
+          "caminho": "total",
+          "valor": 18.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "res-placa-apoio",
+      "titulo": "Pressão hidrostática numa faixa larga engastada na base e apoiada no topo (tampa)",
+      "fonte": "Viga engastada-apoiada com carga triangular máxima no engaste: reação no apoio = p·L/10 = 0,3 kN/m (L = 3 m). Cálculo manual.",
+      "alvo": "motor",
+      "funcao": "reservatorio.placaUnitaria",
+      "args": [
+        {
+          "lx": 12,
+          "ly": 3,
+          "bordas": {
+            "x0": "livre",
+            "x1": "livre",
+            "y0": "engastada",
+            "y1": "apoiada"
+          },
+          "tipo": "hidrostatica",
+          "ate": 3
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Reação no topo",
+          "caminho": "reacoes.y1",
+          "valor": 0.3,
+          "unidade": "kN/m",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "res-compatibilizacao",
+      "titulo": "Compatibilização de momentos negativos numa aresta: 10 e 6 kN·m/m",
+      "fonte": "NBR 6118, 14.7.6.2: o maior entre 0,8·10 = 8 e (10 + 6)/2 = 8 → 8 kN·m/m.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        10,
+        6
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 8.0,
+          "unidade": "kN·m/m",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "res-viga-parede",
+      "titulo": "Braço de alavanca de parede biapoiada de 3 m com 2 m de altura (viga-parede)",
+      "fonte": "l/h = 1,5 (entre 1 e 2): z = 0,2·(l + 2h) = 0,2·(3 + 4) = 1,4 m (CEB-FIP, vigas-parede biapoiadas).",
+      "alvo": "motor",
+      "funcao": "reservatorio.bracoVigaParede",
+      "args": [
+        3,
+        2
+      ],
+      "esperado": [
+        {
+          "grandeza": "z",
+          "caminho": "z",
+          "valor": 1.4,
+          "unidade": "m",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "res-elevado-pilares",
+      "titulo": "Reservatório elevado 2,0 × 3,0 × 1,5 m (lâmina 1,3 m) sobre quatro pilares",
+      "fonte": "Volume 2·3·1,3 = 7,8 m³ → água 78,000 kN. Paredes: 25·0,15·1,75 = 6,562 kN/m em 2·(2,15 + 3,15) m = 69,562 kN; fundo 25·0,15·2,3·3,3 = 28,462 kN; tampa 25·0,10·2,3·3,3 = 18,975 kN; revestimentos 0,5·6 + 1,0·6 = 9 kN → G = 204,000 kN; Q = 1,0·2,15·3,15 = 6,772 kN. Cada canto: G/4 = 51,000 kN. Pressão no fundo: 25·0,15 + 0,5 + 10·1,3 = 17,25 kN/m²; no pé das paredes 13 kN/m². Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.reservatorio",
+      "elemento": {
+        "tipo": "elevado",
+        "a": 2.0,
+        "b": 3.0,
+        "H": 1.5,
+        "hAgua": 1.3,
+        "e": 15,
+        "hf": 15,
+        "ht": 10,
+        "tampa": true,
+        "revestimento": {
+          "fundo": 0.5,
+          "tampa": 1.0
+        },
+        "qTampa": 1.0,
+        "posicao": null,
+        "apoio": "pilares"
+      },
+      "esperado": [
+        {
+          "grandeza": "Volume",
+          "caminho": "volume",
+          "valor": 7.8,
+          "unidade": "m³",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Peso da água",
+          "caminho": "pesos.agua",
+          "valor": 78.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Peso das paredes",
+          "caminho": "pesos.paredes",
+          "valor": 69.562,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "G total",
+          "caminho": "pesos.G",
+          "valor": 204.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação g por canto",
+          "caminho": "apoios.0.g",
+          "valor": 51.0,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reação q por canto",
+          "caminho": "apoios.0.q",
+          "valor": 1.6931,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Pressão no fundo",
+          "caminho": "pressoes.fundo",
+          "valor": 17.25,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Pressão no pé das paredes",
+          "caminho": "pressoes.agua",
+          "valor": 13.0,
+          "unidade": "kN/m²",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "res-enterrado",
+      "titulo": "Reservatório enterrado 2,0 × 3,0 × 1,5 m: empuxo em repouso (φ = 30°, γs = 18 kN/m³, q = 10 kN/m²) e tensão no solo",
+      "fonte": "K0 = 1 − sen 30° = 0,5; parede entre eixos H = 1,5 + 0,075 + 0,05 = 1,625 m; no pé: K0·(γs·H + q) = 0,5·(18·1,625 + 10) = 19,625 kN/m². Tensão no solo com o reservatório cheio: (G + Q)/(2,3·3,3) = 210,773/7,59 = 27,770 kPa. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.reservatorio",
+      "elemento": {
+        "tipo": "enterrado",
+        "a": 2.0,
+        "b": 3.0,
+        "H": 1.5,
+        "hAgua": 1.3,
+        "e": 15,
+        "hf": 15,
+        "ht": 10,
+        "tampa": true,
+        "revestimento": {
+          "fundo": 0.5,
+          "tampa": 1.0
+        },
+        "qTampa": 1.0,
+        "posicao": null,
+        "solo": {
+          "gama": 18,
+          "phi": 30,
+          "sobrecarga": 10,
+          "sigmaAdm": 150
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "K0",
+          "caminho": "pressoes.K0",
+          "valor": 0.5,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Empuxo no pé",
+          "caminho": "pressoes.terra",
+          "valor": 19.625,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Tensão no solo",
+          "caminho": "sigmaSolo",
+          "valor": 27.77,
+          "unidade": "kPa",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

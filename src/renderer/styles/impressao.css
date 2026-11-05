@@ -1,0 +1,50 @@
+/* ==========================================================================
+   Impressão / exportação em PDF
+   Usada por "Exportar PDF" (webContents.printToPDF). Esconde a moldura do
+   aplicativo e deixa só a página do elemento aberto, em papel branco.
+   O cabeçalho e o rodapé de cada folha (projeto, elemento, páginas) vêm do
+   processo principal.
+   ========================================================================== */
+
+@media print {
+  @page { size: A4; }
+
+  :root {
+    --fundo: #FFFFFF;
+    --papel: #FFFFFF;
+    --campo: #FFFFFF;
+  }
+
+  html, body { height: auto; overflow: visible; background: #FFFFFF; }
+
+  /* moldura do aplicativo */
+  .titulo, .atividade, .lateral, .abas, .painel, .status,
+  .notificacoes, .menu, .paleta, .paleta-fundo, .dialogo-fundo { display: none !important; }
+
+  #app, .corpo, .editor-col, .editor-grupos, .grupo-editor, .grupo-corpo { display: block; height: auto; min-height: 0; }
+  /* com o editor dividido, só o lado com o foco (o do elemento exportado) vai para o papel */
+  .editor-grupos.dividido .grupo-editor:not(.focado), .divisor-grupos, .zona-soltar { display: none !important; }
+  .editor { overflow: visible; height: auto; }
+  .pagina { max-width: none; margin: 0; padding: 0; gap: 26px; }
+
+  /* botões não fazem sentido no papel; a data do cálculo continua */
+  .linha-acoes, .vazio-acoes { display: none !important; }
+  .pagina .botao, .pagina .botao-icone, .pagina button.link { display: none !important; }
+  .barra-calculo { position: static; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+  .obj-titulo.editavel, .obj-nome-elem.editavel { border-bottom-color: transparent !important; }
+  input, select { -webkit-appearance: none; appearance: none; }
+
+  /* quebras de página: não partir cartões, desenhos, linhas de tabela nem blocos do memorial */
+  .cartao, .instr, .desenho-caixa, .ficha, .figura-secao, .memorial-bloco, .carga-linha,
+  .tabela tr, svg, .avisos li, .planta-slot, .previa-secao, .esquema-slot,
+  .laje-mapas, .mapa-pontos, .pontos { break-inside: avoid; }
+
+  /* a folha é mais estreita que a janela: mantém desenho e dados lado a lado nas lajes e pilares */
+  .laje-geo, .pilar-geo { grid-template-columns: minmax(300px, 1fr) minmax(240px, 360px); }
+  .laje-mapas { grid-template-columns: minmax(280px, 1fr) minmax(220px, 330px); }
+  .secao-cab, .memorial-bloco h3 { break-after: avoid; }
+  .obj-cab { break-after: avoid; }
+
+  /* resultados nunca ficam esmaecidos no PDF (sempre recalculados antes de exportar) */
+  .bloco.desatualizado .resultados-corpo, .bloco.desatualizado .secao { opacity: 1 !important; filter: none !important; }
+}

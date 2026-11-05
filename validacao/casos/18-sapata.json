@@ -1,0 +1,396 @@
+{
+  "grupo": "Sapata isolada",
+  "descricao": "Tensão admissível pelo SPT, dimensões com balanços iguais, tensões com excentricidade, CEB-70, contorno C, punção em C′ e cortante das sapatas flexíveis.",
+  "casos": [
+    {
+      "id": "sapata-sigma-spt",
+      "titulo": "Tensão admissível pelo SPT com N médio = 12",
+      "fonte": "Correlação semiempírica usual (Teixeira e Godoy, 1996): σadm = 0,02·N MPa = 20·N kPa, válida para 5 ≤ N ≤ 20. σadm = 20·12 = 240 kPa.",
+      "alvo": "motor",
+      "funcao": "sapata.tensaoAdmissivelSPT",
+      "args": [
+        12
+      ],
+      "esperado": [
+        {
+          "grandeza": "σadm",
+          "caminho": "sigma",
+          "valor": 240.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "sapata-sigma-spt-limite",
+      "titulo": "Tensão admissível pelo SPT com N médio = 30 (acima do limite)",
+      "fonte": "Correlação semiempírica usual (Teixeira e Godoy, 1996): σadm = 0,02·N MPa = 20·N kPa, válida para 5 ≤ N ≤ 20. N limitado a 20 → σadm = 400 kPa.",
+      "alvo": "motor",
+      "funcao": "sapata.tensaoAdmissivelSPT",
+      "args": [
+        30
+      ],
+      "esperado": [
+        {
+          "grandeza": "σadm",
+          "caminho": "sigma",
+          "valor": 400.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "N usado",
+          "caminho": "Nusado",
+          "valor": 20.0,
+          "unidade": "",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "sapata-balancos-iguais",
+      "titulo": "Dimensões com balanços iguais: área de 3,00 m², pilar 20 × 40 cm",
+      "fonte": "A − B = ap − bp = −20 cm e A·B = 3,00 m² → B = (0,2 + √(0,04 + 12))/2 = 1,835 m → 185 cm (múltiplo de 5 acima); A = B − 0,20 = 1,635 m → 165 cm.",
+      "alvo": "motor",
+      "funcao": "sapata.dimensoesBalancosIguais",
+      "args": [
+        {
+          "area": 3.0,
+          "ap": 20,
+          "bp": 40
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "A",
+          "caminho": "A",
+          "valor": 165.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "B",
+          "caminho": "B",
+          "valor": 185.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "sapata-tensoes-excentricas",
+      "titulo": "Tensões na base: N = 1000 kN, sapata 200 × 250 cm, Mx = 50 kN·m",
+      "fonte": "σ = N/(A·B)·(1 ± 6·ex/A), ex = 50/1000 = 0,05 m: σméd = 1000/5 = 200 kPa; σmáx = 200·(1 + 0,15) = 230 kPa; σmín = 170 kPa; 6ex/A = 0,15 ≤ 1 (núcleo central).",
+      "alvo": "motor",
+      "funcao": "sapata.tensoesNaBase",
+      "args": [
+        {
+          "N": 1000,
+          "A": 200,
+          "B": 250,
+          "Mx": 50
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σméd",
+          "caminho": "sMed",
+          "valor": 200.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "σmáx",
+          "caminho": "sMax",
+          "valor": 230.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "σmín",
+          "caminho": "sMin",
+          "valor": 170.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "No núcleo central",
+          "caminho": "nucleo",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "sapata-momento-s1",
+      "titulo": "Momento na seção S1 do CEB-70: σ = 300 kPa, largura 200 cm, balanço 80 cm, pilar 40 cm",
+      "fonte": "S1 a 0,15·ap para dentro da face: x = 0,80 + 0,06 = 0,86 m; M1 = σ·B·x²/2 = 300·2·0,86²/2 = 221,880 kN·m.",
+      "alvo": "motor",
+      "funcao": "sapata.momentoS1",
+      "args": [
+        {
+          "sigma": 300,
+          "largura": 200,
+          "balanco": 80,
+          "ap": 40
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "M1",
+          "caminho": "",
+          "valor": 221.88,
+          "unidade": "kN·m",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "sapata-rigida",
+      "titulo": "Sapata rígida 200 × 200 × 60 cm (h0 = 25) sob pilar 30 × 30 cm, Nk = 600 + 200 kN, σadm = 250 kPa, base a 1,5 m (C25)",
+      "fonte": "Volume = 2·2·0,25 + (0,35/3)·(4 + 0,35² + √(4·0,35²)) = 1,563 m³ (topo 35 × 35 cm); peso próprio = 25·V = 39,066 kN; reaterro = (4·1,5 − V − 0,09·0,9)·18 = 78,415 kN; σméd = (800 + PP + reaterro)/4 = 229,370 kPa ≤ 250. Rigidez: (200 − 30)/3 = 56,7 ≤ 60 cm → rígida (22.6.1). Nd = 1,4·800 = 1120 kN, σd = 280 kPa; CEB-70: M1 = 280·2·(0,85 + 0,045)²/2 = 224,287 kN·m. Contorno C (19.5.3.1): FSd = 1120 − 280·0,09 = 1094,8 kN, u0 = 120 cm, d = 60 − 3 − 1 = 56 cm → τSd = 1,629 MPa ≤ τRd2 = 0,27·0,9·fcd = 4,339 MPa. Ancoragem das barras do pilar (ø 12,5): lb = (ø/4)·fyd/(2,25·fctd) = 47,086 cm (9.4.2.4). Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.sapata",
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 600,
+          "q": 200
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "profundidade": 1.5,
+        "solo": {
+          "modo": "informada",
+          "tensao": 250,
+          "gama": 18
+        },
+        "cobrimento": 3.0,
+        "armadura": {
+          "phiPilar": null
+        },
+        "geometria": {
+          "modo": "manual",
+          "A": 200,
+          "B": 200,
+          "h": 60,
+          "h0": 25
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Peso próprio",
+          "caminho": "PP",
+          "valor": 39.066,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Reaterro",
+          "caminho": "terra",
+          "valor": 78.415,
+          "unidade": "kN",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "σméd no solo",
+          "caminho": "tensoes.med",
+          "valor": 229.37,
+          "unidade": "kPa",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Sapata rígida",
+          "caminho": "rigida",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Nd",
+          "caminho": "Nd",
+          "valor": 1120.0,
+          "unidade": "kN",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "M1 na direção A",
+          "caminho": "flexao.x.Md",
+          "valor": 224.29,
+          "unidade": "kN·m",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd no contorno C",
+          "caminho": "compressaoC.tauSd",
+          "valor": 1.6292,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "τRd2",
+          "caminho": "compressaoC.tauRd2",
+          "valor": 4.3393,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "lb das barras do pilar",
+          "caminho": "ancoragem.lb",
+          "valor": 47.086,
+          "unidade": "cm",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "sapata-flexivel",
+      "titulo": "Sapata flexível 200 × 200 × 35 cm sob pilar 30 × 30 cm, Nk = 600 + 200 kN: punção em C′ e cortante",
+      "fonte": "(200 − 30)/3 = 56,7 > 35 cm → flexível. d = 35 − 3 − 1 = 31 cm; σd = 280 kPa. Punção em C′ a 2d da face (19.5.3.2), descontada a reação do solo dentro do contorno: área = 0,09 + 4·0,31·0,6 + π·0,62² = 2,042 m²; FSd = 1120 − 280·área = 548,344 kN; u = 120 + 2π·62 = 509,557 cm; τSd = FSd/(u·d) = 0,347 MPa. Cortante como laje (19.4.1) a d da face: VSd = 280·2·(0,85 − 0,31) = 302,400 kN. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.sapata",
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 600,
+          "q": 200
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "profundidade": 1.5,
+        "solo": {
+          "modo": "informada",
+          "tensao": 250,
+          "gama": 18
+        },
+        "cobrimento": 3.0,
+        "armadura": {
+          "phiPilar": null
+        },
+        "geometria": {
+          "modo": "manual",
+          "A": 200,
+          "B": 200,
+          "h": 35,
+          "h0": 20
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Sapata rígida",
+          "caminho": "rigida",
+          "valor": false,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "FSd reduzida em C′",
+          "caminho": "puncao.F",
+          "valor": 548.34,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "τSd em C′",
+          "caminho": "puncao.tauSd",
+          "valor": 0.34713,
+          "unidade": "MPa",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "VSd a d da face",
+          "caminho": "cortante.x.Vd",
+          "valor": 302.4,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "sapata-automatica",
+      "titulo": "Dimensões automáticas: Nk = 600 + 200 kN, pilar 30 × 30 cm, σadm = 250 kPa",
+      "fonte": "Área tal que (Nk + peso próprio + reaterro)/(A·B) ≤ σadm, balanços iguais e múltiplos de 5 cm; h de sapata rígida ((A − 30)/3) e para a ancoragem (lb + c + 2 = 52,1 → 55 cm), h0 = 20 cm. Com 190 × 190 × 55: V = 1,235 m³, peso próprio 30,9 kN, reaterro 73,7 kN → σméd = 904,6/3,61 = 250,6 kPa > 250. Com 195 × 195 × 55: V = 1,298 m³, 32,5 kN, 77,8 kN → σméd = 910,2/3,8025 = 239,4 kPa ≤ 250. Cálculo manual.",
+      "alvo": "elemento",
+      "modulo": "concreto.sapata",
+      "elemento": {
+        "pilarId": null,
+        "ap": 30,
+        "bp": 30,
+        "cargas": {
+          "g": 600,
+          "q": 200
+        },
+        "momentos": {
+          "x": 0,
+          "y": 0
+        },
+        "profundidade": 1.5,
+        "solo": {
+          "modo": "informada",
+          "tensao": 250,
+          "gama": 18
+        },
+        "cobrimento": 3.0,
+        "armadura": {
+          "phiPilar": null
+        },
+        "geometria": {
+          "modo": "automatica"
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Sapata rígida",
+          "caminho": "rigida",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Boletim de verificações",
+          "caminho": "ok",
+          "valor": true,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "B (= A, pilar quadrado)",
+          "caminho": "B",
+          "valor": 195.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "A",
+          "caminho": "A",
+          "valor": 195.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "h",
+          "caminho": "h",
+          "valor": 55.0,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "σméd",
+          "caminho": "tensoes.med",
+          "valor": 239.4,
+          "unidade": "kPa",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}
