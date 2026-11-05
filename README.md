@@ -6,7 +6,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 > [!WARNING]
-> **Protótipo 0.31.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.32.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -91,6 +91,18 @@ indica (laje sobre viga, viga sobre pilar, pilar sobre pilar) e a lista de liga�
 coincide com a planta. **Duplicar pavimento** copia um nível inteiro para cima.
 Elementos criados fora da montagem entram na lista **Não posicionados**; o botão de atualizar
 (↻) ao lado do título procura os novos e os destaca para serem posicionados.
+
+**Planta de arquitetura, eixos e malha (0.32).** No bloco **Planta de fundo, eixos e malha** da montagem,
+**Importar planta DXF…** coloca a planta de arquitetura (DXF em texto, de qualquer programa de CAD) no fundo do
+pavimento: linhas, polilinhas com arcos, círculos, arcos, elipses, splines, textos e blocos (portas, mobiliário,
+cotas). A unidade vem do cabeçalho do DXF (ou é deduzida pelo tamanho do desenho) e pode ser trocada; a planta pode
+ser deslocada (pelos campos ou arrastando), girada, esmaecida e ter camadas escondidas, e **Usar em todos os
+pavimentos** repete o mesmo fundo nos outros níveis. Ao arrastar um elemento, ele **encaixa nos cantos e pontas das
+linhas da planta**. Os **eixos** do projeto (verticais numerados 1, 2, 3… e horizontais A, B, C…) são digitados em
+metros — ou criados pelos pilares do pavimento — e aparecem em traço-ponto com os rótulos nas bordas; os elementos
+encostam neles e nos cruzamentos. A **malha de encaixe** (10, 25, 50 cm ou 1 m) leva o ponto de inserção dos
+elementos para a malha quando não há outro encaixe por perto. A planta fica guardada no arquivo do projeto
+(`plantasFundo`, ver [docs/FORMATO.md](docs/FORMATO.md)).
 
 **Estrutura › Visualização 3D** (`F7`) mostra a estrutura montada com as dimensões reais, com
 cores por verificação (atende / não atende / não calculado), por material ou por tipo, pavimentos
@@ -411,6 +423,12 @@ distribuição sob elas. A lista de ferros é editável como na viga, e o **resu
 adotadas no projeto. Na tela de Quantitativos, o resumo do aço do projeto inteiro vem com as perdas (editáveis) e os
 totais de CA-50 e CA-60.
 
+**Armadura em 3D (0.32):** na seção de detalhamento da viga, do pilar e da laje maciça, **Armadura em 3D** troca o
+desenho por uma vista 3D isolada das barras daquele elemento — positivas, negativas, porta-estribos, pele, estribos,
+arranques, grampos, malhas e distribuição, cada tipo com uma cor, dentro do concreto transparente. Arrastar gira,
+Shift+arrastar desloca e a roda aproxima; passar o mouse sobre uma barra mostra a posição (N) e destaca a linha da
+lista de ferros. A visualização 3D do edifício continua sem armaduras; o PDF do elemento leva sempre o desenho 2D.
+
 ### Otimização das bitolas
 
 Cada viga, pilar, laje maciça, escada e reservatório de concreto pode ser calculado com um critério de otimização,
@@ -429,6 +447,15 @@ mostram a bitola adotada ("Otimizada: ø 10 mm") e **Fixar estas bitolas** grava
 todos os elementos** aplica o critério ao projeto inteiro, com o progresso na tela. No edifício de exemplo, *menos
 aço* tira cerca de 3 % do aço do projeto e *menos bitolas* reduz as bitolas por elemento ao custo de cerca de 10 % a
 mais de aço. Os quantitativos trazem o número de segmentos de barra por elemento, pavimento e projeto. Detalhes em [docs/OTIMIZACAO.md](docs/OTIMIZACAO.md).
+
+### Memorial do edifício e cargas na fundação (0.32)
+
+**Estrutura › Memorial do edifício (PDF)** reúne, numa aba que sai em PDF, os dados do projeto (materiais, CAA,
+cobrimentos, coeficientes, análise global e vento), a situação do projeto (com os elementos que não atendem), as
+cargas na fundação, os quantitativos e, por pavimento, cada elemento com os avisos, as verificações e o memorial de
+cálculo (as duas partes podem ser desligadas para um documento mais curto). **Estrutura › Cargas na fundação (PDF)**
+traz a tabela dos pilares que chegam à fundação — seção, posição, Ng, Nq, Nk e Nd e a sapata ou o bloco ligado — com
+os totais e a planta de locação com a normal de cada pilar.
 
 ### Pranchas em DXF
 
@@ -452,6 +479,22 @@ Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md
 - **Unidade das dimensões:** em **Parâmetros do projeto › Unidades**, cm ou mm. Muda campos, tabelas, memorial, desenhos e PDF; o arquivo e o cálculo continuam em centímetros. Áreas de aço seguem em cm², vãos em m e flechas em mm.
 
 - Barra de menus, barra de atividades, explorador, abas, painel e barra de status, como no VS Code.
+- **Tela do elemento (0.32):** a barra de cálculo fica logo abaixo do cabeçalho e acompanha a rolagem, com o
+  **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
+  Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
+  em telas estreitas, o botão **…** da barra lista as seções.
+- **Como fazer atender:** quando o elemento não atende, a seção logo abaixo dos resultados propõe a **menor
+  alteração** que faz todas as verificações passarem — a altura ou a largura da viga, as dimensões do pilar, a
+  espessura da laje, ou voltar para "Automática" uma bitola escolhida à mão que não serve —, com o botão **Aplicar**.
+- **Cálculo sem travar a janela:** os cálculos rodam num *Web Worker* (fora da linha da interface) quando o projeto
+  só tem módulos internos; com módulo externo instalado, voltam a rodar na interface, como antes. "Calcular todos"
+  mostra o progresso.
+- **Telas pequenas:** em notebooks de 1366 × 768 ou com duas abas lado a lado, o cabeçalho, as margens e os botões
+  diminuem; em telas grandes nada muda.
+- **Estado além da cor:** no explorador, o losango indica problema, o círculo cheio, em ordem, e o anel, o que falta
+  fazer; o botão **ⓘ** mostra a legenda, e o **funil** (ou **Exibir › Explorador: mostrar só os elementos com
+  pendências**) deixa só os elementos que não atendem, estão sem cálculo ou têm erro de montagem. A barra de status
+  também diz a situação em texto ("Tudo atende", "2 não atendem", "12 a calcular") — clique para filtrar.
 - **Paleta de comandos** `Ctrl+Shift+P` (ou `F1`) e **ir para elemento** `Ctrl+P`.
 - `F5` calcula o elemento aberto, `Shift+F5` calcula o projeto inteiro.
 - `Ctrl+Shift+1` a `9` criam viga, laje maciça, pilar, laje treliçada, laje nervurada, laje alveolar, viga de madeira, pilar de madeira e entrepiso de madeira. `F2` renomeia, `Delete` exclui no explorador.

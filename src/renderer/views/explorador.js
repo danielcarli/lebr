@@ -49,6 +49,31 @@ export function alternarAgrupamento() {
   try { localStorage.setItem(CHAVE_AGRUPAR, agruparPorPavimento() ? 'nao' : 'sim'); } catch { /* sem armazenamento */ }
 }
 
+/** Mostrar só os elementos com pendências (não atende, não calculado, desatualizado ou erro de montagem)? */
+const CHAVE_PENDENCIAS = 'lebr.explorador.soPendencias';
+const CHAVE_LEGENDA = 'lebr.explorador.legenda';
+const lerPref = (k) => { try { return localStorage.getItem(k) === 'sim'; } catch { return false; } };
+const gravarPref = (k, v) => { try { localStorage.setItem(k, v ? 'sim' : 'nao'); } catch { /* sem armazenamento */ } };
+export const soPendencias = () => lerPref(CHAVE_PENDENCIAS);
+export function alternarPendencias(v = !soPendencias()) { gravarPref(CHAVE_PENDENCIAS, v); }
+const legendaVisivel = () => lerPref(CHAVE_LEGENDA);
+
+/** O elemento tem alguma pendência de cálculo ou de montagem? */
+export function temPendencia(el, montagem = montagemDoProjeto()) {
+  const r = el.resultado;
+  return !r || r.desatualizado || !!r.erro || r.ok === false || montagem.get(el.id)?.estado === 'erro';
+}
+
+function legenda() {
+  const item = (cls, txt) => h('span', { class: 'leg-item' }, h('i', { class: cls }), txt);
+  return h('div', { class: 'explorador-legenda' },
+    h('div', { class: 'leg-linha' }, h('span', { class: 'leg-tit' }, 'Cálculo'),
+      item('ponto-estado ok', 'atende'), item('ponto-estado falha', 'não atende'), item('ponto-estado desatualizado', 'a calcular')),
+    h('div', { class: 'leg-linha' }, h('span', { class: 'leg-tit' }, 'Montagem'),
+      item('ponto-montagem ok', 'ligado'), item('ponto-montagem erro', 'erro'), item('ponto-montagem sem-posicao', 'sem posição')),
+    h('div', { class: 'leg-nota' }, 'Losango = problema · círculo cheio = em ordem · anel = falta fazer. Nos grupos, o losango laranja indica que algum elemento não atende.'));
+}
+
 /**
  * @param {object} acoes  { abrirElemento(id), elementoAtivo(): id|null, criar(moduloId) }
  */
@@ -65,6 +90,8 @@ export function visaoExplorador(acoes) {
       ui.botaoIcone({ icone: 'estabilidade', titulo: 'Estabilidade global — α e γz (F9)', aoClicar: () => comandos.executar('estrutura.estabilidade') }),
       ui.botaoIcone({ icone: 'quantitativos', titulo: 'Quantitativos de materiais', aoClicar: () => comandos.executar('estrutura.quantitativos') }),
       ui.botaoIcone({ icone: 'camadas', titulo: agruparPorPavimento() ? 'Desagrupar (lista única por categoria)' : 'Agrupar por pavimento', classe: agruparPorPavimento() ? 'ligado' : '', aoClicar: () => comandos.executar('exibir.agruparPavimento') }),
+      ui.botaoIcone({ icone: 'filtro', titulo: soPendencias() ? 'Mostrar todos os elementos' : 'Mostrar só os elementos com pendências', classe: soPendencias() ? 'ligado' : '', aoClicar: () => comandos.executar('exibir.soPendencias') }),
+      ui.botaoIcone({ icone: 'info', titulo: legendaVisivel() ? 'Esconder a legenda' : 'Legenda das bolinhas', classe: legendaVisivel() ? 'ligado' : '', aoClicar: () => { gravarPref(CHAVE_LEGENDA, !legendaVisivel()); comandos.executar('exibir.legendaExplorador'); } }),
       ui.botaoIcone({ icone: 'calcular', titulo: 'Calcular todos (Shift+F5)', aoClicar: () => comandos.executar('elemento.calcularTodos') }),
       ui.botaoIcone({ icone: 'parametros', titulo: 'Parâmetros do projeto', aoClicar: () => comandos.executar('projeto.parametros') }),
     ] : [],
@@ -82,13 +109,23 @@ export function visaoExplorador(acoes) {
       }
       const ativo = acoes.elementoAtivo();
       const montagem = montagemDoProjeto();
+      const filtrar = soPendencias();
+      if (legendaVisivel()) raiz.append(legenda());
+      if (filtrar) {
+        const n = estado.projeto.elementos.filter((e) => modulos.obter(e.modulo) && temPendencia(e, montagem)).length;
+        raiz.append(h('div', { class: 'explorador-filtro' },
+          icone('filtro', { tamanho: 13, traco: 1.8 }),
+          h('span', null, n ? `Só os ${n} elemento${n > 1 ? 's' : ''} com pendências` : 'Nenhuma pendência: tudo calculado e atendendo'),
+          h('button', { class: 'link', onClick: () => comandos.executar('exibir.soPendencias') }, 'Mostrar todos')));
+      }
       const arvore = h('div', { class: 'arvore', role: 'tree' });
       for (const cat of modulos.categorias()) {
         const mods = modulos.daCategoria(cat.id);
         const ids = new Set(mods.map((m) => m.id));
         // sempre em ordem alfabética natural dos códigos (V1, V2, … V10)
-        const itens = estado.projeto.elementos.filter((e) => ids.has(e.modulo)).sort((a, b) => compararCodigos(a.codigo, b.codigo));
+        const itens = estado.projeto.elementos.filter((e) => ids.has(e.modulo) && (!filtrar || temPendencia(e, montagem))).sort((a, b) => compararCodigos(a.codigo, b.codigo));
         if (!mods.length && !itens.length) continue;
+        if (filtrar && !itens.length) continue;
 
         const grupo = h('div', { class: ['arvore-grupo', recolhidos.has(cat.id) && 'recolhido'] });
         const criar = (e) => {

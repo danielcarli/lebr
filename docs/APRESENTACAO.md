@@ -20,7 +20,7 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 
 ![Tela inicial do LEBR](imagens/tela-inicial.png)
 
-*Capturas da versão 0.31.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
+*Capturas da versão 0.32.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
 
 ---
 
@@ -35,7 +35,9 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 | **Fundações** | sondagem SPT, sapatas isoladas, estacas (Aoki-Velloso e Décourt-Quaresma) e blocos sobre estacas |
 | **Elementos especiais** | escadas retas, em L e em U; reservatórios elevados e enterrados |
 | **Otimização** | por elemento: **menos bitolas diferentes** (obra mais simples), **menos aço** ou **menos segmentos de barra** (menos peças a cortar e montar), com todas as verificações atendidas |
-| **Saída** | memorial de cálculo, PDF por elemento, quantitativos e CSV, **pranchas em DXF** |
+| **Interface** | barra de cálculo fixa com o estado, índice das seções, sugestão da menor seção que atende, cálculo num *Web Worker*, legenda e filtro de pendências no explorador, ajuste a telas pequenas |
+| **Montagem** | planta de arquitetura em **DXF como fundo**, eixos e malha de encaixe |
+| **Saída** | memorial de cálculo, PDF por elemento, **memorial do edifício** e **cargas na fundação** em PDF, quantitativos e CSV, **pranchas em DXF**, **armadura em 3D** de cada elemento |
 | **Madeira** | vigas, pilares e entrepisos pela NBR 7190-1:2022 |
 
 O caminho até um projeto real está no [roteiro](ROTEIRO.md).
@@ -48,7 +50,9 @@ Cada elemento abre numa aba própria: no topo, o tipo de estrutura, o **código*
 clique); depois do filete, a norma, o resumo e o estado do cálculo — **Atende** em verde. À esquerda, o explorador
 agrupa os elementos por pavimento, com **duas bolinhas** em cada um: a do **cálculo** (atende, não atende,
 desatualizado) e a da **montagem** (vazia se ainda não foi posicionado, verde se os apoios conferem com a planta,
-vermelha se há um erro de ligação).
+vermelha se há um erro de ligação). O losango marca problema, o círculo cheio, em ordem, e o anel, o que falta
+fazer; o botão ⓘ mostra a legenda e o funil deixa só os elementos com pendências. A barra de cálculo acompanha a
+rolagem com o estado sempre à vista e, em telas largas, um índice das seções fica ao lado da página.
 
 A **barra inferior** resume a situação do projeto pela cor: **verde musgo** quando todos os elementos estão calculados e
 atendem às verificações, **terracota** quando algum não atende, tem erro de cálculo ou erro de montagem, e **cinza
@@ -72,6 +76,20 @@ editada (bitola, quantidade, comprimento).
 
 ![Detalhamento de uma viga](imagens/viga-detalhamento.png)
 
+Quando o elemento não atende, a página sugere a menor alteração que faz todas as verificações passarem, com o botão
+**Aplicar**.
+
+![Sugestão de seção para uma viga que não atende](imagens/sugestao-secao.png)
+
+### Armadura em 3D
+
+Na seção de detalhamento da viga, do pilar e da laje, **Armadura em 3D** mostra as barras daquele elemento, isoladas,
+dentro do concreto transparente — gira, aproxima e destaca a posição da lista de ferros sob o mouse.
+
+| Viga | Pilar | Laje |
+|---|---|---|
+| ![Armadura da viga em 3D](imagens/armadura-3d-viga.png) | ![Armadura do pilar em 3D](imagens/armadura-3d-pilar.png) | ![Armadura da laje em 3D](imagens/armadura-3d-laje.png) |
+
 ### Pilares e lajes
 
 Lance do pilar com os arranques na fundação, o traspasse com o lance de cima, estribos e grampos suplementares.
@@ -89,6 +107,11 @@ um para o outro. **Conectar automaticamente** cria as ligações pela geometria,
 avisa quando alguma não confere.
 
 ![Montagem por pavimentos](imagens/montagem.png)
+
+A planta de arquitetura em DXF pode ficar no fundo de cada pavimento, com os **eixos** do projeto e uma **malha de
+encaixe**: os pilares e as vigas encostam nos cantos das paredes, nos eixos e nos cruzamentos.
+
+![Planta de arquitetura no fundo da montagem](imagens/montagem-planta-dxf.png)
 
 ### Visualização 3D e abas lado a lado
 
@@ -116,6 +139,14 @@ compara o resultado com a escolha automática. **Calcular › Otimizar todos os 
 Concreto, fôrma e aço por bitola, por pavimento e do projeto, com o resumo do aço e as perdas — exportável em CSV.
 
 ![Quantitativos de materiais](imagens/quantitativos.png)
+
+### Memorial do edifício e cargas na fundação
+
+O memorial reúne os dados do projeto, a situação, as cargas na fundação, os quantitativos e, por pavimento, cada
+elemento com as verificações e o memorial de cálculo, num PDF só. A tabela de cargas na fundação sai também à parte,
+com a planta de locação.
+
+![Memorial do edifício](imagens/memorial-edificio.png)
 
 ### Pranchas em DXF
 

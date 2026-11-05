@@ -31,6 +31,9 @@
   .linha-acoes, .vazio-acoes { display: none !important; }
   .pagina .botao, .pagina .botao-icone, .pagina button.link { display: none !important; }
   .barra-calculo { position: static; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+  .indice-secoes, .secao-sugestoes, .estado-chip.calculando, .vista-3d-armadura, .det-alternar-vista { display: none !important; }
+  .pagina-elemento { display: block; }
+  .editor { container-type: normal; }
   .obj-titulo.editavel, .obj-nome-elem.editavel { border-bottom-color: transparent !important; }
   input, select { -webkit-appearance: none; appearance: none; }
 

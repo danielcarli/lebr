@@ -22,6 +22,7 @@ import { criarDesenhos } from './desenho.js';
 import { editorCargas } from '../comum/cargas.js';
 import { editorVaos } from '../comum/vaos.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloViga } from '../comum/armadura3d.js';
 
 export default function moduloViga(api) {
   const { h } = api.dom;
@@ -91,6 +92,7 @@ export default function moduloViga(api) {
       tituloVerificacoes: 'Ancoragem nos apoios extremos',
       volume,
       desenho: (posicoes, destaque) => desenho.elevacao(ctx.elemento, det, posicoes, { destaque }),
+      modelo3d: (posicoes) => modeloViga(ctx.elemento, det, posicoes, { cob: ctx.projeto?.parametros?.cobrimento?.viga ?? 3 }),
       antes: [ui.linhaCampos(ui.texto({
         rotulo: 'Largura dos apoios (cm)', valor: el.detalhamento?.largura ?? '', placeholder: `automática: ${largAuto}`, largura: '320px',
         aoMudar: (v) => {

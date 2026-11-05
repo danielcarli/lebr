@@ -44,7 +44,12 @@ As seções abaixo listam os módulos e as funcionalidades que faltam, agrupados
 - Detalhamento de pilares e lajes, resumo do aço com perdas
 - Pranchas em DXF (fôrmas, locação e armação)
 - Verificação da montagem no explorador
-- Otimização das bitolas (menos bitolas ou menos aço)
+- Otimização das bitolas (menos bitolas, menos aço ou menos segmentos)
+- Planta DXF de arquitetura no fundo da montagem, eixos e malha
+- Sugestão da menor seção que atende
+- Armadura em 3D de cada elemento
+- Memorial do edifício e cargas na fundação em PDF
+- Cálculo em Web Worker
 
 Cada elemento é calculado sozinho, com as cargas transmitidas pelas ligações laje → viga → pilar.
 
@@ -238,5 +243,4 @@ Estas funcionalidades não mudam o cálculo, mas decidem se um escritório conse
 - **Instalador assinado e atualização automática:** para Windows, macOS e Linux
 - **Ajuda contextual e tutoriais:** em cada módulo, com o trecho da norma e um exemplo
 - **Repositório de módulos externos:** com versionamento e verificação, para a comunidade publicar módulos
-- **Desempenho:** cálculo em segundo plano (Web Worker) para edifícios com centenas de elementos sem travar a tela
 - **Acessibilidade e idiomas:** navegação por teclado completa, alto contraste, textos traduzíveis

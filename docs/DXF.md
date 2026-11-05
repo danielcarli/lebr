@@ -57,3 +57,22 @@ Cada arquivo leva só as camadas que usa.
 - Cotas desenhadas com linhas e texto (não são entidades DIMENSION associativas).
 - Uma prancha por arquivo, sem layout de papel (tudo no espaço do modelo, com o carimbo junto ao desenho).
 - Hachuras de corte e símbolos de seção ainda não são gerados; os pilares levam o X tradicional.
+
+## Importar uma planta de arquitetura (0.32)
+
+O caminho inverso também existe: a montagem lê um DXF de arquitetura para usá-lo como **fundo** de cada pavimento
+(bloco **Planta de fundo, eixos e malha**). O leitor (`src/engine/dxf-planta.js`) aceita DXF em texto (ASCII), de
+qualquer versão:
+
+- **Lidos:** LINE, LWPOLYLINE e POLYLINE (com os arcos de *bulge*), CIRCLE, ARC, ELLIPSE, SPLINE (pelos pontos de
+  ajuste ou de controle), TEXT, MTEXT (sem a formatação) e ATTRIB; blocos (INSERT com escala, rotação e matriz de
+  linhas e colunas, aninhados até 8 níveis) e as cotas (DIMENSION, pelo bloco que o CAD grava).
+- **Ignorados:** hachuras, sólidos, imagens, malhas 3D e o espaço de papel — a mensagem da importação diz quantos.
+- **Unidade:** a do cabeçalho (`$INSUNITS`: mm, cm, m, polegada, pé); sem ela, pela extensão do desenho (acima de
+  2.000 unidades, mm; acima de 200, cm; senão, m). Pode ser trocada depois.
+- **DWG** e **DXF binário** não são lidos: salve como DXF (texto) no programa de CAD.
+- Desenhos muito grandes são cortados em 600 mil pontos, com aviso. Para plantas pesadas, congele ou apague no CAD as
+  camadas de mobiliário, hachura e detalhes antes de exportar.
+
+As pranchas que o próprio LEBR exporta também podem ser lidas como fundo (por exemplo, a planta de fôrmas de um
+pavimento como referência para outro projeto).

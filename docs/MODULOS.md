@@ -138,3 +138,10 @@ Para os próximos materiais, a mesma regra: aço `A` (AV1, AP1…); geotecnia `G
 
 Um módulo que não deve ser posicionado nos pavimentos da montagem (como a sondagem) declara `montagem: false`: ele não aparece no menu **Adicionar** da montagem.
 
+
+## Cálculo fora da interface (0.32)
+
+Os módulos internos são calculados num *Web Worker* (`src/renderer/core/calculo-worker.js`), com as funções de
+`src/validacao/calculos.js`, para a janela não travar. Basta um elemento de **módulo externo** no projeto para todos os
+cálculos voltarem a rodar na interface, com o `calcular` do próprio módulo — o contrato não muda. Um módulo interno
+novo precisa estar registrado também em `MODULOS_CALCULO` (o mesmo registro do banco de validação).

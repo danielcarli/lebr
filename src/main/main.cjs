@@ -223,6 +223,18 @@ function registrarIPC() {
     return { pasta: destino, arquivos: gravados };
   });
 
+  // Planta de arquitetura em DXF para o fundo da montagem (0.32): só leitura do arquivo escolhido pelo usuário
+  ipcMain.handle('dxf:abrir', async (_e, { caminhoProjeto } = {}) => {
+    const pasta = caminhoProjeto && fss.existsSync(path.dirname(caminhoProjeto)) ? path.dirname(caminhoProjeto) : app.getPath('documents');
+    const r = await dialog.showOpenDialog(janela, { title: 'Planta de arquitetura (DXF)', defaultPath: pasta, properties: ['openFile'], filters: [{ name: 'Desenho DXF', extensions: ['dxf'] }] });
+    if (r.canceled || !r.filePaths?.[0]) return null;
+    const buf = await fs.readFile(r.filePaths[0]);
+    if (buf.length > 60 * 1024 * 1024) throw new Error('Arquivo DXF maior que 60 MB.');
+    let texto;
+    try { texto = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { texto = new TextDecoder('windows-1252').decode(buf); }
+    return { nome: path.basename(r.filePaths[0]), texto };
+  });
+
   // Exportar PDF em duas etapas: a interface pede o destino, prepara a página e só então
   // pede a gravação. O caminho fica guardado aqui, então a interface nunca escolhe onde gravar.
   ipcMain.handle('pdf:escolher-destino', async (_e, { nomeSugerido, caminhoProjeto }) => {
@@ -257,7 +269,8 @@ function registrarIPC() {
   });
   ipcMain.handle('sistema:abrir-arquivo', (_e, caminho) => (String(caminho).toLowerCase().endsWith('.pdf') ? shell.openPath(caminho) : null));
   // Banco de casos de validação (Ajuda › Relatório de validação): só leitura dos JSON da pasta do app
-  const pastaCasos = path.join(RAIZ, 'validacao', 'casos');
+  // no programa empacotado, a pasta fica fora do app.asar (asarUnpack) para poder ser aberta no explorador
+  const pastaCasos = path.join(RAIZ, 'validacao', 'casos').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
   ipcMain.handle('validacao:casos', async () => {
     if (!fss.existsSync(pastaCasos)) return [];
     const nomes = (await fs.readdir(pastaCasos)).filter((n) => n.endsWith('.json')).sort();

@@ -26,6 +26,18 @@ import { contextoConcreto } from '../../engine/materiais.js';
 import { dataHora } from '../core/formatar.js';
 import { montagemDoProjeto } from '../core/situacao-montagem.js';
 import { comandos } from '../core/comandos.js';
+import { abrirMenu } from '../ui/menus.js';
+import { secaoSugestoes } from './sugestoes.js';
+
+/* ------------------------------------------------------------------ estado "calculando" (cálculo no Worker, 0.32) */
+const calculando = new Set(); // ids em cálculo
+const instancias = new Map(); // id → { desenharBarra } das abas abertas
+export const emCalculo = (id) => calculando.has(id);
+/** Marca (ou desmarca) o elemento como "em cálculo" — chamado por quem dispara o cálculo. */
+export function marcarCalculo(id, sim) {
+  if (sim) calculando.add(id); else calculando.delete(id);
+  instancias.get(id)?.desenharBarra();
+}
 
 export function estadoDoResultado(el) {
   const r = el?.resultado;
@@ -102,8 +114,11 @@ function renderizar(container, id, acoes) {
   const barra = h('div', { class: 'barra-calculo' });
   const entrada = h('div', { class: 'bloco' });
   const resultados = h('div', { class: 'bloco' });
-  pagina.append(cabecalho, entrada, barra, resultados);
-  container.append(pagina);
+  const indice = h('nav', { class: 'indice-secoes', 'aria-label': 'Seções da página' });
+  // a barra de cálculo fica logo abaixo do cabeçalho e acompanha a rolagem (estado sempre à vista)
+  pagina.append(cabecalho, barra, entrada, resultados);
+  container.append(h('div', { class: 'pagina-elemento' }, pagina, indice));
+  const rolagem = () => container.closest?.('.editor') ?? container;
 
   function desenharCabecalho() {
     const e = estado.elemento(id);
@@ -123,14 +138,40 @@ function renderizar(container, id, acoes) {
     }));
   }
 
+  /** Seções da página, na ordem, com o grupo (dados ou resultados). */
+  const secoes = () => [...pagina.querySelectorAll('.secao')].map((sec, i) => ({
+    sec, i, titulo: sec.querySelector(':scope > .secao-cab .secao-titulo')?.textContent ?? `Seção ${i + 1}`,
+    num: sec.querySelector(':scope > .secao-cab .secao-num')?.textContent ?? '', grupo: resultados.contains(sec) ? 'Resultados' : 'Dados',
+  }));
+  const irPara = (sec) => sec?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  const secaoVerificacoes = () => [...resultados.querySelectorAll('.secao')].find((x) => x.querySelector('.secao-titulo')?.textContent === 'Verificações');
+
+  function chipEstado(e) {
+    const r = e.resultado;
+    if (calculando.has(id)) return h('span', { class: 'estado-chip calculando' }, h('i', { class: 'giro' }), 'Calculando…');
+    if (!r) return h('span', { class: 'estado-chip pendente' }, icone('relogio2', { tamanho: 14, traco: 1.8 }), 'Não calculado');
+    if (r.erro) return h('span', { class: 'estado-chip falha' }, icone('alerta', { tamanho: 14, traco: 1.8 }), 'Erro no cálculo');
+    const falhas = (r.verificacoes ?? []).filter((v) => !v.ok);
+    const desat = r.desatualizado ? ' (desatualizado)' : '';
+    if (r.ok) return h('span', { class: ['estado-chip', r.desatualizado ? 'pendente' : 'ok'] }, icone(r.desatualizado ? 'relogio2' : 'check', { tamanho: 14, traco: 2 }), `Atende${desat}`);
+    return h('button', {
+      class: ['estado-chip', r.desatualizado ? 'pendente' : 'falha'],
+      title: falhas.length ? `${falhas.map((v) => `✕ ${v.nome}`).join('\n')}\n\nClique para ir às verificações.` : 'Ir às verificações',
+      onClick: () => irPara(secaoVerificacoes()),
+    }, icone('alerta', { tamanho: 14, traco: 1.8 }),
+    falhas.length ? `${falhas.length} verificação${falhas.length > 1 ? 'ões' : ''} não atendida${falhas.length > 1 ? 's' : ''}${desat}` : `Não atende${desat}`);
+  }
+
   function desenharBarra() {
     const e = estado.elemento(id);
+    if (!e) return;
     const r = e.resultado;
     limpar(barra).append(
-      ui.botao({ texto: 'Calcular', icone: 'calcular', tipo: 'primario', tecla: 'F5', aoClicar: () => acoes.calcular(id) }),
+      ui.botao({ texto: 'Calcular', icone: 'calcular', tipo: 'primario', tecla: 'F5', desabilitado: calculando.has(id), aoClicar: () => acoes.calcular(id) }),
+      chipEstado(e),
       h('span', { class: 'barra-info' },
         !r ? 'Preencha os dados e calcule o elemento.'
-          : r.desatualizado ? 'Os dados mudaram desde o último cálculo — recalcule para atualizar os resultados.'
+          : r.desatualizado ? 'Os dados mudaram — recalcule para atualizar.'
             : `Calculado em ${dataHora(r.calculadoEm)}`),
       (() => {
         const mt = montagemDoProjeto().get(id);
@@ -139,11 +180,47 @@ function renderizar(container, id, acoes) {
           h('i', { class: 'ponto-montagem erro' }), `Montagem: ${mt.problemas.length} problema${mt.problemas.length > 1 ? 's' : ''}`);
       })(),
       h('span', { style: { flex: '1' } }),
-      r && !r.erro ? ui.botao({ texto: 'Memorial no painel', icone: 'painel', tipo: 'fantasma', aoClicar: () => acoes.mostrarMemorial(id) }) : '',
-      ui.botao({ texto: 'Exportar PDF', icone: 'pdf', tipo: 'fantasma', aoClicar: () => acoes.exportarPdf(id) }),
+      ui.botaoIcone({ icone: 'reticencias', titulo: 'Ir para uma seção', classe: 'so-estreito', aoClicar: (ev) => abrirMenu(menuSecoes(), { ancora: ev.currentTarget }) }),
+      r && !r.erro ? ui.botao({ texto: 'Memorial', icone: 'painel', tipo: 'fantasma', titulo: 'Memorial de cálculo no painel', aoClicar: () => acoes.mostrarMemorial(id) }) : '',
+      ui.botao({ texto: 'PDF', icone: 'pdf', tipo: 'fantasma', titulo: 'Exportar o elemento em PDF', aoClicar: () => acoes.exportarPdf(id) }),
     );
     resultados.classList.toggle('desatualizado', !!r?.desatualizado);
   }
+
+  function menuSecoes() {
+    const itens = [];
+    let grupo = null;
+    for (const x of secoes()) {
+      if (x.grupo !== grupo) { if (grupo) itens.push('-'); itens.push({ cabecalho: x.grupo }); grupo = x.grupo; }
+      itens.push({ rotulo: `${x.num} ${x.titulo}`, acao: () => irPara(x.sec) });
+    }
+    return itens;
+  }
+
+  /** Índice lateral (telas largas): as seções, com a atual em destaque enquanto a página rola. */
+  function montarIndice() {
+    const lista = secoes();
+    limpar(indice).append(h('span', { class: 'indice-tit' }, 'Nesta página'));
+    let grupo = null;
+    for (const x of lista) {
+      if (x.grupo !== grupo) { indice.append(h('span', { class: 'indice-grupo' }, x.grupo)); grupo = x.grupo; }
+      const falhou = x.grupo === 'Resultados' && x.titulo === 'Verificações' && estado.elemento(id)?.resultado?.ok === false;
+      indice.append(h('button', { class: ['indice-item', falhou && 'falha'], dataset: { i: String(x.i) }, onClick: () => irPara(x.sec) },
+        h('span', { class: 'indice-num' }, x.num), h('span', { class: 'indice-txt' }, x.titulo)));
+    }
+    marcarAtual();
+  }
+  function marcarAtual() {
+    const sc = rolagem();
+    if (!sc?.getBoundingClientRect || !indice.isConnected) return;
+    const topo = sc.getBoundingClientRect().top + 90;
+    let atual = 0;
+    secoes().forEach((x) => { if (x.sec.getBoundingClientRect().top <= topo) atual = x.i; });
+    indice.querySelectorAll('.indice-item').forEach((b) => b.classList.toggle('atual', Number(b.dataset.i) === atual));
+  }
+  let quadro = 0;
+  const aoRolar = () => { if (!quadro) quadro = requestAnimationFrame(() => { quadro = 0; marcarAtual(); }); };
+  queueMicrotask(() => rolagem()?.addEventListener?.('scroll', aoRolar, { passive: true }));
 
   function desenharEntrada() {
     limpar(entrada);
@@ -165,7 +242,9 @@ function renderizar(container, id, acoes) {
     const avisos = (r.avisos ?? []).length
       ? h('ul', { class: 'avisos' }, r.avisos.map((a) => h('li', null, icone('alerta', { tamanho: 14, traco: 1.8 }), a)))
       : null;
-    resultados.append(ui.secao({ numero: '', titulo: 'Resultados', descricao: r.ok ? 'Todas as verificações atendidas' : 'Há verificações não atendidas', acoes: [ui.selo(r.ok, r.ok ? 'Atende' : 'Não atende')], filhos: [avisos, corpo] }));
+    // quando não atende: a menor alteração de seção que faz o elemento atender (0.32), logo no começo dos resultados
+    const sug = r.ok === false && !r.desatualizado ? secaoSugestoes(ctx, { aoPronto: () => { numerar(); montarIndice(); } }) : null;
+    resultados.append(ui.secao({ numero: '', titulo: 'Resultados', descricao: r.ok ? 'Todas as verificações atendidas' : 'Há verificações não atendidas', acoes: [ui.selo(r.ok, r.ok ? 'Atende' : 'Não atende')], filhos: [avisos, sug, corpo] }));
     try { mod.renderResultado(corpo, r, ctx); } catch (err) {
       console.error(err);
       corpo.append(ui.vazio({ icone: 'alerta', titulo: 'Erro ao exibir resultados', texto: err.message }));
@@ -188,16 +267,37 @@ function renderizar(container, id, acoes) {
     pagina.querySelectorAll('.secao-num').forEach((n, i) => { n.textContent = String(i + 1).padStart(2, '0'); });
   }
 
+  /** Redesenha a página inteira no lugar, sem perder o campo em foco nem a rolagem (depois de um cálculo). */
+  function redesenharNoLugar() {
+    const sc = rolagem();
+    const topo = sc?.scrollTop ?? 0;
+    const focaveis = () => [...pagina.querySelectorAll('input, select, textarea, button, [contenteditable]')];
+    const ativo = document.activeElement;
+    const idx = ativo && pagina.contains(ativo) ? focaveis().indexOf(ativo) : -1;
+    const sel = idx >= 0 && typeof ativo.selectionStart === 'number' ? [ativo.selectionStart, ativo.selectionEnd] : null;
+    desenharCabecalho(); desenharBarra(); desenharEntrada(); desenharResultados(); numerar(); montarIndice();
+    if (sc) sc.scrollTop = topo;
+    if (idx >= 0) {
+      const alvo = focaveis()[idx];
+      alvo?.focus?.({ preventScroll: true });
+      if (sel && alvo?.setSelectionRange) { try { alvo.setSelectionRange(...sel); } catch { /* campo sem seleção */ } }
+    }
+  }
+
   desenharCabecalho();
   desenharEntrada();
   desenharBarra();
   desenharResultados();
   numerar();
+  montarIndice();
+  instancias.set(id, { desenharBarra: () => { if (pagina.isConnected) { desenharBarra(); } } });
 
   return {
     aoAlterar(info) {
       if (!estado.elemento(id)) return false;
       if (info.historico || info.tipo === 'parametros') return false;
+      // resultado novo deste elemento: redesenha no lugar, sem tirar o foco do campo
+      if (info.calculo && info.elementoId === id) { redesenharNoLugar(); return true; }
       if (info.origem === token && !info.estrutural) {
         desenharCabecalho();
         desenharBarra();

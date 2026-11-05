@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld('lebr', {
 
   dxf: {
     salvar: (arquivos, caminhoProjeto) => ipcRenderer.invoke('dxf:salvar', { arquivos, caminhoProjeto }),
+    abrir: (caminhoProjeto) => ipcRenderer.invoke('dxf:abrir', { caminhoProjeto }),
   },
   csv: {
     salvar: (conteudo, nomeSugerido, caminhoProjeto) => ipcRenderer.invoke('csv:salvar', { conteudo, nomeSugerido, caminhoProjeto }),

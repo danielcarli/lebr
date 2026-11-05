@@ -38,9 +38,12 @@ import {
   ligacoesExistentes, avisosMontagem, dimensoesLaje, escadaNaPlanta,
 } from '../core/montagem.js';
 import { grelhaDoPavimento, modoDoPavimento } from '../../modules/comum/grelha.js';
+import {
+  camadaFundo, pontosDoFundo, camadaEixos, cruzamentosDosEixos, encaixarEmEixos, blocoFundo, passoMalha, plantaDoDxf, fundoInicial, plantaDe, transformacaoFundo,
+} from './montagem-fundo.js';
 
 /** Estado da vista (sobrevive aos redesenhos da aba). */
-const vista = { projeto: null, pav: null, cx: 4, cy: 2.5, esc: 60, sel: null, enquadrar: true, conhecidos: null, novos: new Set(), ordem: 'alfabetica' };
+const vista = { projeto: null, pav: null, cx: 4, cy: 2.5, esc: 60, sel: null, enquadrar: true, conhecidos: null, novos: new Set(), ordem: 'alfabetica', moverFundo: false };
 
 const GRADE = 0.05;               // m — passo do arrasto
 const IMA_PX = 12;                // distância de encaixe magnético na tela
@@ -113,6 +116,13 @@ function renderizar(container, acoes) {
 
   function enquadrar() {
     const pts = (doPav.length ? doPav : referencia).flatMap((e) => pontosDeEncaixe(e, tipo(e)).concat(tipo(e) === 'laje' ? cantosLaje(e) : []));
+    // sem elementos: enquadra a planta de fundo, se houver
+    const pvAtual = pavimento(p, vista.pav), pl = plantaDe(p, pvAtual);
+    if (!pts.length && pl) {
+      const { aplicar } = transformacaoFundo(pvAtual, pl);
+      const L = pl.limites;
+      pts.push(aplicar(L.x0, L.y0), aplicar(L.x1, L.y0), aplicar(L.x1, L.y1), aplicar(L.x0, L.y1));
+    }
     if (!pts.length) { Object.assign(vista, { cx: 4, cy: 2.5, esc: 60 }); return; }
     const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -322,11 +332,17 @@ function renderizar(container, acoes) {
     limpar(svg);
     // grade de 1 m (e eixos)
     const [mx0, my1] = mundo(0, 0), [mx1, my0] = mundo(W, H);
-    const passo = vista.esc < 14 ? 5 : 1;
-    const grade = s('g', { class: 'mont-grade' });
+    const malha = passoMalha();
+    const passo = malha && malha * vista.esc >= 9 ? malha : vista.esc < 14 ? 5 : 1;
+    const grade = s('g', { class: ['mont-grade', malha && passo === malha && 'malha'] });
     for (let x = Math.ceil(mx0 / passo) * passo; x <= mx1; x += passo) { const [px] = tela([x, 0]); grade.append(s('line', { x1: px, y1: 0, x2: px, y2: H, class: Math.abs(x) < 1e-9 ? 'eixo' : '' })); }
     for (let y = Math.ceil(my0 / passo) * passo; y <= my1; y += passo) { const [, py] = tela([0, y]); grade.append(s('line', { x1: 0, y1: py, x2: W, y2: py, class: Math.abs(y) < 1e-9 ? 'eixo' : '' })); }
     svg.append(grade);
+    // planta de arquitetura (DXF) e eixos do projeto
+    const fundo = camadaFundo(estado.projeto, pavimento(estado.projeto, vista.pav), tela, vista.esc);
+    if (fundo) { if (arrasto?.tipo === 'fundo') fundo.setAttribute('transform', `translate(${arrasto.dx * vista.esc} ${-arrasto.dy * vista.esc})`); svg.append(fundo); }
+    const eixos = camadaEixos(estado.projeto, tela, mundo, W, H);
+    if (eixos) svg.append(eixos);
     const ordem = { laje: 0, reservatorio: 0.4, escada: 0.5, viga: 1, pilar: 2 };
     // pavimento de baixo, esmaecido, como referência para alinhar
     if (referencia.length) {
@@ -380,9 +396,14 @@ function renderizar(container, acoes) {
       const g = camadaEls.querySelector(`[data-id="${el.id}"]`);
       const t = tipo(el);
       const meus = pontosDeEncaixe(el, t);
+      const [vx0, vy1] = mundo(0, 0), [vx1, vy0] = mundo(W, H);
       const alvos = doPav.filter((x) => x.id !== el.id).concat(referencia).flatMap((x) => pontosDeEncaixe(x, tipo(x)))
-        .concat(t === 'pilar' ? pilaresAcima.map(centroPilar) : []);
+        .concat(t === 'pilar' ? pilaresAcima.map(centroPilar) : [])
+        .concat(cruzamentosDosEixos(estado.projeto))
+        .concat(pontosDoFundo(estado.projeto, pavimento(estado.projeto, vista.pav), [vx0, vy0, vx1, vy1]));
       arrasto = { tipo: 'el', el, g, x0: e.clientX, y0: e.clientY, escala, meus, alvos, dx: 0, dy: 0, moveu: false };
+    } else if (vista.moverFundo && plantaDe(estado.projeto, pavimento(estado.projeto, vista.pav))) {
+      arrasto = { tipo: 'fundo', x0: e.clientX, y0: e.clientY, escala, dx: 0, dy: 0, moveu: false };
     } else {
       arrasto = { tipo: 'pan', x0: e.clientX, y0: e.clientY, cx: vista.cx, cy: vista.cy, escala, moveu: false };
     }
@@ -397,6 +418,11 @@ function renderizar(container, acoes) {
       desenharPlanta();
       return;
     }
+    if (arrasto.tipo === 'fundo') {
+      arrasto.dx = dpx / vista.esc; arrasto.dy = -dpy / vista.esc;
+      svg.querySelector('.mont-fundo')?.setAttribute('transform', `translate(${dpx} ${dpy})`);
+      return;
+    }
     let dx = arred(dpx / vista.esc), dy = arred(-dpy / vista.esc);
     // encaixe magnético: o ponto do elemento mais próximo de um ponto de outro elemento
     let melhor = null;
@@ -407,7 +433,17 @@ function renderizar(container, acoes) {
       if (d < lim && (!melhor || d < melhor.d)) melhor = { d, dx: a[0] - m[0], dy: a[1] - m[1], a };
     }
     if (melhor) { dx = melhor.dx; dy = melhor.dy; const [x, y] = tela(melhor.a); Object.assign(marcaIma.style, { display: '' }); marcaIma.setAttribute('cx', x); marcaIma.setAttribute('cy', y); }
-    else marcaIma.style.display = 'none';
+    else {
+      marcaIma.style.display = 'none';
+      // sem ponto de encaixe por perto: encosta nos eixos ou, com a malha ligada, leva o ponto de inserção para a malha
+      const ei = encaixarEmEixos(estado.projeto, arrasto.meus, dpx / vista.esc, -dpy / vista.esc, lim);
+      if (ei.eixo) { dx = arred(ei.dx, 0.001); dy = arred(ei.dy, 0.001); }
+      else {
+        const malha = passoMalha();
+        const pos = arrasto.el.posicao;
+        if (malha && pos) { dx = arred(pos.x + dpx / vista.esc, malha) - pos.x; dy = arred(pos.y - dpy / vista.esc, malha) - pos.y; }
+      }
+    }
     arrasto.dx = dx; arrasto.dy = dy;
     arrasto.g.setAttribute('transform', `translate(${dx * vista.esc} ${-dy * vista.esc})`);
   });
@@ -416,6 +452,11 @@ function renderizar(container, acoes) {
     const a = arrasto;
     arrasto = null;
     if (a.tipo === 'pan') { if (!a.moveu && vista.sel) { vista.sel = null; desenharPlanta(); desenharLateral(); } return; }
+    if (a.tipo === 'fundo') {
+      if (!a.moveu) return;
+      alterar((proj) => { const pv = pavimento(proj, vista.pav); pv.fundo.dx = Math.round(((pv.fundo.dx ?? 0) + a.dx) * 1000) / 1000; pv.fundo.dy = Math.round(((pv.fundo.dy ?? 0) + a.dy) * 1000) / 1000; }, 'Mover a planta de fundo');
+      return;
+    }
     if (!a.moveu || (Math.abs(a.dx) < 1e-9 && Math.abs(a.dy) < 1e-9)) { a.g?.removeAttribute('transform'); marcaIma.style.display = 'none'; return; }
     alterar((proj) => {
       const el = elDoProjeto(proj, a.el.id);
@@ -501,6 +542,20 @@ function renderizar(container, acoes) {
         lista),
     );
 
+    // planta de fundo (DXF), eixos e malha
+    lateral.append(blocoFundo({
+      projeto: proj, pav: pavimento(proj, vista.pav),
+      alterar: (fn, descricao) => alterar((pp) => fn(pp, pavimento(pp, vista.pav)), descricao),
+      importar: importarFundo,
+      mover: vista.moverFundo, alternarMover: (v) => { vista.moverFundo = v; desenharLateral(); },
+      redesenhar: () => { desenharPlanta(); desenharLateral(); },
+      eixosDosPilares: proj.elementos.some((e) => e.posicao?.pavimento === vista.pav && tipo(e) === 'pilar') ? () => {
+        const pils = proj.elementos.filter((e) => e.posicao?.pavimento === vista.pav && tipo(e) === 'pilar');
+        const unicos = (vs) => vs.map((v) => Math.round(v * 100) / 100).sort((a, b) => a - b).filter((v, i, arr) => i === 0 || v - arr[i - 1] > 0.05);
+        alterar((pp) => { pp.eixos = { x: unicos(pils.map((e) => e.posicao.x)), y: unicos(pils.map((e) => e.posicao.y)) }; }, 'Eixos pelos pilares');
+      } : null,
+    }));
+
     // ordem das listas
     lateral.append(h('div', { class: 'mont-bloco mont-ordem' },
       ui.segmentado({ rotulo: 'Ordenar listas', valor: vista.ordem, compacto: true,
@@ -562,6 +617,31 @@ function renderizar(container, acoes) {
           h('button', { class: 'link', onClick: () => posicionar(el) }, 'Posicionar'))))
         : h('p', { class: 'mont-dica' }, 'Todos os elementos estão na planta.'),
     ));
+  }
+
+  /** Importa uma planta de arquitetura (DXF) como fundo do pavimento atual. */
+  async function importarFundo() {
+    let arq = null;
+    if (globalThis.lebr?.dxf?.abrir) {
+      try { arq = await globalThis.lebr.dxf.abrir(estado.caminho); } catch (err) { notificar(`Não foi possível ler o arquivo: ${err.message}`, 'erro'); return; }
+    } else { notificar('Importar DXF só funciona no aplicativo instalado.', 'erro'); return; }
+    if (!arq) return;
+    aplicarDxf(arq.texto, arq.nome);
+  }
+  function aplicarDxf(texto, nome) {
+    let r;
+    try { r = plantaDoDxf(texto, nome); } catch (err) { notificar(`${nome}: ${err.message}`, 'erro', { duracao: 8000 }); return; }
+    alterar((pp) => {
+      const pv = pavimento(pp, vista.pav);
+      const antiga = pv.fundo?.planta;
+      pp.plantasFundo = [...(pp.plantasFundo ?? []), r.planta];
+      pv.fundo = fundoInicial(r.planta);
+      // a planta trocada sai do arquivo se nenhum outro pavimento a usa
+      if (antiga && !pp.pavimentos.some((q) => q.fundo?.planta === antiga)) pp.plantasFundo = pp.plantasFundo.filter((x) => x.id !== antiga);
+    }, `Planta de fundo: ${nome}`);
+    vista.enquadrar = true;
+    const ign = Object.entries(r.resumo.ignoradas).map(([k, n]) => `${n} ${k}`).join(', ');
+    notificar(`${nome}: ${r.resumo.entidades} linhas e ${r.resumo.textos} textos em ${r.resumo.camadas} camadas · unidade ${r.resumo.unidade}${r.resumo.unidadeLida ? '' : ' (pela extensão do desenho — confira)'}${ign ? ` · ignorados: ${ign}` : ''}${r.resumo.cortado ? ' · desenho grande demais: parte ficou de fora' : ''}.`, 'ok', { duracao: 9000 });
   }
 
   /** Relê o projeto e destaca os elementos que ainda não estavam na lista de não posicionados. */
@@ -713,6 +793,8 @@ function renderizar(container, acoes) {
   obs.observe(planta);
   requestAnimationFrame(desenharPlanta);
 
+  // console e testes: importar uma planta a partir do texto do DXF
+  globalThis.__lebrMontagem = { aplicarDxf };
   return {
     destruir() { obs.disconnect(); container.classList.remove('editor-cheio'); },
     aoAlterar() { return false; },

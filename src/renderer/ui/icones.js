@@ -32,6 +32,8 @@ const P = {
   fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
   calcular: '<path d="M7 5l12 7-12 7z"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  filtro: '<path d="M4 5h16l-6 7.5V19l-4-2v-4.5z"/>',
+  relogio2: '<circle cx="12" cy="12" r="8" stroke-dasharray="3 2.2"/>',
   alerta: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
   busca: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
   direita: '<path d="M9 6l6 6-6 6"/>',

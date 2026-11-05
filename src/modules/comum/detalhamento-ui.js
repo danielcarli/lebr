@@ -19,6 +19,10 @@
  */
 import { aplicarEdicoes, resumoComPerdas } from '../../engine/detalhamento.js';
 import { BITOLAS } from '../../engine/barras.js';
+import { vistaArmadura3D } from '../../renderer/ui/armadura3d.js';
+
+// elementos com a vista 3D da armadura aberta (no lugar do desenho 2D), enquanto o programa está aberto
+const com3D = new Set();
 
 const TIPOS = {
   positiva: 'Positiva', negativa: 'Negativa', 'porta-estribo': 'Porta-estribo', construtiva: 'Construtiva', pele: 'Pele',
@@ -35,6 +39,7 @@ const TIPOS = {
  * @param {string} [op.titulo], [op.descricao], [op.nota], [op.tituloVerificacoes]
  * @param {number} [op.volume]   volume de concreto (m³) para a taxa kg/m³
  * @param {Node[]} [op.antes]    campos acima do desenho
+ * @param {(posicoes:object[]) => object} [op.modelo3d]  geometria da armadura em 3D (modules/comum/armadura3d.js)
  */
 export function secaoListaDeFerros(api, ctx, det, op = {}) {
   const { h } = api.dom;
@@ -70,9 +75,13 @@ export function secaoListaDeFerros(api, ctx, det, op = {}) {
   const entradaPhi = (q) => h('select', { class: 'det-input det-phi', onChange: (ev) => editar(q, 'phi', BITOLAS[ev.target.selectedIndex]) },
     BITOLAS.map((b) => h('option', { selected: b === q.phi }, `ø ${phiTxt(b)}`)));
 
+  function marcarTabela() {
+    corpo.querySelectorAll('.det-tabela tbody tr').forEach((tr) => tr.classList.toggle('det-destaque', tr.dataset.pos === destaque));
+  }
   function marcar() {
     corpo.querySelectorAll('.det-pos').forEach((g) => g.classList.toggle('destaque', g.dataset.pos === destaque));
-    corpo.querySelectorAll('.det-tabela tbody tr').forEach((tr) => tr.classList.toggle('det-destaque', tr.dataset.pos === destaque));
+    marcarTabela();
+    corpo.querySelector('.vista-3d-armadura')?.destacar?.(destaque);
   }
 
   function desenhar() {
@@ -114,7 +123,20 @@ export function secaoListaDeFerros(api, ctx, det, op = {}) {
     const taxa = op.volume > 0 ? resumo.total / op.volume : null;
     corpo.replaceChildren(
       det.avisos?.length ? h('ul', { class: 'avisos' }, det.avisos.map((a) => h('li', null, ui.icone('alerta', { tamanho: 14, traco: 1.8 }), a))) : '',
-      op.desenho ? h('div', { class: 'desenho-caixa det-elevacao' }, op.desenho(posicoes, destaque)) : '',
+      op.modelo3d ? h('div', { class: 'det-alternar-vista' }, ui.segmentado({
+        valor: com3D.has(el.id) ? '3d' : '2d', compacto: true,
+        opcoes: [{ valor: '2d', texto: 'Desenho' }, { valor: '3d', texto: 'Armadura em 3D', dica: 'Vista 3D isolada das barras deste elemento' }],
+        aoMudar: (v) => { if (v === '3d') com3D.add(el.id); else com3D.delete(el.id); desenhar(); },
+      })) : '',
+      op.modelo3d && com3D.has(el.id)
+        ? (() => {
+          let modelo = null;
+          try { modelo = op.modelo3d(posicoes); } catch (err) { console.error(err); }
+          return modelo ? vistaArmadura3D(modelo, { aoDestacar: (id) => { destaque = id; marcarTabela(); } }) : h('p', { class: 'combinacoes-nota' }, 'Não foi possível montar a vista 3D deste detalhamento.');
+        })()
+        : '',
+      // o desenho 2D vai sempre para o PDF (com a vista 3D aberta, fica só na impressão)
+      op.desenho ? h('div', { class: ['desenho-caixa', 'det-elevacao', op.modelo3d && com3D.has(el.id) && 'so-impressao'] }, op.desenho(posicoes, destaque)) : '',
       h('div', { class: 'det-barra-acoes' },
         h('span', { class: 'det-info' }, `${posicoes.length} posições · ${num(resumo.total, 1)} kg de aço${taxa ? ` · ${num(taxa, 0)} kg/m³` : ''}${nEd ? ` · ${nEd} ${nEd > 1 ? 'posições editadas' : 'posição editada'}` : ''}`),
         nEd ? ui.botao({ texto: 'Restaurar o detalhamento calculado', icone: 'atualizar', tipo: 'fantasma', aoClicar: restaurarTudo }) : ''),

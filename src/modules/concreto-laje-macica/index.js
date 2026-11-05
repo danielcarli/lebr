@@ -21,6 +21,7 @@ import { desenhoContornos, legendaContornos, tabelaPuncao } from '../comum/punca
 import { placaEstavel } from '../../engine/placa.js';
 import { detalhamentoLaje } from '../comum/detalhamento.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloLaje } from '../comum/armadura3d.js';
 import { criarDesenhoLaje } from './desenho.js';
 
 /** Ordem do ciclo ao clicar numa borda da planta. */
@@ -286,6 +287,7 @@ export default function moduloLajeMacica(api) {
           descricao: 'Malhas positivas, negativas nas bordas engastadas e distribuição (NBR 6118, 19.3 e 20.1) · lista de ferros editável',
           volume: (ctx.elemento.lx * ctx.elemento.ly * ctx.elemento.h) / 100,
           desenho: (posicoes, destaque) => desenhoLaje.planta(ctx.elemento, det, posicoes, { destaque }),
+          modelo3d: (posicoes) => modeloLaje(ctx.elemento, det, posicoes, { cob: ctx.projeto?.parametros?.cobrimento?.laje ?? 2.5 }),
           nota: `Positivas até a face oposta das vigas menos o cobrimento (na borda livre, até a borda menos o cobrimento), distribuídas no vão livre. Negativas com 0,25 do maior vão perpendicular à borda para cada lado (o balanço inteiro, quando a laje é em balanço) e dobras de ${num(det.dobra, 0)} cm (h − 2c); entre duas lajes a negativa é detalhada uma vez só, na de código menor, com a maior armadura das duas. Sem laje do outro lado, a negativa entra na viga até a face oposta menos o cobrimento. Distribuição dos negativos em ø 5 com ≥ 20 % da principal e ≥ 0,9 cm²/m (s ≤ 33 cm). O resumo soma as perdas adotadas no projeto.`,
         }));
       }

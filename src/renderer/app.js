@@ -30,13 +30,14 @@ import { estado } from './core/estado.js';
 import { comandos } from './core/comandos.js';
 import { modulos, instalar } from './core/modulos.js';
 import { criarProjeto, lerProjeto, serializar } from './core/projeto.js';
-import { calcularElemento } from './core/calculo.js';
+import * as motor from './core/motor.js';
 import { CRITERIOS, otimizavel } from '../modules/comum/otimizacao.js';
 import { fundacoesDesatualizadas } from '../modules/comum/armadura.js';
 import { lerNumero, dataHora, CODIGO_VALIDO, compararCodigos } from './core/formatar.js';
 
 import { abaInicio } from './views/inicio.js';
-import { abaElemento, estadoDoResultado } from './views/elemento.js';
+import { abaElemento, estadoDoResultado, marcarCalculo } from './views/elemento.js';
+import { abaMemorialProjeto, abaCargasFundacao } from './views/relatorios.js';
 import { abaParametros } from './views/parametros.js';
 import { abaRoteiro } from './views/roteiro.js';
 import { abaValidacao } from './views/validacao.js';
@@ -55,13 +56,13 @@ import { criarApiScript } from './core/script.js';
 import { definirUnidadeComprimento, observarUnidades } from './core/unidades.js';
 import { modoDoPavimento } from '../modules/comum/grelha.js';
 import { porticoNosPilares } from '../modules/comum/portico-edificio.js';
-import { visaoExplorador, visaoModulos, agruparPorPavimento, alternarAgrupamento } from './views/explorador.js';
+import { visaoExplorador, visaoModulos, agruparPorPavimento, alternarAgrupamento, soPendencias, alternarPendencias } from './views/explorador.js';
 
 import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.31.0';
+const VERSAO = '0.32.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -266,24 +267,24 @@ function novaVigaBaldrame() {
 }
 
 /** Sapatas sob os pilares da fundação que ainda não têm uma. */
-function criarSapatas() {
+async function criarSapatas() {
   if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
   let ids = [];
   estado.alterar((p) => { ids = criarSapatasNosPilares(p, modulos); }, { descricao: 'Criar sapatas', estrutural: true });
   if (!ids.length) return notificar('Todos os pilares que chegam à fundação já têm sapata (ou não há pilares posicionados).', 'info');
-  for (const id of ids) calcular(id);
+  for (const id of ids) await calcular(id);
   const falhas = ids.filter((id) => !estado.elemento(id)?.resultado?.ok).length;
   notificar(`${ids.length} sapata(s) criada(s) e ligada(s) aos pilares${falhas ? ` — ${falhas} com pendências` : ''}. Elas estão em Fundações, no explorador.`, falhas ? 'erro' : 'ok', { duracao: 5000 });
   registrarSaida(`Fundações: ${ids.length} sapata(s) criada(s) sob os pilares.`);
 }
 
 /** Blocos sobre estacas sob os pilares da fundação que ainda não têm sapata nem bloco. */
-function criarBlocos() {
+async function criarBlocos() {
   if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
   let ids = [];
   estado.alterar((p) => { ids = criarBlocosNosPilares(p, modulos); }, { descricao: 'Criar blocos sobre estacas', estrutural: true });
   if (!ids.length) return notificar('Todos os pilares que chegam à fundação já têm sapata ou bloco (ou não há pilares posicionados).', 'info');
-  for (const id of ids) calcular(id);
+  for (const id of ids) await calcular(id);
   const falhas = ids.filter((id) => !estado.elemento(id)?.resultado?.ok).length;
   const estacas = ids.reduce((s, id) => s + (estado.elemento(id)?.resultado?.n ?? 0), 0);
   notificar(`${ids.length} bloco(s) criado(s) e ligado(s) aos pilares, com ${estacas} estaca(s) no total${falhas ? ` — ${falhas} com pendências` : ''}. Eles estão em Fundações, no explorador.`, falhas ? 'erro' : 'ok', { duracao: 5000 });
@@ -327,11 +328,26 @@ function duplicar(id) {
   notificar(`${c.codigo} criado a partir de ${orig?.codigo ?? ''}${partes.length ? `: ${partes.join('; ')}.` : '.'}`, 'ok', { duracao: n ? 8000 : 4000 });
 }
 
-function calcular(id = elementoAtivo()) {
+/* Carimbos de edição: um resultado que chega depois de uma edição do elemento (ou do projeto) já nasce desatualizado. */
+const carimbos = new Map();
+let carimboGeral = 0;
+const tocar = (id) => carimbos.set(id, (carimbos.get(id) ?? 0) + 1);
+const marcaDe = (id) => `${carimbos.get(id) ?? 0}|${carimboGeral}`;
+
+const resultadoDeErro = (err) => ({ ok: false, erro: err.message, calculadoEm: new Date().toISOString(), desatualizado: false, verificacoes: [], avisos: [err.message], memorial: [] });
+
+/** Calcula um elemento (no Worker de cálculo, quando possível) e grava o resultado. */
+async function calcular(id = elementoAtivo()) {
   const el = estado.elemento(id);
   if (!el) return;
+  const projeto = estado.projeto;
+  const marca = marcaDe(id);
   const inicio = performance.now();
-  const r = calcularElemento(el, estado.projeto, modulos);
+  marcarCalculo(id, true);
+  let r;
+  try { r = await motor.calcularUm(el, projeto, modulos); } catch (err) { r = resultadoDeErro(err); } finally { marcarCalculo(id, false); }
+  if (estado.projeto !== projeto || !estado.elemento(id)) return r;
+  if (marcaDe(id) !== marca) r = { ...r, desatualizado: true }; // editado enquanto calculava
   estado.alterar((p) => { p.elementos.find((e) => e.id === id).resultado = r; }, { descricao: `Calcular ${el.codigo}`, elementoId: id, invalidar: false, estrutural: true, calculo: true });
   const ms = Math.round(performance.now() - inicio);
   if (r.erro) {
@@ -344,6 +360,7 @@ function calcular(id = elementoAtivo()) {
 }
 
 let calculandoTodos = null;
+/** Calcula todos os elementos, em ordem, sem travar a janela (Worker de cálculo, com o progresso na tela). */
 function calcularTodos() {
   if (!estado.projeto) return;
   if (calculandoTodos) return calculandoTodos;
@@ -351,48 +368,44 @@ function calcularTodos() {
   const ordem = { sondagens: -1, lajes: 0, escadas: 0.5, reservatorios: 0.6, vigas: 1, pilares: 2, fundacoes: 3 };
   const projeto = estado.projeto;
   const els = [...projeto.elementos].sort((a, b) => (ordem[modulos.obter(a.modulo)?.categoria] ?? 9) - (ordem[modulos.obter(b.modulo)?.categoria] ?? 9));
-  // calcula tudo e avisa a interface uma vez só (cada resultado já fica no elemento para os seguintes)
+  const marcas = new Map(els.map((e) => [e.id, marcaDe(e.id)]));
   const inicio = performance.now();
   let erros = 0;
-  const um = (el) => {
-    const r = calcularElemento(el, projeto, modulos);
-    el.resultado = r;
-    if (r.erro) { erros++; registrarSaida(`${el.codigo}: erro — ${r.erro}`, 'erro'); }
-    else if (!r.ok) registrarSaida(`${el.codigo}: ${r.verificacoes.filter((v) => !v.ok).length} verificação(ões) não atendida(s)`, 'erro');
-  };
-  const fim = () => {
+  const otimizados = els.filter((e) => e.otimizacao && otimizavel(e.modulo)).length;
+  let aviso = null, texto = null;
+  const progresso = setTimeout(() => {
+    texto = h('span', null, 'Calculando…');
+    aviso = notificar(texto, 'info', { duracao: 0 });
+  }, 400);
+  calculandoTodos = (async () => {
+    try {
+      await motor.calcularVarios(els.map((e) => e.id), projeto, modulos, (id, r, i) => {
+        const el = projeto.elementos.find((e) => e.id === id);
+        if (!el) return;
+        el.resultado = marcaDe(id) !== marcas.get(id) ? { ...r, desatualizado: true } : r;
+        if (r.erro) { erros++; registrarSaida(`${el.codigo}: erro — ${r.erro}`, 'erro'); }
+        else if (!r.ok) registrarSaida(`${el.codigo}: ${r.verificacoes.filter((v) => !v.ok).length} verificação(ões) não atendida(s)`, 'erro');
+        if (texto) texto.textContent = `Calculando ${i + 1} de ${els.length} elementos${otimizados ? ` (${otimizados} com otimização das bitolas)` : ''}…`;
+      });
+    } catch (err) {
+      notificar(`Não foi possível calcular: ${err.message}`, 'erro');
+    } finally {
+      clearTimeout(progresso);
+      aviso?.remove();
+      calculandoTodos = null;
+    }
     if (estado.projeto !== projeto) return;
     estado.alterar(() => {}, { descricao: 'Calcular todos', invalidar: false, estrutural: true, calculo: true });
-    registrarSaida(`${els.length} elementos calculados em ${Math.round(performance.now() - inicio)} ms${erros ? ` — ${erros} com erro` : ''}.`);
+    registrarSaida(`${els.length} elementos calculados em ${Math.round(performance.now() - inicio)} ms${erros ? ` — ${erros} com erro` : ''}${motor.usandoWorker() ? ' (Worker de cálculo)' : ''}.`);
     const falhas = projeto.elementos.filter((e) => e.resultado && !e.resultado.ok).length;
     notificar(falhas ? `${els.length} elementos calculados — ${falhas} com pendências.` : `${els.length} elementos calculados — todos atendem.`, falhas ? 'erro' : 'ok', { duracao: 3000 });
-  };
-  const otimizados = els.filter((e) => e.otimizacao && otimizavel(e.modulo)).length;
-  if (!otimizados) { for (const el of els) um(el); fim(); return; }
-  // com otimização das bitolas o cálculo é mais longo: em etapas, com o progresso, sem travar a janela
-  const texto = h('span', null, 'Calculando…');
-  const aviso = notificar(texto, 'info', { duracao: 0 });
-  calculandoTodos = (async () => {
-    let marca = performance.now();
-    for (const [i, el] of els.entries()) {
-      if (estado.projeto !== projeto) break;
-      um(el);
-      if (performance.now() - marca > 80) {
-        texto.textContent = `Calculando ${i + 1} de ${els.length} elementos (${otimizados} com otimização das bitolas)…`;
-        await new Promise((ok) => setTimeout(ok, 0));
-        marca = performance.now();
-      }
-    }
-    aviso.remove();
-    calculandoTodos = null;
-    fim();
   })();
   return calculandoTodos;
 }
 
 /* ====================================================================== otimização das bitolas */
 /** Liga o critério de otimização (ou desliga, com null) no elemento e recalcula. */
-function otimizarElemento(criterio, id = elementoAtivo()) {
+async function otimizarElemento(criterio, id = elementoAtivo()) {
   const el = estado.elemento(id);
   if (!el) return;
   if (!otimizavel(el.modulo)) { notificar(`${el.codigo}: a otimização das bitolas ainda não está disponível para este tipo de elemento.`, 'info'); return; }
@@ -401,7 +414,7 @@ function otimizarElemento(criterio, id = elementoAtivo()) {
     if (criterio) e.otimizacao = criterio; else delete e.otimizacao;
     fundacoesDesatualizadas(p, e);
   }, { descricao: `${el.codigo}: ${criterio ? `otimizar (${CRITERIOS[criterio].curto})` : 'sem otimização'}`, elementoId: id, invalidar: false });
-  const r = calcular(id);
+  const r = await calcular(id);
   const o = r?.otimizacao;
   if (o && !r.erro) {
     const kg = (v) => `${(v ?? 0).toFixed(1).replace('.', ',')} kg`;
@@ -438,7 +451,7 @@ async function exportarPdf(id = elementoAtivo()) {
   if (!destino) return;
 
   abrirElemento(id);
-  if (!el.resultado || el.resultado.desatualizado) calcular(id);
+  if (!el.resultado || el.resultado.desatualizado) await calcular(id);
 
   const raiz = document.documentElement;
   const temaAnterior = temaAtual();
@@ -464,6 +477,45 @@ async function exportarPdf(id = elementoAtivo()) {
         { texto: 'Mostrar na pasta', aoClicar: () => lebr.sistema.mostrarArquivo(caminho) },
       ],
     });
+  } catch (err) {
+    notificar(`Não foi possível exportar o PDF: ${err.message}`, 'erro', { duracao: 7000 });
+  } finally {
+    raiz.dataset.tema = temaAnterior;
+  }
+}
+
+/* ---------------------------------------------------------------- relatórios do projeto (0.32) */
+const acoesRelatorio = () => ({ exportarPdf: exportarAbaPdf, calcularTodos: async () => { await calcularTodos(); wb.redesenharTodas(); }, abrirElemento: (id) => abrirElemento(id) });
+function abrirMemorialProjeto() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  wb.abrirAba(abaMemorialProjeto(acoesRelatorio()));
+}
+function abrirCargasFundacao() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  wb.abrirAba(abaCargasFundacao(acoesRelatorio()));
+}
+/** Exporta em PDF uma aba de relatório (a aba fica em foco no tema claro durante a impressão). */
+async function exportarAbaPdf(abaId, nome, titulo) {
+  if (!lebr?.pdf) return notificar('Exportar PDF só funciona no aplicativo instalado.', 'erro');
+  const destino = await lebr.pdf.escolherDestino(nome, estado.caminho);
+  if (!destino) return;
+  if (abaId === 'memorial-projeto') abrirMemorialProjeto(); else if (abaId === 'cargas-fundacao') abrirCargasFundacao();
+  const raiz = document.documentElement;
+  const temaAnterior = temaAtual();
+  raiz.dataset.tema = 'claro';
+  document.querySelectorAll('.notificacao').forEach((n) => n.remove());
+  try {
+    await document.fonts.ready;
+    await proximoQuadro(); await proximoQuadro();
+    const caminho = await lebr.pdf.gravar({
+      cabecalho: [`${estado.projeto.meta.nome}${estado.projeto.meta.autor ? ` · ${estado.projeto.meta.autor}` : ''}`, titulo],
+      rodape: `LEBR ${VERSAO} · ${estado.projeto.parametros.norma ?? 'NBR 6118:2023'} · emitido em ${dataHora(new Date().toISOString())}`,
+    });
+    registrarSaida(`${titulo}: PDF exportado — ${caminho}`);
+    notificar(`${titulo}: PDF salvo.`, 'ok', { duracao: 8000, acoes: [
+      { texto: 'Abrir PDF', aoClicar: () => lebr.sistema.abrirArquivo(caminho) },
+      { texto: 'Mostrar na pasta', aoClicar: () => lebr.sistema.mostrarArquivo(caminho) },
+    ] });
   } catch (err) {
     notificar(`Não foi possível exportar o PDF: ${err.message}`, 'erro', { duracao: 7000 });
   } finally {
@@ -735,6 +787,8 @@ function registrarComandos() {
   C({ id: 'estrutura.baldrame', categoria: 'Estrutura', titulo: 'Criar nível de baldrame (arranques e vigas baldrame)…', icone: 'viga', habilitado: temProjeto, executar: criarBaldrame });
   C({ id: 'estrutura.sapatas', categoria: 'Estrutura', titulo: 'Criar sapatas nos pilares da fundação', icone: 'sapata', habilitado: temProjeto, executar: criarSapatas });
   C({ id: 'estrutura.blocos', categoria: 'Estrutura', titulo: 'Criar blocos sobre estacas nos pilares da fundação', icone: 'bloco', habilitado: temProjeto, executar: criarBlocos });
+  C({ id: 'projeto.memorial', categoria: 'Estrutura', titulo: 'Memorial do edifício (PDF)', icone: 'documento', habilitado: temProjeto, executar: abrirMemorialProjeto });
+  C({ id: 'projeto.cargasFundacao', categoria: 'Estrutura', titulo: 'Cargas na fundação (PDF)', icone: 'sapata', habilitado: temProjeto, executar: abrirCargasFundacao });
   C({ id: 'estrutura.quantitativos', categoria: 'Estrutura', titulo: 'Quantitativos de materiais (concreto, fôrma e aço)', icone: 'quantitativos', habilitado: temProjeto, executar: abrirQuantitativos });
   C({ id: 'estrutura.estabilidade', categoria: 'Estrutura', titulo: 'Estabilidade global (α e γz)', icone: 'estabilidade', tecla: 'F9', habilitado: temProjeto, executar: abrirEstabilidade });
   C({ id: 'estrutura.vento', categoria: 'Estrutura', titulo: 'Vento (NBR 6123)', icone: 'vento', tecla: 'F8', habilitado: temProjeto, executar: abrirVento });
@@ -758,6 +812,8 @@ function registrarComandos() {
   C({ id: 'paleta.abrirF1', titulo: 'Paleta de comandos', tecla: 'F1', ocultoNaPaleta: true, executar: () => abrirPaleta({ modo: 'comandos', fonteElementos }) });
   C({ id: 'paleta.elementos', categoria: 'Exibir', titulo: 'Ir para elemento…', icone: 'busca', tecla: 'Ctrl+P', executar: () => abrirPaleta({ modo: 'elementos', fonteElementos }) });
   C({ id: 'exibir.inicio', categoria: 'Exibir', titulo: 'Tela inicial', icone: 'lebr', executar: mostrarInicio });
+  C({ id: 'exibir.soPendencias', categoria: 'Exibir', titulo: 'Explorador: mostrar só os elementos com pendências', icone: 'filtro', marcado: () => soPendencias(), executar: (v) => { alternarPendencias(typeof v === 'boolean' ? v : undefined); wb.mostrarVisao('explorador'); } });
+  C({ id: 'exibir.legendaExplorador', titulo: 'Legenda do explorador', ocultoNaPaleta: true, executar: () => wb.mostrarVisao('explorador') });
   C({ id: 'exibir.agruparPavimento', categoria: 'Exibir', titulo: 'Agrupar elementos por pavimento no explorador', icone: 'camadas', executar: () => { alternarAgrupamento(); wb.mostrarVisao('explorador'); notificar(agruparPorPavimento() ? 'Explorador agrupado por pavimento.' : 'Explorador em lista única por categoria.', 'info', { duracao: 2000 }); } });
   C({ id: 'exibir.explorador', categoria: 'Exibir', titulo: 'Explorador', icone: 'explorador', tecla: 'Ctrl+Shift+E', executar: () => wb.mostrarVisao('explorador') });
   C({ id: 'exibir.modulos', categoria: 'Exibir', titulo: 'Módulos', icone: 'modulos', tecla: 'Ctrl+Shift+X', executar: () => wb.mostrarVisao('modulos') });
@@ -834,13 +890,13 @@ function definirMenus() {
     { rotulo: 'Editar', itens: [{ comando: 'editar.desfazer' }, { comando: 'editar.refazer' }, '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Exibir', itens: [
       { comando: 'paleta.abrir' }, { comando: 'paleta.elementos' }, '-',
-      { comando: 'exibir.explorador' }, { comando: 'exibir.agruparPavimento' }, { comando: 'exibir.modulos' }, { comando: 'exibir.inicio' }, '-',
+      { comando: 'exibir.explorador' }, { comando: 'exibir.agruparPavimento' }, { comando: 'exibir.soPendencias' }, { comando: 'exibir.modulos' }, { comando: 'exibir.inicio' }, '-',
       { comando: 'exibir.lateral' }, { comando: 'exibir.painel' }, { comando: 'exibir.problemas' }, { comando: 'exibir.console' }, '-',
       { comando: 'aba.proxima' }, { comando: 'aba.anterior' }, { comando: 'aba.ultima' }, { comando: 'aba.lista' }, { comando: 'aba.reabrir' }, { comando: 'aba.fechar' }, '-',
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
       { comando: 'exibir.tema' }, { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
-    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
     { rotulo: 'Módulos', itens: () => [
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
@@ -900,8 +956,14 @@ function atualizarStatus() {
   const p = estado.projeto;
   const probs = problemas().length;
   const esquerda = [itemStatus({ texto: 'NBR 6118:2023', icone: 'lebr', titulo: 'Norma de referência' })];
+  const sit = situacaoDoProjeto();
   if (p) {
     const r = resumoProjeto(p);
+    // a situação também em texto e ícone (não só pela cor da barra); clique mostra só as pendências no explorador
+    esquerda.push(itemStatus({
+      texto: sit.curto, icone: { ok: 'check', falha: 'alerta', pendente: 'relogio2' }[sit.situacao], titulo: `${sit.titulo}${sit.situacao === 'ok' ? '' : '\nClique para ver só os elementos com pendências no explorador'}`,
+      aoClicar: sit.situacao === 'ok' ? undefined : () => comandos.executar('exibir.soPendencias', true),
+    }));
     esquerda.push(
       itemStatus({ texto: `${r.vigas} vigas · ${r.lajes} lajes · ${r.pilares} pilares${r.escadas ? ` · ${r.escadas} escada${r.escadas > 1 ? 's' : ''}` : ''}${r.reservatorios ? ` · ${r.reservatorios} reservatório${r.reservatorios > 1 ? 's' : ''}` : ''}${r.sapatas ? ` · ${r.sapatas} sapata${r.sapatas > 1 ? 's' : ''}` : ''}${r.blocos ? ` · ${r.blocos} bloco${r.blocos > 1 ? 's' : ''}` : ''}${r.estacas ? ` · ${r.estacas} estaca${r.estacas > 1 ? 's' : ''}` : ''}${r.sondagens ? ` · ${r.sondagens} furo${r.sondagens > 1 ? 's' : ''}` : ''}`, icone: 'explorador', aoClicar: () => wb.mostrarVisao('explorador') }),
       itemStatus({ texto: String(probs), icone: 'alerta', titulo: 'Problemas', aoClicar: () => wb.mostrarPainel('problemas') }),
@@ -920,7 +982,7 @@ function atualizarStatus() {
     itemStatus({ texto: temaAtual() === 'claro' ? 'Claro' : 'Escuro', icone: 'tema', titulo: 'Alternar tema claro / escuro', aoClicar: () => comandos.executar('exibir.tema') }),
     itemStatus({ texto: `LEBR ${VERSAO}`, titulo: 'Laboratório de Estruturas Brasil' }),
   );
-  wb.definirStatus({ esquerda, direita, ...situacaoDoProjeto() });
+  wb.definirStatus({ esquerda, direita, situacao: sit.situacao, titulo: sit.titulo });
 }
 
 /**
@@ -930,17 +992,21 @@ function atualizarStatus() {
  */
 function situacaoDoProjeto() {
   const p = estado.projeto;
-  if (!p) return { situacao: 'pendente', titulo: 'Nenhum projeto aberto' };
+  if (!p) return { situacao: 'pendente', titulo: 'Nenhum projeto aberto', curto: 'Sem projeto' };
   const els = p.elementos.filter((e) => modulos.obter(e.modulo));
-  if (!els.length) return { situacao: 'pendente', titulo: 'Projeto sem elementos' };
+  if (!els.length) return { situacao: 'pendente', titulo: 'Projeto sem elementos', curto: 'Sem elementos' };
   const falhas = els.filter((e) => e.resultado && (e.resultado.erro || e.resultado.ok === false));
   const mont = [...montagemDoProjeto().values()].filter((m) => m.estado === 'erro').length;
   if (falhas.length || mont) {
-    return { situacao: 'falha', titulo: [falhas.length && `${falhas.length} elemento(s) não atende(m) ou com erro de cálculo`, mont && `${mont} elemento(s) com erro de montagem`].filter(Boolean).join(' · ') };
+    return {
+      situacao: 'falha',
+      titulo: [falhas.length && `${falhas.length} elemento(s) não atende(m) ou com erro de cálculo`, mont && `${mont} elemento(s) com erro de montagem`].filter(Boolean).join(' · '),
+      curto: [falhas.length && `${falhas.length} não atende${falhas.length > 1 ? 'm' : ''}`, mont && `${mont} na montagem`].filter(Boolean).join(' · '),
+    };
   }
   const pend = els.filter((e) => !e.resultado || e.resultado.desatualizado).length;
-  if (pend) return { situacao: 'pendente', titulo: `${pend} elemento(s) ainda não calculado(s) ou desatualizado(s) — Calcular todos (Shift+F5)` };
-  return { situacao: 'ok', titulo: 'Todos os elementos calculados e atendendo às verificações' };
+  if (pend) return { situacao: 'pendente', titulo: `${pend} elemento(s) ainda não calculado(s) ou desatualizado(s) — Calcular todos (Shift+F5)`, curto: `${pend} a calcular` };
+  return { situacao: 'ok', titulo: 'Todos os elementos calculados e atendendo às verificações', curto: 'Tudo atende' };
 }
 
 function atualizarTitulo() {
@@ -1021,6 +1087,7 @@ function invalidarDependentes(id, vistos = new Set()) {
   const marcar = (d) => {
     if (vistos.has(d.id)) return;
     vistos.add(d.id);
+    tocar(d.id);
     if (d.resultado && !d.resultado.desatualizado) d.resultado.desatualizado = true;
     invalidarDependentes(d.id, vistos);
   };
@@ -1052,6 +1119,7 @@ function ligarEventos() {
   });
   estado.on('alterado', (info) => {
     if (sincronizarUnidade()) { wb.redesenharTodas(); wb.desenharAbas(); }
+    if (!info.calculo && info.invalidar !== false) { if (info.elementoId) tocar(info.elementoId); else carimboGeral++; }
     if (info.elementoId && !info.calculo && info.invalidar !== false) invalidarDependentes(info.elementoId);
     if (info.historico) {
       // após desfazer/refazer, fecha abas de elementos que deixaram de existir
@@ -1133,4 +1201,4 @@ iniciar().catch((err) => {
 });
 
 // exportado para depuração no console de desenvolvimento
-window.__lebr = { estado, modulos, comandos, lerNumero, wb };
+window.__lebr = { estado, modulos, comandos, lerNumero, wb, motor };

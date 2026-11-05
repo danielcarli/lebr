@@ -26,7 +26,7 @@ export const ROTEIRO = {
   hoje: [
     'Vigas contínuas', 'Lajes maciças por elementos finitos', 'Lajes treliçada, nervurada e alveolar',
     'Pilares com 2ª ordem local', 'Madeira pela NBR 7190-1:2022', 'Montagem por pavimentos',
-    'Visualização 3D', 'Console JavaScript', 'PDF por elemento', 'Escolha de bitolas', 'Banco de casos de validação', 'Catálogo de cargas da NBR 6120', 'Combinações de ações (NBR 8681)', 'Fissuras e flechas das vigas', 'Torção nas vigas', 'Flexão oblíqua nos pilares', 'Punção nas lajes maciças', 'Motor de pórtico espacial (console)', 'Grelha de pavimento', 'Pórtico espacial do edifício', 'Vento (NBR 6123)', 'Desaprumo, α e γz (estabilidade global)', 'Sondagem SPT (NBR 6484)', 'Sapata isolada e viga baldrame', 'Estacas (Aoki-Velloso e Décourt-Quaresma)', 'Bloco sobre estacas (bielas e tirantes)', 'Escadas retas, em L e em U', 'Viga invertida (armadura de suspensão)', 'Reservatórios elevados e enterrados', 'Explorador agrupado por pavimento', 'Quantitativos e CSV', 'Detalhamento das vigas (lista de ferros editável)', 'Abas lado a lado e 3D fixado à direita', 'Detalhamento de pilares e lajes, resumo do aço com perdas', 'Pranchas em DXF (fôrmas, locação e armação)', 'Verificação da montagem no explorador', 'Otimização das bitolas (menos bitolas ou menos aço)',
+    'Visualização 3D', 'Console JavaScript', 'PDF por elemento', 'Escolha de bitolas', 'Banco de casos de validação', 'Catálogo de cargas da NBR 6120', 'Combinações de ações (NBR 8681)', 'Fissuras e flechas das vigas', 'Torção nas vigas', 'Flexão oblíqua nos pilares', 'Punção nas lajes maciças', 'Motor de pórtico espacial (console)', 'Grelha de pavimento', 'Pórtico espacial do edifício', 'Vento (NBR 6123)', 'Desaprumo, α e γz (estabilidade global)', 'Sondagem SPT (NBR 6484)', 'Sapata isolada e viga baldrame', 'Estacas (Aoki-Velloso e Décourt-Quaresma)', 'Bloco sobre estacas (bielas e tirantes)', 'Escadas retas, em L e em U', 'Viga invertida (armadura de suspensão)', 'Reservatórios elevados e enterrados', 'Explorador agrupado por pavimento', 'Quantitativos e CSV', 'Detalhamento das vigas (lista de ferros editável)', 'Abas lado a lado e 3D fixado à direita', 'Detalhamento de pilares e lajes, resumo do aço com perdas', 'Pranchas em DXF (fôrmas, locação e armação)', 'Verificação da montagem no explorador', 'Otimização das bitolas (menos bitolas, menos aço ou menos segmentos)', 'Planta DXF de arquitetura no fundo da montagem, eixos e malha', 'Sugestão da menor seção que atende', 'Armadura em 3D de cada elemento', 'Memorial do edifício e cargas na fundação em PDF', 'Cálculo em Web Worker',
   ],
   hojeNota: 'Cada elemento é calculado sozinho, com as cargas transmitidas pelas ligações laje → viga → pilar.',
 
@@ -196,7 +196,6 @@ export const ROTEIRO = {
         ['Instalador assinado e atualização automática', 'para Windows, macOS e Linux'],
         ['Ajuda contextual e tutoriais', 'em cada módulo, com o trecho da norma e um exemplo'],
         ['Repositório de módulos externos', 'com versionamento e verificação, para a comunidade publicar módulos'],
-        ['Desempenho', 'cálculo em segundo plano (Web Worker) para edifícios com centenas de elementos sem travar a tela'],
         ['Acessibilidade e idiomas', 'navegação por teclado completa, alto contraste, textos traduzíveis'],
       ],
     },

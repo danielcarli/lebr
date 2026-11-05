@@ -118,6 +118,24 @@ deixa o elemento como "não atende", com um aviso explicando o motivo.
 
 Vigas de arquivos até a versão 0.6 têm só `armadura.phiT`; nelas o estribo continua automático.
 
+### Planta de fundo e eixos da montagem (`plantasFundo`, `pavimento.fundo`, `eixos`)
+
+A partir da 0.32, a planta de arquitetura importada de um DXF fica no arquivo, nas unidades do desenho:
+
+```json
+"plantasFundo": [{ "id": "pl1", "nome": "arquitetura.dxf", "unidade": "mm",
+  "camadas": ["A-PAREDE", "A-PORTA"], "entidades": [{ "c": 0, "p": [0, 0, 8150, 0, 8150, 10150], "f": 1 }],
+  "textos": [{ "c": 1, "x": 3500, "y": 2500, "h": 250, "r": 0, "t": "SALA" }], "limites": { "x0": 0, "y0": 0, "x1": 8150, "y1": 10150 } }],
+"pavimentos": [{ "id": "pav1", "nome": "1º pavimento", "cota": 3,
+  "fundo": { "planta": "pl1", "unidade": "mm", "dx": -0.075, "dy": -0.075, "rotacao": 0, "opacidade": 55, "ocultas": ["A-MOBILIA"], "visivel": true } }],
+"eixos": { "x": [0, 4, 8], "y": [0, 5, 10] }
+```
+
+`entidades` são linhas poligonais (`p`: x0, y0, x1, y1… — arcos, círculos e blocos já vêm em segmentos; `f`: 1 se
+fechada) e `c` é o índice da camada. No pavimento, `dx`/`dy` (m) e `rotacao` (°) levam o desenho, já convertido
+para metros, à posição da montagem. Os eixos são posições em metros: em `x`, as linhas verticais (1, 2, 3…); em `y`,
+as horizontais (A, B, C…).
+
 ### Otimização das bitolas (`otimizacao`)
 
 A partir da 0.30, vigas, pilares, lajes maciças, escadas e reservatórios de concreto podem guardar um critério de

@@ -20,6 +20,7 @@ import { calcularPilar, cargasTransmitidas, ligacoes, criarPilar, normalCaracter
 import { editorCargas } from '../comum/cargas.js';
 import { detalhamentoPilar } from '../comum/detalhamento.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloPilar } from '../comum/armadura3d.js';
 import { criarDesenhoPilar } from './desenho.js';
 
 export default function moduloPilar(api) {
@@ -238,6 +239,7 @@ export default function moduloPilar(api) {
           volume: (ctx.elemento.bx * ctx.elemento.by * ctx.elemento.comprimento) / 1e4,
           tituloVerificacoes: 'Estribos e barras protegidas',
           desenho: (posicoes, destaque) => desenhoPilar.detalhe(ctx.elemento, det, posicoes, { destaque }),
+          modelo3d: (posicoes) => modeloPilar(ctx.elemento, det, posicoes, { pontos: res.armadura?.pontos ?? [], cob: res.armadura?.cobrimento ?? 3 }),
           nota: `Barras verticais em boa aderência. Traspasse de compressão l0c = lb,nec ≥ máx(0,6·lb; 15ø; 20 cm) = ${num(det.l0c, 0)} cm (lb = ${num(det.lb, 0)} cm): as barras deste lance sobem para emendar com as do lance de cima; no último lance terminam no topo menos o cobrimento. Na fundação ou na viga em que o pilar nasce, os arranques (esperas) ficam embutidos até o fundo menos o cobrimento, com pé dobrado para apoio, e sobem l0c — a ancoragem da espera na sapata ou no bloco é verificada no módulo da fundação. Estribos ao longo do lance; os grampos suplementares seguram as barras a mais de 20·øt do canto (18.2.4). O resumo soma as perdas adotadas no projeto.`,
         }));
       }
