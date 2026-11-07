@@ -39,7 +39,7 @@ export function criarDesenhos({ s }) {
   /** Esquema estático com vãos cotados — usado no editor (atualiza ao vivo). */
   function esquema(el, { largura = 1000 } = {}) {
     const total = el.vaos.reduce((a, v) => a + (v.L > 0 ? v.L : 0), 0) || 1;
-    const m = 50, W = largura, H = 118, y = 46;
+    const m = 60, W = largura, H = 168, y = 46;
     const esc = (W - 2 * m) / total;
     const xs = [m];
     el.vaos.forEach((v) => xs.push(xs[xs.length - 1] + Math.max(0, v.L) * esc));
@@ -58,10 +58,10 @@ export function criarDesenhos({ s }) {
     el.vaos.forEach((v, i) => {
       const xa = xs[i], xb = xs[i + 1];
       filhos.push(
-        s('line', { x1: xa, y1: H - 26, x2: xb, y2: H - 26, class: 'dg-cota' }),
-        s('line', { x1: xa, y1: H - 31, x2: xa, y2: H - 21, class: 'dg-cota' }),
-        s('line', { x1: xb, y1: H - 31, x2: xb, y2: H - 21, class: 'dg-cota' }),
-        s('text', { x: (xa + xb) / 2, y: H - 31, class: 'dg-texto', 'text-anchor': 'middle' }, `${fmt(v.L)} m`),
+        s('line', { x1: xa, y1: H - 36, x2: xb, y2: H - 36, class: 'dg-cota' }),
+        s('line', { x1: xa, y1: H - 42, x2: xa, y2: H - 30, class: 'dg-cota' }),
+        s('line', { x1: xb, y1: H - 42, x2: xb, y2: H - 30, class: 'dg-cota' }),
+        s('text', { x: (xa + xb) / 2, y: H - 44, class: 'dg-texto', 'text-anchor': 'middle' }, `${fmt(v.L)} m`),
       );
     });
     return s('svg', { class: 'desenho esquema', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMidYMid meet' }, ...filhos);
@@ -78,24 +78,30 @@ export function criarDesenhos({ s }) {
     const filhos = [];
     let y0 = 0;
 
+    // textos dos gráficos em tamanho dobrado (editor.css: .diagramas .dg-*) — os espaçamentos acompanham
+    const LIN = 30;   // altura de uma linha de texto
     const painel = (titulo, valores, altura, { invertido, classe, unidade, casas = 2, valoresMin = null, legenda = null }) => {
       const series = valoresMin && valoresMin.some((v, i) => Math.abs(v - valores[i]) > 1e-6) ? [valores, valoresMin] : [valores];
       const maxAbs = Math.max(1e-9, ...series.flat().map(Math.abs));
-      // legenda das linhas, numa linha própria logo abaixo do título
+      filhos.push(s('text', { x: 0, y: y0 + 22, class: 'dg-titulo' }, titulo));
+      filhos.push(s('text', { x: W, y: y0 + 22, class: 'dg-unid', 'text-anchor': 'end' }, unidade));
+      // legenda das linhas, logo abaixo do título; quebra linha quando não cabe na largura
       const itens = typeof legenda === 'function' ? legenda(series.length) : legenda;
-      const dy = itens?.length ? 22 : 0;
-      const base = y0 + 24 + dy + altura / 2;
-      const Y = (v) => base + (invertido ? 1 : -1) * (v / maxAbs) * (altura / 2 - 6);
-      filhos.push(s('text', { x: 0, y: y0 + 12, class: 'dg-titulo' }, titulo));
+      let linhas = 0;
       if (itens?.length) {
-        let lx = 0;
-        const ly = y0 + 29;
+        let lx = 0; linhas = 1;
         for (const it of itens) {
-          filhos.push(s('line', { x1: lx, y1: ly - 3.5, x2: lx + 26, y2: ly - 3.5, class: `dg-area dg-leg-amostra ${it.classe ?? classe}${it.min ? ' envolvente-min' : ''}` }));
-          filhos.push(s('text', { x: lx + 32, y: ly, class: 'dg-leg' }, it.texto));
-          lx += 32 + it.texto.length * 4.9 + 30;
+          const larg = 52 + it.texto.length * 10.2;
+          if (lx > 0 && lx + larg > W) { lx = 0; linhas++; }
+          const ly = y0 + 22 + linhas * LIN;
+          filhos.push(s('line', { x1: lx, y1: ly - 7, x2: lx + 40, y2: ly - 7, class: `dg-area dg-leg-amostra ${it.classe ?? classe}${it.min ? ' envolvente-min' : ''}` }));
+          filhos.push(s('text', { x: lx + 50, y: ly, class: 'dg-leg' }, it.texto));
+          lx += larg + 40;
         }
       }
+      const dy = linhas * LIN;
+      const base = y0 + 52 + dy + altura / 2;
+      const Y = (v) => base + (invertido ? 1 : -1) * (v / maxAbs) * (altura / 2 - 6);
       for (const [k, serie] of series.entries()) {
         const d = `M${X(x[0])},${base} ` + x.map((xi, i) => `L${X(xi)},${Y(serie[i])}`).join(' ') + ` L${X(x[x.length - 1])},${base} Z`;
         filhos.push(s('path', { d, class: `dg-area ${classe}${k ? ' envolvente-min' : ''}` }));
@@ -108,15 +114,14 @@ export function criarDesenhos({ s }) {
           if (Math.abs(serie[i]) < maxAbs * 0.04) continue;
           const px = X(x[i]);
           const py = Y(serie[i]);
-          if (usados.some(([ux, uy]) => Math.abs(ux - px) < 60 && Math.abs(uy - py) < 22)) continue;
+          if (usados.some(([ux, uy]) => Math.abs(ux - px) < 110 && Math.abs(uy - py) < 40)) continue;
           usados.push([px, py]);
           const acima = (invertido ? serie[i] < 0 : serie[i] > 0);
-          filhos.push(s('circle', { cx: px, cy: py, r: 3.2, class: `dg-ponto ${classe}` }));
-          filhos.push(s('text', { x: px, y: py + (acima ? -8 : 17), class: 'dg-valor', 'text-anchor': 'middle' }, fmt(serie[i], casas)));
+          filhos.push(s('circle', { cx: px, cy: py, r: 4.5, class: `dg-ponto ${classe}` }));
+          filhos.push(s('text', { x: px, y: py + (acima ? -12 : 30), class: 'dg-valor', 'text-anchor': 'middle' }, fmt(serie[i], casas)));
         }
       }
-      filhos.push(s('text', { x: W, y: y0 + 12, class: 'dg-unid', 'text-anchor': 'end' }, unidade));
-      y0 += altura + 34 + dy;
+      y0 += altura + 52 + 44 + dy;
     };
 
     // viga

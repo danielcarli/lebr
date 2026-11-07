@@ -1,0 +1,27 @@
+# Gera o instalador do Windows e publica na release do GitHub quando uma tag vX.Y.Z é enviada.
+# O LEBR instalado consulta essas releases (latest.yml) e se atualiza sozinho.
+name: Release Windows
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Instalador NSIS e publicação na release
+        run: npx electron-builder --win nsis --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

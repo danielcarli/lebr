@@ -122,7 +122,7 @@ function renderizar(container, id, acoes) {
 
   function desenharCabecalho() {
     const e = estado.elemento(id);
-    const st = estadoDoResultado(e);
+    // o estado (Atende / Não atende / a calcular) fica só no chip da barra de cálculo, logo abaixo
     limpar(cabecalho).append(ui.cabecalhoObjeto({
       rotulo: mod.nome,          // o tipo de estrutura no lugar de "Elemento" (sem repetir abaixo)
       numero: e.codigo,
@@ -132,7 +132,6 @@ function renderizar(container, id, acoes) {
       linha2: `${mod.norma} · Módulo ${mod.id} (${mod.sigla})`,
       titulo: e.nome,
       subtitulo: mod.resumo?.(e) ?? '',
-      estado: { texto: st.texto, tipo: st.tipo },
       aoRenomear: (nome) => ctx.alterar((x) => { x.nome = nome; }, { descricao: 'Renomear', invalidar: false }),
       aoEditarCodigo: () => comandos.executar('elemento.renomear', id),
     }));

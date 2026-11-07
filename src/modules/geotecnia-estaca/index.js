@@ -49,21 +49,21 @@ export default function moduloEstaca(api) {
 
   /** Curva carga admissível × comprimento pelos dois métodos. */
   function desenhoCurva(r) {
-    const W = 420, H = 300, m = { e: 50, d: 16, t: 24, b: 36 };
+    const W = 560, H = 420, m = { e: 84, d: 20, t: 48, b: 92 };
     const pts = r.curva;
     if (pts.length < 2) return h('p', { class: 'combinacoes-nota' }, 'A sondagem não tem profundidade para a curva.');
     const Lmax = pts.at(-1).L, Lmin = pts[0].L;
     const Pmax = Math.max(...pts.flatMap((p) => [p.av, p.dq]), r.Nk ?? 0) * 1.08;
     const X = (L) => m.e + ((L - Lmin) / (Lmax - Lmin)) * (W - m.e - m.d), Y = (P) => H - m.b - (P / Pmax) * (H - m.t - m.b);
     const f = [];
-    for (let k = 0; k <= 4; k++) { const P = (Pmax * k) / 4; f.push(s('line', { x1: m.e, y1: Y(P), x2: W - m.d, y2: Y(P), class: 'sd-grade' }), s('text', { x: m.e - 6, y: Y(P) + 4, 'text-anchor': 'end', class: 'sd-escala' }, fmt(P))); }
-    for (const p of pts) f.push(s('text', { x: X(p.L), y: H - m.b + 16, 'text-anchor': 'middle', class: 'sd-escala' }, String(p.L)));
+    for (let k = 0; k <= 4; k++) { const P = (Pmax * k) / 4; f.push(s('line', { x1: m.e, y1: Y(P), x2: W - m.d, y2: Y(P), class: 'sd-grade' }), s('text', { x: m.e - 10, y: Y(P) + 8, 'text-anchor': 'end', class: 'sd-escala' }, fmt(P))); }
+    for (const p of pts) f.push(s('text', { x: X(p.L), y: H - m.b + 28, 'text-anchor': 'middle', class: 'sd-escala' }, String(p.L)));
     const linha = (k, cls) => s('polyline', { points: pts.map((p) => `${X(p.L)},${Y(p[k])}`).join(' '), class: cls });
     f.push(linha('av', 'est-av'), linha('dq', 'est-dq'));
-    if (r.Nk) f.push(s('line', { x1: m.e, y1: Y(r.Nk), x2: W - m.d, y2: Y(r.Nk), class: 'est-nk' }), s('text', { x: W - m.d, y: Y(r.Nk) - 5, 'text-anchor': 'end', class: 'est-nk-rot' }, `Nk = ${fmt(r.Nk)} kN`));
-    f.push(s('circle', { cx: X(r.L), cy: Y(r.Padm), r: 4, class: 'est-atual' }),
-      s('text', { x: m.e, y: 14, class: 'dg-titulo' }, 'CARGA ADMISSÍVEL (kN) × COMPRIMENTO (m)'),
-      s('text', { x: W - m.d, y: H - 4, 'text-anchor': 'end', class: 'est-leg' }, '— Aoki-Velloso   — Décourt-Quaresma'));
+    if (r.Nk) f.push(s('line', { x1: m.e, y1: Y(r.Nk), x2: W - m.d, y2: Y(r.Nk), class: 'est-nk' }), s('text', { x: W - m.d, y: Y(r.Nk) - 8, 'text-anchor': 'end', class: 'est-nk-rot' }, `Nk = ${fmt(r.Nk)} kN`));
+    f.push(s('circle', { cx: X(r.L), cy: Y(r.Padm), r: 6, class: 'est-atual' }),
+      s('text', { x: 0, y: 24, class: 'dg-titulo' }, 'CARGA ADMISSÍVEL (kN) × COMPRIMENTO (m)'),
+      s('text', { x: W - m.d, y: H - 8, 'text-anchor': 'end', class: 'est-leg' }, '— Aoki-Velloso   — Décourt-Quaresma'));
     return s('svg', { class: 'desenho estaca-curva', viewBox: `0 0 ${W} ${H}`, width: W, height: H }, ...f);
   }
 

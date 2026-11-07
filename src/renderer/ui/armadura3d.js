@@ -63,11 +63,16 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   const grupoConcreto = new THREE.Group();
   for (const c of modelo.caixas) {
     const d = c.max.map((v, i) => v - c.min[i]);
-    const g = new THREE.BoxGeometry(...d);
+    let g;
+    if (c.forma === 'cilindro') {
+      // cilindro de eixo z (o CylinderGeometry do three é em y): gira para ficar de pé no z
+      g = new THREE.CylinderGeometry(d[0] / 2, d[0] / 2, d[2], 40, 1);
+      g.rotateX(Math.PI / 2);
+    } else g = new THREE.BoxGeometry(...d);
     const apoio = c.tipo !== 'concreto';
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: apoio ? 0.07 : 0.14, depthWrite: false }));
     m.position.set(...c.min.map((v, i) => v + d[i] / 2));
-    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
+    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
     arestas.position.copy(m.position);
     grupoConcreto.add(m, arestas);
   }

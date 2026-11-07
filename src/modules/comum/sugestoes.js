@@ -46,6 +46,11 @@ const BUSCAS = {
     ];
   },
   'concreto.pilar': (el) => {
+    if (el.forma === 'circular') {
+      const D = Number(el.D) || el.bx || 30;
+      const ds = []; for (let v = D + 5; v <= D + 50; v += 5) ds.push(v);
+      return [{ nome: 'diâmetro', itens: ds.map((v) => ({ alteracoes: [{ caminho: 'D', valor: v }, { caminho: 'bx', valor: v }, { caminho: 'by', valor: v }], rotulo: `ø ${fx(v)} cm`, area: (Math.PI * v * v) / 4 })) }];
+    }
     const bx = el.bx ?? 20, by = el.by ?? 20;
     const menor = bx <= by ? 'bx' : 'by', maior = menor === 'bx' ? 'by' : 'bx';
     const vMenor = Math.min(bx, by), vMaior = Math.max(bx, by);

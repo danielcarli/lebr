@@ -77,6 +77,21 @@ O detalhamento de cada lance sai de `detalharPilar` (motor) a partir do resultad
 O lance desenhado mostra a peça de baixo, os pisos, o lance de cima (tracejado), as barras com o traspasse cotado e os
 estribos; a seção mostra o estribo, os grampos e as barras.
 
+**Pilar circular (0.33):** estribo circular de comprimento π·(D − 2c) mais os dois ganchos, forma `circular ø …`; todas as
+barras ficam encostadas no estribo, então não há grampos. A seção desenha o círculo, o estribo e as barras no contorno.
+
+## Armadura em 3D (0.33)
+
+`src/modules/comum/armadura3d.js` monta a geometria (pura) a partir da lista de ferros, com as edições aplicadas:
+
+| Item | Critério |
+|---|---|
+| Barras da viga, por face | camadas com até ⌊(b − 2(c + øt) + ah)/(ø + ah)⌋ barras; ah = máx(2 cm; ø; 1,2·dmax) e camadas a av = máx(2 cm; ø; 0,5·dmax) (18.3.2.2); corridas, construtivas, porta-estribos e o 1º grupo da negativa nos cantos, as demais igualmente espaçadas; barras que só se cruzam nas pontas dividem a posição, encostadas |
+| Barras do pilar | nos pontos do dimensionamento (livre ≥ máx(2 cm; ø; 1,2·dmax), entre eixos ≤ mín(2b; 40 cm) — 18.4.2.2); arranques encostados por dentro |
+| Estribo retangular | pelo eixo, com dobras de raio ø/2 + øt/2 em volta das barras de canto e dois ganchos de 135° com ponta reta 5·øt ≥ 5 cm para o núcleo; o canto do gancho alterna a cada estribo |
+| Estribo circular | uma volta com traspasse de 45° e as pontas dobradas a 135° para dentro |
+| Grampos | no nível de cada estribo, abraçando as duas barras de faces opostas |
+
 ## Lajes maciças (0.28.0)
 
 | Item | Critério |

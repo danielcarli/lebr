@@ -400,7 +400,7 @@ export function barrasProtegidas(pontos, phiT) {
  *        o que está embaixo: fundação ou viga (o lance leva arranques), pilar (as barras de baixo já sobem) ou nada
  */
 export function detalharPilar(p) {
-  const { bx, by, cob, L, barras, pontos = [], estribo, fctd, fyd, acima = false, base = {} } = p;
+  const { bx, by, cob, L, barras, pontos = [], estribo, fctd, fyd, acima = false, base = {}, circular = false } = p;
   const posicoes = [], avisos = [], verificacoes = [];
   const fx = (x, c = 1) => x.toFixed(c).replace('.', ',');
   if (!barras?.phi || !barras?.n) return { posicoes, avisos: ['Pilar sem armadura calculada.'], verificacoes };
@@ -428,16 +428,18 @@ export function detalharPilar(p) {
   if (estribo?.phi && estribo?.s) {
     const gancho = Math.max((8 * estribo.phi) / 10, 6);
     const qtd = Math.floor(Lcm / estribo.s) + 1;
-    const cEst = 2 * (bx - 2 * cob) + 2 * (by - 2 * cob) + 2 * gancho;
-    posicoes.push({ id: 'estribo', tipo: 'estribo', face: 'transversal', local: `ø ${String(estribo.phi).replace('.', ',')} c/ ${String(estribo.s).replace('.', ',')} ao longo do lance`, phi: estribo.phi, n: qtd, comprimento: arred5(cEst), reto: cEst, ganchos: 2, gancho: [true, true], forma: `${fx(bx - 2 * cob, 0)} × ${fx(by - 2 * cob, 0)} cm`, s: estribo.s, emendas: 0 });
-    const prot = pontos.length ? barrasProtegidas(pontos, estribo.phi) : { protegidas: [], grampos: [] };
+    // pilar circular: estribo circular (anel fechado com os dois ganchos de 135° que se cruzam)
+    const cEst = circular ? Math.PI * (bx - 2 * cob) + 2 * gancho : 2 * (bx - 2 * cob) + 2 * (by - 2 * cob) + 2 * gancho;
+    posicoes.push({ id: 'estribo', tipo: 'estribo', face: 'transversal', local: `ø ${String(estribo.phi).replace('.', ',')} c/ ${String(estribo.s).replace('.', ',')} ao longo do lance${circular ? ' (circular)' : ''}`, phi: estribo.phi, n: qtd, comprimento: arred5(cEst), reto: cEst, ganchos: 2, gancho: [true, true], forma: circular ? `circular ø ${fx(bx - 2 * cob, 0)} cm` : `${fx(bx - 2 * cob, 0)} × ${fx(by - 2 * cob, 0)} cm`, s: estribo.s, circular, emendas: 0 });
+    // no estribo circular todas as barras ficam encostadas no anel: não há barra a mais de 20·øt de um "canto"
+    const prot = circular ? { protegidas: pontos.map(() => true), grampos: [] } : pontos.length ? barrasProtegidas(pontos, estribo.phi) : { protegidas: [], grampos: [] };
     prot.grampos.forEach((g, i) => {
       const vao = g.ate - g.de; // entre os eixos das barras de face oposta
       const c = vao + (phi / 10) + 2 * gancho;
       posicoes.push({ id: `grampo-${g.eixo}-${i + 1}`, tipo: 'suplementar', face: 'transversal', local: `Grampo na direção ${g.eixo} (barra a ${fx(g.em, 0)} cm do canto)`, phi: estribo.phi, n: qtd, comprimento: arred5(c), reto: vao, ganchos: 2, gancho: [true, true], grampo: g, emendas: 0 });
     });
     const nProt = prot.protegidas.filter(Boolean).length;
-    if (pontos.length) verificacoes.push({ nome: 'Barras protegidas contra a flambagem', item: '18.2.4', valor: `${nProt} de ${pontos.length} pelos cantos do estribo${prot.grampos.length ? ` · ${prot.grampos.length} grampo${prot.grampos.length > 1 ? 's' : ''} para as demais` : ''}`, limite: 'até 20·øt do canto, no máx. 2 barras', ok: true });
+    if (pontos.length) verificacoes.push({ nome: 'Barras protegidas contra a flambagem', item: '18.2.4', valor: circular ? `${nProt} de ${pontos.length} encostadas no estribo circular` : `${nProt} de ${pontos.length} pelos cantos do estribo${prot.grampos.length ? ` · ${prot.grampos.length} grampo${prot.grampos.length > 1 ? 's' : ''} para as demais` : ''}`, limite: 'até 20·øt do canto, no máx. 2 barras', ok: true });
   }
   const ordem = { longitudinal: 0, arranque: 1, estribo: 2, suplementar: 3 };
   posicoes.sort((a, c) => ordem[a.tipo] - ordem[c.tipo]);

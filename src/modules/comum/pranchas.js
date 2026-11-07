@@ -178,11 +178,9 @@ export function plantaDeFormas(projeto, pav, { versao, escala = 50 } = {}) {
   }
   // pilares
   for (const p of pilares) {
-    const c = cantosPilar(p).map(cm);
-    d.polilinha('PILARES', c, { fechada: true });
-    d.linha('PILARES', c[0], c[2]); d.linha('PILARES', c[1], c[3]);
+    const c = pilarNaPlanta(d, p);
     const xs = c.map((q) => q[0]), ys = c.map((q) => q[1]);
-    d.texto('TEXTOS', [Math.max(...xs) + t * 0.4, Math.max(...ys) + t * 0.4], `${p.codigo} (${f(p.bx, 0)}x${f(p.by, 0)})`, { altura: t });
+    d.texto('TEXTOS', [Math.max(...xs) + t * 0.4, Math.max(...ys) + t * 0.4], `${p.codigo} (${p.forma === 'circular' ? `ø${f(p.D ?? p.bx, 0)}` : `${f(p.bx, 0)}x${f(p.by, 0)}`})`, { altura: t });
   }
   // eixos e cotas pelos centros dos pilares (pilares a 0° ou 90°)
   const [[xmin, ymin], [xmax, ymax]] = d.extensao;
@@ -218,6 +216,20 @@ export function plantaDeFormas(projeto, pav, { versao, escala = 50 } = {}) {
 /* ====================================================================== locação */
 
 /** Pilares que descarregam na fundação: os de baixo da prumada que não nascem em viga. */
+/** Seção do pilar na planta, com o X tradicional; o pilar circular sai como círculo (0.33). Devolve os cantos (cm). */
+function pilarNaPlanta(d, p) {
+  const c = cantosPilar(p).map(cm);
+  if (p.forma === 'circular') {
+    const [x, y] = cm([p.posicao.x, p.posicao.y]), r = (Number(p.D) || p.bx) / 2, k = r / Math.SQRT2;
+    d.circulo('PILARES', [x, y], r);
+    d.linha('PILARES', [x - k, y - k], [x + k, y + k]); d.linha('PILARES', [x - k, y + k], [x + k, y - k]);
+    return c;
+  }
+  d.polilinha('PILARES', c, { fechada: true });
+  d.linha('PILARES', c[0], c[2]); d.linha('PILARES', c[1], c[3]);
+  return c;
+}
+
 export function pilaresNaFundacao(projeto) {
   return projeto.elementos.filter((e) => e.modulo === PILAR && e.posicao && ['fundacao', null].includes(baseDoPilar(e, projeto).tipo)).sort(comparar);
 }
@@ -228,9 +240,7 @@ export function plantaDeLocacao(projeto, { versao, escala = 50 } = {}) {
   const pils = pilaresNaFundacao(projeto);
   const fund = (p) => projeto.elementos.find((e) => ['concreto.sapata', 'concreto.bloco'].includes(e.modulo) && e.pilarId === p.id);
   for (const p of pils) {
-    const c = cantosPilar(p).map(cm);
-    d.polilinha('PILARES', c, { fechada: true });
-    d.linha('PILARES', c[0], c[2]); d.linha('PILARES', c[1], c[3]);
+    pilarNaPlanta(d, p);
     const [x, y] = cm([p.posicao.x, p.posicao.y]);
     const F = fund(p);
     const A = F?.resultado?.A ?? F?.geometria?.A, B = F?.resultado?.B ?? F?.geometria?.B;
@@ -415,8 +425,14 @@ function desenhoPilar(d, p, det, posicoes, [ox, oy]) {
   // seção ao lado
   const sx = tx + 150, sy = L * 0.55;
   const Q = (x, y) => P(sx + x, sy + y);
-  d.retangulo('CONCRETO', Q(0, 0), Q(bx, by));
-  if (est) d.retangulo('ARMADURA-TRANSVERSAL', Q(cob, cob), Q(bx - cob, by - cob));
+  const circular = p.forma === 'circular';
+  if (circular) {
+    d.circulo('CONCRETO', Q(bx / 2, by / 2), bx / 2);
+    if (est) d.circulo('ARMADURA-TRANSVERSAL', Q(bx / 2, by / 2), bx / 2 - cob - est.phi / 20);
+  } else {
+    d.retangulo('CONCRETO', Q(0, 0), Q(bx, by));
+    if (est) d.retangulo('ARMADURA-TRANSVERSAL', Q(cob, cob), Q(bx - cob, by - cob));
+  }
   for (const g of posicoes.filter((q) => q.tipo === 'suplementar')) {
     const gr = g.grampo;
     const [a, b] = gr.eixo === 'y' ? [Q(gr.em, gr.de), Q(gr.em, gr.ate)] : [Q(gr.de, gr.em), Q(gr.ate, gr.em)];
@@ -425,7 +441,7 @@ function desenhoPilar(d, p, det, posicoes, [ox, oy]) {
   }
   const arm = p.resultado?.armadura;
   for (const pt of arm?.pontos ?? []) d.circulo('ARMADURA-LONGITUDINAL', Q(pt.x, pt.y), Math.max(0.5, arm.phi / 20));
-  d.texto('TEXTOS', Q(bx / 2, -t * 1.6), `SEÇÃO ${f(bx, 0)}x${f(by, 0)}`, { altura: t * 0.8, alinhar: 'centro' });
+  d.texto('TEXTOS', Q(bx / 2, -t * 1.6), circular ? `SEÇÃO CIRCULAR D=${f(bx, 0)}` : `SEÇÃO ${f(bx, 0)}x${f(by, 0)}`, { altura: t * 0.8, alinhar: 'centro' });
   return { largura: sx + bx + 40, topo: (long?.z1 ?? p.comprimento) * 100 + 20, base: arr ? arr.z0 * 100 - 30 : -30 };
 }
 
@@ -446,7 +462,7 @@ export function armacaoDePilares(projeto, { versao, escala = 25 } = {}) {
     grupos.push({ codigo: p.codigo, posicoes });
     const alt = (det.posicoes.find((q) => q.tipo === 'longitudinal')?.z1 ?? p.comprimento) * 100 + 200;
     linhaAlt = Math.max(linhaAlt, alt);
-    d.texto('TEXTOS', [x, y + 30 + (p.comprimento * 100) + 40], `${p.codigo} (${f(p.bx, 0)}x${f(p.by, 0)})${pav(p) ? ` — ${pav(p).nome}` : ''}`, { altura: t * 1.2 });
+    d.texto('TEXTOS', [x, y + 30 + (p.comprimento * 100) + 40], `${p.codigo} (${p.forma === 'circular' ? `ø${f(p.bx, 0)}` : `${f(p.bx, 0)}x${f(p.by, 0)}`})${pav(p) ? ` — ${pav(p).nome}` : ''}`, { altura: t * 1.2 });
     const r = desenhoPilar(d, p, det, posicoes, [x, y]);
     x += Math.max(420, r.largura + 60);
     if (++col >= POR_LINHA) { col = 0; x = 0; y -= linhaAlt + 160; linhaAlt = 0; }

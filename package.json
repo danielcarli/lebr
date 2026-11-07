@@ -1,7 +1,7 @@
 {
   "name": "lebr",
   "productName": "LEBR",
-  "version": "0.32.0",
+  "version": "0.33.1",
   "description": "LEBR — Laboratório de Estruturas Brasil: sistema aberto e modular para cálculo de estruturas de concreto armado e de madeira segundo as normas brasileiras.",
   "license": "GPL-3.0-only",
   "type": "module",
@@ -11,9 +11,77 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "test": "node --test test/*.test.js",
-    "validar": "node scripts/validar.mjs"
+    "validar": "node scripts/validar.mjs",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist:win:portatil": "electron-builder --win portable --x64"
   },
   "devDependencies": {
     "electron": "^45.2.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielcarli/lebr.git"
+  },
+  "homepage": "https://github.com/danielcarli/lebr",
+  "build": {
+    "appId": "br.lebr.app",
+    "productName": "LEBR",
+    "copyright": "Copyright (C) 2026 Daniel Michelon De Carli — GPL-3.0",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "exemplos/**/*",
+      "validacao/casos/**/*",
+      "LICENSE",
+      "package.json",
+      "!**/*.map"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "validacao/casos/**"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "danielcarli",
+        "repo": "lebr",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "LEBR-Setup-${version}-win-x64.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LEBR",
+      "license": "LICENSE",
+      "language": "1046",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "LEBR-Setup-${version}-win-x64.${ext}"
+    },
+    "portable": {
+      "artifactName": "LEBR-${version}-portatil-win-x64.${ext}"
+    }
   }
 }

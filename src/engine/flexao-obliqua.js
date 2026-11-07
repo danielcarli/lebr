@@ -25,7 +25,8 @@
  * pontos de cálculo exatamente sobre um eixo (flexão normal) usam o MRd da flexão normal, com a tensão
  * plena, como antes.
  *
- * Sistema: seção bx (direção x) × by (direção y), origem num canto; barras em {x, y} (cm).
+ * Sistema: seção bx (direção x) × by (direção y), origem num canto; barras em {x, y} (cm). Uma seção não retangular
+ * (o pilar circular, 0.33) informa `contorno`, um polígono dentro do quadrado bx × by, com o centro em (bx/2, by/2).
  * Mx = momento que comprime a face x = bx (flexão "na direção x", altura bx);
  * My = momento que comprime a face y = by. Esforços em kN e kN·m.
  */
@@ -73,7 +74,8 @@ export function esforcosObliqua(teta, x, sec, c, s, { fatorBloco = null } = {}) 
   const nx = Math.cos(teta), ny = Math.sin(teta);
   const xc = bx / 2, yc = by / 2;
   const z = (p) => (p.x - xc) * nx + (p.y - yc) * ny;
-  const cantos = [{ x: 0, y: 0 }, { x: bx, y: 0 }, { x: bx, y: by }, { x: 0, y: by }];
+  // contorno da seção: o retângulo bx × by ou um polígono informado (seção circular, 0.33)
+  const cantos = sec.contorno ?? [{ x: 0, y: 0 }, { x: bx, y: 0 }, { x: bx, y: by }, { x: 0, y: by }];
   const zs = cantos.map(z);
   const zMax = Math.max(...zs), zMin = Math.min(...zs);
   const H = zMax - zMin;
@@ -87,7 +89,8 @@ export function esforcosObliqua(teta, x, sec, c, s, { fatorBloco = null } = {}) 
   else if (x <= H) kappa = ecu / x;
   else kappa = ec2 / (x - (1 - ec2 / ecu) * H);
 
-  const inclinada = Math.abs(Math.sin(2 * teta)) > 1e-6;
+  // seção circular: a largura comprimida sempre diminui para a borda — 0,9 em qualquer direção (17.2.2)
+  const inclinada = !!sec.contorno || Math.abs(Math.sin(2 * teta)) > 1e-6;
   const scd = (c.sigmaCd / 10) * (fatorBloco ?? (inclinada ? FATOR_INCLINADA : 1));
   const a = Math.max(0, Math.min(c.lambda * x, H));
   const comp = a > 0 ? areaCentroide(recortar(cantos, z, zMax - a)) : { A: 0, x: 0, y: 0 };
@@ -167,6 +170,14 @@ export function verificarPontos(curva, pontos, { MRdx = null, MRdy = null } = {}
   });
   const usoMax = Math.max(0, ...r.map((p) => (Math.hypot(p.Mx, p.My) < 1e-9 ? 0 : p.uso)));
   return { pontos: r, usoMax, ok: usoMax <= 1 + 1e-6 };
+}
+
+/** Contorno poligonal de um círculo de diâmetro D (cm), centrado em (D/2, D/2), para a seção circular. */
+export function contornoCircular(D, n = 72) {
+  return Array.from({ length: n }, (_, k) => {
+    const a = (2 * Math.PI * k) / n;
+    return { x: D / 2 + (D / 2) * Math.cos(a), y: D / 2 + (D / 2) * Math.sin(a) };
+  });
 }
 
 /** Pontos da envoltória mínima de 1ª ordem com 2ª ordem: (Mx/Mx,mín)² + (My/My,mín)² = 1 (11.3.3.4.3). */

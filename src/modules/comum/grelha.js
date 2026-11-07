@@ -284,10 +284,11 @@ function molasDoPilar(pilar, acima, E) {
   const ea = [Math.cos(ang), Math.sin(ang), 0], eb = [-Math.sin(ang), Math.cos(ang), 0];
   const contrib = (pl) => {
     if (!pl || pl.modulo !== 'concreto.pilar') return [0, 0];
-    const { bx, by } = secaoPilar(pl);
+    const { bx, by, D } = secaoPilar(pl);
     const l = pl.comprimento ?? 3;
-    // giro em torno do eixo de bx: flexão com a dimensão by; em torno do eixo de by: com bx (m⁴)
-    const Ia = ((bx / 100) * (by / 100) ** 3) / 12, Ib = ((by / 100) * (bx / 100) ** 3) / 12;
+    // giro em torno do eixo de bx: flexão com a dimensão by; em torno do eixo de by: com bx (m⁴); círculo: πD⁴/64
+    const Ic = D ? (Math.PI * (D / 100) ** 4) / 64 : null;
+    const Ia = Ic ?? ((bx / 100) * (by / 100) ** 3) / 12, Ib = Ic ?? ((by / 100) * (bx / 100) ** 3) / 12;
     return [(4 * E * Ia) / l, (4 * E * Ib) / l];
   };
   const [ka1, kb1] = contrib(pilar), [ka2, kb2] = contrib(acima);

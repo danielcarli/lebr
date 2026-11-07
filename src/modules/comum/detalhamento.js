@@ -53,7 +53,8 @@ export function detalhamentoPilar(el, resultado = el.resultado, projeto) {
   if (!arm?.phi || resultado?.erro) return null;
   const m = contextoConcreto(projeto?.parametros);
   return detalharPilar({
-    bx: el.bx, by: el.by, cob: arm.cobrimento ?? projeto?.parametros?.cobrimento?.pilar ?? 3, L: el.comprimento,
+    ...(el.forma === 'circular' ? { bx: Number(el.D) || el.bx, by: Number(el.D) || el.bx, circular: true } : { bx: el.bx, by: el.by }),
+    cob: arm.cobrimento ?? projeto?.parametros?.cobrimento?.pilar ?? 3, L: el.comprimento,
     barras: { phi: arm.phi, n: arm.n }, pontos: arm.pontos ?? [], estribo: arm.estribo,
     fctd: m.concreto.fctd, fyd: m.aco.fyd, acima: !!pilarAcima(el, projeto), base: baseDoPilar(el, projeto),
   });

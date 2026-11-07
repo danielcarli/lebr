@@ -180,9 +180,9 @@ function renderizar(container, acoes) {
         const hf = el.invertida ? espessuraApoiada(el) / 100 : 0;
         centro = [(eixo.a[0] + eixo.b[0]) / 2, (eixo.a[1] + eixo.b[1]) / 2, el.invertida ? cota - hf + hv / 200 : cota - hv / 200];
       } else {
-        const { bx, by } = secaoPilar(el);
+        const { bx, by, D } = secaoPilar(el);
         const L = el.comprimento ?? 2.8;
-        geo = new THREE.BoxGeometry(bx / 100, L, by / 100);
+        geo = D ? new THREE.CylinderGeometry(D / 200, D / 200, L, 32) : new THREE.BoxGeometry(bx / 100, L, by / 100);
         centro = [pos.x, pos.y, cota - L / 2];
       }
       const transparente = (t === 'laje' && vista.lajesTransp) || vista.deformada;

@@ -34,7 +34,7 @@ import { num } from '../core/formatar.js';
 import { novoId, proximoCodigo } from '../core/projeto.js';
 import {
   pavimentosOrdenados, pavimento, novoIdPavimento, peDireito, tipoDe, cantosLaje, bordasLaje, eixoViga,
-  cantosPilar, centroPilar, secaoViga, pontosDeEncaixe, detectarLigacoes, aplicarLigacoes,
+  cantosPilar, contornoPilar, centroPilar, secaoViga, pontosDeEncaixe, detectarLigacoes, aplicarLigacoes,
   ligacoesExistentes, avisosMontagem, dimensoesLaje, escadaNaPlanta,
 } from '../core/montagem.js';
 import { grelhaDoPavimento, modoDoPavimento } from '../../modules/comum/grelha.js';
@@ -208,7 +208,7 @@ function renderizar(container, acoes) {
       const [tx, ty] = tela([(Math.min(...xs) + Math.max(...xs)) / 2, Math.max(...ys)]);
       g.append(s('text', { x: tx, y: ty - 6, class: 'mont-cod', 'text-anchor': 'middle' }, `${el.codigo} · sobe`));
     } else if (t === 'pilar') {
-      g.append(s('polygon', { points: pontos(cantosPilar(el)), class: 'mont-pilar-secao' }));
+      g.append(s('polygon', { points: pontos(contornoPilar(el)), class: 'mont-pilar-secao' }));
       const [x, y] = tela(centroPilar(el));
       g.append(s('text', { x: x + 10, y: y - 10, class: 'mont-cod' }, el.codigo));
     }
@@ -353,7 +353,7 @@ function renderizar(container, acoes) {
     camadaEls = s('g');
     for (const el of [...doPav].sort((a, b) => ordem[tipo(a)] - ordem[tipo(b)])) camadaEls.append(desenharElemento(el));
     for (const el of pilaresAcima) {
-      const g = s('g', { class: 'mont-acima' }, s('polygon', { points: pontos(cantosPilar(el)) }));
+      const g = s('g', { class: 'mont-acima' }, s('polygon', { points: pontos(contornoPilar(el)) }));
       camadaEls.append(g);
     }
     svg.append(camadaEls);

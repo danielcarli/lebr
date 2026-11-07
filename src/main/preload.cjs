@@ -81,4 +81,11 @@ contextBridge.exposeInMainWorld('lebr', {
     mostrarArquivo: (caminho) => ipcRenderer.invoke('sistema:mostrar-arquivo', caminho),
     abrirArquivo: (caminho) => ipcRenderer.invoke('sistema:abrir-arquivo', caminho),
   },
+
+  atualizacao: {
+    estado: () => ipcRenderer.invoke('atualizacao:estado'),
+    verificar: () => ipcRenderer.invoke('atualizacao:verificar'),
+    instalar: () => ipcRenderer.invoke('atualizacao:instalar'),
+    aoMudar: ouvir('atualizacao:estado'),
+  },
 });

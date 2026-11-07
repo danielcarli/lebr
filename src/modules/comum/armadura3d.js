@@ -23,44 +23,132 @@
 const r1 = (v) => Math.round(v * 10) / 10;
 /** distribui n pontos entre a e b (um só: no meio) */
 const espalhar = (n, a, b) => (n <= 1 ? [(a + b) / 2] : Array.from({ length: n }, (_, i) => a + ((b - a) * i) / (n - 1)));
+const RAD = Math.PI / 180;
+const virg = (v, c = 1) => String(Math.round(v * 10 ** c) / 10 ** c).replace('.', ',');
+
+/** Espaçamentos livres mínimos entre barras (cm): horizontal ah e vertical av (18.3.2.2 vigas; 18.4.2.2 pilares). */
+export const livreHorizontal = (phi, dmax = 19) => Math.max(2, phi / 10, (1.2 * dmax) / 10);
+export const livreVertical = (phi, dmax = 19) => Math.max(2, phi / 10, (0.5 * dmax) / 10);
+/** Ponta reta do gancho de 135° do estribo: 5·øt, no mínimo 5 cm (9.4.6.1). */
+const pontaGancho = (phiT) => Math.max(5, (5 * phiT) / 10);
+
+/**
+ * Eixo de um estribo retangular, no plano da seção (u, v): contorna as quatro barras de canto (centros em u0/u1,
+ * v0/v1) com o raio da dobra encostado nelas e fecha com os dois ganchos de 135° no canto `canto` (0 = u0v0,
+ * 1 = u1v0, 2 = u1v1, 3 = u0v1), voltados para dentro do núcleo. Devolve [[u, v, w]…]; w afasta de leve a segunda
+ * volta no canto do gancho (as duas pernas se sobrepõem ali).
+ */
+export function eixoEstriboRetangular(u0, v0, u1, v1, r, phiT, canto = 3) {
+  const cs = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
+  const A = (k, ang) => [cs[k][0] + r * Math.cos(ang * RAD), cs[k][1] + r * Math.sin(ang * RAD)];
+  const arco = (k, a0, a1, w) => { const out = []; const n = Math.max(2, Math.ceil(Math.abs(a1 - a0) / 15)); for (let i = 0; i <= n; i++) out.push([...A(k, a0 + ((a1 - a0) * i) / n), w]); return out; };
+  const L = pontaGancho(phiT);
+  const base = (k) => 180 + 90 * k;            // ângulo de entrada no canto k, percorrendo no sentido anti-horário
+  const h = ((canto % 4) + 4) % 4;
+  const dentro = (ang) => { const t = (ang + 90) * RAD; return [-Math.cos(t), -Math.sin(t)]; }; // oposto da tangente
+  const pts = [];
+  const a0 = base(h) - 45;
+  const p0 = A(h, a0), d0 = dentro(a0);
+  pts.push([p0[0] + d0[0] * L, p0[1] + d0[1] * L, 0]);
+  pts.push(...arco(h, a0, base(h) + 90, 0));
+  for (let i = 1; i <= 3; i++) { const k = (h + i) % 4; pts.push(...arco(k, base(k), base(k) + 90, 0)); }
+  const w = phiT / 10;                         // a segunda volta passa por cima da primeira
+  pts.push(...arco(h, base(h), base(h) + 135, w));
+  const a1 = base(h) + 135, p1 = A(h, a1), t1 = [-Math.sin(a1 * RAD), Math.cos(a1 * RAD)];
+  pts.push([p1[0] + t1[0] * L, p1[1] + t1[1] * L, w]);
+  return pts;
+}
+
+/** Eixo de um estribo circular de raio R (centro cu, cv): uma volta com traspasse e os ganchos para dentro. */
+export function eixoEstriboCircular(cu, cv, R, phiT, inicio = 90) {
+  const L = pontaGancho(phiT), w = phiT / 10, volta = 360 + 45;
+  const P = (ang) => [cu + R * Math.cos(ang * RAD), cv + R * Math.sin(ang * RAD)];
+  // ganchos de 135°: a ponta sai dobrada para dentro, em 45° com a tangente
+  const ponta = (ang, sinal) => {
+    const t = [-Math.sin(ang * RAD), Math.cos(ang * RAD)], n = [-Math.cos(ang * RAD), -Math.sin(ang * RAD)];
+    const p = P(ang), d = [(sinal * t[0] + n[0]) / Math.SQRT2, (sinal * t[1] + n[1]) / Math.SQRT2];
+    return [p[0] + d[0] * L, p[1] + d[1] * L];
+  };
+  const pts = [[...ponta(inicio, 1), 0]];
+  const n = 54;
+  for (let i = 0; i <= n; i++) { const a = inicio + (volta * i) / n; pts.push([...P(a), (w * i) / n]); }
+  pts.push([...ponta(inicio + volta, -1), w]);
+  return pts;
+}
+
+/**
+ * Posição das barras longitudinais numa face (viga): camadas com o espaçamento livre mínimo ah na horizontal e av
+ * entre camadas (18.3.2.2), as duas primeiras barras de cada camada nos cantos do estribo e as demais igualmente
+ * espaçadas entre elas.
+ */
+function arranjoDaFace({ total, phiMax, b, cob, phiT, dmax }) {
+  const ah = livreHorizontal(phiMax * 10, dmax), av = livreVertical(phiMax * 10, dmax);
+  const util = b - 2 * (cob + phiT);
+  const porCamada = Math.max(2, Math.floor((util + ah) / (phiMax + ah)));
+  const camadas = Math.ceil(total / porCamada);
+  return (slot) => {
+    const camada = Math.floor(slot / porCamada), j = slot % porCamada;
+    const m = Math.min(porCamada, total - camada * porCamada);
+    const y0 = cob + phiT + phiMax / 2, y1 = b - cob - phiT - phiMax / 2;
+    const idx = m === 1 ? 0 : j === 0 ? 0 : j === 1 ? m - 1 : j - 1;
+    const ys = espalhar(Math.max(m, 1), y0, y1);
+    return { y: m === 1 ? (y0 + y1) / 2 : ys[idx], camada, dz: camada * (phiMax + av), camadas, porCamada, ah, av };
+  };
+}
 
 /**
  * Viga: posições do detalhamento (x0, x1 em m ao longo do eixo; face inferior, superior ou lateral; estribos por trecho).
  * @param {{secao:{b,h}}} el
  * @param {{limites:number[]}} det
  * @param {object[]} posicoes  lista de ferros (com as edições aplicadas)
- * @param {{cob?:number}} [op]
+ * @param {{cob?:number, dmax?:number}} [op]   dmax: diâmetro máximo do agregado (mm)
  */
-export function modeloViga(el, det, posicoes, { cob = 3 } = {}) {
+export function modeloViga(el, det, posicoes, { cob = 3, dmax = 19 } = {}) {
   const b = el.secao?.b ?? 20, h = el.secao?.h ?? 40;
   const est = posicoes.find((q) => q.tipo === 'estribo');
   const phiT = (est?.phi ?? 5) / 10;
   const [l0, l1] = det.limites ?? [0, (el.vaos ?? []).reduce((s, v) => s + v.L, 0)];
   const caixas = [{ min: [r1(l0 * 100 - cob), 0, 0], max: [r1(l1 * 100 + cob), b, h], tipo: 'concreto' }];
   const barras = [];
-  // faixas ao longo da largura: posições do mesmo lado que se sobrepõem em x não usam as mesmas barras
+  const info = {};
   const porFace = { inferior: [], superior: [] };
   for (const q of posicoes) if (porFace[q.face]) porFace[q.face].push(q);
+  const cantos = { inferior: 0, superior: 0 };   // bitola das barras de canto (para o raio do estribo)
   for (const [face, lista] of Object.entries(porFace)) {
-    const ordem = [...lista].sort((p, q) => (q.corrida ? 1 : 0) - (p.corrida ? 1 : 0) || q.n - p.n);
+    if (!lista.length) continue;
+    // as barras corridas (que chegam aos apoios) ficam nos cantos; as cortadas, entre elas
+    const noCanto = (q) => q.corrida || q.tipo === 'construtiva' || q.tipo === 'porta-estribo' || (q.tipo === 'negativa' && /-g1$/.test(q.id));
+    const ordem = [...lista].sort((p, q) => (noCanto(q) ? 1 : 0) - (noCanto(p) ? 1 : 0) || q.n - p.n);
+    // barras que só se cruzam nas pontas (traspasse, ancoragem no apoio) dividem a posição, encostadas (emenda por
+    // contato); as que correm juntas num trecho maior ocupam posições diferentes na camada
+    const ponta = (a, b) => {
+      const sob = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);
+      return sob < 0.3 * Math.min(a.x1 - a.x0, b.x1 - b.x0);
+    };
     const colocadas = [];
     for (const q of ordem) {
       const sobre = colocadas.filter((c) => c.q.x0 < q.x1 - 1e-6 && q.x0 < c.q.x1 - 1e-6);
+      const conflito = sobre.filter((c) => !ponta(c.q, q));
       let ini = 0;
-      while (sobre.some((c) => ini < c.ini + c.q.n && c.ini < ini + q.n)) ini++;
-      colocadas.push({ q, ini });
+      while (conflito.some((c) => ini < c.ini + c.q.n && c.ini < ini + q.n)) ini++;
+      const encosta = sobre.some((c) => ponta(c.q, q) && ini < c.ini + c.q.n && c.ini < ini + q.n && !c.encosta);
+      colocadas.push({ q, ini, encosta });
     }
     const total = Math.max(2, ...colocadas.map((c) => c.ini + c.q.n));
-    for (const { q, ini } of colocadas) {
+    const phiMax = Math.max(...lista.map((q) => q.phi)) / 10;
+    cantos[face] = Math.max(...colocadas.filter((c) => c.ini === 0).map((c) => c.q.phi)) / 10;
+    const posicao = arranjoDaFace({ total, phiMax, b, cob, phiT, dmax });
+    info[face] = { barras: total, porCamada: posicao(0).porCamada, camadas: posicao(0).camadas, ah: posicao(0).ah };
+    for (const { q, ini, encosta } of colocadas) {
       const phi = q.phi / 10;
-      const y0 = cob + phiT + phi / 2, y1 = b - cob - phiT - phi / 2;
-      const ys = espalhar(total, y0, y1);
-      const z = face === 'inferior' ? cob + phiT + phi / 2 : h - cob - phiT - phi / 2;
       const sobe = face === 'inferior' ? 1 : -1;  // gancho para dentro da seção
       const gancho = Math.min(10 * phi, h - 2 * cob - 2 * phiT - phi);
       const xa = q.x0 * 100, xb = q.x1 * 100;
       for (let k = 0; k < q.n; k++) {
-        const y = ys[Math.min(ys.length - 1, ini + k)];
+        const { y: y1, dz } = posicao(ini + k);
+        // na emenda por contato a barra encosta na vizinha, do lado de dentro
+        const y = encosta ? y1 + (y1 < b / 2 ? 1 : -1) * phi : y1;
+        const z = face === 'inferior' ? cob + phiT + phi / 2 + dz : h - cob - phiT - phi / 2 - dz;
         const pts = [];
         if (q.gancho?.[0]) pts.push([xa, y, z + sobe * gancho]);
         pts.push([xa, y, z], [xb, y, z]);
@@ -69,71 +157,112 @@ export function modeloViga(el, det, posicoes, { cob = 3 } = {}) {
       }
     }
   }
-  // laterais (pele e torção): metade de cada lado, espaçadas na altura
+  // laterais (pele e torção): metade de cada lado, por dentro do estribo, igualmente espaçadas na altura
   for (const q of posicoes.filter((p) => p.face === 'lateral')) {
     const phi = q.phi / 10, porLado = Math.max(1, Math.round(q.n / 2));
-    const zs = espalhar(porLado + 2, cob + phiT, h - cob - phiT).slice(1, -1);
+    const zs = espalhar(porLado + 2, cob + phiT + phi / 2, h - cob - phiT - phi / 2).slice(1, -1);
     for (const y of [cob + phiT + phi / 2, b - cob - phiT - phi / 2]) {
       for (const z of zs) barras.push({ id: q.id, N: q.N, tipo: q.tipo, phi: q.phi, pts: [[q.x0 * 100, y, z], [q.x1 * 100, y, z]] });
     }
   }
-  // estribos: um retângulo pelo eixo da barra a cada s, em cada trecho
+  // estribos: contornam as barras de canto, com os ganchos de 135° nos cantos de cima, alternando o lado
   for (const q of posicoes.filter((p) => p.tipo === 'estribo')) {
-    const c = cob + q.phi / 20;
+    const pt = q.phi / 10;
+    const fi = cantos.inferior || 1, fs = cantos.superior || fi;
+    const u0 = cob + pt + Math.max(fi, fs) / 2, u1 = b - u0;
+    const v0 = cob + pt + fi / 2, v1 = h - cob - pt - fs / 2;
+    const r = Math.max(fi, fs) / 2 + pt / 2;
+    let i = 0;
     for (const t of q.trechos ?? []) {
       const n = Math.max(1, Math.round(t.qtd ?? 1));
-      for (let i = 0; i < n; i++) {
-        const x = Math.min(t.x1 * 100, t.x0 * 100 + i * t.s);
-        barras.push({ id: q.id, N: q.N, tipo: 'estribo', phi: q.phi, pts: [[x, c, c], [x, b - c, c], [x, b - c, h - c], [x, c, h - c], [x, c, c]] });
+      for (let k = 0; k < n; k++, i++) {
+        const x = Math.min(t.x1 * 100, t.x0 * 100 + k * t.s);
+        const eixo = eixoEstriboRetangular(u0, v0, u1, v1, r, q.phi, i % 2 ? 2 : 3);
+        barras.push({ id: q.id, N: q.N, tipo: 'estribo', phi: q.phi, pts: eixo.map(([u, v, w]) => [x + w, u, v]) });
       }
     }
   }
-  return { caixas, barras, eixos: { x: 'eixo da viga', y: 'b', z: 'h' }, vista: { teta: -Math.PI / 2 + 0.55, fi: 1.25 } };
+  const nomes = { inferior: 'Face inferior', superior: 'Face superior' };
+  const legenda = Object.entries(info).map(([f, i]) => `${nomes[f]}: ${i.barras} barras, até ${i.porCamada} por camada${i.camadas > 1 ? ` (${i.camadas} camadas)` : ''}`).join(' · ')
+    + (Object.keys(info).length ? ` · livre entre barras ah ≥ ${virg(Object.values(info)[0].ah)} cm, entre camadas av ≥ ${virg(livreVertical(Math.max(...posicoes.filter((q) => porFace[q.face]).map((q) => q.phi), 10), dmax))} cm (18.3.2.2) · estribos com ganchos a 135°, alternando o lado` : '');
+  return { caixas, barras, info, legenda, eixos: { x: 'eixo da viga', y: 'b', z: 'h' }, vista: { teta: -Math.PI / 2 + 0.55, fi: 1.25 } };
 }
 
 /**
- * Pilar: barras longitudinais nos pontos da seção (resultado.armadura.pontos), arranques, estribos e grampos.
- * z = 0 na base do lance.
+ * Pilar: barras longitudinais nos pontos da seção (resultado.armadura.pontos — já com os espaçamentos de 18.4.2.2),
+ * arranques encostados nelas, estribos (retangulares com ganchos de 135° alternando o canto, ou circulares) e grampos
+ * suplementares no mesmo nível dos estribos. z = 0 na base do lance.
  */
-export function modeloPilar(el, det, posicoes, { pontos = [], cob = 3 } = {}) {
-  const bx = el.bx ?? 20, by = el.by ?? 20, L = (el.comprimento ?? 3) * 100;
+export function modeloPilar(el, det, posicoes, { pontos = [], cob = 3, dmax = 19 } = {}) {
+  const circular = el.forma === 'circular';
+  const D = circular ? Number(el.D) || el.bx || 30 : null;
+  const bx = circular ? D : el.bx ?? 20, by = circular ? D : el.by ?? 20, L = (el.comprimento ?? 3) * 100;
   const long = posicoes.find((q) => q.tipo === 'longitudinal');
   const arr = posicoes.find((q) => q.tipo === 'arranque');
   const est = posicoes.find((q) => q.tipo === 'estribo');
-  const caixas = [{ min: [0, 0, 0], max: [bx, by, L], tipo: 'concreto' }];
+  const caixas = [circular ? { min: [0, 0, 0], max: [D, D, L], tipo: 'concreto', forma: 'cilindro' } : { min: [0, 0, 0], max: [bx, by, L], tipo: 'concreto' }];
   if (arr) {
     const emb = -arr.z0 * 100;
     caixas.push({ min: [-25, -25, -emb - 5], max: [bx + 25, by + 25, 0], tipo: 'apoio' });
   }
-  if (det?.acima) caixas.push({ min: [0, 0, L], max: [bx, by, Math.max(L + 40, (long?.z1 ?? 0) * 100 + 10)], tipo: 'apoio' });
+  if (det?.acima) caixas.push({ min: [0, 0, L], max: [bx, by, Math.max(L + 40, (long?.z1 ?? 0) * 100 + 10)], tipo: 'apoio', forma: circular ? 'cilindro' : undefined });
   const barras = [];
   const pts = pontos ?? [];
+  const cx = bx / 2, cy = by / 2;
   if (long) for (const p of pts) barras.push({ id: long.id, N: long.N, tipo: 'longitudinal', phi: long.phi, pts: [[p.x, p.y, long.z0 * 100], [p.x, p.y, long.z1 * 100]] });
   if (arr) {
-    const cx = bx / 2, cy = by / 2;
     for (const p of pts) {
-      // o arranque fica encostado na barra do lance (deslocado meio ø para dentro), com o pé virado para fora
-      const dx = Math.sign(p.x - cx) || 1, dy = Math.sign(p.y - cy) || 1;
+      // o arranque encosta na barra do lance (centros a ø de distância), do lado de dentro, com o pé virado para fora
+      const dx = cx - p.x, dy = cy - p.y, n = Math.hypot(dx, dy) || 1;
       const off = arr.phi / 10;
-      const x = p.x - dx * off * 0.6, y = p.y - dy * off * 0.6;
+      const x = p.x + (dx / n) * off, y = p.y + (dy / n) * off;
       const linha = [[x, y, arr.z1 * 100], [x, y, arr.z0 * 100]];
-      if (arr.pe) linha.push([x + dx * arr.pe, y, arr.z0 * 100]);
+      if (arr.pe) linha.push([x - (dx / n) * arr.pe, y - (dy / n) * arr.pe, arr.z0 * 100]);
       barras.push({ id: arr.id, N: arr.N, tipo: 'arranque', phi: arr.phi, pts: linha });
     }
   }
+  const info = {};
+  if (pts.length >= 2) {
+    const dists = pts.map((p, i) => Math.min(...pts.filter((_, j) => j !== i).map((q) => Math.hypot(p.x - q.x, p.y - q.y))));
+    info.espacamento = Math.max(...dists);
+    info.livre = Math.min(...dists) - (long?.phi ?? 10) / 10;
+  }
   if (est?.s) {
-    const c = cob + est.phi / 20;
-    for (let z = 5; z <= L - 2; z += est.s) barras.push({ id: est.id, N: est.N, tipo: 'estribo', phi: est.phi, pts: [[c, c, z], [bx - c, c, z], [bx - c, by - c, z], [c, by - c, z], [c, c, z]] });
+    const pt = est.phi / 10, phiL = (long?.phi ?? 10) / 10;
+    const zs = [];
+    for (let z = 5; z <= L - 2; z += est.s) zs.push(z);
+    zs.forEach((z, i) => {
+      if (circular) {
+        const R = D / 2 - cob - pt / 2;
+        barras.push({ id: est.id, N: est.N, tipo: 'estribo', phi: est.phi, pts: eixoEstriboCircular(D / 2, D / 2, R, est.phi, 90 + 90 * (i % 4)).map(([u, v, w]) => [u, v, z + w]) });
+      } else {
+        const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+        const [u0, u1, v0, v1] = pts.length ? [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)] : [cob + pt + phiL / 2, bx - cob - pt - phiL / 2, cob + pt + phiL / 2, by - cob - pt - phiL / 2];
+        const r = phiL / 2 + pt / 2;
+        barras.push({ id: est.id, N: est.N, tipo: 'estribo', phi: est.phi, pts: eixoEstriboRetangular(u0, v0, u1, v1, r, est.phi, i % 4).map(([u, v, w]) => [u, v, z + w]) });
+      }
+    });
+    // grampos: no nível de cada estribo, abraçando as duas barras de faces opostas
     for (const g of posicoes.filter((q) => q.tipo === 'suplementar')) {
       const gr = g.grampo;
       if (!gr) continue;
-      for (let z = 5 + est.s / 2; z <= L - 2; z += est.s) {
-        const [a, bb] = gr.eixo === 'y' ? [[gr.em, gr.de], [gr.em, gr.ate]] : [[gr.de, gr.em], [gr.ate, gr.em]];
-        barras.push({ id: g.id, N: g.N, tipo: 'suplementar', phi: g.phi, pts: [[a[0], a[1], z], [bb[0], bb[1], z]] });
-      }
+      const pg = g.phi / 10, r = phiL / 2 + pg / 2, ponta = pontaGancho(g.phi);
+      // no plano (a ao longo do grampo, c na outra direção): barras em a = de e a = ate, c = em
+      const P = (a, c) => (gr.eixo === 'y' ? [c, a] : [a, c]);
+      const arco = (a, c, a0, a1) => { const out = []; for (let k = 0; k <= 8; k++) { const t = (a0 + ((a1 - a0) * k) / 8) * RAD; out.push(P(a + r * Math.cos(t), c + r * Math.sin(t))); } return out; };
+      const eixo2d = [
+        P(gr.de + ponta * 0.7, gr.em + r),
+        ...arco(gr.de, gr.em, 90, 270),
+        ...arco(gr.ate, gr.em, -90, 90),
+        P(gr.ate - ponta * 0.7, gr.em + r),
+      ];
+      zs.forEach((z) => barras.push({ id: g.id, N: g.N, tipo: 'suplementar', phi: g.phi, pts: eixo2d.map(([u, v]) => [u, v, z + pt]) }));
     }
   }
-  return { caixas, barras, eixos: { x: 'bx', y: 'by', z: 'altura' }, vista: { teta: -Math.PI / 3, fi: 1.3 } };
+  const legenda = info.espacamento != null
+    ? `${pts.length} barras ${circular ? 'no contorno circular' : 'no contorno'} · entre eixos ${virg(info.espacamento)} cm (máx. ${virg(Math.min(2 * Math.min(bx, by), 40), 0)} cm) · livre ${virg(info.livre)} cm (mín. ${virg(livreHorizontal(long?.phi ?? 10, dmax))} cm) — 18.4.2.2 · estribos ${circular ? 'circulares com traspasse' : 'com ganchos a 135°, girando o canto a cada nível'}`
+    : '';
+  return { caixas, barras, info, legenda, eixos: { x: 'bx', y: 'by', z: 'altura' }, vista: { teta: -Math.PI / 3, fi: 1.3 } };
 }
 
 /**

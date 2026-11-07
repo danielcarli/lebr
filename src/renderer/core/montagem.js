@@ -88,7 +88,9 @@ export function espessuraLaje(el) {
 
 export const comprimentoViga = (el) => (el.vaos ?? []).reduce((s, v) => s + (v.L ?? 0), 0);
 export const secaoViga = (el) => ({ b: el.secao?.b ?? 15, h: el.secao?.h ?? 40 });
-export const secaoPilar = (el) => ({ bx: el.bx ?? el.b ?? 20, by: el.by ?? el.h ?? 20 });
+export const secaoPilar = (el) => (el?.forma === 'circular'
+  ? { bx: Number(el.D) || el.bx || 30, by: Number(el.D) || el.bx || 30, D: Number(el.D) || el.bx || 30, circular: true }
+  : { bx: el.bx ?? el.b ?? 20, by: el.by ?? el.h ?? 20 });
 
 const girar = ([px, py], ang, [ox, oy]) => {
   const c = Math.cos(ang * RAD), s = Math.sin(ang * RAD);
@@ -172,6 +174,14 @@ export function cantosPilar(el) {
   const c = centroPilar(el);
   const hx = bx / 200, hy = by / 200;
   return [[-hx, -hy], [hx, -hy], [hx, hy], [-hx, hy]].map((p) => girar(p, ang, c));
+}
+
+/** Contorno da seção do pilar no sistema global: os quatro cantos ou, no pilar circular, um polígono de 32 lados. */
+export function contornoPilar(el, n = 32) {
+  const sec = secaoPilar(el);
+  if (!sec.circular) return cantosPilar(el);
+  const [cx, cy] = centroPilar(el), r = sec.D / 200;
+  return Array.from({ length: n }, (_, k) => [cx + r * Math.cos((2 * Math.PI * k) / n), cy + r * Math.sin((2 * Math.PI * k) / n)]);
 }
 
 /** Pontos de encaixe de um elemento (para o arrasto magnético na planta). */

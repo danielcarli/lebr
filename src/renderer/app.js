@@ -62,7 +62,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.32.0';
+const VERSAO = '0.33.1';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -856,6 +856,7 @@ function registrarComandos() {
   C({ id: 'ajuda.cargas', categoria: 'Ajuda', titulo: 'Catálogo de cargas (NBR 6120)', icone: 'carga', executar: () => wb.abrirAba(abaCatalogoCargas()) });
   C({ id: 'ajuda.roteiro', categoria: 'Ajuda', titulo: 'Roteiro (road map)', icone: 'roteiro', executar: () => wb.abrirAba(abaRoteiro({ versao: VERSAO })) });
   C({ id: 'ajuda.sobre', categoria: 'Ajuda', titulo: 'Sobre o LEBR', icone: 'info', executar: mostrarSobre });
+  C({ id: 'ajuda.atualizar', categoria: 'Ajuda', titulo: 'Verificar atualizações', icone: 'atualizar', executar: () => lebr?.atualizacao?.verificar() });
 }
 
 /** Abas abertas, na ordem da barra, para a lista rápida (Alt+0). */
@@ -902,7 +903,7 @@ function definirMenus() {
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
       '-', { comando: 'exibir.modulos' }, { comando: 'modulos.abrirPasta' }, { comando: 'ajuda.modulos' },
     ] },
-    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.sobre' }] },
+    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
   ]);
 }
 
@@ -1150,6 +1151,17 @@ function ligarEventos() {
   comandos.on('erro', ({ comando, erro }) => { notificar(`${comando.titulo}: ${erro.message}`, 'erro'); registrarSaida(`${comando.titulo}: ${erro.message}`, 'erro'); });
 
   lebr?.janela.aoComandoDoMenu((id) => comandos.executar(id));
+  // atualização automática pelo GitHub: avisa quando a nova versão já está baixada; a pedido, diz também o resto
+  lebr?.atualizacao?.aoMudar((st) => {
+    if (st.fase === 'pronto') {
+      notificar(`A versão ${st.versao} do LEBR já foi baixada.`, 'ok', { duracao: 0, acoes: [{ texto: 'Reiniciar e atualizar', aoClicar: () => lebr.atualizacao.instalar() }] });
+    } else if (st.manual) {
+      if (st.fase === 'atualizado') notificar(`O LEBR já está na versão mais recente (${VERSAO}).`, 'ok');
+      else if (st.fase === 'baixando' && st.progresso === 0) notificar(`Baixando a versão ${st.versao}…`, 'info');
+      else if (st.fase === 'indisponivel') notificar('A atualização automática só funciona na versão instalada pelo instalador do Windows. Baixe a nova versão em github.com/danielcarli/lebr.', 'info', { duracao: 9000 });
+      else if (st.fase === 'erro') notificar(`Não foi possível verificar atualizações: ${st.erro}`, 'erro', { duracao: 8000 });
+    }
+  });
   lebr?.projeto.aoPedirAbrir((caminho) => abrirCaminho(caminho));
   lebr?.janela.aoPedirSalvarEFechar(async () => { if (await salvar()) lebr.janela.fecharConfirmado(); });
   window.addEventListener('dragover', (e) => e.preventDefault());

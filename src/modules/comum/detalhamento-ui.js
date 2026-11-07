@@ -132,7 +132,7 @@ export function secaoListaDeFerros(api, ctx, det, op = {}) {
         ? (() => {
           let modelo = null;
           try { modelo = op.modelo3d(posicoes); } catch (err) { console.error(err); }
-          return modelo ? vistaArmadura3D(modelo, { aoDestacar: (id) => { destaque = id; marcarTabela(); } }) : h('p', { class: 'combinacoes-nota' }, 'Não foi possível montar a vista 3D deste detalhamento.');
+          return modelo ? h('div', null, vistaArmadura3D(modelo, { aoDestacar: (id) => { destaque = id; marcarTabela(); } }), modelo.legenda ? h('p', { class: 'combinacoes-nota a3d-legenda' }, modelo.legenda) : '') : h('p', { class: 'combinacoes-nota' }, 'Não foi possível montar a vista 3D deste detalhamento.');
         })()
         : '',
       // o desenho 2D vai sempre para o PDF (com a vista 3D aberta, fica só na impressão)

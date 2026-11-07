@@ -157,7 +157,10 @@ function lajeAlveolar(el) {
 
 function pilar(el, r, projeto) {
   const bx = el.bx ?? 20, by = el.by ?? 20, L = el.comprimento ?? 2.8;
-  const out = { concreto: (bx * by * L) / 1e4, forma: (2 * (bx + by) * L) / 100, notas: [] };
+  const D = el.forma === 'circular' ? Number(el.D) || bx : null;
+  const out = D
+    ? { concreto: ((Math.PI * D * D) / 4 * L) / 1e4, forma: (Math.PI * D * L) / 100, notas: ['Pilar circular: fôrma pelo perímetro πD.'] }
+    : { concreto: (bx * by * L) / 1e4, forma: (2 * (bx + by) * L) / 100, notas: [] };
   const a = aco();
   const pos = r && !r.erro ? posicoesDe(el, r, projeto) : null;
   if (pos) {

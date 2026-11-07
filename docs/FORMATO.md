@@ -261,6 +261,14 @@ Cada borda: `apoiada`, `engastada` ou `livre` (sem apoio). Ligações (para carg
 
 `le` nulo significa comprimento de flambagem igual a `comprimento`.
 
+`forma` (0.33, opcional): `retangular` (padrão) ou `circular`. No pilar circular, `D` é o diâmetro (cm) e `bx` = `by` =
+`D` são mantidos para os módulos que só leem a caixa da seção (montagem, quantitativos, pranchas). Arquivos antigos,
+sem `forma`, continuam retangulares.
+
+```json
+{ "forma": "circular", "D": 40, "bx": 40, "by": 40, "comprimento": 3 }
+```
+
 ### Bordas das lajes em uma direção
 
 A laje treliçada, a alveolar, o entrepiso de madeira e a nervurada em uma direção usam o

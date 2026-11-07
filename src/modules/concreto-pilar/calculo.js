@@ -12,7 +12,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 /**
- * Pilar retangular de concreto armado — cálculo (NBR 6118:2023)
+ * Pilar de concreto armado, retangular ou circular (0.33) — cálculo (NBR 6118:2023)
+ *
+ * Seção: `forma` 'retangular' (bx × by) ou 'circular' (diâmetro D; bx = by = D ficam iguais ao diâmetro, para a
+ * montagem, o pórtico e as fundações enxergarem o quadrado circunscrito).
  *
  * Flexo-compressão normal em cada direção com momento mínimo (11.3.3.4.3),
  * efeitos de 2ª ordem pelo pilar-padrão com curvatura aproximada (15.8.3.3.2)
@@ -20,19 +23,26 @@
  * Pilares com λ > 90 estão fora do escopo deste protótipo.
  */
 import { extremo, doTipo } from '../../engine/combinacoes.js';
-import { dimensionarPilar } from '../../engine/flexocompressao.js';
+import { dimensionarPilar, dimensionarPilarCircular } from '../../engine/flexocompressao.js';
 import { FCK_MIN } from '../../engine/materiais.js';
 import { bitolaFixa, fmtPhi } from '../../engine/barras.js';
 import { porticoDoPilar, porticoNosPilares, esforcosNaCombinacao } from '../comum/portico-edificio.js';
 
 const f = (v, c = 2) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
+/** Pilar circular? */
+export const ehCircular = (el) => el?.forma === 'circular';
+/** Diâmetro (cm) do pilar circular. */
+export const diametroDe = (el) => Number(el?.D) || Number(el?.bx) || 30;
+/** Área da seção (cm²). */
+export const areaPilar = (el) => (ehCircular(el) ? (Math.PI * diametroDe(el) ** 2) / 4 : el.bx * el.by);
+
 /** Carga normal característica (kN) separada em g e q, com a origem de cada parcela. */
 export function normalCaracteristica(el, ctx) {
   let g = 0, q = 0;
   const origem = [];
   if (el.pesoProprio) {
-    const pp = (ctx.materiais.gama * el.bx * el.by * el.comprimento) / 1e4;
+    const pp = (ctx.materiais.gama * areaPilar(el) * el.comprimento) / 1e4;
     g += pp;
     origem.push({ texto: 'Peso próprio', g: pp, q: 0 });
   }
@@ -58,9 +68,13 @@ export const ligacoes = () => [{ id: 'base', nome: 'Base do pilar', tipo: 'pontu
 
 export function calcularPilar(el, ctx) {
   const { concreto: c, aco: s, gg, gq, dmax, caa } = ctx.materiais;
-  const { bx, by } = el;
+  const circular = ehCircular(el);
+  const D = circular ? diametroDe(el) : null;
+  const bx = circular ? D : el.bx, by = circular ? D : el.by;
   const cob = ctx.parametros.cobrimento.pilar;
   const bmin = Math.min(bx, by);
+  const Asec = circular ? (Math.PI * D * D) / 4 : bx * by;
+  const dimensionar = (op) => (circular ? dimensionarPilarCircular({ D, ...op }) : dimensionarPilar({ bx, by, ...op }));
   const verificacoes = [], avisos = [], memorial = [];
 
   // pórtico espacial do edifício (14.6): lance a lance; usado no dimensionamento quando o projeto pede
@@ -100,7 +114,7 @@ export function calcularPilar(el, ctx) {
     for (const a of pt.estabilidade?.avisos ?? []) avisos.push(a); // γz acima de 1,3 ou estrutura instável
     // combinações candidatas: maior normal, maior e menor tensão normal elástica na seção (vento!)
     const todas = doTipo(pt.combinacoes, 'ELU').map((cb) => esforcosNaCombinacao(lance, cb));
-    const Ac = (bx * by) / 1e4, Wx = ((by / 100) * (bx / 100) ** 2) / 6, Wy = ((bx / 100) * (by / 100) ** 2) / 6;
+    const Ac = Asec / 1e4, Wx = circular ? (Math.PI * (D / 100) ** 3) / 32 : ((by / 100) * (bx / 100) ** 2) / 6, Wy = circular ? Wx : ((bx / 100) * (by / 100) ** 2) / 6;
     const sig = (e, s) => e.Nd / Ac + s * (Math.max(Math.abs(e.Mx.topo), Math.abs(e.Mx.base)) / Wx + Math.max(Math.abs(e.My.topo), Math.abs(e.My.base)) / Wy);
     const pick = (fn, menor = false) => todas.reduce((a, e) => ((menor ? fn(e) < fn(a) : fn(e) > fn(a)) ? e : a), todas[0]);
     candidatos = [...new Map([pick((e) => e.Nd), pick((e) => sig(e, 1)), pick((e) => sig(e, -1), true)].map((e) => [e.comb, e])).values()];
@@ -108,7 +122,7 @@ export function calcularPilar(el, ctx) {
     for (const e of tracionadas) avisos.push(`Combinação ${e.comb}: normal de tração ou nula no pilar (${f(e.Nd)} kN) — não verificada; confira a ancoragem e a fundação.`);
     let pior = null;
     for (const e of candidatos.filter((x) => x.Nd > 0)) {
-      const tent = dimensionarPilar({ bx, by, lex, ley, Nd: gn * e.Nd, Mx: pontas(e.Mx), My: pontas(e.My), cob, dmax, c, s, phiL, phiT });
+      const tent = dimensionar({ lex, ley, Nd: gn * e.Nd, Mx: pontas(e.Mx), My: pontas(e.My), cob, dmax, c, s, phiL, phiT });
       const peso = tent.escolha ? tent.escolha.As + 1e-3 * (tent.escolha.obliqua?.usoMax ?? 0) : Infinity; // empate de As: o maior uso
       e.As = tent.escolha?.As ?? null;
       if (!pior || peso > pior.peso + 1e-9) pior = { peso, tent, e };
@@ -117,11 +131,17 @@ export function calcularPilar(el, ctx) {
     Mx = pontas(combPortico.Mx); My = pontas(combPortico.My);
     NdUsado = gn * combPortico.Nd;
   } else {
-    r = dimensionarPilar({ bx, by, lex, ley, Nd: NdUsado, Mx, My, cob, dmax, c, s, phiL, phiT });
+    r = dimensionar({ lex, ley, Nd: NdUsado, Mx, My, cob, dmax, c, s, phiL, phiT });
   }
 
-  verificacoes.push({ nome: 'Menor dimensão da seção', item: '13.2.3', valor: `${f(bmin, 0)} cm`, limite: '≥ 14 cm (19 cm sem γn)', ok: bmin >= 14 });
-  verificacoes.push({ nome: 'Área da seção', item: '13.2.3', valor: `${f(bx * by, 0)} cm²`, limite: '≥ 360 cm²', ok: bx * by >= 360 });
+  verificacoes.push({ nome: circular ? 'Diâmetro da seção' : 'Menor dimensão da seção', item: '13.2.3', valor: `${f(bmin, 0)} cm`, limite: '≥ 14 cm (19 cm sem γn)', ok: bmin >= 14 });
+  verificacoes.push({ nome: 'Área da seção', item: '13.2.3', valor: `${f(Asec, 0)} cm²`, limite: '≥ 360 cm²', ok: Asec >= 360 });
+  if (circular && r.escolha) verificacoes.push({ nome: 'Número de barras (seção circular)', item: '18.4.2.1', valor: `${r.escolha.n} barras`, limite: '≥ 6', ok: r.escolha.n >= 6 });
+  if (r.escolha) {
+    const livre = Math.min(r.escolha.ccx, r.escolha.ccy) - r.escolha.phi / 10;
+    const livreMin = Math.max(2, r.escolha.phi / 10, (1.2 * dmax) / 10);
+    verificacoes.push({ nome: 'Espaçamento entre as barras', item: '18.4.2.2', valor: `${f(Math.max(r.escolha.ccx, r.escolha.ccy), 1)} cm entre eixos · ${f(livre, 1)} cm livres`, limite: `livre ≥ ${f(livreMin, 1)} cm · eixos ≤ ${f(Math.min(2 * bmin, 40), 0)} cm`, ok: livre >= livreMin - 1e-9 && Math.max(r.escolha.ccx, r.escolha.ccy) <= Math.min(2 * bmin, 40) + 1e-9 });
+  }
   verificacoes.push({ nome: `Concreto mínimo (CAA ${caa})`, item: '7.4.2', valor: `C${c.fck}`, limite: `≥ C${FCK_MIN[caa]}`, ok: c.fck >= FCK_MIN[caa] });
   verificacoes.push({ nome: 'Esbeltez — direção x', item: '15.8.3.3', valor: `λx = ${f(r.dirX.lambda, 1)}`, limite: '≤ 90', ok: r.dirX.lambda <= 90 });
   verificacoes.push({ nome: 'Esbeltez — direção y', item: '15.8.3.3', valor: `λy = ${f(r.dirY.lambda, 1)}`, limite: '≤ 90', ok: r.dirY.lambda <= 90 });
@@ -164,7 +184,9 @@ export function calcularPilar(el, ctx) {
   ] });
   for (const [rot, dir, le, hdir] of [['x', r.dirX, lex, bx], ['y', r.dirY, ley, by]]) {
     memorial.push({ titulo: `Direção ${rot}`, linhas: [
-      `h = ${f(hdir, 0)} cm · le = ${f(le / 100)} m · λ = 3,46·le/h = ${f(dir.lambda, 1)} · λ1 = ${f(dir.lambda1, 1)} · αb = ${f(dir.alfaB)}`,
+      circular
+        ? `D = ${f(D, 0)} cm · i = D/4 = ${f(D / 4, 2)} cm · le = ${f(le / 100)} m · λ = le/i = 4·le/D = ${f(dir.lambda, 1)} · λ1 = ${f(dir.lambda1, 1)} · αb = ${f(dir.alfaB)}`
+        : `h = ${f(hdir, 0)} cm · le = ${f(le / 100)} m · λ = 3,46·le/h = ${f(dir.lambda, 1)} · λ1 = ${f(dir.lambda1, 1)} · αb = ${f(dir.alfaB)}`,
       `M1d,mín = Nd·(0,015 + 0,03h) = ${f(dir.M1min)} kN·m · M1d = ${f(dir.M1)} kN·m`,
       dir.segundaOrdem
         ? `${dir.metodo}: 1/r = ${f(dir.curvatura, 5)} m⁻¹ · M2d = ${f(dir.M2)} kN·m · Md,tot = ${f(dir.Md)} kN·m`
@@ -180,7 +202,8 @@ export function calcularPilar(el, ctx) {
   if (r.escolha) memorial.push({ titulo: 'Armadura', linhas: [
     `As,mín = ${f(r.AsMin)} cm² · As,máx = ${f(r.AsMax)} cm² (4% Ac)`,
     `Bitolas: longitudinal ${phiL ? `ø ${fmtPhi(phiL)}` : 'automática'} · estribo ${phiT ? `ø ${fmtPhi(phiT)}` : 'automático'}`,
-    `Adotado ${r.escolha.rotulo} = ${f(r.escolha.As)} cm² (ρ = ${f((r.escolha.As / (bx * by)) * 100)} %) · estribos ${r.escolha.estribo.rotulo} cm`,
+    `Adotado ${r.escolha.rotulo} = ${f(r.escolha.As)} cm² (ρ = ${f((r.escolha.As / Asec) * 100)} %) · estribos ${r.escolha.estribo.rotulo} cm${circular ? ' (circulares)' : ''}`,
+    ...(circular ? [`Seção circular: ${r.escolha.n} barras igualmente espaçadas num círculo de raio ${f(r.escolha.raio, 1)} cm (centro das barras) · ${f(r.escolha.ccx, 1)} cm entre eixos (corda) · curva de interação da seção circular com a tensão do bloco 0,9·σcd em qualquer direção (17.2.2)`] : []),
     `MRd,x = ${f(r.escolha.MRdx)} kN·m · MRd,y = ${f(r.escolha.MRdy)} kN·m (compatibilidade de deformações)`,
   ] });
 
@@ -217,6 +240,8 @@ export function calcularPilar(el, ctx) {
       phi: r.escolha.phi, n: r.escolha.n, As: r2(r.escolha.As), rotulo: r.escolha.rotulo,
       estribo: r.escolha.estribo, MRdx: r2(r.escolha.MRdx), MRdy: r2(r.escolha.MRdy),
       pontos: r.escolha.pontos.map((p) => ({ x: r2(p.x), y: r2(p.y) })), cobrimento: cob,
+      forma: circular ? 'circular' : 'retangular', ...(circular ? { D, raio: r2(r.escolha.raio) } : {}),
+      espacamento: r2(Math.max(r.escolha.ccx, r.escolha.ccy)),
       curva: r.escolha.curva.map((p) => ({ x: r2(p.x), y: r2(p.y) })),
       obliqua: { usoMax: r2(r.escolha.obliqua.usoMax), usoMinima: r2(Math.max(...r.escolha.obliqua.pontos.filter((p) => p.tipo === 'minima').map((p) => p.uso))), pontos: r.escolha.obliqua.pontos.filter((p) => p.tipo !== 'minima').map((p) => ({ nome: p.nome, tipo: p.tipo, Mx: r2(p.Mx), My: r2(p.My), MRd: r2(p.MRd), uso: r2(p.uso) })) },
     },

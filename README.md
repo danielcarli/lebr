@@ -6,7 +6,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 > [!WARNING]
-> **Protótipo 0.32.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.33.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -73,7 +73,7 @@ Tipografia: [Livvic](https://fonts.google.com/specimen/Livvic) (Fonthausen, lice
 | **Viga de madeira** (`madeira.viga`) | NBR 7190-1:2022: classes nativas D20–D60 e estruturais C14–C50 / D18–D70, kmod1·kmod2, vigas contínuas, flexão, cisalhamento, estabilidade lateral, compressão normal no apoio e flecha final com fluência. |
 | **Pilar / montante de madeira** (`madeira.pilar`) | Esbeltez relativa, kc (βc 0,2 ou 0,1), flexocompressão com kM = 0,7, limite L0 ≤ 40·dimensão, montante de light wood frame travado pelo painel (NBR 16936:2023). |
 | **Entrepiso de madeira** (`madeira.entrepiso`) | Light wood frame (NBR 16936:2023): vigotas sob painel OSB ou compensado, flexão, cisalhamento, estabilidade com bloqueadores, apoio, flecha com fluência e frequência natural; vigotas apoiadas, engastadas ou em **balanço**. Detalhes em [docs/MADEIRA.md](docs/MADEIRA.md). |
-| **Pilar** (`concreto.pilar`) | Seção retangular, momento mínimo, esbeltez, 2ª ordem pelo pilar-padrão com curvatura aproximada (λ ≤ 90), flexo-compressão por compatibilidade de deformações, busca do arranjo de barras de menor área, γn para seções < 19 cm, reações vindas das vigas. |
+| **Pilar** (`concreto.pilar`) | Seção retangular ou circular, momento mínimo, esbeltez, 2ª ordem pelo pilar-padrão com curvatura aproximada (λ ≤ 90), flexo-compressão por compatibilidade de deformações, busca do arranjo de barras de menor área, γn para seções < 19 cm, reações vindas das vigas. |
 
 Em vigas, lajes e pilares de concreto, a seção **Armadura** permite escolher a bitola de cada
 posição (barras inferiores e superiores, estribos, barras das nervuras, longitudinais do pilar).
@@ -429,6 +429,25 @@ arranques, grampos, malhas e distribuição, cada tipo com uma cor, dentro do co
 Shift+arrastar desloca e a roda aproxima; passar o mouse sobre uma barra mostra a posição (N) e destaca a linha da
 lista de ferros. A visualização 3D do edifício continua sem armaduras; o PDF do elemento leva sempre o desenho 2D.
 
+**Armadura em 3D segundo a norma (0.33):** as barras longitudinais das vigas ficam em camadas com o espaçamento livre
+mínimo da NBR 6118, 18.3.2.2 — na horizontal ah ≥ máx(2 cm; ø; 1,2·dmax), na vertical av ≥ máx(2 cm; ø; 0,5·dmax) —,
+com as barras corridas, construtivas e porta-estribos nos cantos do estribo e as demais igualmente espaçadas entre
+elas; barras que só se cruzam nas pontas (ancoragem no apoio, traspasse) ficam encostadas, como na emenda por contato.
+Nos pilares as barras seguem os pontos do dimensionamento, com espaçamento livre ≥ máx(2 cm; ø; 1,2·dmax) e entre
+eixos ≤ mín(2b; 40 cm) (18.4.2.2). Os estribos são desenhados pelo eixo, contornando as barras de canto com a dobra
+encostada nelas e fechando com dois ganchos de 135° de ponta reta 5·øt ≥ 5 cm voltados para o núcleo; o canto do
+gancho alterna a cada estribo (nas vigas, entre os dois cantos de cima). Os grampos suplementares ficam no nível de
+cada estribo, abraçando as duas barras, e os arranques encostam nas barras do lance. Abaixo da vista, uma linha resume
+barras por camada e espaçamentos.
+
+**Pilar circular (0.33):** em **Seção e comprimento**, **Forma da seção** alterna entre Retangular e Circular (campo
+**Diâmetro D**). A seção circular tem A = π·D²/4, raio de giração i = D/4 (λ = 4·le/D), no mínimo 6 barras igualmente
+espaçadas no contorno (18.4.2.1), espaçamento verificado pela corda entre barras vizinhas, flexão oblíqua pela curva de
+interação da seção circular (resistente igual em qualquer direção) e estribos circulares com traspasse e ganchos de
+135°, sem grampos. O pilar circular aparece como círculo na montagem, na planta de formas e locação das pranchas, como
+cilindro na visualização 3D, com volume π·D²/4·L e forma π·D·L nos quantitativos, e entra no pórtico espacial com
+I = π·D⁴/64. As sugestões de seção aumentam o diâmetro.
+
 ### Otimização das bitolas
 
 Cada viga, pilar, laje maciça, escada e reservatório de concreto pode ser calculado com um critério de otimização,
@@ -483,6 +502,14 @@ Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Instalador e atualização automática (0.33.1):** instalador do Windows (`LEBR-Setup-…-win-x64.exe`), com
+  atalhos e desinstalação; o programa instalado procura novas versões nas releases do GitHub
+  (github.com/danielcarli/lebr), baixa em segundo plano e oferece **Reiniciar e atualizar** — também em
+  **Ajuda → Verificar atualizações**. Ver [docs/INSTALACAO.md](docs/INSTALACAO.md).
+- **Ajustes da tela do elemento (0.33.1):** o estado do elemento aparece só no chip da barra de cálculo (saiu o selo
+  verde repetido no canto do cabeçalho), e os textos dos gráficos — esquema da viga, diagramas de momento, cortante,
+  torção e flecha, curva de interação do pilar e curva da estaca — têm o dobro do tamanho, com os espaçamentos e a
+  legenda (que quebra linha quando não cabe) ajustados.
 - **Como fazer atender:** quando o elemento não atende, a seção logo abaixo dos resultados propõe a **menor
   alteração** que faz todas as verificações passarem — a altura ou a largura da viga, as dimensões do pilar, a
   espessura da laje, ou voltar para "Automática" uma bitola escolhida à mão que não serve —, com o botão **Aplicar**.

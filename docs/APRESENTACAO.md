@@ -20,7 +20,7 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 
 ![Tela inicial do LEBR](imagens/tela-inicial.png)
 
-*Capturas da versão 0.32.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
+*Capturas da versão 0.33.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
 
 ---
 
@@ -84,7 +84,9 @@ Quando o elemento não atende, a página sugere a menor alteração que faz toda
 ### Armadura em 3D
 
 Na seção de detalhamento da viga, do pilar e da laje, **Armadura em 3D** mostra as barras daquele elemento, isoladas,
-dentro do concreto transparente — gira, aproxima e destaca a posição da lista de ferros sob o mouse.
+dentro do concreto transparente — gira, aproxima e destaca a posição da lista de ferros sob o mouse. As barras seguem
+os espaçamentos livres da NBR 6118 (18.3.2.2 nas vigas, 18.4.2.2 nos pilares) e os estribos contornam as barras de
+canto e fecham com ganchos de 135°, alternando o canto; a linha abaixo da vista resume barras por camada e espaçamentos.
 
 | Viga | Pilar | Laje |
 |---|---|---|
@@ -95,6 +97,13 @@ dentro do concreto transparente — gira, aproxima e destaca a posição da list
 Lance do pilar com os arranques na fundação, o traspasse com o lance de cima, estribos e grampos suplementares.
 
 ![Detalhamento de um pilar](imagens/pilar-detalhamento.png)
+
+Pilar de seção circular: **Forma da seção → Circular** e o diâmetro D. No mínimo 6 barras no contorno, λ = 4·le/D,
+flexão oblíqua com a curva de interação da seção circular e estribos circulares.
+
+| Seção e detalhamento | Armadura em 3D |
+|---|---|
+| ![Pilar circular — detalhamento](imagens/pilar-circular.png) | ![Pilar circular em 3D](imagens/armadura-3d-pilar-circular.png) |
 
 Planta de armação da laje maciça: positivas, negativas nas bordas engastadas e distribuição.
 

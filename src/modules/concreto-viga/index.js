@@ -92,7 +92,7 @@ export default function moduloViga(api) {
       tituloVerificacoes: 'Ancoragem nos apoios extremos',
       volume,
       desenho: (posicoes, destaque) => desenho.elevacao(ctx.elemento, det, posicoes, { destaque }),
-      modelo3d: (posicoes) => modeloViga(ctx.elemento, det, posicoes, { cob: ctx.projeto?.parametros?.cobrimento?.viga ?? 3 }),
+      modelo3d: (posicoes) => modeloViga(ctx.elemento, det, posicoes, { cob: ctx.projeto?.parametros?.cobrimento?.viga ?? 3, dmax: ctx.materiais?.dmax ?? 19 }),
       antes: [ui.linhaCampos(ui.texto({
         rotulo: 'Largura dos apoios (cm)', valor: el.detalhamento?.largura ?? '', placeholder: `automática: ${largAuto}`, largura: '320px',
         aoMudar: (v) => {

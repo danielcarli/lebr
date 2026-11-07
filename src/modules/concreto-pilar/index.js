@@ -16,7 +16,7 @@
  */
 import { secaoCombinacoes } from '../comum/combinacoes.js';
 import { secaoArmadura } from '../comum/armadura.js';
-import { calcularPilar, cargasTransmitidas, ligacoes, criarPilar, normalCaracteristica } from './calculo.js';
+import { calcularPilar, cargasTransmitidas, ligacoes, criarPilar, normalCaracteristica, areaPilar } from './calculo.js';
 import { editorCargas } from '../comum/cargas.js';
 import { detalhamentoPilar } from '../comum/detalhamento.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
@@ -31,6 +31,7 @@ export default function moduloPilar(api) {
 
   /** Seção transversal com barras (pontos) e estribo. */
   function secao(el, arm) {
+    if (el.forma === 'circular') return secaoCircular(el, arm);
     const caixa = 250, m = 34;
     const esc = Math.min((caixa - 2 * m) / el.bx, (caixa - 2 * m) / el.by);
     const w = el.bx * esc, hh = el.by * esc;
@@ -38,10 +39,14 @@ export default function moduloPilar(api) {
     const x0 = m + 10, y0 = m;
     const filhos = [s('rect', { x: x0, y: y0, width: w, height: hh, class: 'sec-concreto' })];
     if (arm) {
-      const c = arm.cobrimento * esc;
-      filhos.push(s('rect', { x: x0 + c, y: y0 + c, width: w - 2 * c, height: hh - 2 * c, rx: 4, class: 'sec-estribo' }));
-      const r = Math.max(3, (arm.phi / 20) * esc);
-      for (const p of arm.pontos) filhos.push(s('circle', { cx: x0 + p.x * esc, cy: y0 + (el.by - p.y) * esc, r, class: 'sec-barra' }));
+      // estribo pelo eixo, encostado nas barras de canto (raio da dobra = ø/2 + øt/2)
+      const xs = arm.pontos.map((p) => p.x), ys = arm.pontos.map((p) => p.y);
+      const pt = (arm.estribo?.phi ?? 5) / 10, r = (arm.phi / 20 + pt / 2) * esc;
+      const ex0 = x0 + (Math.min(...xs) - arm.phi / 20 - pt / 2) * esc, ex1 = x0 + (Math.max(...xs) + arm.phi / 20 + pt / 2) * esc;
+      const ey0 = y0 + (el.by - Math.max(...ys) - arm.phi / 20 - pt / 2) * esc, ey1 = y0 + (el.by - Math.min(...ys) + arm.phi / 20 + pt / 2) * esc;
+      filhos.push(s('rect', { x: ex0, y: ey0, width: ex1 - ex0, height: ey1 - ey0, rx: r, class: 'sec-estribo' }));
+      const rb = Math.max(3, (arm.phi / 20) * esc);
+      for (const p of arm.pontos) filhos.push(s('circle', { cx: x0 + p.x * esc, cy: y0 + (el.by - p.y) * esc, r: rb, class: 'sec-barra' }));
     }
     filhos.push(
       s('text', { x: x0 + w / 2, y: y0 + hh + 20, 'text-anchor': 'middle', class: 'dg-texto' }, `bx = ${num(el.bx, 0)} cm`),
@@ -50,6 +55,32 @@ export default function moduloPilar(api) {
       s('line', { x1: x0 + w + 14, y1: y0 + hh, x2: x0 + w + 14, y2: y0 + hh - 24, class: 'pl-eixo' }),
       s('text', { x: x0 + w + 41, y: y0 + hh + 4, class: 'pl-eixo-rot' }, 'x'),
       s('text', { x: x0 + w + 10, y: y0 + hh - 28, class: 'pl-eixo-rot' }, 'y'),
+    );
+    return s('svg', { class: 'desenho secao-pilar', viewBox: `0 0 ${W} ${H}`, width: W, height: H }, ...filhos);
+  }
+
+  /** Seção circular: concreto, estribo circular e barras igualmente espaçadas no contorno. */
+  function secaoCircular(el, arm) {
+    const D = Number(el.D) || el.bx;
+    const caixa = 250, m = 34;
+    const esc = (caixa - 2 * m) / D, R = (D / 2) * esc;
+    const W = 2 * R + 2 * m + 40, H = 2 * R + 2 * m + 10;
+    const cx = m + 10 + R, cy = m + R;
+    const filhos = [s('circle', { cx, cy, r: R, class: 'sec-concreto' })];
+    if (arm) {
+      const pt = (arm.estribo?.phi ?? 5) / 10;
+      const Re = (arm.raio ?? D / 2 - arm.cobrimento - pt - arm.phi / 20) + arm.phi / 20 + pt / 2;
+      filhos.push(s('circle', { cx, cy, r: Re * esc, class: 'sec-estribo' }));
+      const rb = Math.max(3, (arm.phi / 20) * esc);
+      for (const p of arm.pontos) filhos.push(s('circle', { cx: m + 10 + p.x * esc, cy: m + (D - p.y) * esc, r: rb, class: 'sec-barra' }));
+    }
+    filhos.push(
+      s('line', { x1: cx - R, y1: cy + R + 12, x2: cx + R, y2: cy + R + 12, class: 'pl-eixo' }),
+      s('text', { x: cx, y: cy + R + 26, 'text-anchor': 'middle', class: 'dg-texto' }, `D = ${num(D, 0)} cm`),
+      s('line', { x1: cx + R + 14, y1: cy + R, x2: cx + R + 38, y2: cy + R, class: 'pl-eixo' }),
+      s('line', { x1: cx + R + 14, y1: cy + R, x2: cx + R + 14, y2: cy + R - 24, class: 'pl-eixo' }),
+      s('text', { x: cx + R + 41, y: cy + R + 4, class: 'pl-eixo-rot' }, 'x'),
+      s('text', { x: cx + R + 10, y: cy + R - 28, class: 'pl-eixo-rot' }, 'y'),
     );
     return s('svg', { class: 'desenho secao-pilar', viewBox: `0 0 ${W} ${H}`, width: W, height: H }, ...filhos);
   }
@@ -120,13 +151,13 @@ export default function moduloPilar(api) {
     material: 'Concreto armado',
     norma: 'NBR 6118:2023',
     versao: '0.1.0',
-    descricao: 'Pilares retangulares com λ ≤ 90: momento mínimo, 2ª ordem por curvatura aproximada.',
+    descricao: 'Pilares retangulares ou circulares com λ ≤ 90: momento mínimo, 2ª ordem por curvatura aproximada.',
 
     criar: criarPilar,
     calcular: calcularPilar,
     cargasTransmitidas,
     ligacoes,
-    resumo: (el) => `Seção ${num(el.bx, 0)} × ${num(el.by, 0)} cm · L = ${num(el.comprimento)} m`,
+    resumo: (el) => `${el.forma === 'circular' ? `Seção circular ø ${num(Number(el.D) || el.bx, 0)}` : `Seção ${num(el.bx, 0)} × ${num(el.by, 0)}`} cm · L = ${num(el.comprimento)} m`,
 
     renderEntrada(raiz, ctx) {
       const el = ctx.elemento;
@@ -135,16 +166,29 @@ export default function moduloPilar(api) {
       desenhar();
       const mudar = (fn) => { ctx.alterar(fn); desenhar(); };
       const leIgual = el.le?.x == null && el.le?.y == null;
+      const circular = el.forma === 'circular';
 
       raiz.append(ui.secao({
         numero: '01', titulo: 'Seção e comprimento',
         filhos: [h('div', { class: 'pilar-geo' },
           h('div', { class: 'laje-campos' },
-            ui.linhaCampos(
-              ui.campo({ rotulo: 'Dimensão bx', valor: el.bx, unidade: 'cm', casas: 1, min: 12, max: 200, aoMudar: (v) => mudar((e) => { e.bx = v; }) }),
-              ui.campo({ rotulo: 'Dimensão by', valor: el.by, unidade: 'cm', casas: 1, min: 12, max: 200, aoMudar: (v) => mudar((e) => { e.by = v; }) }),
-              ui.campo({ rotulo: 'Comprimento L', valor: el.comprimento, unidade: 'm', min: 0.5, max: 30, aoMudar: (v) => mudar((e) => { e.comprimento = v; }) }),
-            ),
+            ui.segmentado({
+              rotulo: 'Forma da seção', valor: circular ? 'circular' : 'retangular',
+              opcoes: [{ valor: 'retangular', texto: 'Retangular' }, { valor: 'circular', texto: 'Circular' }],
+              aoMudar: (v) => ctx.alterar((e) => {
+                if (v === 'circular') { e.forma = 'circular'; e.D = Math.max(e.bx, e.by, 25); e.bx = e.by = e.D; } else { e.forma = 'retangular'; }
+              }, { estrutural: true }),
+            }),
+            circular
+              ? ui.linhaCampos(
+                ui.campo({ rotulo: 'Diâmetro D', valor: Number(el.D) || el.bx, unidade: 'cm', casas: 1, min: 20, max: 300, aoMudar: (v) => mudar((e) => { e.D = v; e.bx = e.by = v; }) }),
+                ui.campo({ rotulo: 'Comprimento L', valor: el.comprimento, unidade: 'm', min: 0.5, max: 30, aoMudar: (v) => mudar((e) => { e.comprimento = v; }) }),
+              )
+              : ui.linhaCampos(
+                ui.campo({ rotulo: 'Dimensão bx', valor: el.bx, unidade: 'cm', casas: 1, min: 12, max: 200, aoMudar: (v) => mudar((e) => { e.bx = v; }) }),
+                ui.campo({ rotulo: 'Dimensão by', valor: el.by, unidade: 'cm', casas: 1, min: 12, max: 200, aoMudar: (v) => mudar((e) => { e.by = v; }) }),
+                ui.campo({ rotulo: 'Comprimento L', valor: el.comprimento, unidade: 'm', min: 0.5, max: 30, aoMudar: (v) => mudar((e) => { e.comprimento = v; }) }),
+              ),
             ui.alternar({
               rotulo: 'Comprimento de flambagem igual a L nas duas direções', valor: leIgual,
               aoMudar: (v) => ctx.alterar((e) => { e.le = v ? { x: null, y: null } : { x: e.comprimento, y: e.comprimento }; }, { estrutural: true }),
@@ -170,7 +214,7 @@ export default function moduloPilar(api) {
         numero: '02', titulo: 'Cargas', descricao: 'Normais características no topo',
         acoes: [botaoAdd],
         filhos: [
-          ui.alternar({ rotulo: `Peso próprio (${num((ctx.materiais.gama * el.bx * el.by * el.comprimento) / 1e4)} kN)`, valor: el.pesoProprio, aoMudar: (v) => ctx.alterar((e) => { e.pesoProprio = v; }, { estrutural: true }) }),
+          ui.alternar({ rotulo: `Peso próprio (${num((ctx.materiais.gama * areaPilar(el) * el.comprimento) / 1e4)} kN)`, valor: el.pesoProprio, aoMudar: (v) => ctx.alterar((e) => { e.pesoProprio = v; }, { estrutural: true }) }),
           lista,
           total && h('div', { class: 'cargas-resumo' }, h('span', { class: 'rot' }, 'Total'), total),
         ],
@@ -186,13 +230,13 @@ export default function moduloPilar(api) {
     renderResultado(raiz, res, ctx) {
       const el = ctx.elemento;
       const arm = res.armadura;
-      const taxa = arm ? arm.As / (el.bx * el.by) : 0;
+      const taxa = arm ? arm.As / areaPilar(el) : 0;
       raiz.append(h('div', { class: 'instrumentos' },
         ui.numeroGrande({ rotulo: 'Normal de cálculo', valor: num(res.Nd, 0), unidade: 'kN', linhas: [`Nk = ${num(res.Nk.g + res.Nk.q, 0)} kN`, `ν = ${num(res.nu, 2)}`] }),
         ui.numeroGrande({ rotulo: 'Armadura longitudinal', valor: arm ? arm.rotulo : '—', linhas: arm ? [`${num(arm.As)} cm²`, `Estribos ${arm.estribo.rotulo}`] : ['Sem solução', ''], alerta: !arm }),
         ui.mostrador({ rotulo: 'Esbeltez x', valor: num(res.dirX.lambda, 1), numero: res.dirX.lambda, maximo: 120, limite: res.dirX.lambda1, sigla: 'λx' }),
         ui.mostrador({ rotulo: 'Esbeltez y', valor: num(res.dirY.lambda, 1), numero: res.dirY.lambda, maximo: 120, limite: res.dirY.lambda1, sigla: 'λy' }),
-        ui.medidor({ rotulo: 'Taxa de armadura', valor: `${num(taxa * 100, 2)}%`, fracao: taxa / 0.04, legenda: `mín. ${num((res.AsMin / (el.bx * el.by)) * 100, 2)}% · máx. 4%` }),
+        ui.medidor({ rotulo: 'Taxa de armadura', valor: `${num(taxa * 100, 2)}%`, fracao: taxa / 0.04, legenda: `mín. ${num((res.AsMin / areaPilar(el)) * 100, 2)}% · máx. 4%` }),
         arm && (() => {
           const uso = Math.max(res.dirX.Md / arm.MRdx, res.dirY.Md / arm.MRdy, arm.obliqua?.usoMax ?? 0);
           return ui.arco({ rotulo: 'Aproveitamento', valor: `${num(uso * 100, 0)}%`, fracao: uso, legenda: arm.obliqua ? 'MSd / MRd (inclui flexão oblíqua)' : 'Md / MRd' });
@@ -236,10 +280,10 @@ export default function moduloPilar(api) {
       if (det?.posicoes?.length) {
         raiz.append(secaoListaDeFerros(api, ctx, det, {
           descricao: 'Barras longitudinais, traspasse, arranques, estribos e suplementares (NBR 6118, 9.5.2.3, 18.2.4 e 18.4) · lista de ferros editável',
-          volume: (ctx.elemento.bx * ctx.elemento.by * ctx.elemento.comprimento) / 1e4,
+          volume: (areaPilar(ctx.elemento) * ctx.elemento.comprimento) / 1e4,
           tituloVerificacoes: 'Estribos e barras protegidas',
           desenho: (posicoes, destaque) => desenhoPilar.detalhe(ctx.elemento, det, posicoes, { destaque }),
-          modelo3d: (posicoes) => modeloPilar(ctx.elemento, det, posicoes, { pontos: res.armadura?.pontos ?? [], cob: res.armadura?.cobrimento ?? 3 }),
+          modelo3d: (posicoes) => modeloPilar(ctx.elemento, det, posicoes, { pontos: res.armadura?.pontos ?? [], cob: res.armadura?.cobrimento ?? 3, dmax: ctx.materiais?.dmax ?? 19 }),
           nota: `Barras verticais em boa aderência. Traspasse de compressão l0c = lb,nec ≥ máx(0,6·lb; 15ø; 20 cm) = ${num(det.l0c, 0)} cm (lb = ${num(det.lb, 0)} cm): as barras deste lance sobem para emendar com as do lance de cima; no último lance terminam no topo menos o cobrimento. Na fundação ou na viga em que o pilar nasce, os arranques (esperas) ficam embutidos até o fundo menos o cobrimento, com pé dobrado para apoio, e sobem l0c — a ancoragem da espera na sapata ou no bloco é verificada no módulo da fundação. Estribos ao longo do lance; os grampos suplementares seguram as barras a mais de 20·øt do canto (18.2.4). O resumo soma as perdas adotadas no projeto.`,
         }));
       }
@@ -258,23 +302,23 @@ function diagramaInteracao(api, res) {
   const { num } = api.formatar;
   const curva = res.armadura.curva;
   const pts = res.armadura.obliqua.pontos;
-  const W = 420, H = 420, m = 46;
+  const W = 480, H = 520, m = 64, HG = 470;   // HG: altura do gráfico (a legenda fica embaixo)
   const lim = Math.max(...curva.map((p) => Math.max(Math.abs(p.x), Math.abs(p.y))), res.minimos.x, res.minimos.y, ...pts.map((p) => Math.max(p.Mx, p.My))) * 1.08 || 1;
-  const esc = (W / 2 - m) / lim;
-  const X = (v) => W / 2 + v * esc, Y = (v) => H / 2 - v * esc;
+  const esc = (Math.min(W, HG) / 2 - m) / lim;
+  const X = (v) => W / 2 + v * esc, Y = (v) => HG / 2 - v * esc;
   const filhos = [];
   // eixos e grade leve
-  filhos.push(s('line', { x1: m / 2, y1: H / 2, x2: W - m / 2, y2: H / 2, class: 'ia-eixo' }), s('line', { x1: W / 2, y1: m / 2, x2: W / 2, y2: H - m / 2, class: 'ia-eixo' }));
-  filhos.push(s('text', { x: W - m / 2, y: H / 2 - 6, 'text-anchor': 'end', class: 'ia-rot' }, 'Mx (kN·m)'), s('text', { x: W / 2 + 6, y: m / 2 + 4, class: 'ia-rot' }, 'My (kN·m)'));
+  filhos.push(s('line', { x1: m / 3, y1: HG / 2, x2: W - m / 3, y2: HG / 2, class: 'ia-eixo' }), s('line', { x1: W / 2, y1: m / 2, x2: W / 2, y2: HG - m / 3, class: 'ia-eixo' }));
+  filhos.push(s('text', { x: W - 4, y: HG / 2 - 10, 'text-anchor': 'end', class: 'ia-rot' }, 'Mx (kN·m)'), s('text', { x: W / 2 + 10, y: 24, class: 'ia-rot' }, 'My (kN·m)'));
   // curva resistente
   filhos.push(s('path', { d: `M${curva.map((p) => `${X(p.x)},${Y(p.y)}`).join(' L')} Z`, class: 'ia-curva' }));
   // envoltória mínima
-  filhos.push(s('ellipse', { cx: W / 2, cy: H / 2, rx: res.minimos.x * esc, ry: res.minimos.y * esc, class: 'ia-minima' }));
+  filhos.push(s('ellipse', { cx: W / 2, cy: HG / 2, rx: res.minimos.x * esc, ry: res.minimos.y * esc, class: 'ia-minima' }));
   // marcas dos eixos: MRd nas direções principais
   const ex = curva.reduce((a, p) => (Math.abs(p.y) < Math.abs(a.y) && p.x > 0 ? p : a), { x: 0, y: Infinity });
   const ey = curva.reduce((a, p) => (Math.abs(p.x) < Math.abs(a.x) && p.y > 0 ? p : a), { x: Infinity, y: 0 });
-  if (Number.isFinite(ex.y)) filhos.push(s('text', { x: X(ex.x) - 4, y: H / 2 + 16, 'text-anchor': 'end', class: 'ia-valor' }, num(ex.x, 1)));
-  if (Number.isFinite(ey.x)) filhos.push(s('text', { x: W / 2 - 6, y: Y(ey.y) + 4, 'text-anchor': 'end', class: 'ia-valor' }, num(ey.y, 1)));
+  if (Number.isFinite(ex.y)) filhos.push(s('text', { x: X(ex.x) - 6, y: HG / 2 + 28, 'text-anchor': 'end', class: 'ia-valor' }, num(ex.x, 1)));
+  if (Number.isFinite(ey.x)) filhos.push(s('text', { x: W / 2 - 10, y: Y(ey.y) + 8, 'text-anchor': 'end', class: 'ia-valor' }, num(ey.y, 1)));
   // pontos de cálculo
   // pontos coincidentes (sem 2ª ordem) recebem um rótulo só
   const grupos = [];
@@ -283,10 +327,10 @@ function diagramaInteracao(api, res) {
     if (g) g.nomes.push(p.tipo); else grupos.push({ ...p, nomes: [p.tipo] });
   }
   for (const p of grupos) {
-    filhos.push(s('circle', { cx: X(p.Mx), cy: Y(p.My), r: 4.5, class: `ia-ponto ${p.nomes.length > 1 ? 'intermediaria' : p.tipo} ${p.uso > 1 ? 'falha' : ''}` }));
+    filhos.push(s('circle', { cx: X(p.Mx), cy: Y(p.My), r: 6, class: `ia-ponto ${p.nomes.length > 1 ? 'intermediaria' : p.tipo} ${p.uso > 1 ? 'falha' : ''}` }));
     const rot = p.nomes.length > 1 ? 'topo/base e intermediária' : p.tipo === 'extremidade' ? 'topo/base' : 'intermediária';
-    filhos.push(s('text', { x: X(p.Mx) + 8, y: Y(p.My) - 7, class: 'ia-valor' }, rot));
+    filhos.push(s('text', { x: X(p.Mx) + 12, y: Y(p.My) - 10, class: 'ia-valor' }, rot));
   }
-  filhos.push(s('text', { x: m / 2, y: H - 10, class: 'ia-legenda' }, 'linha cheia: resistente · tracejada: envoltória mínima'));
+  filhos.push(s('text', { x: 4, y: H - 34, class: 'ia-legenda' }, 'linha cheia: resistente'), s('text', { x: 4, y: H - 6, class: 'ia-legenda' }, 'tracejada: envoltória mínima'));
   return s('svg', { class: 'desenho interacao', viewBox: `0 0 ${W} ${H}`, width: W, style: 'max-width: 100%' }, ...filhos);
 }

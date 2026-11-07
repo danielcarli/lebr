@@ -311,10 +311,10 @@ function montarEResolver(projeto, registro) {
         fundacao = true;
         if (abaixo) avisos.push(`${pl.codigo}: não há pilar nem viga embaixo no ${abaixo.nome} — engastado na cota ${String(zb).replace('.', ',')} m.`);
       }
-      const { bx, by } = secaoPilar(pl);
-      const barra = { id: `${pav.id}/${pl.codigo}`, i: base.id, j: topo.id, secao: { b: by, h: bx }, angulo: pl.posicao?.angulo ?? 0, cargas: [] };
+      const { bx, by, D } = secaoPilar(pl);
+      const barra = { id: `${pav.id}/${pl.codigo}`, i: base.id, j: topo.id, secao: D ? { D } : { b: by, h: bx }, angulo: pl.posicao?.angulo ?? 0, cargas: [] };
       if (pl.pesoProprio) {
-        const pp = (gama * bx * by) / 1e4;
+        const pp = (gama * (D ? (Math.PI * D * D) / 4 : bx * by)) / 1e4;
         barra.cargas.push({ tipo: 'q', dir: 'Z', valor: -pp, caso: 'G' });
         const L = pav.cota - (nos.find((n) => n.id === base.id).z);
         soma.G += pp * L;

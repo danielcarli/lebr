@@ -25,6 +25,7 @@ const fs = require('node:fs/promises');
 const fss = require('node:fs');
 const { pathToFileURL } = require('node:url');
 const recentes = require('./recentes.cjs');
+const atualizacao = require('./atualizacao.cjs');
 
 const RAIZ = path.join(__dirname, '..', '..');
 const EH_MAC = process.platform === 'darwin';
@@ -335,6 +336,7 @@ if (!app.requestSingleInstanceLock()) {
     registrarIPC();
     configurarMenuNativo();
     criarJanela();
+    atualizacao.iniciar(janela);
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) criarJanela(); });
   });
 

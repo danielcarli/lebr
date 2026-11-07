@@ -517,6 +517,8 @@ button.estado-chip:hover { filter: brightness(1.08); }
 }
 /* controles segmentados com opções longas quebram linha em vez de se sobrepor */
 .segmentado { flex-wrap: wrap; height: auto; min-height: 34px; }
+.campo:has(> .segmentado) { width: auto; max-width: 100%; }
+.campo:has(> .segmentado) > .segmentado { align-self: flex-start; }
 .linha-campos > .campo { min-width: 0; max-width: 100%; }
 
 /* ------------------------------------------------------------ armadura em 3D do elemento (0.32) */
@@ -563,3 +565,14 @@ button.estado-chip:hover { filter: brightness(1.08); }
 }
 .so-impressao { display: none !important; }
 @media print { .so-impressao { display: block !important; } }
+
+/* gráficos dos elementos (diagramas, esquemas, interação, curva da estaca): textos no dobro do tamanho */
+.diagramas .dg-titulo, .estaca-curva .dg-titulo { font-size: 22px; }
+.diagramas .dg-unid { font-size: 22px; }
+.diagramas .dg-valor { font-size: 25px; }
+.diagramas .dg-leg { font-size: 21px; }
+.diagramas .dg-leg-amostra { stroke-width: 3; }
+.esquema .dg-texto { font-size: 26px; }
+.esquema .dg-rot { font-size: 22px; }
+.interacao .ia-rot, .interacao .ia-legenda, .interacao .ia-valor { font-size: 22px; }
+.estaca-curva .sd-escala, .estaca-curva .est-nk-rot, .estaca-curva .est-leg { font-size: 21px; }

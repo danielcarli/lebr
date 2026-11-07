@@ -33,7 +33,7 @@ export function criarDesenhoPilar({ s }) {
     const xP = 90, wP = 64;                             // pilar desenhado com largura fixa
     const filhos = [];
     const cls = (q, base) => `${base}${destaque === q?.id ? ' destaque' : ''}`;
-    filhos.push(s('text', { x: 0, y: 12, class: 'dg-titulo' }, `ELEVAÇÃO DO LANCE — ${el.codigo ?? ''} (${fmt(el.bx)} × ${fmt(el.by)} cm)`));
+    filhos.push(s('text', { x: 0, y: 12, class: 'dg-titulo' }, `ELEVAÇÃO DO LANCE — ${el.codigo ?? ''} (${el.forma === 'circular' ? `ø ${fmt(Number(el.D) || el.bx)}` : `${fmt(el.bx)} × ${fmt(el.by)}`} cm)`));
     // peça de baixo (fundação ou viga) e pisos
     if (arr) {
       const wB = det.base?.tipo === 'fundacao' ? 200 : 140;
@@ -79,21 +79,43 @@ export function criarDesenhoPilar({ s }) {
     const w = el.bx * e2, hh = el.by * e2;
     const cob = arm?.cobrimento ?? 3;
     filhos.push(s('text', { x: sx, y: 12 + 0, class: 'dg-titulo' }, 'SEÇÃO'));
-    filhos.push(s('rect', { x: sx, y: sy, width: w, height: hh, class: 'sec-concreto' }));
-    if (est) filhos.push(s('g', { class: 'det-pos', 'data-pos': est.id }, s('rect', { x: sx + cob * e2, y: sy + cob * e2, width: w - 2 * cob * e2, height: hh - 2 * cob * e2, rx: 4, class: cls(est, 'sec-estribo') })));
+    const circular = el.forma === 'circular';
+    const phiL = (arm?.phi ?? long?.phi ?? 10) / 10, pt = (est?.phi ?? 5) / 10;
+    if (circular) {
+      const D = Number(el.D) || el.bx;
+      filhos.push(s('circle', { cx: sx + w / 2, cy: sy + hh / 2, r: w / 2, class: 'sec-concreto' }));
+      const Re = (arm?.raio ?? D / 2 - cob - pt - phiL / 2) + phiL / 2 + pt / 2;
+      if (est) filhos.push(s('g', { class: 'det-pos', 'data-pos': est.id }, s('circle', { cx: sx + w / 2, cy: sy + hh / 2, r: Re * e2, class: cls(est, 'sec-estribo') })));
+    } else {
+      filhos.push(s('rect', { x: sx, y: sy, width: w, height: hh, class: 'sec-concreto' }));
+      if (est) {
+        // pelo eixo do estribo, encostado nas barras de canto (raio da dobra = ø/2 + øt/2)
+        const xs = arm?.pontos?.map((p) => p.x) ?? [cob + pt + phiL / 2, el.bx - cob - pt - phiL / 2];
+        const ys = arm?.pontos?.map((p) => p.y) ?? [cob + pt + phiL / 2, el.by - cob - pt - phiL / 2];
+        const rr = phiL / 2 + pt / 2;
+        const x0 = Math.min(...xs) - rr, x1 = Math.max(...xs) + rr, y0 = Math.min(...ys) - rr, y1 = Math.max(...ys) + rr;
+        filhos.push(s('g', { class: 'det-pos', 'data-pos': est.id }, s('rect', { x: sx + x0 * e2, y: sy + (el.by - y1) * e2, width: (x1 - x0) * e2, height: (y1 - y0) * e2, rx: rr * e2, class: cls(est, 'sec-estribo') })));
+      }
+    }
     for (const g of gramp) {
       const gr = g.grampo;
       const P = (x, y) => [sx + x * e2, sy + (el.by - y) * e2];
       const [a, b] = gr.eixo === 'y' ? [P(gr.em, gr.de), P(gr.em, gr.ate)] : [P(gr.de, gr.em), P(gr.ate, gr.em)];
+      // grampo: abraça as duas barras com as dobras (ganchos) em volta delas
+      const rr = (phiL / 2 + (g.phi / 10) / 2) * e2;
+      const vx = (b[0] - a[0]) / (Math.hypot(b[0] - a[0], b[1] - a[1]) || 1), vy = (b[1] - a[1]) / (Math.hypot(b[0] - a[0], b[1] - a[1]) || 1);
+      const nx = -vy * rr, ny = vx * rr;
+      const d = `M ${a[0] + vx * rr * 1.6 + nx} ${a[1] + vy * rr * 1.6 + ny} L ${a[0] + nx} ${a[1] + ny} A ${rr} ${rr} 0 1 1 ${a[0] - nx} ${a[1] - ny} L ${b[0] - nx} ${b[1] - ny} A ${rr} ${rr} 0 1 1 ${b[0] + nx} ${b[1] + ny} L ${b[0] - vx * rr * 1.6 + nx} ${b[1] - vy * rr * 1.6 + ny}`;
       filhos.push(s('g', { class: 'det-pos', 'data-pos': g.id },
-        s('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: cls(g, 'det-barra porta') }),
-        s('text', { x: (a[0] + b[0]) / 2 + 6, y: (a[1] + b[1]) / 2 - 4, class: 'det-rot-estribo' }, g.N)));
+        s('path', { d, fill: 'none', class: cls(g, 'det-barra porta') }),
+        s('text', { x: (a[0] + b[0]) / 2 + 6, y: (a[1] + b[1]) / 2 - 4 - rr, class: 'det-rot-estribo' }, g.N)));
     }
     if (arm?.pontos) {
       const r = Math.max(3, (arm.phi / 20) * e2);
       for (const p of arm.pontos) filhos.push(s('circle', { cx: sx + p.x * e2, cy: sy + (el.by - p.y) * e2, r, class: 'sec-barra' }));
     }
-    filhos.push(
+    if (circular) filhos.push(s('text', { x: sx + w / 2, y: sy + hh + 20, 'text-anchor': 'middle', class: 'dg-texto' }, `D = ${fmt(Number(el.D) || el.bx)} cm`));
+    else filhos.push(
       s('text', { x: sx + w / 2, y: sy + hh + 20, 'text-anchor': 'middle', class: 'dg-texto' }, `bx = ${fmt(el.bx)} cm`),
       s('text', { x: sx - 12, y: sy + hh / 2, 'text-anchor': 'middle', class: 'dg-texto', transform: `rotate(-90 ${sx - 12} ${sy + hh / 2})` }, `by = ${fmt(el.by)} cm`),
     );

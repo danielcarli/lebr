@@ -61,6 +61,13 @@ export function torcaoRetangulo(a, b) {
 /** Propriedades da seção: { b, h } em cm (ou [b, h]) ou diretas { A, Iy, Iz, J } em m. */
 export function propriedadesSecao(s = {}) {
   if (Array.isArray(s)) s = { b: s[0], h: s[1] };
+  if (s.D != null) {
+    // seção circular (pilar redondo): D em cm
+    const D = s.D / 100;
+    if (!(D > 0)) throw new Error('Seção circular com D não positivo.');
+    const I = (Math.PI * D ** 4) / 64;
+    return { A: (Math.PI * D * D) / 4, Iz: I, Iy: I, J: 2 * I, D: s.D, b: s.D, h: s.D };
+  }
   if (s.b != null && s.h != null) {
     const b = s.b / 100, h = s.h / 100;
     if (!(b > 0 && h > 0)) throw new Error('Seção com b ou h não positivo.');

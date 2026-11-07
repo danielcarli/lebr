@@ -122,13 +122,13 @@ export function criarDesenhosLajes({ s }) {
       for (let i = -18; i <= 14; i += 7) g.append(s('line', { x1: x, y1: y + i, x2: x + 8 * dx, y2: y + i + 7, class: 'dg-hachura' }));
       return g;
     };
-    const livre = (x) => s('text', { x, y: y + 24, 'text-anchor': 'middle', class: 'dg-rot' }, 'LIVRE');
+    const livre = (x) => s('text', { x, y: y + 32, 'text-anchor': 'middle', class: 'dg-rot' }, 'LIVRE');
     const antigos = { biapoiada: ['apoiada', 'apoiada'], 'engaste-apoio': ['engastada', 'apoiada'], biengastada: ['engastada', 'engastada'], balanco: ['engastada', 'livre'] };
     const [t0, t1] = bordas ? [bordas.x0, bordas.x1] : (antigos[vinculo] ?? antigos.biapoiada);
     const ponta = (t, x, dx) => (t === 'engastada' ? engaste(x, dx) : t === 'livre' ? livre(x) : apoio(x));
     filhos.push(ponta(t0, x0, -1), ponta(t1, x1, 1));
-    filhos.push(...cotaH(x0, x1, 104, `${t0 === 'livre' || t1 === 'livre' ? 'Balanço' : 'L'} = ${fmt(L, 2)} m`));
-    return s('svg', { class: 'desenho esquema', viewBox: `0 0 ${W} 116` }, ...filhos);
+    filhos.push(...cotaH(x0, x1, 124, `${t0 === 'livre' || t1 === 'livre' ? 'Balanço' : 'L'} = ${fmt(L, 2)} m`));
+    return s('svg', { class: 'desenho esquema', viewBox: `0 0 ${W} 136` }, ...filhos);
   }
 
   return { corteNervurada, corteAlveolar, esquemaFaixa };
