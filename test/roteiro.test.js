@@ -27,6 +27,7 @@ test('roteiro: três fases com critério de saída e áreas preenchidas', () => 
 });
 
 test('roteiro: docs/ROTEIRO.md está em dia com os dados', () => {
-  const md = fs.readFileSync(new URL('../docs/ROTEIRO.md', import.meta.url), 'utf8');
+  // no Windows o git pode trocar as quebras de linha por CRLF ao baixar o repositório
+  const md = fs.readFileSync(new URL('../docs/ROTEIRO.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   assert.equal(md.trim(), roteiroMarkdown().trim(), 'gere de novo: node -e "…roteiroMarkdown()" > docs/ROTEIRO.md');
 });
