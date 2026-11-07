@@ -1,0 +1,1088 @@
+{
+  "grupo": "Bibliografia — vigas",
+  "descricao": "Exercícios resolvidos publicados (apostilas de P. S. S. Bastos/UNESP, UFPR, L. M. Pinheiro/EESC-USP, A. V. Chaer/PUC Goiás, A. A. Bandeira): flexão simples e dupla, estribos, decalagem, seção vazada da torção e estádio II.",
+  "casos": [
+    {
+      "id": "bastos-fs-ex1",
+      "titulo": "Viga 20×50, Mk = 100 kN·m, C20 — armadura simples",
+      "fonte": "BASTOS, P. S. S. Flexão normal simples – vigas (notas de aula, 2117 – Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 7.3, 1º exemplo, p. 17–22.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Paulo%20Bastos_FlexaoSimples_Vigas_2015.pdf",
+      "descricao": "Calcular a armadura longitudinal de uma viga 20×50 cm (d = 47 cm) sob momento positivo característico de 10 000 kN·cm, C20, CA-50, γf = 1,4.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 140,
+          "b": 20,
+          "h": 50,
+          "d": 47,
+          "dl": 4,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 8.1,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "x",
+          "caminho": "x",
+          "valor": 18.1,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "x/d",
+          "caminho": "xi",
+          "valor": 0.39,
+          "unidade": "",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "bastos-fs-ex3",
+      "titulo": "Viga 22×60, Mk = −150 kN·m, C25 — armadura negativa",
+      "fonte": "BASTOS, P. S. S. Flexão normal simples – vigas (notas de aula, 2117 – Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 7.3, 3º exemplo, p. 28–30.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Paulo%20Bastos_FlexaoSimples_Vigas_2015.pdf",
+      "descricao": "Armadura negativa de uma viga 22×60 cm (d = 55 cm) com Mk = −15 000 kN·cm, C25, CA-50.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 210,
+          "b": 22,
+          "h": 60,
+          "d": 55,
+          "dl": 4,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 9.95,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "x",
+          "caminho": "x",
+          "valor": 16.2,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-fs-dupla1",
+      "titulo": "Viga 20×50, Md = 219,8 kN·m, C25 — armadura dupla",
+      "fonte": "BASTOS, P. S. S. Flexão normal simples – vigas (notas de aula, 2117 – Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 8.3, 1º exemplo, p. 38–41.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Paulo%20Bastos_FlexaoSimples_Vigas_2015.pdf",
+      "descricao": "Viga 20×50 cm, d = 45 cm, d' = 3 cm, Mk = −15 700 kN·cm (Md = 21 980 kN·cm), C25, CA-50. Com armadura simples x/d = 0,58 > 0,45: fixa-se x = 0,45d e acrescenta-se armadura comprimida.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 219.8,
+          "b": 20,
+          "h": 50,
+          "d": 45,
+          "dl": 3,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "x = 0,45d",
+          "caminho": "x",
+          "valor": 20.25,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "As (tracionada)",
+          "caminho": "AsCalc",
+          "valor": 13.41,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "A's (comprimida)",
+          "caminho": "Asl",
+          "valor": 2.1,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-fs-dupla2",
+      "titulo": "Viga 14×60, Md = 259 kN·m, C30 — armadura dupla",
+      "fonte": "BASTOS, P. S. S. Flexão normal simples – vigas (notas de aula, 2117 – Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 8.3, 2º exemplo, p. 41–43.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Paulo%20Bastos_FlexaoSimples_Vigas_2015.pdf",
+      "descricao": "Viga 14×60 cm, d = 54 cm, d' = 4 cm, Mk = −18 500 kN·cm (Md = 25 900 kN·cm), C30, CA-50.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima). A fonte resolve com as tabelas de Kc e Ks; A's = 2,03 cm² (Ks' tabelado) não é comparado — pelas equações dá 1,82 cm².",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 259,
+          "b": 14,
+          "h": 60,
+          "d": 54,
+          "dl": 4,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As (tracionada)",
+          "caminho": "AsCalc",
+          "valor": 13.17,
+          "unidade": "cm²",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "ufpr-ex5-1",
+      "titulo": "Viga 20×50, MSd = 125 kN·m, C35",
+      "fonte": "UFPR – TC037 Estruturas de Concreto I. Capítulo 5: Flexão simples – armadura longitudinal de viga. Universidade Federal do Paraná, 2015. Exemplo 5.1, p. 5-20/5-21.",
+      "url": "https://estruturas.ufpr.br/wp-content/uploads/2015/04/CA-005-2015.pdf",
+      "descricao": "Dimensionar As de viga 20×50 cm (d = 45 cm), MSd = 125 kN·m, C35, CA-50 (formulação com βx, βz).",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 125,
+          "b": 20,
+          "h": 50,
+          "d": 45,
+          "dl": 4,
+          "c": {
+            "$concreto": 35
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 6.93,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "βx = x/d",
+          "caminho": "xi",
+          "valor": 0.197,
+          "unidade": "",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-ex8-5-1",
+      "titulo": "Seção 30×45, Mk = 170 kN·m, C25 (tabelas kc/ks)",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D.; SANTOS, S. P. Fundamentos do concreto e projeto de edifícios. EESC-USP, 2007. NBR 6118:2003. Exemplo 8.5.1, p. 8.7.",
+      "url": "https://arquitetonica.wordpress.com/wp-content/uploads/2011/11/fundamentos-do-concreto-eesc-usp.pdf",
+      "descricao": "As de seção 30×45 cm, d = 42 cm, Mk = 170 kN·m (Md = 238 kN·m), C25, CA-50, pelas tabelas de kc e ks.",
+      "nota": "A fonte (NBR 6118:2003) não limita x/d; aqui x/d fica muito perto de 0,45 e o LEBR acrescenta 0,05 cm² de armadura comprimida. A armadura tracionada coincide.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 238,
+          "b": 30,
+          "h": 45,
+          "d": 42,
+          "dl": 3,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 15.87,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "chaer-2015-elu",
+      "titulo": "Viga biapoiada 20×50, vão 6 m, Md = 166,95 kN·m, C30",
+      "fonte": "CHAER, A. V. Estudo dirigido – armadura, flecha, vibração e fissuração em vigas. PUC Goiás, 2015. NBR 6118:2014. p. 1/13 a 3/13.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/2015_08_31_viga_biapoiada_ELU_ELS.pdf",
+      "descricao": "Viga biapoiada 20×50 cm, vão de 6 m, g = 22,5 kN/m e q = 4 kN/m (Qu = 37,1 kN/m), d = 40 cm, C30, CA-50.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima).",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 166.95,
+          "b": 20,
+          "h": 50,
+          "d": 40,
+          "dl": 4,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "x",
+          "caminho": "x",
+          "valor": 17.322,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "kx = x/d",
+          "caminho": "xi",
+          "valor": 0.4331,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 11.611,
+          "unidade": "cm²",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "bandeira-4-3-4",
+      "titulo": "Seção 12×70, Md = 84 kN·m, C25 — domínio 2",
+      "fonte": "BANDEIRA, A. A. Estruturas de concreto armado segundo a NBR 6118/2014: notas de aula. Salvador, 2015. Item 4.3.4, p. 36–38.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Alex%20Bandeira_Concreto%20(Apostila%20de%20Lajes%20e%20Vigas).pdf",
+      "descricao": "Seção 12×70 cm, d = 64 cm, momento característico de 6000 kN·cm (Md = 8400 kN·cm), C25, CA-50.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima). Os resultados da fonte só fecham com o momento dado tomado como característico e majorado por 1,4.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 84,
+          "b": 12,
+          "h": 70,
+          "d": 64,
+          "dl": 4,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "ξ = x/d",
+          "caminho": "xi",
+          "valor": 0.1497,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "x",
+          "caminho": "x",
+          "valor": 9.5811,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 3.21,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bandeira-4-3-6",
+      "titulo": "Viga biapoiada de 4 m com 50 kN/m — armadura dupla (ξ = 0,45)",
+      "fonte": "BANDEIRA, A. A. Estruturas de concreto armado segundo a NBR 6118/2014: notas de aula. Salvador, 2015. Item 4.3.6, p. 39–41.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/Alex%20Bandeira_Concreto%20(Apostila%20de%20Lajes%20e%20Vigas).pdf",
+      "descricao": "Viga biapoiada de 4 m com 50 kN/m: Md = 1,4·50·4²/8 = 140 kN·m, d = 33 cm, d' = 5 cm, C30, CA-50; ξ = 0,572 > 0,45 → armadura dupla.",
+      "nota": "O LEBR usa o diagrama retangular (λ = 0,8, αc = 0,85) e o limite x/d = 0,45 (17.2.3), como a fonte. Compara-se a armadura calculada (antes da mínima). A largura não está legível no texto extraído; os resultados da fonte fecham com b = 20 cm.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 140,
+          "b": 20,
+          "h": 40,
+          "d": 33,
+          "dl": 5,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 11.83,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "A's",
+          "caminho": "Asl",
+          "valor": 1.88,
+          "unidade": "cm²",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ufpr-ex6-1",
+      "titulo": "VRd2 e Vc de viga 20×40, C25",
+      "fonte": "UFPR – TC037 Estruturas de Concreto I (Dalledone Machado, C. L.; Marino, M. A.). Capítulo 6: Flexão simples – armadura transversal de viga. Universidade Federal do Paraná, 2016. Exemplos 6.1 e 6.2, p. 6-7.",
+      "url": "https://estruturas.ufpr.br/wp-content/uploads/2016/03/Capitulo6.pdf",
+      "descricao": "Viga 20×40 cm, d = 35 cm, C25 (fcd = 1,79 kN/cm², αv2 = 0,9): máxima força cortante pela biela comprimida (modelo I) e parcela do concreto.",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte. A fonte arredonda fcd para 1,79 kN/cm² (exato: 1,786).",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 100,
+          "bw": 20,
+          "d": 35,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 304.48,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "Vc",
+          "valor": 53.76,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "ufpr-ex6-6",
+      "titulo": "VRd2 e Vc de viga 20 cm, d = 44 cm, C30",
+      "fonte": "UFPR – TC037 Estruturas de Concreto I (Dalledone Machado, C. L.; Marino, M. A.). Capítulo 6: Flexão simples – armadura transversal de viga. Universidade Federal do Paraná, 2016. Exemplo 6.6.",
+      "url": "https://estruturas.ufpr.br/wp-content/uploads/2016/03/Capitulo6.pdf",
+      "descricao": "Viga com bw = 20 cm, d = 44 cm, C30, CA-50 (modelo I).",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 100,
+          "bw": 20,
+          "d": 44,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 447.45,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "Vc",
+          "valor": 76.56,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "ufpr-ex6-8-vrd2",
+      "titulo": "VRd2 de viga 18×50, C30 (exemplo da decalagem)",
+      "fonte": "UFPR – TC037 Estruturas de Concreto I (Dalledone Machado, C. L.; Marino, M. A.). Capítulo 6: Flexão simples – armadura transversal de viga. Universidade Federal do Paraná, 2016. Exemplo 6.8, p. 6-37.",
+      "url": "https://estruturas.ufpr.br/wp-content/uploads/2016/03/Capitulo6.pdf",
+      "descricao": "Viga bw = 18 cm, d = 50 cm, C30: dados do exemplo de decalagem (Vc = 78,30 kN, VRd2 = 457,62 kN).",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 224,
+          "bw": 18,
+          "d": 50,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 457.62,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "Vc",
+          "valor": 78.3,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "chaer-31-1",
+      "titulo": "Altura mínima pela biela: VSd = 500 kN, bw = 20 cm, C20",
+      "fonte": "CHAER, A. V.; OLIVEIRA, M. G. D. Estruturas de concreto armado I – Capítulo 31: Cisalhamento em vigas. PUC Goiás. NBR 6118:2003. Exemplo 31.1, p. 31.14–31.15.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/c31_cisalhamento.pdf",
+      "descricao": "Menor altura útil de seção retangular com bw = 20 cm, C20, para VSd = 500 kN: d = 70,38 cm (VRd2 = 0,27·0,92·1,429·20·d = 500 kN).",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 500,
+          "bw": 20,
+          "d": 70.38,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2 com d = 70,38 cm",
+          "caminho": "VRd2",
+          "valor": 500,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "chaer-31-3",
+      "titulo": "Viga 12×40 com carga concentrada, C20 — estribos",
+      "fonte": "CHAER, A. V.; OLIVEIRA, M. G. D. Estruturas de concreto armado I – Capítulo 31: Cisalhamento em vigas. PUC Goiás. NBR 6118:2003. Exemplo 31.3, p. 31.17–31.23.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/c31_cisalhamento.pdf",
+      "descricao": "Viga 12×40 cm, d = 36 cm, C20, CA-50, L = 420 cm com carga concentrada; trecho da esquerda com VSd = 87,12 kN.",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 87.12,
+          "bw": 12,
+          "d": 36,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 153.34,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vc0",
+          "caminho": "Vc",
+          "valor": 28.64,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Asw/s mínimo",
+          "caminho": "aswMin",
+          "valor": 1.061,
+          "unidade": "cm²/m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Asw/s (trecho E)",
+          "caminho": "aswCalc",
+          "valor": 4.15,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-vs1-p2",
+      "titulo": "Viga contínua VS1 19×60, VSd = 146,9 kN, C25 — estribos",
+      "fonte": "BASTOS, P. S. S. Vigas de concreto armado (notas de aula, 2123 – Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 13.9 (VS1), p. 27–29.",
+      "url": "https://assets.lms.toolzz.media/66262031/public/vigas-57df49ac-682d-4c59-8bce-2ec4c3ff4b16.pdf",
+      "descricao": "Estribos da viga VS1 19×60 cm (d = 55 cm), C25, CA-50, junto ao pilar P2 (VSd = 1,4·104,9 = 146,9 kN).",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte. A fonte usa as equações simplificadas do C25 (VRd2 = 0,43·bw·d e Asw = 2,55·VSd/d − 0,20·bw), que arredondam os coeficientes: diferenças de até 3 %.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 146.9,
+          "bw": 19,
+          "d": 55,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 449.4,
+          "unidade": "kN",
+          "tolerancia": 0.012
+        },
+        {
+          "grandeza": "Vc0",
+          "caminho": "Vc",
+          "valor": 80.3,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Asw/s mínimo",
+          "caminho": "aswMin",
+          "valor": 1.95,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Asw/s",
+          "caminho": "aswCalc",
+          "valor": 3.01,
+          "unidade": "cm²/m",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-torcao-ex3-cortante",
+      "titulo": "Viga VS1 19×60, C35 — cortante (exemplo de torção)",
+      "fonte": "BASTOS, P. S. S. Torção em vigas de concreto armado (notas de aula). UNESP – Faculdade de Engenharia de Bauru, 2023. NBR 6118:2023. Exemplo numérico 3, p. 57–82.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto2/Torcao.pdf",
+      "descricao": "Viga VS1 19×60 cm, d = 56 cm, C35, CA-50, VSd = 140,6 kN.",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 140.6,
+          "bw": 19,
+          "d": 56,
+          "c": {
+            "$concreto": 35
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 617.1,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vc0",
+          "caminho": "Vc",
+          "valor": 102.1,
+          "unidade": "kN",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Asw/s mínimo",
+          "caminho": "aswMin",
+          "valor": 2.44,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-15-7",
+      "titulo": "Viga V1 22×40, biapoiada, C25 — estribos",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D.; SANTOS, S. P. Fundamentos do concreto e projeto de edifícios. EESC-USP, 2007. NBR 6118:2003. Exemplo 15.7 (viga V1), p. 15.7–15.15.",
+      "url": "https://arquitetonica.wordpress.com/wp-content/uploads/2011/11/fundamentos-do-concreto-eesc-usp.pdf",
+      "descricao": "Viga biapoiada 22×40 cm, d = 35,9 cm, C25, CA-50, vão de 410 cm, p = 50 kN/m; força cortante a d/2 da face VSd = 123,2 kN.",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 123.2,
+          "bw": 22,
+          "d": 35.9,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 342.7,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Vc",
+          "caminho": "Vc",
+          "valor": 60.8,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Asw/s",
+          "caminho": "aswCalc",
+          "valor": 4.44,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Asw/s mínimo",
+          "caminho": "aswMin",
+          "valor": 2.26,
+          "unidade": "cm²/m",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "lima-torcao-vrd2",
+      "titulo": "Viga 35×50 de marquise, C25 — VRd2",
+      "fonte": "LIMA, J. S.; GUARDA, M. C. C.; PINHEIRO, L. M. Estruturas de concreto – Capítulo 18: Torção. EESC-USP, 2003. Item 7, exemplo (viga V1), p. 18.11.",
+      "url": "https://www.fec.unicamp.br/~almeida/ec802/Vigas/EESC/Torcao.pdf",
+      "descricao": "Viga 35×50 cm, d = 46,37 cm, C25, VSd = 49,13 kN.",
+      "nota": "Modelo de cálculo I (θ = 45°, estribos verticais): VRd2 = 0,27·αv2·fcd·bw·d, Vc = Vc0 = 0,6·fctd·bw·d e ρsw,mín = 0,2·fct,m/fywk, como a fonte.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.dimensionarEstribos",
+      "args": [
+        {
+          "Vd": 49.13,
+          "bw": 35,
+          "d": 46.37,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VRd2",
+          "caminho": "VRd2",
+          "valor": 704.24,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "ufpr-ex6-8-al",
+      "titulo": "Decalagem: d = 50 cm, VSd = 224 kN, Vc = 78,3 kN",
+      "fonte": "UFPR – TC037 Estruturas de Concreto I (Dalledone Machado, C. L.; Marino, M. A.). Capítulo 6: Flexão simples – armadura transversal de viga. Universidade Federal do Paraná, 2016. Exemplo 6.8, p. 6-37/6-38.",
+      "url": "https://estruturas.ufpr.br/wp-content/uploads/2016/03/Capitulo6.pdf",
+      "descricao": "al = d·VSd,máx/[2(VSd,máx − Vc)], entre 0,5d e d.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 50,
+          "Vd": 224,
+          "Vc": 78.3
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "al",
+          "caminho": "",
+          "valor": 38.44,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "bastos-vs1-al-p1",
+      "titulo": "Decalagem no apoio extremo P1 da VS1 (al calculado > d)",
+      "fonte": "BASTOS, P. S. S. Vigas de concreto armado (notas de aula, 2123 – Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 13.10 (VS1), p. 30–33.",
+      "url": "https://assets.lms.toolzz.media/66262031/public/vigas-57df49ac-682d-4c59-8bce-2ec4c3ff4b16.pdf",
+      "descricao": "d = 55 cm, VSd = 105,1 kN, Vc = 80,3 kN: al calculado = 116,5 cm > d → al = d = 55 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 55,
+          "Vd": 105.1,
+          "Vc": 80.3
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "al",
+          "caminho": "",
+          "valor": 55,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "bastos-vs1-al-p2",
+      "titulo": "Decalagem no apoio interno P2 da VS1",
+      "fonte": "BASTOS, P. S. S. Vigas de concreto armado (notas de aula, 2123 – Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, 2015. NBR 6118:2014. Seção 13.10 (VS1), p. 33.",
+      "url": "https://assets.lms.toolzz.media/66262031/public/vigas-57df49ac-682d-4c59-8bce-2ec4c3ff4b16.pdf",
+      "descricao": "d = 55 cm, VSd = 146,9 kN, Vc = 80,3 kN: al calculado = 60,7 cm > d → al = 55 cm.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 55,
+          "Vd": 146.9,
+          "Vc": 80.3
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "al",
+          "caminho": "",
+          "valor": 55,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-15-7-al",
+      "titulo": "Decalagem da viga V1 22×40",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D.; SANTOS, S. P. Fundamentos do concreto e projeto de edifícios. EESC-USP, 2007. NBR 6118:2003. Exemplo 15.7, p. 15.13.",
+      "url": "https://arquitetonica.wordpress.com/wp-content/uploads/2011/11/fundamentos-do-concreto-eesc-usp.pdf",
+      "descricao": "d = 35,9 cm, Vc = 60,8 kN e força cortante na face VSd = 135,8 kN: al ≈ 32 cm.",
+      "nota": "A fonte arredonda al para 32 cm (exato: 32,5 cm); tolerância de 2 %.",
+      "alvo": "motor",
+      "funcao": "detalhamento.decalagem",
+      "args": [
+        {
+          "d": 35.9,
+          "Vd": 135.8,
+          "Vc": 60.8
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "al",
+          "caminho": "",
+          "valor": 32,
+          "unidade": "cm",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-torcao-ex2",
+      "titulo": "Seção vazada equivalente da viga V1 19×40",
+      "fonte": "BASTOS, P. S. S. Torção em vigas de concreto armado (notas de aula). UNESP – Faculdade de Engenharia de Bauru, 2023. NBR 6118:2023. Exemplo numérico 2, p. 44–55.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto2/Torcao.pdf",
+      "descricao": "Viga 19×40 cm (A = 760 cm², u = 118 cm): he = A/u. Como A/u < 2c1 (c1 ≈ 4 cm), vale he = A/u ≤ bw − 2c1.",
+      "nota": "Só a espessura he é conferida: a fonte calcula Ae e ue pela linha dos eixos das barras longitudinais de canto (Ae = (b − 2c1)(h − 2c1)), e o LEBR pela linha média da parede (Ae = (b − he)(h − he), 17.5.1.4.1); por isso Ae, ue e TRd2 diferem.",
+      "alvo": "motor",
+      "funcao": "torcao.secaoVazada",
+      "args": [
+        {
+          "b": 19,
+          "h": 40,
+          "c1": 4.0
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "A",
+          "caminho": "A",
+          "valor": 760,
+          "unidade": "cm²",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "u",
+          "caminho": "u",
+          "valor": 118,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "he",
+          "caminho": "he",
+          "valor": 6.4,
+          "unidade": "cm",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "bastos-torcao-ex3",
+      "titulo": "Seção vazada equivalente da viga VS1 19×60",
+      "fonte": "BASTOS, P. S. S. Torção em vigas de concreto armado (notas de aula). UNESP – Faculdade de Engenharia de Bauru, 2023. NBR 6118:2023. Exemplo numérico 3, p. 57–82.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto2/Torcao.pdf",
+      "descricao": "Viga 19×60 cm (A = 1140 cm², u = 158 cm): he = A/u. Como A/u < 2c1 (c1 ≈ 4 cm), vale he = A/u ≤ bw − 2c1.",
+      "nota": "Só a espessura he é conferida: a fonte calcula Ae e ue pela linha dos eixos das barras longitudinais de canto (Ae = (b − 2c1)(h − 2c1)), e o LEBR pela linha média da parede (Ae = (b − he)(h − he), 17.5.1.4.1); por isso Ae, ue e TRd2 diferem.",
+      "alvo": "motor",
+      "funcao": "torcao.secaoVazada",
+      "args": [
+        {
+          "b": 19,
+          "h": 60,
+          "c1": 4.0
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "A",
+          "caminho": "A",
+          "valor": 1140,
+          "unidade": "cm²",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "u",
+          "caminho": "u",
+          "valor": 158,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "he",
+          "caminho": "he",
+          "valor": 7.2,
+          "unidade": "cm",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-els-estadio2",
+      "titulo": "Estádio II da viga 22×40 com 4 ø 20 (αe = 8,82)",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D. Estruturas de concreto – Capítulo 14: Estados limites de serviço. EESC-USP, 2004. NBR 6118:2003. Item 14.6, exemplo, p. 14.10–14.16.",
+      "url": "https://www.fec.unicamp.br/~almeida/ec702/ELS/14%20ELS.pdf",
+      "descricao": "Viga biapoiada 22×40 cm, d = 35,9 cm, As = 4 ø 20 = 12,60 cm², C25, Ec = 23 800 MPa, αe = 210 000/23 800 = 8,82: linha neutra e inércia no estádio II para a flecha.",
+      "alvo": "motor",
+      "funcao": "fissuracao.estadioII",
+      "args": [
+        {
+          "b": 22,
+          "d": 35.9,
+          "As": 12.6,
+          "ae": 8.82
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "x_II",
+          "caminho": "x",
+          "valor": 14.66,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "I_II",
+          "caminho": "I",
+          "valor": 73240,
+          "unidade": "cm⁴",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-els-estadio2-ae15",
+      "titulo": "Estádio II da viga 22×40 com αe = 15 (fissuração)",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D. Estruturas de concreto – Capítulo 14: Estados limites de serviço. EESC-USP, 2004. NBR 6118:2003. Item 14.6, exemplo, p. 14.14.",
+      "url": "https://www.fec.unicamp.br/~almeida/ec702/ELS/14%20ELS.pdf",
+      "descricao": "Mesma viga, com αe = 15 (17.3.3.2) para a tensão na armadura na abertura de fissuras.",
+      "alvo": "motor",
+      "funcao": "fissuracao.estadioII",
+      "args": [
+        {
+          "b": 22,
+          "d": 35.9,
+          "As": 12.6,
+          "ae": 15
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "x_II",
+          "caminho": "x",
+          "valor": 17.69,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "I_II",
+          "caminho": "I",
+          "valor": 103269,
+          "unidade": "cm⁴",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "pinheiro-els-sigma-s",
+      "titulo": "Tensão na armadura para a fissuração, viga 22×40, Md,freq = 92,5 kN·m",
+      "fonte": "PINHEIRO, L. M.; MUZARDO, C. D. Estruturas de concreto – Capítulo 14: Estados limites de serviço. EESC-USP, 2004. NBR 6118:2003. Item 14.6, exemplo, p. 14.14–14.15.",
+      "url": "https://www.fec.unicamp.br/~almeida/ec702/ELS/14%20ELS.pdf",
+      "descricao": "Momento da combinação frequente 92,5 kN·m, 4 ø 20, αe = 15: σs = αe·M·(d − x)/I_II.",
+      "nota": "Só σs é comparado. A fonte toma Acr = 87,62 cm² por barra; o LEBR monta a região de envolvimento de cada barra (até 7,5ø do eixo, limitada pelas vizinhas), e wk sai 0,16 mm contra 0,19 mm da fonte. O LEBR usa As = 4·π·1² = 12,57 cm² (a fonte, 12,60).",
+      "alvo": "motor",
+      "funcao": "fissuracao.aberturaFissuras",
+      "args": [
+        {
+          "Ms": 92.5,
+          "b": 22,
+          "h": 40,
+          "d": 35.9,
+          "phi": 20,
+          "n": 4,
+          "cob": 2.5,
+          "phiT": 5,
+          "fctm": 2.565
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σs (αe = 15)",
+          "caminho": "sigma",
+          "valor": 244.7,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "chaer-2015-estadio2",
+      "titulo": "Estádio II da viga 20×50 com As = 12,06 cm² (αe = 7,825)",
+      "fonte": "CHAER, A. V. Estudo dirigido – armadura, flecha, vibração e fissuração em vigas. PUC Goiás, 2015. NBR 6118:2014. p. 4/13 a 6/13.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/3922/material/2015_08_31_viga_biapoiada_ELU_ELS.pdf",
+      "descricao": "Viga 20×50 cm com 6 ø 16 (As,ef = 12,064 cm²) em duas camadas, d real = 50 − 6,23 = 43,77 cm, αe = 7,825.",
+      "nota": "A fonte dá I_II = 1,001×10⁻³ m⁴ (100 100 cm⁴).",
+      "alvo": "motor",
+      "funcao": "fissuracao.estadioII",
+      "args": [
+        {
+          "b": 20,
+          "d": 43.77,
+          "As": 12.064,
+          "ae": 7.825
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "x_II",
+          "caminho": "x",
+          "valor": 16.147,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "I_II",
+          "caminho": "I",
+          "valor": 100100,
+          "unidade": "cm⁴",
+          "tolerancia": 0.002
+        }
+      ]
+    }
+  ]
+}

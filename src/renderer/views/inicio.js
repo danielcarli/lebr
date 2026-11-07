@@ -69,11 +69,10 @@ function colunaPrincipal(lista, { abrirCaminho, removerRecente, redesenhar }) {
 
   return h('div', { class: 'inicio-principal' },
     ui.cabecalhoObjeto({
-      rotulo: 'Sistema', numero: 'LEB', simbolo: 'lebr',
-      etiquetas: ['LEBR', 'Estruturas', 'Brasil'],
+      rotulo: 'Sistema', numero: 'LEBR', simbolo: 'lebr',
+      etiquetas: ['Brasil'],
       linha1: 'Laboratório de Estruturas Brasil',
       linha2: 'Concreto armado e madeira · NBR 6118 · NBR 7190',
-      titulo: 'LEBR',
       subtitulo: 'Sistema aberto de cálculo estrutural · projetos em JSON aberto',
     }),
     avisoDesenvolvimento(),

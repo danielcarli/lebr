@@ -1,0 +1,2160 @@
+{
+  "grupo": "Bibliografia — lajes, punção, escadas e reservatórios",
+  "descricao": "Exercícios resolvidos publicados (apostilas de P. S. S. Bastos/UNESP, J. S. Camacho/UNESP, ES-013/EPUSP, J. B. Costa/PUC Goiás e TCCs): momentos negativos, reações e flechas por tabela, VRd1, armadura de lajes, punção, escadas e compatibilização de momentos.",
+  "casos": [
+    {
+      "id": "bastos-laje-l2",
+      "titulo": "Laje L2 586×606 cm, tipo 3 — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L2 do pavimento do exemplo 3.18, tipo 3 da tabela de Bares, lx = 586 cm e ly = 606 cm (λ = 1,03). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 5.86,
+          "ly": 6.06,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.07429999999999999,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0718,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l3",
+      "titulo": "Laje L3 586×656 cm, tipo 3 — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L3 do pavimento do exemplo 3.18, tipo 3 da tabela de Bares, lx = 586 cm e ly = 656 cm (λ = 1,12). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 5.86,
+          "ly": 6.56,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.0787,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0736,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l5",
+      "titulo": "Laje L5 486×486 cm, tipo 6 — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L5 do pavimento do exemplo 3.18, tipo 6 da tabela de Bares, lx = 486 cm e ly = 486 cm (λ = 1,00). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4.86,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.051500000000000004,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.051500000000000004,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l6",
+      "titulo": "Laje L6 256×486 cm, tipo 6 — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L6 do pavimento do exemplo 3.18, tipo 6 da tabela de Bares, lx = 256 cm e ly = 486 cm (λ = 1,90). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 2.56,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.0824,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0572,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l8",
+      "titulo": "Laje L8 286×486 cm, tipo 5A — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L8 do pavimento do exemplo 3.18, tipo 5A da tabela de Bares, lx = 286 cm e ly = 486 cm (λ = 1,70). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 2.86,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.10339999999999999,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.081,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l9",
+      "titulo": "Laje L9 256×286 cm, tipo 5B — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L9 do pavimento do exemplo 3.18, tipo 5B da tabela de Bares, lx = 256 cm e ly = 286 cm (λ = 1,12). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 2.56,
+          "ly": 2.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "apoiada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.0676,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0565,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l10",
+      "titulo": "Laje L10 286×386 cm, tipo 3 — momentos negativos",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L10 do pavimento do exemplo 3.18, tipo 3 da tabela de Bares, lx = 286 cm e ly = 386 cm (λ = 1,35). Momento negativo M = μ'·p·lx²/100.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 2.86,
+          "ly": 3.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.0965,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0788,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l2",
+      "titulo": "Laje L2, tipo 3 — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L2, 586×606 cm, tipo 3: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 5.86,
+          "ly": 6.06,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x0 (ν' = 3,32)",
+          "caminho": "area.x0",
+          "valor": 11.7899,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y0 (ν' = 3,17)",
+          "caminho": "area.y0",
+          "valor": 10.8857,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l5",
+      "titulo": "Laje L5, tipo 6 — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L5, 486×486 cm, tipo 6: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 4.86,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x0 (ν' = 2,5)",
+          "caminho": "area.x0",
+          "valor": 5.9049,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y0 (ν' = 2,5)",
+          "caminho": "area.y0",
+          "valor": 5.9049,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l6",
+      "titulo": "Laje L6, tipo 6 — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L6, 256×486 cm, tipo 6: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 2.56,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x0 (ν' = 3,68)",
+          "caminho": "area.x0",
+          "valor": 4.5785,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y0 (ν' = 2,5)",
+          "caminho": "area.y0",
+          "valor": 1.6384,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l8",
+      "titulo": "Laje L8, tipo 5A — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L8, 286×486 cm, tipo 5A: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 2.86,
+          "ly": 4.86,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x1 (ν' = 3,98)",
+          "caminho": "area.x1",
+          "valor": 5.532,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y0 (ν' = 3,17)",
+          "caminho": "area.y0",
+          "valor": 2.5929,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l9",
+      "titulo": "Laje L9, tipo 5B — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L9, 256×286 cm, tipo 5B: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 2.56,
+          "ly": 2.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "apoiada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x0 (ν' = 3,21)",
+          "caminho": "area.x0",
+          "valor": 2.3502,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y1 (ν' = 2,5)",
+          "caminho": "area.y1",
+          "valor": 1.6384,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-reac-l10",
+      "titulo": "Laje L10, tipo 3 — reações nas bordas engastadas (processo das áreas)",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, Tabelas 16 a 18.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L10, 286×386 cm, tipo 3: coeficientes de reação ν' das bordas engastadas (V = ν'·p·lx/10).",
+      "nota": "Compara-se a área de influência das bordas engastadas (processo das áreas, 14.7.6.1): área = ν'·lx·l/10, onde l é o comprimento da borda. Nas bordas apoiadas vizinhas de bordas engastadas os coeficientes publicados (por exemplo νy = 2,17 no tipo 3) não fecham o equilíbrio da laje e não são comparados.",
+      "alvo": "motor",
+      "funcao": "placa.areasDeInfluencia",
+      "args": [
+        {
+          "lx": 2.86,
+          "ly": 3.86,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Área da borda x0 (ν' = 3,99)",
+          "caminho": "area.x0",
+          "valor": 4.4048,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Área da borda y0 (ν' = 3,17)",
+          "caminho": "area.y0",
+          "valor": 2.5929,
+          "unidade": "m²",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "faria-ex2",
+      "titulo": "Laje 6×6 m apoiada nas quatro bordas (Czerny)",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.2 (Exemplo 2).",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "Laje tipo 1 de 6×6 m, h = 15 cm, C25: αx = αy = 22,7 (m = p·lx²/α).",
+      "nota": "Tabelas de Czerny com ν = 0,2; o LEBR calcula a placa por elementos finitos com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 6,
+          "ly": 6,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "1/αx (Czerny)",
+          "caminho": "coef.mxPos",
+          "valor": 0.04405286343612335,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "1/αy (Czerny)",
+          "caminho": "coef.myPos",
+          "valor": 0.04405286343612335,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "faria-ex3",
+      "titulo": "Laje 6×9 m apoiada nas quatro bordas (Czerny)",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.3 (Exemplo 3).",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "Laje tipo 1 de 6×9 m, h = 15 cm, C25: αx = 12,7 e αy = 23,5.",
+      "nota": "Tabelas de Czerny com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 6,
+          "ly": 9,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "1/αx (Czerny)",
+          "caminho": "coef.mxPos",
+          "valor": 0.07874015748031496,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "1/αy (Czerny)",
+          "caminho": "coef.myPos",
+          "valor": 0.0425531914893617,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "faria-ex1",
+      "titulo": "Laje 5×6,5 m com a borda maior engastada (Czerny 2B)",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.1 (Exemplo 1).",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "Laje tipo 2B de Czerny (três bordas apoiadas e uma das bordas maiores engastada), 5,0×6,5 m, h = 10 cm: αy = 35,4 e βx = 9,7.",
+      "nota": "O positivo na direção x (αx = 20,7) corresponde a ν = 0 e não é comparado (o LEBR dá 1/19,2 com ν = 0,2).",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 5,
+          "ly": 6.5,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "1/βx (negativo)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.10309278350515465,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "1/αy",
+          "caminho": "coef.myPos",
+          "valor": 0.02824858757062147,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rodrigues-ex1",
+      "titulo": "Laje 7×7 m apoiada (Bares caso 1) — momentos e flecha",
+      "fonte": "RODRIGUES, C. B. Estudo de flechas em lajes maciças de concreto armado (TCC). Universidade Federal do Ceará, 2020. Exemplo 1 (L1).",
+      "url": "https://repositorio.ufc.br/bitstream/riufc/60437/3/2020_tcc_cbrodrigues.pdf",
+      "descricao": "Laje isolada 7×7 m, h = 12 cm, C20, apoiada nas quatro bordas: μx = μy = 4,41 e α = 4,67 (Bares).",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 7,
+          "ly": 7,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μx/100",
+          "caminho": "coef.mxPos",
+          "valor": 0.0441,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.004053819444444444,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rodrigues-ex2",
+      "titulo": "Laje 7×8 m apoiada (Bares caso 1) — momentos e flecha",
+      "fonte": "RODRIGUES, C. B. Estudo de flechas em lajes maciças de concreto armado (TCC). Universidade Federal do Ceará, 2020. Exemplo 2 (L2).",
+      "url": "https://repositorio.ufc.br/bitstream/riufc/60437/3/2020_tcc_cbrodrigues.pdf",
+      "descricao": "Laje isolada 7×8 m, h = 12 cm, C20: μx = 5,56, μy = 4,49 e α = 6,09 (Bares, λ = 1,15).",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2. A fonte lê a tabela em λ = 1,15 (a laje tem 8/7 = 1,143); tolerância de 2 % na flecha.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 7,
+          "ly": 8,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μx/100",
+          "caminho": "coef.mxPos",
+          "valor": 0.0556,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "μy/100",
+          "caminho": "coef.myPos",
+          "valor": 0.0449,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.005286458333333333,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "rodrigues-ex3-l3",
+      "titulo": "Laje 7×9 m com duas bordas adjacentes engastadas — momentos negativos",
+      "fonte": "RODRIGUES, C. B. Estudo de flechas em lajes maciças de concreto armado (TCC). Universidade Federal do Ceará, 2020. Exemplo 3 (L3/L4).",
+      "url": "https://repositorio.ufc.br/bitstream/riufc/60437/3/2020_tcc_cbrodrigues.pdf",
+      "descricao": "Pavimento de 4 lajes contínuas; L3 de 7×9 m com as bordas internas engastadas e as externas apoiadas: μ'x = 9,37 e μ'y = 7,81.",
+      "nota": "Compara-se só o momento negativo nas bordas engastadas, que não depende do coeficiente de Poisson. Os momentos positivos das tabelas de Bares usadas pela fonte correspondem a um ν menor que o 0,2 do LEBR (elementos finitos de placa) e ficam até 15 % abaixo; não são comparados. Tolerância de 3 % pela interpolação das tabelas. A fonte lê a tabela em λ = 1,30 (a laje tem 9/7 = 1,286).",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 7,
+          "ly": 9,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "μ'x/100 (m'x = μ'x·p·lx²/100)",
+          "caminho": "coef.mxNeg",
+          "valor": -0.09369999999999999,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        },
+        {
+          "grandeza": "μ'y/100 (m'y = μ'y·p·lx²/100)",
+          "caminho": "coef.myNeg",
+          "valor": -0.0781,
+          "unidade": "·p·lx²",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "reggiani-6x6",
+      "titulo": "Laje 6×6 m apoiada — coeficiente de flecha de Bares",
+      "fonte": "REGGIANI, R. F. P. Verificação de lajes de concreto armado no estado limite de serviço de deformação excessiva (TCC). UFSC, 2016. Seção 7.1.",
+      "url": "https://core.ac.uk/download/43284979.pdf",
+      "descricao": "Laje 6×6 m simplesmente apoiada nas quatro bordas, h = 15 cm, C25: α = 4,67 (Bares) para a flecha elástica.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 6,
+          "ly": 6,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.004053819444444444,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "reggiani-6x9",
+      "titulo": "Laje 6×9 m apoiada — coeficiente de flecha de Bares",
+      "fonte": "REGGIANI, R. F. P. Verificação de lajes de concreto armado no estado limite de serviço de deformação excessiva (TCC). UFSC, 2016. Seção 7.2.",
+      "url": "https://core.ac.uk/download/43284979.pdf",
+      "descricao": "Laje 6×9 m simplesmente apoiada nas quatro bordas, h = 15 cm, C25: α = 8,87 (Bares) para a flecha elástica.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 6,
+          "ly": 9,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.0076996527777777775,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "reggiani-6x12",
+      "titulo": "Laje 6×12 m apoiada — coeficiente de flecha de Bares",
+      "fonte": "REGGIANI, R. F. P. Verificação de lajes de concreto armado no estado limite de serviço de deformação excessiva (TCC). UFSC, 2016. Seção 7.3.",
+      "url": "https://core.ac.uk/download/43284979.pdf",
+      "descricao": "Laje 6×12 m simplesmente apoiada nas quatro bordas, h = 15 cm, C25: α = 11,68 (Bares) para a flecha elástica.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 6,
+          "ly": 12,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "apoiada",
+            "y0": "apoiada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.010138888888888888,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "leite-caso3",
+      "titulo": "Laje 4×6 m, caso 3 de Bares — coeficiente de flecha",
+      "fonte": "LEITE, K. Análise de lajes maciças de concreto armado utilizando analogia de grelhas (TCC). UTFPR – Toledo, 2017. Seções 3.1 e 4.2.1.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/15782/1/lajesmacicasconcretoarmado.pdf",
+      "descricao": "Laje 4×6 m (λ = 1,5), h = 8 cm, caso 3: α = 4,46 para a flecha imediata.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2. Tolerância de 3,5 %: a fonte usa o α da tabela, arredondado e com ν da tabela.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 6,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.0038715277777777776,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.035
+        }
+      ]
+    },
+    {
+      "id": "leite-caso5a",
+      "titulo": "Laje 4×6 m, caso 5A de Bares — coeficiente de flecha",
+      "fonte": "LEITE, K. Análise de lajes maciças de concreto armado utilizando analogia de grelhas (TCC). UTFPR – Toledo, 2017. Seções 3.1 e 4.2.1.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/15782/1/lajesmacicasconcretoarmado.pdf",
+      "descricao": "Laje 4×6 m (λ = 1,5), h = 8 cm, caso 5A: α = 3,98 para a flecha imediata.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2. Tolerância de 3,5 %: a fonte usa o α da tabela, arredondado e com ν da tabela.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 6,
+          "bordas": {
+            "x0": "apoiada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.0034548611111111112,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.035
+        }
+      ]
+    },
+    {
+      "id": "leite-caso6",
+      "titulo": "Laje 4×6 m, caso 6 de Bares — coeficiente de flecha",
+      "fonte": "LEITE, K. Análise de lajes maciças de concreto armado utilizando analogia de grelhas (TCC). UTFPR – Toledo, 2017. Seções 3.1 e 4.2.1.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/15782/1/lajesmacicasconcretoarmado.pdf",
+      "descricao": "Laje 4×6 m (λ = 1,5), h = 8 cm, caso 6: α = 2,56 para a flecha imediata.",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2. Tolerância de 3,5 %: a fonte usa o α da tabela, arredondado e com ν da tabela.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 4,
+          "ly": 6,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "engastada",
+            "y0": "engastada",
+            "y1": "engastada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.0022222222222222222,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.035
+        }
+      ]
+    },
+    {
+      "id": "bastos-laje-l2-flecha",
+      "titulo": "Laje L2 586×606, tipo 3 — coeficiente de flecha",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, item 3.18.6.1.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Laje L2, tipo 3: α = 2,72 da Tabela A-1 (lida em λ = 1,05).",
+      "nota": "α da tabela de Bares para a flecha elástica a = α·p·lx⁴/(100·E·h³); no LEBR, α = 1152·w/(p·lx⁴/D) com ν = 0,2.",
+      "alvo": "motor",
+      "funcao": "placa.analisarPlaca",
+      "args": [
+        {
+          "lx": 5.86,
+          "ly": 6.06,
+          "bordas": {
+            "x0": "engastada",
+            "x1": "apoiada",
+            "y0": "engastada",
+            "y1": "apoiada"
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "α/1152 (flecha)",
+          "caminho": "coef.w",
+          "valor": 0.002361111111111111,
+          "unidade": "·p·lx⁴/D",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-l1-vrd1",
+      "titulo": "Laje L1 em balanço, h = 11 cm — VRd1",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, laje L1, item 3.18.7.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "d = 9 cm, armadura ø 8 c/8 (6,25 cm²/m), C25.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 9,
+          "As1": 6.25,
+          "c": {
+            "$concreto": 25
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.51,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 64.3,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "bastos-l4-vrd1",
+      "titulo": "Laje L4 armada em uma direção, h = 9 cm — VRd1",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, laje L4, item 3.18.7.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "d = 6,5 cm, ø 5 c/9 (2,22 cm²/m), C25.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 6.5,
+          "As1": 2.22,
+          "c": {
+            "$concreto": 25
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.535,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 42.7,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "camacho-l1-vrd1",
+      "titulo": "Laje em balanço L1, d = 11,5 cm, C20 — VRd1",
+      "fonte": "CAMACHO, J. S. Curso de concreto armado (NBR 6118/2003): estudo das lajes. UNESP – Ilha Solteira (NEPAE), 2004. Exercício 9.1, p. 48.",
+      "url": "https://www.feis.unesp.br/Home/departamentos/engenhariacivil/nepae/estudo-das-lajes.pdf",
+      "descricao": "h = 13,5 cm, d = 11,5 cm, As = 2,35 cm²/m, C20, VSd = 15,55 kN/m.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 11.5,
+          "As1": 2.35,
+          "c": {
+            "$concreto": 20
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.485,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 60.43,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "bosco-escada-vrd1",
+      "titulo": "Escada armada longitudinalmente, d = 8 cm — VRd1",
+      "fonte": "COSTA, J. B. Estruturas de concreto armado II (apostila), cap. VI – Escadas. PUC Goiás, 2016. NBR 6118:2014. Cap. VI, p. VI-13.",
+      "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14280/material/Apostila%20de%20CA%20II%20-%20JBC.pdf",
+      "descricao": "h = 10 cm, d = 8 cm, ø 10 c/10 (8,00 cm²/m), C25.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura. A fonte usa k = 1,515 (d = 8,5 cm em algum passo); tolerância de 1 %.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 8,
+          "As1": 8.0,
+          "c": {
+            "$concreto": 25
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.52,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 62.05,
+          "unidade": "kN/m",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "ifpb-l1-vrd1",
+      "titulo": "Laje L1, d = 5,1 cm, C30 — VRd1",
+      "fonte": "ALMEIDA, J. E. D. Análise quantitativa entre dimensionamentos manual e computacional de lajes maciças (TCC). IFPB – Cajazeiras, 2021. Apêndice, tabela de cisalhamento.",
+      "url": "https://repositorio.ifpb.edu.br/bitstream/177683/1339/1/TCC%20-%20Jos%c3%a9%20Erick%20Duarte%20Almeida.pdf",
+      "descricao": "d = 5,1 cm, ρ1 = 0,0065, C30.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 5.1,
+          "As1": 3.315,
+          "c": {
+            "$concreto": 30
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.549,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 41.78,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "ifpb-l4-vrd1",
+      "titulo": "Laje L4, d = 8,1 cm, C30 — VRd1",
+      "fonte": "ALMEIDA, J. E. D. Análise quantitativa entre dimensionamentos manual e computacional de lajes maciças (TCC). IFPB – Cajazeiras, 2021. Apêndice, tabela de cisalhamento.",
+      "url": "https://repositorio.ifpb.edu.br/bitstream/177683/1339/1/TCC%20-%20Jos%c3%a9%20Erick%20Duarte%20Almeida.pdf",
+      "descricao": "d = 8,1 cm, ρ1 = 0,0035, C30.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 8.1,
+          "As1": 2.835,
+          "c": {
+            "$concreto": 30
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.519,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 59.61,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "ifpb-l11-vrd1",
+      "titulo": "Laje L11, d = 8,1 cm, C30 — VRd1",
+      "fonte": "ALMEIDA, J. E. D. Análise quantitativa entre dimensionamentos manual e computacional de lajes maciças (TCC). IFPB – Cajazeiras, 2021. Apêndice, tabela de cisalhamento.",
+      "url": "https://repositorio.ifpb.edu.br/bitstream/177683/1339/1/TCC%20-%20Jos%c3%a9%20Erick%20Duarte%20Almeida.pdf",
+      "descricao": "d = 8,1 cm, ρ1 = 0,0041, C30.",
+      "nota": "VRd1 = τRd·k·(1,2 + 40ρ1)·bw·d com τRd = 0,25·fctd, k = 1,6 − d (d em m) e σcp = 0 (19.4.1), por metro de largura.",
+      "alvo": "motor",
+      "funcao": "cisalhamento.verificarCortanteLaje",
+      "args": [
+        {
+          "Vd": 10,
+          "d": 8.1,
+          "As1": 3.321,
+          "c": {
+            "$concreto": 30
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "k",
+          "caminho": "k",
+          "valor": 1.519,
+          "unidade": "",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "VRd1",
+          "caminho": "VRd1",
+          "valor": 60.8,
+          "unidade": "kN/m",
+          "tolerancia": 0.004
+        }
+      ]
+    },
+    {
+      "id": "bastos-l2-negativa",
+      "titulo": "Laje L2, borda L2-L3: M = 1447 kN·cm/m, d = 10 cm",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, item 3.18.6.1.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Mk = 1447 kN·cm/m (Md = 20,26 kN·m/m), h = 12 cm, d = 10 cm, C25: Kc = 4,9, Ks = 0,025.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima. A fonte usa as tabelas de Kc e Ks, com Ks de três casas decimais; tolerância de 2 %.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 20.258,
+          "b": 100,
+          "h": 12,
+          "d": 10,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 5.07,
+          "unidade": "cm²/m",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "bastos-l3-negativa",
+      "titulo": "Laje L3, borda L3-L2: M = 1663 kN·cm/m, d = 11 cm",
+      "fonte": "BASTOS, P. S. S. Lajes de concreto (notas de aula, Estruturas de Concreto I). UNESP – Faculdade de Engenharia de Bauru, agosto de 2015 (cópia hospedada na PUC Goiás). NBR 6118:2014. Exemplo 3.18, laje L3.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/Lajes%20de%20Concreto%20Armado.pdf",
+      "descricao": "Mk = 1663 kN·cm/m (Md = 23,28 kN·m/m), h = 13 cm, d = 11 cm, C25: Kc = 5,2, Ks = 0,025.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima. A fonte usa as tabelas de Kc e Ks, com Ks de três casas decimais; tolerância de 2 %.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 23.282,
+          "b": 100,
+          "h": 13,
+          "d": 11,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 5.3,
+          "unidade": "cm²/m",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "faria-ex1-x",
+      "titulo": "Laje 5×6,5 m: mx,d = 11,55 kN·m/m, dx = 7,5 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.1.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 10 cm, dx = 7,5 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 11.55,
+          "b": 100,
+          "h": 10,
+          "d": 7.5,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 3.83,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "faria-ex1-y",
+      "titulo": "Laje 5×6,5 m: my,d = 6,75 kN·m/m, dy = 6,6 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.1.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 10 cm, dy = 6,6 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 6.75,
+          "b": 100,
+          "h": 10,
+          "d": 6.6,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 2.49,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "faria-ex2-x",
+      "titulo": "Laje 6×6 m: mx,d = 14,99 kN·m/m, dx = 12,1 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.2.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 15 cm, dx = 12,1 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 14.99,
+          "b": 100,
+          "h": 15,
+          "d": 12.1,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 2.96,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "faria-ex2-y",
+      "titulo": "Laje 6×6 m: my,d = 14,99 kN·m/m, dy = 11,3 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.2.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 15 cm, dy = 11,3 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 14.99,
+          "b": 100,
+          "h": 15,
+          "d": 11.3,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 3.18,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "faria-ex3-x",
+      "titulo": "Laje 6×9 m: mx,d = 26,79 kN·m/m, dx = 12 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.3.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 15 cm, dx = 12 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 26.79,
+          "b": 100,
+          "h": 15,
+          "d": 12,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 5.5,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "faria-ex3-y",
+      "titulo": "Laje 6×9 m: my,d = 14,48 kN·m/m, dy = 11,1 cm",
+      "fonte": "FARIA, A. T. Software para verificação dos estados limites de serviço de lajes maciças de concreto armado (TCC). UTFPR – Campo Mourão, 2019. NBR 6118:2014. Seção 7.3.",
+      "url": "https://repositorio.utfpr.edu.br/jspui/bitstream/1/25132/3/softwarelajesconcretoarmado.pdf",
+      "descricao": "h = 15 cm, dy = 11,1 cm, C25, CA-50.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 14.48,
+          "b": 100,
+          "h": 15,
+          "d": 11.1,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 3.13,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "rodrigues-ex1-as",
+      "titulo": "Laje 7×7 m: Mxd = 22,69 kN·m/m, d = 9,5 cm, C20",
+      "fonte": "RODRIGUES, C. B. Estudo de flechas em lajes maciças de concreto armado (TCC). Universidade Federal do Ceará, 2020. Exemplo 1 (L1).",
+      "url": "https://repositorio.ufc.br/bitstream/riufc/60437/3/2020_tcc_cbrodrigues.pdf",
+      "descricao": "h = 12 cm, d = 9,5 cm, C20, CA-50: x = 2,785 cm.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 22.69,
+          "b": 100,
+          "h": 12,
+          "d": 9.5,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 6.22,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "rodrigues-ex2-as",
+      "titulo": "Laje 7×8 m: Mdx = 28,61 kN·m/m, d = 9,5 cm, C20",
+      "fonte": "RODRIGUES, C. B. Estudo de flechas em lajes maciças de concreto armado (TCC). Universidade Federal do Ceará, 2020. Exemplo 2 (L2).",
+      "url": "https://repositorio.ufc.br/bitstream/riufc/60437/3/2020_tcc_cbrodrigues.pdf",
+      "descricao": "h = 12 cm, d = 9,5 cm, C20, CA-50: x = 3,665 cm.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 28.61,
+          "b": 100,
+          "h": 12,
+          "d": 9.5,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 8.19,
+          "unidade": "cm²/m",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "bosco-escada-as",
+      "titulo": "Escada: Md = 22,97 kN·m/m, d = 8 cm, C25",
+      "fonte": "COSTA, J. B. Estruturas de concreto armado II (apostila), cap. VI – Escadas. PUC Goiás, 2016. NBR 6118:2014. Cap. VI, p. VI-11.",
+      "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14280/material/Apostila%20de%20CA%20II%20-%20JBC.pdf",
+      "descricao": "Escada biapoiada com vão horizontal de 3,82 m, h = 10 cm, d = 8 cm, C25, CA-50: Kc = 2,78, Ks = 0,027.",
+      "nota": "Faixa de 1 m (b = 100 cm), diagrama retangular simplificado; compara-se a armadura calculada, antes da mínima. A fonte usa as tabelas de Kc e Ks, com Ks de três casas decimais; tolerância de 2 %.",
+      "alvo": "motor",
+      "funcao": "flexao.dimensionarFlexao",
+      "args": [
+        {
+          "Md": 22.97,
+          "b": 100,
+          "h": 10,
+          "d": 8,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "As",
+          "caminho": "AsCalc",
+          "valor": 7.75,
+          "unidade": "cm²/m",
+          "tolerancia": 0.02
+        }
+      ]
+    },
+    {
+      "id": "camacho-puncao-ex1",
+      "titulo": "Pilar interno 20×20, laje lisa h = 15 cm, FSd = 113,4 kN",
+      "fonte": "CAMACHO, J. S. Curso de concreto armado (NBR 6118/2003): estudo das lajes. UNESP – Ilha Solteira (NEPAE), 2004. Exercício 9.2, Exemplo 1, p. 51–52.",
+      "url": "https://www.feis.unesp.br/Home/departamentos/engenhariacivil/nepae/estudo-das-lajes.pdf",
+      "descricao": "Laje lisa h = 15 cm, d = 12 cm, pilar P3 20×20 cm com carga centrada (calculado como interno), C20, Fk = 81 kN (FSd = 113,4 kN), ρ = 0,0033.",
+      "nota": "O τRd1 não é comparado: a fonte usa k = 1 + √(20/d) sem limite (2,29; τRd1 = 0,56 MPa contra 0,49 MPa no LEBR), e o LEBR limita k a 2. Perímetros, tensões solicitantes sem momento e τRd2 = 0,27·αv2·fcd seguem a mesma formulação. A fonte usa π = 3,14 no perímetro.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 113.4,
+          "posicao": "interna",
+          "c1": 20,
+          "c2": 20,
+          "d": 12,
+          "h": 15,
+          "rho": 0.0033,
+          "c": {
+            "$concreto": 20
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u (contorno C)",
+          "caminho": "C.u",
+          "valor": 80,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd no contorno C",
+          "caminho": "C.tauSd",
+          "valor": 1.18,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "τRd2",
+          "caminho": "tauRd2",
+          "valor": 3.55,
+          "unidade": "MPa",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "u (contorno C')",
+          "caminho": "C1.u",
+          "valor": 230.72,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd no contorno C'",
+          "caminho": "C1.tauSd",
+          "valor": 0.41,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "assuncao-puncao-interno",
+      "titulo": "Pilar interno 20×30, laje h = 16 cm, C30 — contornos e τRd2",
+      "fonte": "ASSUNÇÃO, L. S. Análise comparativa entre as prescrições de cálculo nas principais normas para punção em lajes cogumelo (monografia de especialização). UFMG, 2022. NBR 6118:2014. Cap. 4, pilar interno pela NBR 6118.",
+      "url": "https://repositorio.ufmg.br/bitstream/1843/45313/3/Monografia_Especializa%c3%a7%c3%a3oEstruturas.pdf",
+      "descricao": "Laje cogumelo h = 16 cm, d ≈ 13 cm, pilar interno 20×30 cm, C30, ρ = 6,540×10⁻³, FSd = 280 kN com momentos nas duas direções.",
+      "nota": "As tensões solicitantes não são comparadas: a fonte soma os momentos das duas direções e o LEBR considera o momento num só plano. O τRd1 não é comparado: a fonte usa k = 1 + √(20/d) sem limite (2,24; τRd1 = 0,786 MPa contra 0,701 MPa no LEBR), e o LEBR limita k a 2. Perímetros, tensões solicitantes sem momento e τRd2 = 0,27·αv2·fcd seguem a mesma formulação.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 280,
+          "posicao": "interna",
+          "c1": 20,
+          "c2": 30,
+          "d": 13,
+          "h": 16,
+          "rho": 0.00654,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u0 (contorno C)",
+          "caminho": "C.u",
+          "valor": 100,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "u1 (contorno C')",
+          "caminho": "C1.u",
+          "valor": 263.36,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τRd2",
+          "caminho": "tauRd2",
+          "valor": 5.09,
+          "unidade": "MPa",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "assuncao-puncao-borda",
+      "titulo": "Pilar de borda 30×20, laje h = 16 cm — perímetros reduzidos",
+      "fonte": "ASSUNÇÃO, L. S. Análise comparativa entre as prescrições de cálculo nas principais normas para punção em lajes cogumelo (monografia de especialização). UFMG, 2022. NBR 6118:2014. Cap. 4, pilar de borda pela NBR 6118.",
+      "url": "https://repositorio.ufmg.br/bitstream/1843/45313/3/Monografia_Especializa%c3%a7%c3%a3oEstruturas.pdf",
+      "descricao": "Mesma laje, pilar de borda com c1 = 30 cm (perpendicular à borda) e c2 = 20 cm: a = min(1,5d; c1/2) = 15 cm.",
+      "nota": "Só os perímetros reduzidos são comparados: as tensões da fonte incluem o momento, que o LEBR não considera em pilares de borda.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 204.96,
+          "posicao": "borda",
+          "c1": 30,
+          "c2": 20,
+          "d": 13,
+          "h": 16,
+          "rho": 0.00654,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u* (contorno C)",
+          "caminho": "C.u",
+          "valor": 50,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "u* (contorno C')",
+          "caminho": "C1.u",
+          "valor": 131.68,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "assuncao-puncao-canto",
+      "titulo": "Pilar de canto 20×30, laje h = 16 cm, FSd = 105 kN",
+      "fonte": "ASSUNÇÃO, L. S. Análise comparativa entre as prescrições de cálculo nas principais normas para punção em lajes cogumelo (monografia de especialização). UFMG, 2022. NBR 6118:2014. Cap. 4, pilar de canto pela NBR 6118.",
+      "url": "https://repositorio.ufmg.br/bitstream/1843/45313/3/Monografia_Especializa%c3%a7%c3%a3oEstruturas.pdf",
+      "descricao": "Mesma laje, pilar de canto 20 (x) × 30 (y) cm, FSd = 105 kN.",
+      "nota": "Em C' a tensão da fonte (0,123 kN/cm²) é FSd/(u*·d), sem parcela de momento. O τRd1 não é comparado: a fonte usa k = 1 + √(20/d) sem limite (2,24), e o LEBR limita k a 2. Perímetros, tensões solicitantes sem momento e τRd2 = 0,27·αv2·fcd seguem a mesma formulação.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 105,
+          "posicao": "canto",
+          "c1": 20,
+          "c2": 30,
+          "d": 13,
+          "h": 16,
+          "rho": 0.00654,
+          "c": {
+            "$concreto": 30
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u* (contorno C')",
+          "caminho": "C1.u",
+          "valor": 65.84,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd no contorno C'",
+          "caminho": "C1.tauSd",
+          "valor": 1.23,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "weder-puncao-p5",
+      "titulo": "Pilar interno 40×40, laje lisa h = 22 cm, FSd = 806,4 kN",
+      "fonte": "PINTO, W. L. Comparativo de laje maciça, nervurada e lisa maciça (trabalho de especialização). UFMG, 2015. NBR 6118:2003. Seção de punção, pilar P5.",
+      "url": "https://repositorio.ufmg.br/bitstream/1843/RAOA-BD9H2K/1/tfe_weder.pdf",
+      "descricao": "Laje lisa h = 22 cm, d = 18,5 cm, pilar interno P5 40×40 cm com carga centrada FSd = 806,4 kN, C25.",
+      "nota": "A taxa ρ não é informada na fonte (o caso usa 0,5 %, que só afeta τRd1, não comparado). Os rótulos das tensões em C' foram identificados por recálculo: 806,4/(392,5·18,5) = 1,11 MPa.",
+      "alvo": "motor",
+      "funcao": "puncao.verificarPuncao",
+      "args": [
+        {
+          "FSd": 806.4,
+          "posicao": "interna",
+          "c1": 40,
+          "c2": 40,
+          "d": 18.5,
+          "h": 22,
+          "rho": 0.005,
+          "c": {
+            "$concreto": 25
+          },
+          "s": {
+            "$aco": 500
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "u0",
+          "caminho": "C.u",
+          "valor": 160,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τRd2",
+          "caminho": "tauRd2",
+          "valor": 4.34,
+          "unidade": "MPa",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "u (C', 2d)",
+          "caminho": "C1.u",
+          "valor": 392.5,
+          "unidade": "cm",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "τSd em C'",
+          "caminho": "C1.tauSd",
+          "valor": 1.11,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "oliveira-escada-cargas",
+      "titulo": "Escada com espelho 17,5 cm e piso 30 cm, h = 12 cm — espessura média e cargas",
+      "fonte": "OLIVEIRA, I. V. Métodos de dimensionamento de uma escada autoportante (TCC). Universidade Federal de Uberlândia, 2023. Seção 3, p. 23–29, Eqs. 3 a 11.",
+      "url": "https://repositorio.ufu.br/bitstream/123456789/37121/1/M%c3%a9todosDimensionamentoEscada.pdf",
+      "descricao": "Escada com espelho 17,5 cm, passo 30 cm, h = 12 cm, revestimento 1,0 kN/m², q = 3,0 kN/m², concreto 25 kN/m³. h1 = h/cos α, hm = h1 + e/2.",
+      "alvo": "motor",
+      "funcao": "escada.cargasEscada",
+      "args": [
+        {
+          "h": 12,
+          "e": 17.5,
+          "p": 30,
+          "revestimento": 1.0,
+          "q": 3.0
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "hm",
+          "caminho": "lance.hm",
+          "valor": 22.64,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Peso próprio do lance",
+          "caminho": "lance.pp",
+          "valor": 5.66,
+          "unidade": "kN/m²",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "g do lance (pp + revestimento)",
+          "caminho": "lance.g",
+          "valor": 6.66,
+          "unidade": "kN/m²",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Peso próprio do patamar",
+          "caminho": "patamar.pp",
+          "valor": 3.0,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "bosco-escada-cargas",
+      "titulo": "Escada com h = 10 cm, espelho 17 cm e piso 30 cm — espessura média",
+      "fonte": "COSTA, J. B. Estruturas de concreto armado II (apostila), cap. VI – Escadas. PUC Goiás, 2016. NBR 6118:2014. Cap. VI, p. VI-7 a VI-9.",
+      "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14280/material/Apostila%20de%20CA%20II%20-%20JBC.pdf",
+      "descricao": "Escada biapoiada, h = 10 cm, revestimento 1,5 kN/m², q = 3,0 kN/m²: hm = 20 cm, peso próprio do lance 5,0 kN/m² e do patamar 2,5 kN/m².",
+      "nota": "Espelho e piso estão pouco legíveis no texto extraído (17/30 cm); são os valores que reproduzem hm = 20 cm.",
+      "alvo": "motor",
+      "funcao": "escada.cargasEscada",
+      "args": [
+        {
+          "h": 10,
+          "e": 17,
+          "p": 30,
+          "revestimento": 1.5,
+          "q": 3.0
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "hm",
+          "caminho": "lance.hm",
+          "valor": 20,
+          "unidade": "cm",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Peso próprio do lance",
+          "caminho": "lance.pp",
+          "valor": 5.0,
+          "unidade": "kN/m²",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Peso próprio do patamar",
+          "caminho": "patamar.pp",
+          "valor": 2.5,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "bosco-escada-esforcos",
+      "titulo": "Escada biapoiada patamar–lance–patamar, vão de 3,82 m — reações e momento máximo",
+      "fonte": "COSTA, J. B. Estruturas de concreto armado II (apostila), cap. VI – Escadas. PUC Goiás, 2016. NBR 6118:2014. Cap. VI, p. VI-9 a VI-11.",
+      "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14280/material/Apostila%20de%20CA%20II%20-%20JBC.pdf",
+      "descricao": "Vão horizontal de 3,82 m: patamares de 0,86 m com 7,0 kN/m e lance de 2,10 m com 9,5 kN/m (cargas por metro de largura). VA = VB = 16 kN/m e Mk,máx = 16,41 kN·m/m em x = 1,91 m.",
+      "nota": "A extração da fonte traz a geometria de forma incoerente (2,96 m e 2,1 m); a disposição simétrica 0,86 + 2,10 + 0,86 m é a que reproduz as reações e o momento publicados.",
+      "alvo": "motor",
+      "funcao": "escada.tramoBiapoiado",
+      "args": [
+        {
+          "trechos": [
+            {
+              "a": 0,
+              "b": 0.86,
+              "w": 7.0
+            },
+            {
+              "a": 0.86,
+              "b": 2.96,
+              "w": 9.5
+            },
+            {
+              "a": 2.96,
+              "b": 3.82,
+              "w": 7.0
+            }
+          ],
+          "L": 3.82
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "VA",
+          "caminho": "RA",
+          "valor": 16.0,
+          "unidade": "kN/m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "VB",
+          "caminho": "RB",
+          "valor": 16.0,
+          "unidade": "kN/m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Mk,máx",
+          "caminho": "Mmax",
+          "valor": 16.41,
+          "unidade": "kN·m/m",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Posição do máximo",
+          "caminho": "xM",
+          "valor": 1.91,
+          "unidade": "m",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "bassanezi-parede12-fundo",
+      "titulo": "Reservatório: parede 01/02 × fundo (9,285 e 15,264 kN·m/m)",
+      "fonte": "BASSANEZI, D. Dimensionamento de reservatórios elevados paralelepipédicos em concreto armado (TCC). UTFPR – Toledo, 2018. Tabelas 9 a 12.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/15762/1/dimensionamentoreservatorioselevadosconcretoarmado.pdf",
+      "descricao": "Compatibilização na aresta parede 01/02 × fundo de reservatório de 2 células: max(0,8·Xmaior; média).",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        9.285,
+        15.264
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 12.275,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "bassanezi-parede34-fundo",
+      "titulo": "Reservatório: parede 03/04 × fundo (7,580 e 13,880 kN·m/m)",
+      "fonte": "BASSANEZI, D. Dimensionamento de reservatórios elevados paralelepipédicos em concreto armado (TCC). UTFPR – Toledo, 2018. Tabelas 9 a 12.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/15762/1/dimensionamentoreservatorioselevadosconcretoarmado.pdf",
+      "descricao": "Aresta parede 03/04 × fundo.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        7.58,
+        13.88
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 11.104,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "bassanezi-paredes",
+      "titulo": "Reservatório: parede 01/02 × parede 03/04 (12,690 e 11,032 kN·m/m)",
+      "fonte": "BASSANEZI, D. Dimensionamento de reservatórios elevados paralelepipédicos em concreto armado (TCC). UTFPR – Toledo, 2018. Tabelas 9 a 12.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/15762/1/dimensionamentoreservatorioselevadosconcretoarmado.pdf",
+      "descricao": "Aresta vertical entre paredes.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        12.69,
+        11.032
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 11.861,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "camacho-l3-l4",
+      "titulo": "Lajes L3 × L4: 4,42 e 3,21 kN·m/m",
+      "fonte": "CAMACHO, J. S. Curso de concreto armado (NBR 6118/2003): estudo das lajes. UNESP – Ilha Solteira (NEPAE), 2004. Exercício 9.1, p. 42–47.",
+      "url": "https://www.feis.unesp.br/Home/departamentos/engenhariacivil/nepae/estudo-das-lajes.pdf",
+      "descricao": "Negativos de L3 (Marcus, caso 3) e L4 (caso 5a) na borda comum.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        4.42,
+        3.21
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 3.82,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "camacho-l2-l3",
+      "titulo": "Lajes L2 × L3: 4,34 e 2,50 kN·m/m",
+      "fonte": "CAMACHO, J. S. Curso de concreto armado (NBR 6118/2003): estudo das lajes. UNESP – Ilha Solteira (NEPAE), 2004. Exercício 9.1, p. 42–47.",
+      "url": "https://www.feis.unesp.br/Home/departamentos/engenhariacivil/nepae/estudo-das-lajes.pdf",
+      "descricao": "Negativo de L2 (armada em uma direção) e de L3 na borda comum.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        4.34,
+        2.5
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 3.47,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "camacho-l4-l6",
+      "titulo": "Lajes L4 × L6: 3,21 e 6,84 kN·m/m",
+      "fonte": "CAMACHO, J. S. Curso de concreto armado (NBR 6118/2003): estudo das lajes. UNESP – Ilha Solteira (NEPAE), 2004. Exercício 9.1, p. 42–47.",
+      "url": "https://www.feis.unesp.br/Home/departamentos/engenhariacivil/nepae/estudo-das-lajes.pdf",
+      "descricao": "Negativo de L4 e de L6 (borda livre, tabelas de Polillo).",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        3.21,
+        6.84
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 5.47,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "es013-mb12",
+      "titulo": "Lajes L1 × L2: 1856,6 e 1821,2 kN·cm/m",
+      "fonte": "SANTOS, L. M. (coord.) et al. ES-013 – Exemplo de um projeto completo de um edifício de concreto armado. EPUSP/FDTE, 2001 (cópia hospedada na PUC Goiás). Cap. 1–2, Tabelas 1.18 e 2-3.",
+      "url": "https://professor.pucgoias.edu.br/SiteDocente/admin/arquivosUpload/14280/material/ES-013%20-%20Exemplo%20de%20C%C3%A1lculo%20Completo%20Edificio.pdf",
+      "descricao": "Momentos de cálculo na borda comum L1-L2 (Czerny): média > 0,8·maior.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        1856.6,
+        1821.2
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 1838.9,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "mclara-l3-l4",
+      "titulo": "Lajes L3 × L4: 1,2675 e 7,497 kN·m/m",
+      "fonte": "RODRIGUES, M. C. O. Análise comparativa entre esforços solicitantes obtidos via cálculo manual e elementos finitos (especialização). UFMG, 2018. Tabelas 4 a 7.",
+      "url": "https://repositorio.ufmg.br/bitstream/1843/50707/1/TCC%20-%20Especializa%c3%a7%c3%a3o%20em%20Estruturas%20-%20An%c3%a1lise%20Comparativa%20de%20Esfor%c3%a7os%20-%20Maria%20Clara.pdf",
+      "descricao": "Borda comum de L3 (armada em uma direção) e L4 (Tepedino): Xmed = 4,3823 e 0,8·Xmáx = 5,9976.",
+      "nota": "Critério X = max(0,8·Xmaior; (X1 + X2)/2), igual ao da fonte.",
+      "alvo": "motor",
+      "funcao": "reservatorio.compatibilizar",
+      "args": [
+        1.2675,
+        7.497
+      ],
+      "esperado": [
+        {
+          "grandeza": "Momento compatibilizado",
+          "caminho": "",
+          "valor": 5.9976,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    }
+  ]
+}

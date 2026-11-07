@@ -16,6 +16,7 @@
 .obj-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 22px; }
 .obj-etiquetas { display: grid; min-width: 128px; }
 .obj-etiquetas span { padding: 5px 0 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.obj-etiquetas.unica { text-align: right; }  /* uma etiqueta só (página inicial): alinhada à direita, com o ícone */
 .obj-etiquetas span + span { border-top: 1.2px solid var(--filete-forte); }
 .obj-globo { color: var(--acento); }
 .obj-filete { height: 1.2px; background: var(--filete-forte); margin: 20px 0 22px; }

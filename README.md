@@ -6,7 +6,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 > [!WARNING]
-> **Protótipo 0.33.3 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.34.3 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -488,10 +488,13 @@ abrem no LibreCAD, QCAD e AutoCAD. Detalhes em [docs/DXF.md](docs/DXF.md).
 
 Os resultados do LEBR são conferidos com valores que não vêm do próprio programa: tabelas e
 expressões da NBR 6118:2023, tabelas clássicas (Timoshenko e Woinowsky-Krieger, vigas contínuas)
-e cálculo manual. São 157 casos e 511 grandezas na versão 0.28.0, cada um com a fonte e a tolerância.
+e cálculo manual, e também com **158 exercícios resolvidos publicados** (apostilas da UNESP, EESC-USP, UFPR e PUC Goiás,
+livros e TCCs), cada um com a fonte, o link e o enunciado. São 315 casos e 879 grandezas na versão 0.34.0, cada um
+com a fonte e a tolerância.
 `npm run validar` mostra o resumo no terminal e grava `validacao/relatorio.html`; no programa,
 **Ajuda › Relatório de validação** roda os mesmos casos. Os casos também entram no `npm test`.
-Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md).
+Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md); fontes e divergências encontradas
+nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBLIOGRAFIA.md).
 
 ## Interface
 
@@ -502,6 +505,10 @@ Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Validação com a bibliografia (0.34.0):** 158 casos novos tirados de exercícios resolvidos publicados (pilares,
+  blocos, sapatas, estacas, vigas, lajes, punção, escadas, reservatórios, madeira, vento e γz), cada um com a fonte,
+  o link e o enunciado, que o **Relatório de validação** mostra. As divergências de hipótese encontradas (por
+  exemplo o limite k ≤ 2 do τRd1 na punção) estão em [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBLIOGRAFIA.md).
 - **Instalador do Windows (0.33.3):** `LEBR-Instalador.exe` (Inno Setup, cerca de 2 MB, na pasta `instalador/` e
   nas releases) que **monta o LEBR no computador** a partir do código-fonte da última release do GitHub: confere o
   SHA-256 do código-fonte e do Node.js, instala as dependências travadas com `npm ci`, roda os testes e só então
@@ -571,11 +578,13 @@ src/
   validacao/          executor do banco de casos (Node e app)
 validacao/
   casos/*.json        casos de validação com fonte e tolerância
+tools/bibliografia/   geradores dos casos tirados de exercícios resolvidos publicados
 docs/
   APRESENTACAO.md     apresentação do projeto com capturas de tela (para o GitHub)
   imagens/            capturas de tela usadas na documentação
   FORMATO.md          esquema do arquivo .lebr.json
   VALIDACAO.md        banco de casos de validação: formato e como incluir casos
+  VALIDACAO-BIBLIOGRAFIA.md  exercícios resolvidos publicados: fontes e divergências encontradas
   VENTO.md            vento (NBR 6123): dados, Ca, aplicação no pórtico e limitações
   ESTABILIDADE.md     desaprumo, α, γz, rigidez reduzida e majoração por 0,95·γz
   SONDAGEM.md         sondagem SPT: dados do furo, classificação, perfil e uso pelas fundações

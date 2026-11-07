@@ -55,6 +55,7 @@ src/validacao/
 |---|---|
 | `id` | identificador único entre todos os arquivos |
 | `fonte` | **obrigatória**: de onde vem o valor esperado (norma e item, livro e página, ou a expressão usada no cálculo manual) |
+| `descricao`, `url`, `nota` | (opcionais) enunciado do problema, endereço onde a fonte está publicada e diferenças de hipótese entre a fonte e o LEBR |
 | `alvo` | `"motor"` chama uma função do motor de cálculo; `"elemento"` calcula um elemento completo pelo módulo |
 | `funcao`, `args` | (motor) nome da função e argumentos; a lista está em `MOTORES`, em `src/validacao/executar.js` |
 | `modulo`, `elemento` | (elemento) id do módulo e as propriedades do elemento, que substituem as de um elemento novo |
@@ -79,6 +80,12 @@ No `caminho` de uma grandeza, `\.` escapa um ponto dentro da chave (por exemplo 
 
 Quando um caso de livro não bate, a diferença pode estar no livro (outra edição da norma, outro arredondamento)
 ou no LEBR. Anote a conclusão na `fonte` em vez de alargar a tolerância.
+
+## Exercícios resolvidos publicados
+
+Desde a versão 0.34.0 o banco também tem 158 casos tirados de exercícios resolvidos publicados online (apostilas,
+livros, TCCs e dissertações), cada um com a fonte, o link, o enunciado e as diferenças de hipótese. As fontes, o
+que cada grupo cobre e as divergências encontradas estão em [VALIDACAO-BIBLIOGRAFIA.md](VALIDACAO-BIBLIOGRAFIA.md).
 
 ## O que os casos atuais cobrem (versão 0.28.0)
 

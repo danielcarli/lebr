@@ -1,0 +1,538 @@
+{
+  "grupo": "Bibliografia — madeira, vento e estabilidade global",
+  "descricao": "Exercícios resolvidos publicados: compressão com kc pela NBR 7190-1:2022 (TCCs da UEPG e da UFPB, monografia da UNESP, apostila da UFAL), S2 e pressão dinâmica pela NBR 6123 (TCC da UTFPR) e γz (e-book de W. Zumaeta/TQS).",
+  "casos": [
+    {
+      "id": "nunes-pilar-15x15",
+      "titulo": "Pilar de pinus 15×15 cm, L0 = 3,0 m, carga centrada",
+      "fonte": "NUNES, B. L. Projeto estrutural da Casa da Acolhida do HU-UEPG: adaptação da estrutura de concreto para madeira, de acordo com a NBR 7190:2022 (TCC). Universidade Estadual de Ponta Grossa, 2022. Seção 4.4.2, p. 53–55.",
+      "url": "https://ri.uepg.br/monografias/bitstream/handle/123456789/227/TCC_Bruno%20Leonardo%20Nunes.pdf?sequence=1",
+      "descricao": "Pré-dimensionamento de pilar biarticulado de pinus 15×15 cm, L0 = 3,0 m, fc0,k = 14 MPa, E0,05 = 3500 MPa, kmod = 0,54 (fc0,d = 5,40 MPa), βc = 0,2, Nd = 801,4 N.",
+      "nota": "NBR 7190-1:2022: λrel = (λ/π)·√(fc0,k/E0,05), k = 0,5·[1 + βc(λrel − 0,3) + λrel²] e kc = 1/(k + √(k² − λrel²)). O material entra no caso com os valores da fonte (fc0,k, E0,05, βc e fc0,d), sem passar pelas tabelas de classes do LEBR.",
+      "alvo": "motor",
+      "funcao": "madeira.compressaoMadeira",
+      "args": [
+        {
+          "Nd": 0.8014,
+          "b": 15,
+          "h": 15,
+          "L0x": 300,
+          "L0y": 300,
+          "m": {
+            "kM": 0.7,
+            "fmd": 5.4,
+            "fc0k": 14,
+            "E005": 3500,
+            "betaC": 0.2,
+            "fc0d": 5.4
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "λ",
+          "caminho": "lambdaX",
+          "valor": 69.282,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "λrel",
+          "caminho": "relX",
+          "valor": 1.395,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "kc",
+          "caminho": "kcx",
+          "valor": 0.4292,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σc,Nd",
+          "caminho": "sigmaN",
+          "valor": 0.036,
+          "unidade": "MPa",
+          "tolerancia": 0.02
+        },
+        {
+          "grandeza": "Razão de verificação",
+          "caminho": "interacaoX",
+          "valor": 0.0155,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "ufal-ex4-1-mlc",
+      "titulo": "Banzo comprimido de MLC 250×150 mm, Nd = 150 kN",
+      "fonte": "SANTOS, L. B. Peças compostas em estruturas de madeira (com exercícios resolvidos). UFAL / eduCAPES, 2026. NBR 7190-1:2022. Exemplo 4.1, p. 51.",
+      "url": "https://educapes.capes.gov.br/bitstream/capes/1179761/2/Pe%c3%a7asCompostas.Madeira%20-%20Vers%c3%a3o%201.pdf",
+      "descricao": "Banzo comprimido de treliça em madeira lamelada colada, seção 250×150 mm (6 lamelas de 25 mm), Nc,Sd = 150 kN, L0 = 150 cm no plano da dimensão de 15 cm e 450 cm no plano da de 25 cm; fc0,k = 26 MPa, E0,05 = 9400 MPa, kmod = 0,532 (fc0,d = 9,88 MPa), βc = 0,1 (MLC).",
+      "nota": "NBR 7190-1:2022: λrel = (λ/π)·√(fc0,k/E0,05), k = 0,5·[1 + βc(λrel − 0,3) + λrel²] e kc = 1/(k + √(k² − λrel²)). O material entra no caso com os valores da fonte (fc0,k, E0,05, βc e fc0,d), sem passar pelas tabelas de classes do LEBR. A fonte chama a madeira de C40, mas usa fc0,k = 26 MPa (D40 de floresta plantada).",
+      "alvo": "motor",
+      "funcao": "madeira.compressaoMadeira",
+      "args": [
+        {
+          "Nd": 150,
+          "b": 25,
+          "h": 15,
+          "L0x": 150,
+          "L0y": 450,
+          "m": {
+            "kM": 0.7,
+            "fmd": 9.88,
+            "fc0k": 26,
+            "E005": 9400,
+            "betaC": 0.1,
+            "fc0d": 9.88
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "λx",
+          "caminho": "lambdaX",
+          "valor": 34.64,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "λy",
+          "caminho": "lambdaY",
+          "valor": 62.33,
+          "unidade": "",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "λrel,x",
+          "caminho": "relX",
+          "valor": 0.58,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "λrel,y",
+          "caminho": "relY",
+          "valor": 1.044,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "kc,x",
+          "caminho": "kcx",
+          "valor": 0.961,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "kc,y",
+          "caminho": "kcy",
+          "valor": 0.732,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σc",
+          "caminho": "sigmaN",
+          "valor": 4.0,
+          "unidade": "MPa",
+          "tolerancia": 0.001
+        },
+        {
+          "grandeza": "Razão x",
+          "caminho": "interacaoX",
+          "valor": 0.42,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Razão y",
+          "caminho": "interacaoY",
+          "valor": 0.55,
+          "unidade": "",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "unesp-pontalete",
+      "titulo": "Pontalete de cimbramento 7,5×7,5 cm, Le = 280 cm",
+      "fonte": "CARROCIÈRE, D. G. Estudo comparativo dos sistemas de fôrmas e cimbramentos em madeira para uso em estruturas de concreto armado (monografia). UNESP – Ilha Solteira, 2025. NBR 7190-1:2022. Seção 7.3.5, p. 86–88.",
+      "url": "https://repositorio.unesp.br/bitstreams/7934faf7-fcff-4e97-8de3-916e1b84e952/download",
+      "descricao": "Pontalete de cimbramento 7,5×7,5 cm, Le = 280 cm, Nd = 3,07 kN, fc0,k = 22 MPa, E0,05 = 7700 MPa, kmod = 0,63 (fc0,d = 9,9 MPa), βc = 0,2.",
+      "nota": "NBR 7190-1:2022: λrel = (λ/π)·√(fc0,k/E0,05), k = 0,5·[1 + βc(λrel − 0,3) + λrel²] e kc = 1/(k + √(k² − λrel²)). O material entra no caso com os valores da fonte (fc0,k, E0,05, βc e fc0,d), sem passar pelas tabelas de classes do LEBR. A fonte usa i = 2,16 cm (λ = 129,6); com i = 7,5/√12 = 2,165 cm, λ = 129,3. Ela arredonda a razão para 0,30 (com os valores dela, 0,297).",
+      "alvo": "motor",
+      "funcao": "madeira.compressaoMadeira",
+      "args": [
+        {
+          "Nd": 3.07,
+          "b": 7.5,
+          "h": 7.5,
+          "L0x": 280,
+          "L0y": 280,
+          "m": {
+            "kM": 0.7,
+            "fmd": 9.9,
+            "fc0k": 22,
+            "E005": 7700,
+            "betaC": 0.2,
+            "fc0d": 9.9
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "λ",
+          "caminho": "lambdaX",
+          "valor": 129.6,
+          "unidade": "",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "λrel",
+          "caminho": "relX",
+          "valor": 2.2,
+          "unidade": "",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "kc",
+          "caminho": "kcx",
+          "valor": 0.187,
+          "unidade": "",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Razão de verificação",
+          "caminho": "interacaoX",
+          "valor": 0.3,
+          "unidade": "",
+          "tolerancia": 0.03
+        }
+      ]
+    },
+    {
+      "id": "ufpb-v18-flexao",
+      "titulo": "Viga V18 20×37,5 cm em D30, Md = 39,964 kN·m — tensão de flexão",
+      "fonte": "SANTOS, L. C. L. Cálculo e verificação de elementos estruturais de um edifício de madeira de acordo com a NBR 7190-1:2022: um estudo de caso (TCC). UFPB, 2024. Viga V18, p. 71–76.",
+      "url": "https://repositorio.ufpb.br/jspui/bitstream/123456789/35936/1/TCC_LUIZ_CARLOS_LIRA_DOS_SANTOS_20190096359_%28VOLUME%20FINAL%29.pdf",
+      "descricao": "Viga 20×37,5 cm de dicotiledônea D30 (kmod = 0,456, fm,d = 9,77 MPa), Mxd = 39,964 kN·m: σM,d = Md/W.",
+      "alvo": "motor",
+      "funcao": "madeira.flexaoMadeira",
+      "args": [
+        {
+          "Md": 39.964,
+          "b": 20,
+          "h": 37.5,
+          "m": {
+            "fmd": 9.77
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σM,d",
+          "caminho": "sigma",
+          "valor": 8.53,
+          "unidade": "MPa",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Razão σ/fm,d",
+          "caminho": "uso",
+          "valor": 0.8725,
+          "unidade": "",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "ufpb-v18-cisalhamento",
+      "titulo": "Viga V18 20×37,5 cm em D30, Vd = 45,174 kN — cisalhamento",
+      "fonte": "SANTOS, L. C. L. Cálculo e verificação de elementos estruturais de um edifício de madeira de acordo com a NBR 7190-1:2022: um estudo de caso (TCC). UFPB, 2024. Viga V18, p. 71–76.",
+      "url": "https://repositorio.ufpb.br/jspui/bitstream/123456789/35936/1/TCC_LUIZ_CARLOS_LIRA_DOS_SANTOS_20190096359_%28VOLUME%20FINAL%29.pdf",
+      "descricao": "Mesma viga, Vd = 45,174 kN, fv,d = 1,01 MPa: τd = 1,5·Vd/(b·h).",
+      "nota": "A fonte dá a razão em porcentagem (89,16 %).",
+      "alvo": "motor",
+      "funcao": "madeira.cisalhamentoMadeira",
+      "args": [
+        {
+          "Vd": 45.174,
+          "b": 20,
+          "h": 37.5,
+          "m": {
+            "fvd": 1.01
+          }
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "τd",
+          "caminho": "tau",
+          "valor": 0.9,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Razão τ/fv,d",
+          "caminho": "uso",
+          "valor": 0.8916,
+          "unidade": "",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-s2-3-8",
+      "titulo": "Vento: S2 a z = 3,8 m (categoria IV, classe C)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "Edifício de 21 pavimentos (H = 79,8 m), categoria IV, classe C (b = 0,84, p = 0,135, Fr = 0,95): S2 = b·Fr·(z/10)^p na cota z = 3,8 m.",
+      "nota": "A fonte publica S2 com duas casas; a pressão dinâmica correspondente é conferida no caso seguinte.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 3.8,
+          "categoria": "IV",
+          "classe": "C"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 0.7,
+          "unidade": "",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-q-3-8",
+      "titulo": "Vento: pressão dinâmica a z = 3,8 m (V0 = 45 m/s)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "V0 = 45 m/s, S1 = S3 = 1,0: Vk = 45·S2 e q = 0,613·Vk². Com S2 = 0,84·0,95·(3,8/10)^0,135.",
+      "nota": "A velocidade característica do caso é calculada com o mesmo S2 da norma (Vk = 45·0,84·0,95·(z/10)^0,135), conferido no caso anterior.",
+      "alvo": "motor",
+      "funcao": "vento.pressaoDinamica",
+      "args": [
+        31.512742
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "",
+          "valor": 0.6087400000000001,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-s2-19-0",
+      "titulo": "Vento: S2 a z = 19,0 m (categoria IV, classe C)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "Edifício de 21 pavimentos (H = 79,8 m), categoria IV, classe C (b = 0,84, p = 0,135, Fr = 0,95): S2 = b·Fr·(z/10)^p na cota z = 19,0 m.",
+      "nota": "A fonte publica S2 com duas casas; a pressão dinâmica correspondente é conferida no caso seguinte.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 19.0,
+          "categoria": "IV",
+          "classe": "C"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 0.87,
+          "unidade": "",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-q-19-0",
+      "titulo": "Vento: pressão dinâmica a z = 19,0 m (V0 = 45 m/s)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "V0 = 45 m/s, S1 = S3 = 1,0: Vk = 45·S2 e q = 0,613·Vk². Com S2 = 0,84·0,95·(19,0/10)^0,135.",
+      "nota": "A velocidade característica do caso é calculada com o mesmo S2 da norma (Vk = 45·0,84·0,95·(z/10)^0,135), conferido no caso anterior.",
+      "alvo": "motor",
+      "funcao": "vento.pressaoDinamica",
+      "args": [
+        39.160402
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "",
+          "valor": 0.9400599999999999,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-s2-38-0",
+      "titulo": "Vento: S2 a z = 38,0 m (categoria IV, classe C)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "Edifício de 21 pavimentos (H = 79,8 m), categoria IV, classe C (b = 0,84, p = 0,135, Fr = 0,95): S2 = b·Fr·(z/10)^p na cota z = 38,0 m.",
+      "nota": "A fonte publica S2 com duas casas; a pressão dinâmica correspondente é conferida no caso seguinte.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 38.0,
+          "categoria": "IV",
+          "classe": "C"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 0.96,
+          "unidade": "",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-q-38-0",
+      "titulo": "Vento: pressão dinâmica a z = 38,0 m (V0 = 45 m/s)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "V0 = 45 m/s, S1 = S3 = 1,0: Vk = 45·S2 e q = 0,613·Vk². Com S2 = 0,84·0,95·(38,0/10)^0,135.",
+      "nota": "A velocidade característica do caso é calculada com o mesmo S2 da norma (Vk = 45·0,84·0,95·(z/10)^0,135), conferido no caso anterior.",
+      "alvo": "motor",
+      "funcao": "vento.pressaoDinamica",
+      "args": [
+        43.001756
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "",
+          "valor": 1.13353,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-s2-79-8",
+      "titulo": "Vento: S2 a z = 79,8 m (categoria IV, classe C)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "Edifício de 21 pavimentos (H = 79,8 m), categoria IV, classe C (b = 0,84, p = 0,135, Fr = 0,95): S2 = b·Fr·(z/10)^p na cota z = 79,8 m.",
+      "nota": "A fonte publica S2 com duas casas; a pressão dinâmica correspondente é conferida no caso seguinte.",
+      "alvo": "motor",
+      "funcao": "vento.fatorS2",
+      "args": [
+        {
+          "z": 79.8,
+          "categoria": "IV",
+          "classe": "C"
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "S2",
+          "caminho": "",
+          "valor": 1.06,
+          "unidade": "",
+          "tolerancia": 0.006
+        }
+      ]
+    },
+    {
+      "id": "utfpr-vento-q-79-8",
+      "titulo": "Vento: pressão dinâmica a z = 79,8 m (V0 = 45 m/s)",
+      "fonte": "SANTOS, R. M. P. Análise estrutural de um edifício de múltiplos pavimentos considerando a ação do vento via método estático, simplificado e discreto conforme NBR 6123 (TCC). UTFPR – Campo Mourão, 2019. Tabela 6, §5.2.1 (método estático).",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/25471/1/analiseestruturaledificio.pdf",
+      "descricao": "V0 = 45 m/s, S1 = S3 = 1,0: Vk = 45·S2 e q = 0,613·Vk². Com S2 = 0,84·0,95·(79,8/10)^0,135.",
+      "nota": "A velocidade característica do caso é calculada com o mesmo S2 da norma (Vk = 45·0,84·0,95·(z/10)^0,135), conferido no caso anterior.",
+      "alvo": "motor",
+      "funcao": "vento.pressaoDinamica",
+      "args": [
+        47.531968
+      ],
+      "esperado": [
+        {
+          "grandeza": "q",
+          "caminho": "",
+          "valor": 1.38494,
+          "unidade": "kN/m²",
+          "tolerancia": 0.001
+        }
+      ]
+    },
+    {
+      "id": "zumaeta-gz-1",
+      "titulo": "γz de pilar em balanço 50×100, 5 m, Fd = 70 kN e Pd = 840 kN",
+      "fonte": "ZUMAETA, W. Análise da estabilidade de edifícios com estrutura de concreto armado (e-book). TQS, 2016. Seção 2.5, p. 43–48.",
+      "url": "https://dl.tqs.com.br/files/Ebook_Analise_da_Estabilidade_Edificios.pdf",
+      "descricao": "Pilar em balanço de 5 m, seção 0,5×1,0 m, C25 (Eci = 28 000 MPa, rigidez 0,7·Eci·Ic), F = 50 kN no topo e P = 600 kN (γf = 1,4). Deslocamento horizontal do topo 0,0036 m: M1 = 70·5 = 350 kN·m e ΔM = 840·0,0036.",
+      "alvo": "motor",
+      "funcao": "estabilidade.gamaZ",
+      "args": [
+        {
+          "M1": 350,
+          "dM": 3.024
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "γz",
+          "caminho": "gz",
+          "valor": 1.009,
+          "unidade": "",
+          "tolerancia": 0.0005
+        }
+      ]
+    },
+    {
+      "id": "zumaeta-gz-2",
+      "titulo": "γz de pilar em balanço 100×50, 5 m, P = 10 000 kN",
+      "fonte": "ZUMAETA, W. Análise da estabilidade de edifícios com estrutura de concreto armado (e-book). TQS, 2016. Seção 3.2, p. 53–63.",
+      "url": "https://dl.tqs.com.br/files/Ebook_Analise_da_Estabilidade_Edificios.pdf",
+      "descricao": "Pilar 100×50 cm em balanço de 5 m, P = 10 000 kN e F = 50 kN (γf = 1,4): Δ = 3,572×10⁻³ m, M1 = 350 kN·m, ΔM = 14 000·Δ = 50,008 kN·m. O P-Δ iterativo converge para 408,34 kN·m; com γz, 408,45 kN·m.",
+      "nota": "Na faixa 1,1 < γz ≤ 1,3, os esforços horizontais são majorados por 0,95·γz (15.7.2); a fonte mostra F = 55,43 kN = 0,95·γz·50.",
+      "alvo": "motor",
+      "funcao": "estabilidade.gamaZ",
+      "args": [
+        {
+          "M1": 350,
+          "dM": 50.008
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "γz",
+          "caminho": "gz",
+          "valor": 1.167,
+          "unidade": "",
+          "tolerancia": 0.0005
+        },
+        {
+          "grandeza": "Fator para os esforços horizontais",
+          "caminho": "fator",
+          "valor": 1.10865,
+          "unidade": "",
+          "tolerancia": 0.001
+        }
+      ]
+    }
+  ]
+}

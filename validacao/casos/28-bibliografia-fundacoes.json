@@ -1,0 +1,1432 @@
+{
+  "grupo": "Bibliografia — fundações",
+  "descricao": "Exercícios resolvidos publicados (apostila de blocos de P. S. S. Bastos/UNESP, TCC da UFC, livro de U. R. Alonso, TCC da UTFPR, aula de exercícios da UFPR): blocos pelo método das bielas, reações em estacas, sapatas e capacidade de carga de estacas.",
+  "casos": [
+    {
+      "id": "bastos-bloco2-ex14-1",
+      "titulo": "Bloco sobre 2 estacas ø 30, pilar 20×30, Nd = 920,4 kN (Blévot)",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.1, p. 36–40.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Bloco sobre duas estacas pré-moldadas ø 30 cm (e = 80 cm) sob pilar 20×30 cm, C25, CA-50. Com o peso próprio (1,02) e os momentos, a fonte adota Nk = 657,4 kN e Nd = 920,4 kN; d = 45 cm. Calcular o ângulo das bielas, as tensões nas bielas junto ao pilar e à estaca e a força no tirante.",
+      "nota": "A fonte multiplica a força no tirante por 1,15 (Rs ≈ 382 kN). O motor devolve Rs = Nd·(2e − ap)/(8d) = 332,4 kN e o módulo do bloco aplica os 15 % na armadura; compara-se a força sem o acréscimo (382,2/1,15). A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,95 (σlim = 1,4·0,95·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 2,
+          "e": 80,
+          "ap": 30,
+          "bp": 20,
+          "d": 45,
+          "D": 30,
+          "Nd": 920.4,
+          "R": [
+            460.2,
+            460.2
+          ],
+          "pos": [
+            {
+              "x": -40.0,
+              "y": 0
+            },
+            {
+              "x": 40.0,
+              "y": 0
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas α (tg α = 1,3846)",
+          "caminho": "alfa",
+          "valor": 54.16,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 23.3,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 9.9,
+          "unidade": "MPa",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "Força no tirante Rs = Nd(2e − ap)/(8d), sem o acréscimo de 15 %",
+          "caminho": "Tx",
+          "valor": 332.37,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco2-ex14-1-d",
+      "titulo": "Bloco sobre 2 estacas (e = 80, ap = 30): intervalo de d",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.1, p. 36.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "dmín = 0,5·(e − ap/2) e dmáx = 0,71·(e − ap/2), para 45° ≤ α ≤ 55°.",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 2,
+          "e": 80,
+          "ap": 30,
+          "bp": 20,
+          "pos": [
+            {
+              "x": -40.0,
+              "y": 0
+            },
+            {
+              "x": 40.0,
+              "y": 0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 32.5,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 46.2,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco3-ex14-2-est",
+      "titulo": "Bloco sobre 3 tubulões ø 70, pilar 65×65, Nd = 7350 kN — biela na estaca e tirante",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.2, p. 41–48.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Bloco sobre três fustes de tubulão ø 70 cm (e = 250 cm) sob pilar 65×65 cm, C25, CA-50, d = 148 cm, Nk = 5000 kN e Nd = 1,05·1,4·5000 = 7350 kN (com o peso próprio). Ângulo das bielas, tensão na biela junto à estaca e armadura sobre os lados (As,lado = 27,43 cm², isto é, Rs,lado = 27,43·43,48 kN).",
+      "nota": "A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,95 (σlim = 1,75·0,95·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 3,
+          "e": 250,
+          "ap": 65,
+          "bp": 65,
+          "d": 148,
+          "D": 70,
+          "Nd": 7350,
+          "R": [
+            2450.0,
+            2450.0,
+            2450.0
+          ],
+          "pos": [
+            {
+              "x": 0,
+              "y": 144.337567
+            },
+            {
+              "x": -125.0,
+              "y": -72.168784
+            },
+            {
+              "x": 125.0,
+              "y": -72.168784
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas α (tg α = 1,1855)",
+          "caminho": "alfa",
+          "valor": 49.9,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 10.9,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Força no tirante de cada lado (As,lado·fyd)",
+          "caminho": "tirantes.lado",
+          "valor": 1192.7,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco3-ex14-2-pil",
+      "titulo": "Bloco sobre 3 tubulões, pilar 65×65 — biela junto ao pilar (Nd = 7000 kN)",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.2, p. 41–48.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Mesmo bloco. Na verificação da biela junto ao pilar a fonte usa Nd = 1,4·5000 = 7000 kN, sem o peso próprio do bloco.",
+      "nota": "A fonte usa Nd diferentes em cada verificação (7000 kN no pilar, 7350 kN na estaca e no tirante); os casos seguem a fonte. A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,95 (σlim = 1,75·0,95·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 3,
+          "e": 250,
+          "ap": 65,
+          "bp": 65,
+          "d": 148,
+          "D": 70,
+          "Nd": 7000,
+          "R": [
+            2333.333333,
+            2333.333333,
+            2333.333333
+          ],
+          "pos": [
+            {
+              "x": 0,
+              "y": 144.337567
+            },
+            {
+              "x": -125.0,
+              "y": -72.168784
+            },
+            {
+              "x": 125.0,
+              "y": -72.168784
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 28.3,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco3-ex14-2-d",
+      "titulo": "Bloco sobre 3 tubulões (e = 250, ap = 65): intervalo de d",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.2, p. 41.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "dmín = 0,58·(e − ap/2) e dmáx = 0,825·(e − ap/2).",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 3,
+          "e": 250,
+          "ap": 65,
+          "bp": 65,
+          "pos": [
+            {
+              "x": 0,
+              "y": 144.337567
+            },
+            {
+              "x": -125.0,
+              "y": -72.168784
+            },
+            {
+              "x": 125.0,
+              "y": -72.168784
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 126.2,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 179.4,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco4-ex14-3-est",
+      "titulo": "Bloco sobre 4 estacas ø 30, pilar 20×75, Nd = 1888,5 kN — biela na estaca e tirante",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.3, p. 49–53.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Bloco sobre quatro estacas pré-moldadas ø 30 cm (e = 80 cm) sob pilar alongado 20×75 cm (ap,eq = √(20·75) = 38,73 cm), C20, CA-50, d = 54 cm, Nd = 1888,5 kN com o peso próprio. Ângulo das bielas, tensão na biela junto à estaca e armadura sobre os lados (As,lado = 6,10 cm²).",
+      "nota": "As,lado = 6,10 cm² corresponde a Rs = 6,10·43,48 = 265,2 kN. A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,95 (σlim = 2,1·0,95·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 4,
+          "e": 80,
+          "ap": 20,
+          "bp": 75,
+          "d": 54,
+          "D": 30,
+          "Nd": 1888.5,
+          "R": [
+            472.125,
+            472.125,
+            472.125,
+            472.125
+          ],
+          "pos": [
+            {
+              "x": -40.0,
+              "y": -40.0
+            },
+            {
+              "x": 40.0,
+              "y": -40.0
+            },
+            {
+              "x": -40.0,
+              "y": 40.0
+            },
+            {
+              "x": 40.0,
+              "y": 40.0
+            }
+          ],
+          "fcd": 14.285714
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas α (tg α = 1,259)",
+          "caminho": "alfa",
+          "valor": 51.55,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 10.9,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "Força no tirante de cada lado Nd(2e − a)/(16d)",
+          "caminho": "tirantes.lado",
+          "valor": 265.2,
+          "unidade": "kN",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco4-ex14-3-pil",
+      "titulo": "Bloco sobre 4 estacas, pilar 20×75 — biela junto ao pilar (Nd = 1824,2 kN)",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.3, p. 49–53.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Mesmo bloco. Na biela junto ao pilar a fonte usa Nd = 1,4·1303 = 1824,2 kN, sem o peso próprio.",
+      "nota": "A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,95 (σlim = 2,1·0,95·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 4,
+          "e": 80,
+          "ap": 20,
+          "bp": 75,
+          "d": 54,
+          "D": 30,
+          "Nd": 1824.2,
+          "R": [
+            456.05,
+            456.05,
+            456.05,
+            456.05
+          ],
+          "pos": [
+            {
+              "x": -40.0,
+              "y": -40.0
+            },
+            {
+              "x": 40.0,
+              "y": -40.0
+            },
+            {
+              "x": -40.0,
+              "y": 40.0
+            },
+            {
+              "x": 40.0,
+              "y": 40.0
+            }
+          ],
+          "fcd": 14.285714
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 19.8,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "bastos-bloco4-ex14-3-d",
+      "titulo": "Bloco sobre 4 estacas (e = 80, pilar 20×75): intervalo de d",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Exemplo 14.3, p. 49.",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Com ap,eq = √(20·75) = 38,73 cm: dmín = 0,71·(e − ap/2) e dmáx = e − ap/2.",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 4,
+          "e": 80,
+          "ap": 20,
+          "bp": 75,
+          "pos": [
+            {
+              "x": -40.0,
+              "y": -40.0
+            },
+            {
+              "x": 40.0,
+              "y": -40.0
+            },
+            {
+              "x": -40.0,
+              "y": 40.0
+            },
+            {
+              "x": 40.0,
+              "y": 40.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 43.1,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 60.6,
+          "unidade": "cm",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco2",
+      "titulo": "Bloco sobre 2 estacas ø 30, pilar 30×30, Nd = 980 kN",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.1.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "Bloco sobre duas estacas ø 30 cm (e = 90 cm) sob pilar 30×30 cm com carga centrada N = 700 kN (Nd = 980 kN), C25, CA-50, h = 50 cm, d = 45 cm.",
+      "nota": "A fonte também apresenta Rst com o acréscimo de 15 % (469,58 kN), que no LEBR entra na armadura, no módulo do bloco. A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,85 (σlim = 1,4·0,85·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 2,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "d": 45,
+          "D": 30,
+          "Nd": 980,
+          "R": [
+            490.0,
+            490.0
+          ],
+          "pos": [
+            {
+              "x": -45.0,
+              "y": 0
+            },
+            {
+              "x": 45.0,
+              "y": 0
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas θ",
+          "caminho": "alfa",
+          "valor": 50.19,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Força no tirante (sem o acréscimo de 15 %)",
+          "caminho": "Tx",
+          "valor": 408.33,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 18.5,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 11.7,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco3",
+      "titulo": "Bloco sobre 3 estacas ø 30, pilar 30×30, Nd = 1400 kN",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.2.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "Bloco sobre três estacas ø 30 cm (e = 90 cm) sob pilar 30×30 cm, N = 1000 kN (Nd = 1400 kN), C25, CA-50, h = 60 cm, d = 55 cm. Rst = Nd(e√3 − 0,9ap)/(9d) nas medianas e Rst/√3 nos lados.",
+      "nota": "A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,85 (σlim = 1,75·0,85·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 3,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "d": 55,
+          "D": 30,
+          "Nd": 1400,
+          "R": [
+            466.666667,
+            466.666667,
+            466.666667
+          ],
+          "pos": [
+            {
+              "x": 0,
+              "y": 51.961524
+            },
+            {
+              "x": -45.0,
+              "y": -25.980762
+            },
+            {
+              "x": 45.0,
+              "y": -25.980762
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas θ",
+          "caminho": "alfa",
+          "valor": 52.01,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Força no tirante das medianas",
+          "caminho": "tirantes.mediana",
+          "valor": 364.52,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Força no tirante dos lados",
+          "caminho": "tirantes.lado",
+          "valor": 210.46,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 25.0,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 10.6,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco4",
+      "titulo": "Bloco sobre 4 estacas ø 30, pilar 30×30, Nd = 1820 kN",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.3.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "Bloco sobre quatro estacas ø 30 cm (e = 90 cm) sob pilar 30×30 cm, N = 1300 kN (Nd = 1820 kN), C25, CA-50, h = 80 cm, d = 75 cm.",
+      "nota": "A fonte também dimensiona as diagonais (321,73 kN) e a malha (455,0 kN), arranjos que o LEBR não oferece. A tensão-limite nas bielas não é conferida: a fonte usa KR = 0,85 (σlim = 2,1·0,85·fcd) e o LEBR usa KR = 0,9. O ângulo, as tensões nas bielas e as forças nos tirantes não dependem de KR.",
+      "alvo": "motor",
+      "funcao": "bloco.bielasETirantes",
+      "args": [
+        {
+          "n": 4,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "d": 75,
+          "D": 30,
+          "Nd": 1820,
+          "R": [
+            455.0,
+            455.0,
+            455.0,
+            455.0
+          ],
+          "pos": [
+            {
+              "x": -45.0,
+              "y": -45.0
+            },
+            {
+              "x": 45.0,
+              "y": -45.0
+            },
+            {
+              "x": -45.0,
+              "y": 45.0
+            },
+            {
+              "x": 45.0,
+              "y": 45.0
+            }
+          ],
+          "fcd": 17.857143
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Ângulo das bielas θ",
+          "caminho": "alfa",
+          "valor": 54.74,
+          "unidade": "°",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "Força no tirante de cada lado",
+          "caminho": "tirantes.lado",
+          "valor": 227.5,
+          "unidade": "kN",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "σcd na biela junto ao pilar",
+          "caminho": "sigmaPil",
+          "valor": 30.3,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        },
+        {
+          "grandeza": "σcd na biela junto à estaca",
+          "caminho": "sigmaEst",
+          "valor": 9.7,
+          "unidade": "MPa",
+          "tolerancia": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco2-d",
+      "titulo": "Bloco sobre 2 estacas (e = 90, ap = 30): intervalo de d",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.1.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "dmín = 0,50(e − ap/2), dmáx = 0,714(e − ap/2).",
+      "nota": "A fonte usa coeficientes com mais casas (0,714); o LEBR usa os arredondados da literatura (0,71). Tolerância de 1,5 %.",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 2,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "pos": [
+            {
+              "x": -45.0,
+              "y": 0
+            },
+            {
+              "x": 45.0,
+              "y": 0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 37.5,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 53.55,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco3-d",
+      "titulo": "Bloco sobre 3 estacas (e = 90, ap = 30): intervalo de d",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.2.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "dmín = 0,577(e − 0,52ap), dmáx = 0,825(e − 0,52ap).",
+      "nota": "A fonte usa coeficientes com mais casas (0,577 e a − 0,52ap); o LEBR usa os arredondados da literatura (0,58 e e − ap/2). Tolerância de 1,5 %.",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 3,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "pos": [
+            {
+              "x": 0,
+              "y": 51.961524
+            },
+            {
+              "x": -45.0,
+              "y": -25.980762
+            },
+            {
+              "x": 45.0,
+              "y": -25.980762
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 42.93,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 61.38,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "ufc-bloco4-d",
+      "titulo": "Bloco sobre 4 estacas (e = 90, ap = 30): intervalo de d",
+      "fonte": "ALMEIDA, M. M. R. Método das bielas e método das bielas e tirantes aplicados no dimensionamento de blocos de concreto armado (TCC, orient. M. M. C. Mota). Universidade Federal do Ceará, 2013. Seção 3.2.3.",
+      "url": "https://repositorio.ufc.br/ri/bitstream/riufc/36409/1/2013_tcc_mmdralmeida.pdf",
+      "descricao": "dmín = 0,707(e − ap/2), dmáx = e − ap/2.",
+      "nota": "A fonte usa coeficientes com mais casas (0,707); o LEBR usa os arredondados da literatura (0,71). Tolerância de 1,5 %.",
+      "alvo": "motor",
+      "funcao": "bloco.intervaloAlturaUtil",
+      "args": [
+        {
+          "n": 4,
+          "e": 90,
+          "ap": 30,
+          "bp": 30,
+          "pos": [
+            {
+              "x": -45.0,
+              "y": -45.0
+            },
+            {
+              "x": 45.0,
+              "y": -45.0
+            },
+            {
+              "x": -45.0,
+              "y": 45.0
+            },
+            {
+              "x": 45.0,
+              "y": 45.0
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "d mínimo",
+          "caminho": "min",
+          "valor": 53.02,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        },
+        {
+          "grandeza": "d máximo",
+          "caminho": "max",
+          "valor": 75.0,
+          "unidade": "cm",
+          "tolerancia": 0.015
+        }
+      ]
+    },
+    {
+      "id": "bastos-reacoes-6-estacas",
+      "titulo": "Reações em bloco de 6 estacas sob N = 1300 kN e momento de 100 kN·m",
+      "fonte": "BASTOS, P. S. S. Blocos de fundação (notas de aula, 2133 – Estruturas de Concreto III). UNESP – Faculdade de Engenharia de Bauru, outubro de 2023. NBR 6118:2023 e NBR 6122:2022; método das bielas (Blévot). Seção 13, exemplo numérico (Figura 40).",
+      "url": "https://wwwp.feb.unesp.br/pbastos/concreto3/Blocos.pdf",
+      "descricao": "Bloco de 6 estacas Strauss em duas linhas, com xi = −95, 0 e +95 cm, sob N = 1300 kN (majorado em 10 % pelo peso próprio: 1430 kN) e momento de 100 kN·m em torno do eixo paralelo às linhas. Ni = N/n ± M·xi/Σxi².",
+      "nota": "A fonte chama de My o momento que, no LEBR, é o Mx (o que multiplica as coordenadas x). O espaçamento entre as duas linhas (30 cm) não interfere. A fonte arredonda N/n para 238 kN.",
+      "alvo": "motor",
+      "funcao": "bloco.reacoesEstacas",
+      "args": [
+        {
+          "N": 1430,
+          "Mx": 100,
+          "pos": [
+            {
+              "x": -95,
+              "y": -15
+            },
+            {
+              "x": -95,
+              "y": 15
+            },
+            {
+              "x": 0,
+              "y": -15
+            },
+            {
+              "x": 0,
+              "y": 15
+            },
+            {
+              "x": 95,
+              "y": -15
+            },
+            {
+              "x": 95,
+              "y": 15
+            }
+          ]
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Estaca menos carregada (x = −95)",
+          "caminho": "0",
+          "valor": 211.7,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Estaca central (x = 0)",
+          "caminho": "2",
+          "valor": 238.0,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        },
+        {
+          "grandeza": "Estaca mais carregada (x = +95)",
+          "caminho": "4",
+          "valor": 264.3,
+          "unidade": "kN",
+          "tolerancia": 0.003
+        }
+      ]
+    },
+    {
+      "id": "alonso-sapata-quadrada",
+      "titulo": "Sapata para pilar 30×30, P = 1500 kN, σs = 0,3 MPa",
+      "fonte": "ALONSO, U. R. Exercícios de fundações. 3ª ed. São Paulo: Blucher, 2019 (amostra publicada pela editora). Cap. 1, 2º exercício, p. 16.",
+      "url": "https://storage.blucher.com.br/book/pdf_preview/9788521213840-amostra.pdf",
+      "descricao": "Dimensionar em planta a sapata de um pilar quadrado 30×30 cm com carga de 1500 kN em solo com σs = 0,3 MPa, sem peso próprio: área de 5 m².",
+      "alvo": "motor",
+      "funcao": "sapata.dimensoesBalancosIguais",
+      "args": [
+        {
+          "area": 5,
+          "ap": 30,
+          "bp": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Lado A",
+          "caminho": "A",
+          "valor": 225,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Lado B",
+          "caminho": "B",
+          "valor": 225,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "alonso-sapata-retangular",
+      "titulo": "Sapata com balanços iguais para pilar 30×100, P = 3000 kN",
+      "fonte": "ALONSO, U. R. Exercícios de fundações. 3ª ed. São Paulo: Blucher, 2019 (amostra publicada pela editora). Cap. 1, 3º exercício, p. 16.",
+      "url": "https://storage.blucher.com.br/book/pdf_preview/9788521213840-amostra.pdf",
+      "descricao": "Pilar 30×100 cm, carga de 3000 kN, σs = 0,3 MPa (área de 10 m²), balanços iguais: a − b = 70 cm, b(b + 70) = 100 000 cm².",
+      "alvo": "motor",
+      "funcao": "sapata.dimensoesBalancosIguais",
+      "args": [
+        {
+          "area": 10,
+          "ap": 100,
+          "bp": 30
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "Lado maior a",
+          "caminho": "A",
+          "valor": 355,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Lado menor b",
+          "caminho": "B",
+          "valor": 285,
+          "unidade": "cm",
+          "tolerancia": 0.0001
+        }
+      ]
+    },
+    {
+      "id": "alonso-sapata-momento-t2",
+      "titulo": "Sapata 4,00 × 1,00 m com N = 1200 kN e M = 200 kN·m",
+      "fonte": "ALONSO, U. R. Exercícios de fundações. 3ª ed. São Paulo: Blucher, 2019 (amostra publicada pela editora). Cap. 1, 18º exercício, p. 37–38.",
+      "url": "https://storage.blucher.com.br/book/pdf_preview/9788521213840-amostra.pdf",
+      "descricao": "Pilar 20×150 cm com N = 1200 kN e M = ±200 kN·m, σs = 300 kPa. Segunda tentativa, aceita: sapata 4,00 × 1,00 m, e = M/N = 0,167 m < a/6; σ = (N/A)(1 ± 6e/a).",
+      "nota": "A fonte arredonda a excentricidade para 0,17 m (≈ 377 e 224 kPa); com e = 0,1667 m o resultado exato é 375 e 225 kPa.",
+      "alvo": "motor",
+      "funcao": "sapata.tensoesNaBase",
+      "args": [
+        {
+          "N": 1200,
+          "A": 400,
+          "B": 100,
+          "Mx": 200
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σmáx",
+          "caminho": "sMax",
+          "valor": 377,
+          "unidade": "kPa",
+          "tolerancia": 0.01
+        },
+        {
+          "grandeza": "σmín",
+          "caminho": "sMin",
+          "valor": 224,
+          "unidade": "kPa",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "alonso-sapata-momento-t1",
+      "titulo": "Sapata 3,50 × 1,00 m com N = 1200 kN e M = 200 kN·m (rejeitada)",
+      "fonte": "ALONSO, U. R. Exercícios de fundações. 3ª ed. São Paulo: Blucher, 2019 (amostra publicada pela editora). Cap. 1, 18º exercício, p. 37.",
+      "url": "https://storage.blucher.com.br/book/pdf_preview/9788521213840-amostra.pdf",
+      "descricao": "Primeira tentativa do mesmo exercício: σmáx ≈ 443 kPa > 1,3·σs = 390 kPa, rejeitada.",
+      "nota": "Excentricidade arredondada para 0,17 m na fonte (exato: 440,8 kPa).",
+      "alvo": "motor",
+      "funcao": "sapata.tensoesNaBase",
+      "args": [
+        {
+          "N": 1200,
+          "A": 350,
+          "B": 100,
+          "Mx": 200
+        }
+      ],
+      "esperado": [
+        {
+          "grandeza": "σmáx",
+          "caminho": "sMax",
+          "valor": 443,
+          "unidade": "kPa",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "sfeir-spt-furo9",
+      "titulo": "Tensão admissível pelo SPT (N/50) — furo 9, N médio = 9,67",
+      "fonte": "SFEIR, A. L. F. Análise comparativa técnico e econômica de fundações superficiais e profundas de uma obra pública na cidade de Guarapuava (TCC). UTFPR – Guarapuava, 2021. §4.1.2.2, Eq. 5, Tabelas 5–7.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/26937/1/analisefundacoessuperficiaisprofundas.pdf",
+      "descricao": "σs = N/50 (MPa) com o NSPT médio do furo 9 (N = 9,67).",
+      "nota": "A fonte publica σ em MPa com duas casas: tolerância de ±5 kPa (meia unidade da última casa).",
+      "alvo": "motor",
+      "funcao": "sapata.tensaoAdmissivelSPT",
+      "args": [
+        9.67
+      ],
+      "esperado": [
+        {
+          "grandeza": "σadm",
+          "caminho": "sigma",
+          "valor": 190.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0,
+          "toleranciaAbs": 5
+        }
+      ]
+    },
+    {
+      "id": "sfeir-spt-furo10",
+      "titulo": "Tensão admissível pelo SPT (N/50) — furo 10, N médio = 5,67",
+      "fonte": "SFEIR, A. L. F. Análise comparativa técnico e econômica de fundações superficiais e profundas de uma obra pública na cidade de Guarapuava (TCC). UTFPR – Guarapuava, 2021. §4.1.2.2, Eq. 5, Tabelas 5–7.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/26937/1/analisefundacoessuperficiaisprofundas.pdf",
+      "descricao": "σs = N/50 (MPa) com o NSPT médio do furo 10 (N = 5,67).",
+      "nota": "A fonte publica σ em MPa com duas casas: tolerância de ±5 kPa (meia unidade da última casa).",
+      "alvo": "motor",
+      "funcao": "sapata.tensaoAdmissivelSPT",
+      "args": [
+        5.67
+      ],
+      "esperado": [
+        {
+          "grandeza": "σadm",
+          "caminho": "sigma",
+          "valor": 110.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0,
+          "toleranciaAbs": 5
+        }
+      ]
+    },
+    {
+      "id": "sfeir-spt-furo11",
+      "titulo": "Tensão admissível pelo SPT (N/50) — furo 11, N médio = 6,0",
+      "fonte": "SFEIR, A. L. F. Análise comparativa técnico e econômica de fundações superficiais e profundas de uma obra pública na cidade de Guarapuava (TCC). UTFPR – Guarapuava, 2021. §4.1.2.2, Eq. 5, Tabelas 5–7.",
+      "url": "https://riut.utfpr.edu.br/jspui/bitstream/1/26937/1/analisefundacoessuperficiaisprofundas.pdf",
+      "descricao": "σs = N/50 (MPa) com o NSPT médio do furo 11 (N = 6,0).",
+      "nota": "A fonte publica σ em MPa com duas casas: tolerância de ±5 kPa (meia unidade da última casa).",
+      "alvo": "motor",
+      "funcao": "sapata.tensaoAdmissivelSPT",
+      "args": [
+        6.0
+      ],
+      "esperado": [
+        {
+          "grandeza": "σadm",
+          "caminho": "sigma",
+          "valor": 120.0,
+          "unidade": "kPa",
+          "tolerancia": 0.0,
+          "toleranciaAbs": 5
+        }
+      ]
+    },
+    {
+      "id": "ufpr-dq-cravada",
+      "titulo": "Décourt-Quaresma: estaca cravada ø 30, L = 15 m, ponta em silte arenoso — resistência de ponta",
+      "fonte": "SANTOS, C. T.; DELL'AVANZI, E.; SESTREM, L. P.; FARO, V. P. et al. Geotecnia de Fundações (TC 041) – Exercícios de capacidade de carga (aula 8). UFPR – Departamento de Construção Civil, 2019. Exercício Décourt-Quaresma (1978).",
+      "url": "https://gegeo.ufpr.br/wp-content/uploads/2024/09/aula8.pdf",
+      "descricao": "Estaca cravada ø 30 cm, L = 15 m, SPT de metro em metro: 6, 4, 2, 4, 2, 3, 4, 5, 10, 15, 25, 20, 22, 25, 23, 29, 30, 30/11. Ponta em silte arenoso (C = 250 kPa), α = 1,0. Np = média dos N a 14, 15 e 16 m = 25,67; Rp = α·C·Np·Ap.",
+      "nota": "Só a resistência de ponta é conferida. No atrito lateral a fonte usa a média dos N de 1 a 15 m sem o limite N ≥ 3 e sem excluir os ensaios usados na ponta (NL = 11,33), e o LEBR aplica os dois critérios do método; o Rl não é comparável. A sondagem do caso tem uma só camada (silte arenoso): as faixas de solo do fuste não estão legíveis na fonte e não alteram Rp. A fonte usa Ap = 0,071 m² (exato: 0,0707).",
+      "alvo": "elemento",
+      "modulo": "geotecnia.estaca",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 18.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 18.45,
+              "solo": "silte",
+              "secundario": "arenoso"
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 2,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 2,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 3,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 15,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 25,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 20,
+              "pen": 30
+            },
+            {
+              "prof": 13,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 14,
+              "n": 25,
+              "pen": 30
+            },
+            {
+              "prof": 15,
+              "n": 23,
+              "pen": 30
+            },
+            {
+              "prof": 16,
+              "n": 29,
+              "pen": 30
+            },
+            {
+              "prof": 17,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 18,
+              "n": 30,
+              "pen": 11
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "tipo": "premoldada",
+        "secao": "circular",
+        "D": 30,
+        "L": 15,
+        "topo": 0.0,
+        "local": {
+          "x": 0,
+          "y": 0
+        },
+        "pilarId": null,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "cargaTrabalho": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Np (média dos N junto à ponta)",
+          "caminho": "dq.Np",
+          "valor": 25.67,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "C (silte arenoso)",
+          "caminho": "dq.C",
+          "valor": 250,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α (ponta)",
+          "caminho": "dq.alfa",
+          "valor": 1.0,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Rp",
+          "caminho": "dq.Rp",
+          "valor": 455.6,
+          "unidade": "kN",
+          "tolerancia": 0.01
+        }
+      ]
+    },
+    {
+      "id": "ufpr-dq-helice",
+      "titulo": "Décourt-Quaresma: estaca hélice contínua ø 30, L = 15 m, ponta em silte arenoso — resistência de ponta",
+      "fonte": "SANTOS, C. T.; DELL'AVANZI, E.; SESTREM, L. P.; FARO, V. P. et al. Geotecnia de Fundações (TC 041) – Exercícios de capacidade de carga (aula 8). UFPR – Departamento de Construção Civil, 2019. Exercício Décourt-Quaresma (1978) — variante hélice contínua.",
+      "url": "https://gegeo.ufpr.br/wp-content/uploads/2024/09/aula8.pdf",
+      "descricao": "Estaca hélice contínua ø 30 cm, L = 15 m, SPT de metro em metro: 6, 4, 2, 4, 2, 3, 4, 5, 10, 15, 25, 20, 22, 25, 23, 29, 30, 30/11. Ponta em silte arenoso (C = 250 kPa), α = 0,3. Np = média dos N a 14, 15 e 16 m = 25,67; Rp = α·C·Np·Ap.",
+      "nota": "Só a resistência de ponta é conferida. No atrito lateral a fonte usa a média dos N de 1 a 15 m sem o limite N ≥ 3 e sem excluir os ensaios usados na ponta (NL = 11,33), e o LEBR aplica os dois critérios do método; o Rl não é comparável. A sondagem do caso tem uma só camada (silte arenoso): as faixas de solo do fuste não estão legíveis na fonte e não alteram Rp. A fonte usa Ap = 0,071 m² (exato: 0,0707).",
+      "alvo": "elemento",
+      "modulo": "geotecnia.estaca",
+      "outros": [
+        {
+          "id": "f1",
+          "modulo": "geotecnia.sondagem",
+          "codigo": "SP1",
+          "nome": "SP1",
+          "local": {
+            "x": 0,
+            "y": 0
+          },
+          "cotaBoca": 0.0,
+          "limite": 18.45,
+          "nivelAgua": {
+            "inicial": null,
+            "final": null,
+            "seco": true
+          },
+          "paralisacao": "projeto",
+          "camadas": [
+            {
+              "ate": 18.45,
+              "solo": "silte",
+              "secundario": "arenoso"
+            }
+          ],
+          "spt": [
+            {
+              "prof": 1,
+              "n": 6,
+              "pen": 30
+            },
+            {
+              "prof": 2,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 3,
+              "n": 2,
+              "pen": 30
+            },
+            {
+              "prof": 4,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 5,
+              "n": 2,
+              "pen": 30
+            },
+            {
+              "prof": 6,
+              "n": 3,
+              "pen": 30
+            },
+            {
+              "prof": 7,
+              "n": 4,
+              "pen": 30
+            },
+            {
+              "prof": 8,
+              "n": 5,
+              "pen": 30
+            },
+            {
+              "prof": 9,
+              "n": 10,
+              "pen": 30
+            },
+            {
+              "prof": 10,
+              "n": 15,
+              "pen": 30
+            },
+            {
+              "prof": 11,
+              "n": 25,
+              "pen": 30
+            },
+            {
+              "prof": 12,
+              "n": 20,
+              "pen": 30
+            },
+            {
+              "prof": 13,
+              "n": 22,
+              "pen": 30
+            },
+            {
+              "prof": 14,
+              "n": 25,
+              "pen": 30
+            },
+            {
+              "prof": 15,
+              "n": 23,
+              "pen": 30
+            },
+            {
+              "prof": 16,
+              "n": 29,
+              "pen": 30
+            },
+            {
+              "prof": 17,
+              "n": 30,
+              "pen": 30
+            },
+            {
+              "prof": 18,
+              "n": 30,
+              "pen": 11
+            }
+          ]
+        }
+      ],
+      "elemento": {
+        "tipo": "helice",
+        "secao": "circular",
+        "D": 30,
+        "L": 15,
+        "topo": 0.0,
+        "local": {
+          "x": 0,
+          "y": 0
+        },
+        "pilarId": null,
+        "sondagemId": null,
+        "limitarPonta": null,
+        "cargaTrabalho": null,
+        "estrutural": {
+          "fck": null,
+          "gc": null,
+          "catalogo": null
+        }
+      },
+      "esperado": [
+        {
+          "grandeza": "Np (média dos N junto à ponta)",
+          "caminho": "dq.Np",
+          "valor": 25.67,
+          "unidade": "",
+          "tolerancia": 0.002
+        },
+        {
+          "grandeza": "C (silte arenoso)",
+          "caminho": "dq.C",
+          "valor": 250,
+          "unidade": "kPa",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "α (ponta)",
+          "caminho": "dq.alfa",
+          "valor": 0.3,
+          "unidade": "",
+          "tolerancia": 0.0001
+        },
+        {
+          "grandeza": "Rp",
+          "caminho": "dq.Rp",
+          "valor": 136.7,
+          "unidade": "kN",
+          "tolerancia": 0.01
+        }
+      ]
+    }
+  ]
+}
