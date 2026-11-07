@@ -1,0 +1,1548 @@
+{
+ "grupo": "Bibliografia — pilares",
+ "descricao": "Exercícios resolvidos publicados (apostila de P. S. S. Bastos/UNESP, dissertação de M. A. Scadelai/EESC-USP, TCCs): esbeltez, momento mínimo, αb, λ1, 2ª ordem pela curvatura aproximada e armadura por ábaco.",
+ "casos": [
+  {
+   "id": "bastos-pil-int-ex1-y",
+   "titulo": "Pilar intermediário 20×50, Nd = 1100 kN, le = 280 cm — direção de h = 20 cm",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 15.2.1, Exemplo 1, p. 33.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar intermediário biapoiado 20×50 cm, C20, CA-50, Nk = 785,7 kN (γf = 1,4, γn = 1,0), le = 280 cm, sem momentos de 1ª ordem. Calcular λ, λ1, o momento mínimo e o momento total com a 2ª ordem pela curvatura aproximada na direção de menor rigidez.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1100,
+     "h": 20,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 35,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 23.1,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.77,
+     "unidade": "",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "M2d (Nd·e2, e2 = 1,54 cm)",
+     "caminho": "M2",
+     "valor": 16.94,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 40.08,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-int-ex1-x",
+   "titulo": "Pilar intermediário 20×50, Nd = 1100 kN — direção de h = 50 cm (sem 2ª ordem)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 15.2.1, Exemplo 1, p. 33.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar, direção de maior rigidez: λ = 19,4 < λ1 = 35, 2ª ordem desprezada; Md,tot = M1d,mín.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1100,
+     "h": 50,
+     "b": 20,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 19.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 33.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 33.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-int-ex1-as",
+   "titulo": "Pilar intermediário 20×50, Nd = 1100 kN, Md = 40,08 kN·m — armadura (ábaco A-4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 15.2.1, Exemplo 1, p. 33.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar: com ν = 0,77, μ = 0,14 e d'/h = 0,20, a fonte obtém ω = 0,38 no ábaco A-4 de Venturini e As = 12,49 cm².",
+   "nota": "A fonte lê ω no ábaco A-4 de Venturini (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1100,
+     "Md": 40.08,
+     "b": 50,
+     "h": 20,
+     "dl": 4,
+     "c": {
+      "$concreto": 20
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 12.49,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-int-ex2-y",
+   "titulo": "Pilar intermediário 20×50, Nd = 1500 kN, le = 280 cm — direção de h = 20 cm",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 15.2.2, Exemplo 2, p. 37.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar do Exemplo 1 com Nk = 1071 kN (Nd = 1500 kN).",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1500,
+     "h": 20,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 31.5,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 1.05,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M2d (e2 = 1,26 cm)",
+     "caminho": "M2",
+     "valor": 18.9,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 50.47,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-int-ex2-as",
+   "titulo": "Pilar intermediário 20×50, Nd = 1500 kN, Md = 50,47 kN·m — armadura (ábaco A-4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 15.2.2, Exemplo 2, p. 37.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "μ = 0,18, d'/h = 0,20: ω = 0,78 no ábaco A-4, As = 25,63 cm².",
+   "nota": "A fonte lê ω no ábaco A-4 de Venturini (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1500,
+     "Md": 50.47,
+     "b": 50,
+     "h": 20,
+     "dl": 4,
+     "c": {
+      "$concreto": 20
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 25.63,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex1",
+   "titulo": "Pilar de extremidade 20×70, Nd = 1554 kN, M1d,A = −M1d,B = 21,7 kN·m",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.1, Exemplo 1, p. 41.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de extremidade 20×70 cm, C20, Nd = 1554 kN, le = 280 cm, momentos de 1ª ordem de 21,7 kN·m nas extremidades (sinais opostos) na direção de h = 20 cm. Como M1d,A < M1d,mín, vale αb = 1,0.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1554,
+     "h": 20,
+     "b": 70,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 21.7,
+     "MB": -21.7
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 35,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 1.0,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 32.634,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M2d (e2 = 1,53 cm)",
+     "caminho": "M2",
+     "valor": 23.78,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 56.428,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex1-as",
+   "titulo": "Pilar de extremidade 20×70, Nd = 1554 kN, Md = 56,43 kN·m — armadura (ábaco A-4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.1, Exemplo 1, p. 41.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "μ = 0,14, d'/h = 0,20: ω = 0,40, As = 18,40 cm².",
+   "nota": "A fonte lê ω no ábaco A-4 de Venturini (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1554,
+     "Md": 56.428,
+     "b": 70,
+     "h": 20,
+     "dl": 4,
+     "c": {
+      "$concreto": 20
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 18.4,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex2",
+   "titulo": "Pilar de extremidade esbelto 20×70, Nd = 1554 kN, le = 460 cm (λ = 79,6)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.2, Exemplo 2, p. 46.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar 20×70 cm, C20, Nd = 1554 kN, le = 460 cm; o momento de 1ª ordem atua na direção de h = 70 cm e a 2ª ordem na de h = 20 cm.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1554,
+     "h": 20,
+     "b": 70,
+     "le": 460,
+     "c": {
+      "$concreto": 20
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 79.6,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 32.634,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M2d (e2 = 4,13 cm)",
+     "caminho": "M2",
+     "valor": 64.18,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 96.854,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex2-as",
+   "titulo": "Pilar de extremidade 20×70, Nd = 1554 kN, Md = 96,85 kN·m — armadura (ábaco A-4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.2, Exemplo 2, p. 46.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "μ = 0,24, d'/h = 0,20: ω = 0,79, As = 36,34 cm².",
+   "nota": "A fonte lê ω no ábaco A-4 de Venturini (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1554,
+     "Md": 96.854,
+     "b": 70,
+     "h": 20,
+     "dl": 4,
+     "c": {
+      "$concreto": 20
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 36.34,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex3-x",
+   "titulo": "Pilar de extremidade 20×40, Nd = 700 kN — direção de h = 20 cm (2ª ordem)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.3, Exemplo 3, p. 51.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar 20×40 cm, C20, Nd = 700 kN, le = 280 cm; na direção de h = 20 cm só há o momento mínimo, com 2ª ordem (λ = 48,4).",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 700,
+     "h": 20,
+     "b": 40,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 14.7,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.61,
+     "unidade": "",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 27.059,
+     "unidade": "kN·m",
+     "tolerancia": 0.006
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex3-y",
+   "titulo": "Pilar de extremidade 20×40 com M1d,A = M1d,B = 70 kN·m (αb = 1,0)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.3, Exemplo 3, p. 51.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar, direção de h = 40 cm, momentos de 1ª ordem iguais nas extremidades (curvatura simples): αb = 1,0, λ = 24,2 < λ1 = 35.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 700,
+     "h": 40,
+     "b": 20,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 70,
+     "MB": 70
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 24.2,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 1.0,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 35,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 18.9,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 70.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-ext-ex4-y",
+   "titulo": "Pilar de extremidade 20×40 com M1d,A = −M1d,B = 70 kN·m (αb = 0,4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 16.2.4, Exemplo 4, p. 54.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Igual ao Exemplo 3, mas com momentos de sinais opostos (curvatura dupla): αb = 0,4 e λ1 = 70,3.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 700,
+     "h": 40,
+     "b": 20,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 70,
+     "MB": -70
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 0.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 70.3,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 70.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-canto-ex1-x",
+   "titulo": "Pilar de canto 20×50, Nd = 1148 kN, le = 280 cm — direção de h = 20 cm",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 17.2.1, Exemplo 1, p. 59.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de canto 20×50 cm, C20, Nd = 1148 kN, momentos de 1ª ordem de 20,41 kN·m (direção de h = 20 cm, sinais opostos), menores que o mínimo: αb = 1,0.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1148,
+     "h": 20,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 20.41,
+     "MB": -20.41
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 24.108,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 1.0,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M2d (e2 = 1,51 cm)",
+     "caminho": "M2",
+     "valor": 17.33,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 41.416,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-canto-ex1-y",
+   "titulo": "Pilar de canto 20×50, Nd = 1148 kN — direção de h = 50 cm",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 17.2.1, Exemplo 1, p. 59.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar, direção de h = 50 cm: momentos de 17,26 kN·m menores que o mínimo (34,44 kN·m) e λ = 19,4 < 35.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1148,
+     "h": 50,
+     "b": 20,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 17.26,
+     "MB": -17.26
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 19.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 34.44,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 34.44,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-canto-ex2-x",
+   "titulo": "Pilar de canto esbelto 20×50, Nd = 1148 kN, le = 460 cm (λ = 79,6)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 17.2.2, Exemplo 2, p. 62.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de canto 20×50 cm, C20, Nd = 1148 kN, le = 460 cm, momentos de 1ª ordem de 14,23 kN·m (menores que o mínimo) na direção de h = 20 cm.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1148,
+     "h": 20,
+     "b": 50,
+     "le": 460,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 14.23,
+     "MB": -14.23
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 79.6,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M2d (e2 = 4,07 cm)",
+     "caminho": "M2",
+     "valor": 46.72,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 70.821,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-canto-ex3-x",
+   "titulo": "Pilar de canto 20×30 com momentos opostos — direção de h = 30 cm (λ1 = 68,0)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 17.2.3, Exemplo 3, p. 66.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de canto 20×30 cm, C20, Nd = 504 kN, le = 280 cm, M1d,A = −M1d,B = 26,83 kN·m na direção de h = 30 cm: αb = 0,4, λ = 32,3 < λ1, sem 2ª ordem.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 504,
+     "h": 30,
+     "b": 20,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 26.83,
+     "MB": -26.83
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 32.3,
+     "unidade": "",
+     "tolerancia": 0.004
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 0.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 68.0,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 12.096,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 26.83,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-canto-ex3-y",
+   "titulo": "Pilar de canto 20×30 com momentos opostos — direção de h = 20 cm (λ1 = 65,9)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 17.2.3, Exemplo 3, p. 66.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar, direção de h = 20 cm: M1d,A = −M1d,B = 11,05 kN·m > M1d,mín = 10,58 kN·m, αb = 0,4, λ = 48,4 < λ1 = 65,9.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 504,
+     "h": 20,
+     "b": 30,
+     "le": 280,
+     "c": {
+      "$concreto": 20
+     },
+     "MA": 11.05,
+     "MB": -11.05
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 48.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 0.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 65.9,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 10.584,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 11.05,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p8-15x50",
+   "titulo": "Edifício — pilar intermediário P8 15×50 (γn = 1,20, Nd = 1176 kN)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.1, Pilar P8, p. 78.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar intermediário de edifício de baixa altura, 15×50 cm, C30, Nk = 700 kN, γn = 1,20 (b = 15 cm), Nd = 1176 kN, le = 280 cm.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1176,
+     "h": 15,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 64.6,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 22.932,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.73,
+     "unidade": "",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 47.91,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p8-14x50",
+   "titulo": "Edifício — pilar P8 na seção inicial 14×50 (γn = 1,25, Nd = 1225 kN)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.1, Pilar P8, p. 78.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Primeira tentativa do P8 com 14×50 cm (γn = 1,25, Nd = 1225 kN), depois revista por exceder 4% de taxa por lance.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1225,
+     "h": 14,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 69.2,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 23.52,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.82,
+     "unidade": "",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "M2d",
+     "caminho": "M2",
+     "valor": 25.98,
+     "unidade": "kN·m",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 49.5,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p5",
+   "titulo": "Edifício — pilar de extremidade P5 15×50 com momento da ligação viga-pilar",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.2, Pilar P5, p. 83.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de extremidade 15×50 cm, C30, Nd = 1092 kN (γn = 1,20), le = 280 cm, Md,topo = −Md,base = 33,30 kN·m na direção de h = 15 cm: αb = 0,4, λ1 = 68,9 > λ = 64,6, sem 2ª ordem.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1092,
+     "h": 15,
+     "b": 50,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     },
+     "MA": 33.3,
+     "MB": -33.3
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 64.6,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 0.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 68.9,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 21.29,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 33.3,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p6-y",
+   "titulo": "Edifício — pilar de extremidade P6 19×19, direção sem momento de viga",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.3, Pilar P6, p. 89.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar 19×19 cm (sem γn), C30, Nd = 420 kN, le = 280 cm; na direção sem momento de viga, λ = 51,0 > 35 e Md,tot = M1d,mín + Nd·e2 (e2 = 1,98 cm).",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 420,
+     "h": 19,
+     "b": 19,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 51.0,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 8.694,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 17.026,
+     "unidade": "kN·m",
+     "tolerancia": 0.003
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p1-x",
+   "titulo": "Edifício — pilar de canto P1 19×25, direção de h = 25 cm (λ1 = 80,0)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.4, Pilar P1, p. 94.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Pilar de canto 19×25 cm, C30, Nd = 182 kN, momentos de 25,41 kN·m (sinais opostos, e1 = 13,96 cm) na direção de h = 25 cm: αb = 0,4, λ1 = 80,0.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 182,
+     "h": 25,
+     "b": 19,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     },
+     "MA": 25.41,
+     "MB": -25.41
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ (a fonte imprime 38,9; 3,46·280/25 = 38,75)",
+     "caminho": "lambda",
+     "valor": 38.9,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "αb",
+     "caminho": "alfaB",
+     "valor": 0.4,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 80.0,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 4.095,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 25.41,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "bastos-pil-p1-y",
+   "titulo": "Edifício — pilar de canto P1 19×25, direção de h = 19 cm (λ1 = 73,4)",
+   "fonte": "BASTOS, P. S. S. Pilares de concreto armado (notas de aula, Estruturas de Concreto II). UNESP – Faculdade de Engenharia de Bauru, maio de 2017. NBR 6118:2014. Item 21.4, Pilar P1, p. 94.",
+   "url": "https://professor.pucgoias.edu.br/sitedocente/admin/arquivosUpload/14026/material/Pilares.pdf",
+   "descricao": "Mesmo pilar, direção de h = 19 cm: momentos de 12,02 kN·m (e1 = 6,60 cm, sinais opostos), αb = 0,4, λ1 = 73,4 > λ = 51,0.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 182,
+     "h": 19,
+     "b": 25,
+     "le": 280,
+     "c": {
+      "$concreto": 30
+     },
+     "MA": 12.02,
+     "MB": -12.02
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 51.0,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 73.4,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 3.767,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 12.02,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "scadelai-ex1-ab04",
+   "titulo": "Pilar 26×40, le = 675 cm (λ = 90), αb = 0,4 — curvatura aproximada",
+   "fonte": "SCADELAI, M. A. Dimensionamento de pilares de acordo com a NBR 6118:2003 (dissertação de mestrado, orient. L. M. Pinheiro). EESC-USP, 2004. Exemplo 1, item 7.1.1, p. 71.",
+   "url": "https://teses.usp.br/teses/disponiveis/18/18134/tde-31032016-165300/publico/Dissert_Scadelai_MuriloA.pdf",
+   "descricao": "Pilar biapoiado 26×40 cm, C25, CA-50, Nd = 1302 kN, le = 675 cm, momentos de extremidade de 29,69 kN·m com sinais opostos (αb = 0,4).",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte. A fonte usa a NBR 6118:2003, com as mesmas expressões.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1302,
+     "h": 26,
+     "b": 40,
+     "le": 675,
+     "c": {
+      "$concreto": 25
+     },
+     "MA": 29.69,
+     "MB": -29.69
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 90,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 65.24,
+     "unidade": "",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 29.69,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.7,
+     "unidade": "",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "1/r (1/m)",
+     "caminho": "curvatura",
+     "valor": 0.016,
+     "unidade": "1/m",
+     "tolerancia": 0.004
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 106.8,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    }
+   ]
+  },
+  {
+   "id": "scadelai-ex1-ab04-as",
+   "titulo": "Pilar 26×40, Nd = 1302 kN, Md = 106,8 kN·m — armadura (ábaco A-3)",
+   "fonte": "SCADELAI, M. A. Dimensionamento de pilares de acordo com a NBR 6118:2003 (dissertação de mestrado, orient. L. M. Pinheiro). EESC-USP, 2004. Exemplo 1, item 7.1.1, p. 71.",
+   "url": "https://teses.usp.br/teses/disponiveis/18/18134/tde-31032016-165300/publico/Dissert_Scadelai_MuriloA.pdf",
+   "descricao": "Mesmo pilar: ν = 0,70, μ = 0,22, d'/h ≈ 0,15: ω = 0,56 no ábaco A-3 de Venturini, As = 23,92 cm².",
+   "nota": "A fonte lê ω no ábaco A-3 de Venturini et al. (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1302,
+     "Md": 106.8,
+     "b": 40,
+     "h": 26,
+     "dl": 4,
+     "c": {
+      "$concreto": 25
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 23.92,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "scadelai-ex1-ab1",
+   "titulo": "Pilar 26×40, le = 675 cm (λ = 90), αb = 1,0 — curvatura aproximada",
+   "fonte": "SCADELAI, M. A. Dimensionamento de pilares de acordo com a NBR 6118:2003 (dissertação de mestrado, orient. L. M. Pinheiro). EESC-USP, 2004. Exemplo 1, item 7.2.1, p. 82.",
+   "url": "https://teses.usp.br/teses/disponiveis/18/18134/tde-31032016-165300/publico/Dissert_Scadelai_MuriloA.pdf",
+   "descricao": "Mesmo pilar com αb = 1,0 (sem momentos de 1ª ordem além do mínimo): λ1 = 35.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte. A fonte usa a NBR 6118:2003, com as mesmas expressões.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 1302,
+     "h": 26,
+     "b": 40,
+     "le": 675,
+     "c": {
+      "$concreto": 25
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ1",
+     "caminho": "lambda1",
+     "valor": 35,
+     "unidade": "",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 124.61,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    }
+   ]
+  },
+  {
+   "id": "scadelai-ex1-ab1-as",
+   "titulo": "Pilar 26×40, Nd = 1302 kN, Md = 124,61 kN·m — armadura (ábaco A-3)",
+   "fonte": "SCADELAI, M. A. Dimensionamento de pilares de acordo com a NBR 6118:2003 (dissertação de mestrado, orient. L. M. Pinheiro). EESC-USP, 2004. Exemplo 1, item 7.2.1, p. 82.",
+   "url": "https://teses.usp.br/teses/disponiveis/18/18134/tde-31032016-165300/publico/Dissert_Scadelai_MuriloA.pdf",
+   "descricao": "ν = 0,70, μ = 0,26: ω = 0,68, As = 29,04 cm².",
+   "nota": "A fonte lê ω no ábaco A-3 de Venturini et al. (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 1302,
+     "Md": 124.61,
+     "b": 40,
+     "h": 26,
+     "dl": 4,
+     "c": {
+      "$concreto": 25
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 29.04,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  },
+  {
+   "id": "unichristus-p5",
+   "titulo": "Pilar 20×40 com le = 520 cm (λ ≈ 90): limite 1/r ≤ 0,005/h",
+   "fonte": "SILVA, J. C. Dimensionamento de pilares retangulares em flexo-compressão oblíqua pela NBR 6118:2014 e verificação pelo programa P-Calc (TCC). Centro Universitário Christus (Unichristus), 2023. Seção 4, pilar P5 (Tabelas 10, 16, 23 e 29).",
+   "url": "https://repositorio.unichristus.edu.br/jspui/bitstream/123456789/1596/1/Jozivaldo%20de%20Carvalho%20Silva.pdf",
+   "descricao": "Pilar 20×40 cm, C25, CA-50, Nd = 440,9 kN, le = 520 cm; na direção de h = 20 cm, como ν = 0,309 é baixo, a curvatura fica limitada a 0,005/h e e2 = 6,76 cm.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 440.9,
+     "h": 20,
+     "b": 40,
+     "le": 520,
+     "c": {
+      "$concreto": 25
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 89.96,
+     "unidade": "",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 9.259,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.309,
+     "unidade": "",
+     "tolerancia": 0.004
+    },
+    {
+     "grandeza": "M2d",
+     "caminho": "M2",
+     "valor": 29.805,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 39.064,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    }
+   ]
+  },
+  {
+   "id": "ufu-p8",
+   "titulo": "Pilar intermediário 14×26 (γn = 1,25), le = 350 cm (λ = 86,5)",
+   "fonte": "COSTANTIN, G. M. Análise comparativa do dimensionamento e comportamento de uma estrutura em concreto armado com e sem o auxílio de um programa computacional (TCC). Universidade Federal de Uberlândia, 2021. Seção 6.3, Tabela 24 (P8).",
+   "url": "https://repositorio.ufu.br/bitstream/123456789/32302/4/An%c3%a1liseComparativaDimensionamento.pdf",
+   "descricao": "Pilar intermediário 14×26 cm, C25, Nk = 113 kN, γn = 1,25, Nd = 198 kN, le = 350 cm (carga por área de influência de 16,9 m²).",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 198,
+     "h": 14,
+     "b": 26,
+     "le": 350,
+     "c": {
+      "$concreto": 25
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 86.5,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 3.81,
+     "unidade": "kN·m",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.305,
+     "unidade": "",
+     "tolerancia": 0.004
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 12.49,
+     "unidade": "kN·m",
+     "tolerancia": 0.006
+    }
+   ]
+  },
+  {
+   "id": "ufu-p9",
+   "titulo": "Pilar intermediário 14×45 (γn = 1,25), le = 350 cm",
+   "fonte": "COSTANTIN, G. M. Análise comparativa do dimensionamento e comportamento de uma estrutura em concreto armado com e sem o auxílio de um programa computacional (TCC). Universidade Federal de Uberlândia, 2021. Seção 6.3, Tabela 24 (P9).",
+   "url": "https://repositorio.ufu.br/bitstream/123456789/32302/4/An%c3%a1liseComparativaDimensionamento.pdf",
+   "descricao": "Pilar intermediário 14×45 cm, C25, Nk = 288 kN, Nd = 504 kN, le = 350 cm.",
+   "nota": "O LEBR calcula λ = 3,46·le/h, M1d,mín = Nd(0,015 + 0,03h), αb e λ1 (15.8.2) e o pilar-padrão com curvatura aproximada (15.8.3.3.2), como a fonte.",
+   "alvo": "motor",
+   "funcao": "pilar.momentoTotal",
+   "args": [
+    {
+     "Nd": 504,
+     "h": 14,
+     "b": 45,
+     "le": 350,
+     "c": {
+      "$concreto": 25
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "λ",
+     "caminho": "lambda",
+     "valor": 86.5,
+     "unidade": "",
+     "tolerancia": 0.003
+    },
+    {
+     "grandeza": "M1d,mín",
+     "caminho": "M1min",
+     "valor": 9.68,
+     "unidade": "kN·m",
+     "tolerancia": 0.006
+    },
+    {
+     "grandeza": "ν",
+     "caminho": "nu",
+     "valor": 0.448,
+     "unidade": "",
+     "tolerancia": 0.004
+    },
+    {
+     "grandeza": "Md,tot",
+     "caminho": "Md",
+     "valor": 31.75,
+     "unidade": "kN·m",
+     "tolerancia": 0.006
+    }
+   ]
+  },
+  {
+   "id": "ufu-p9-as",
+   "titulo": "Pilar 14×45, Nd = 504 kN, Md = 31,75 kN·m — armadura (ábaco de Venturini)",
+   "fonte": "COSTANTIN, G. M. Análise comparativa do dimensionamento e comportamento de uma estrutura em concreto armado com e sem o auxílio de um programa computacional (TCC). Universidade Federal de Uberlândia, 2021. Seção 6.3, Tabela 24 (P9).",
+   "url": "https://repositorio.ufu.br/bitstream/123456789/32302/4/An%c3%a1liseComparativaDimensionamento.pdf",
+   "descricao": "μx = 0,202, d'/h = 0,29: ω = 0,70 (Venturini, 1987), As = 18,11 cm².",
+   "nota": "A fonte lê ω no ábaco de Venturini (1987) (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
+   "alvo": "motor",
+   "funcao": "pilar.armaduraDuasFaces",
+   "args": [
+    {
+     "Nd": 504,
+     "Md": 31.75,
+     "b": 45,
+     "h": 14,
+     "dl": 4.1,
+     "c": {
+      "$concreto": 25
+     },
+     "s": {
+      "$aco": 500
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "As (armadura total)",
+     "caminho": "As",
+     "valor": 18.11,
+     "unidade": "cm²",
+     "tolerancia": 0.1
+    }
+   ]
+  }
+ ]
+}

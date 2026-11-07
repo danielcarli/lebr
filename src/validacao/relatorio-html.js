@@ -32,7 +32,7 @@ export const percentual = (x) => (x == null ? '—' : `${(x * 100).toLocaleStrin
 export function relatorioHtml(r, { versao = '' } = {}) {
   const data = new Date(r.executadoEm).toLocaleString('pt-BR');
   const linhasCaso = (c) => {
-    const cab = `<tr class="caso ${c.ok ? 'ok' : 'falha'}"><td colspan="6"><b>${esc(c.titulo)}</b> <span class="id">${esc(c.id)} · ${esc(c.onde)}</span><div class="fonte">${esc(c.fonte)}</div>${c.erro ? `<div class="erro">Erro: ${esc(c.erro)}</div>` : ''}</td></tr>`;
+    const cab = `<tr class="caso ${c.ok ? 'ok' : 'falha'}"><td colspan="6"><b>${esc(c.titulo)}</b> <span class="id">${esc(c.id)} · ${esc(c.onde)}</span>${c.descricao ? `<div class="problema">${esc(c.descricao)}</div>` : ''}<div class="fonte">Fonte: ${esc(c.fonte)}${c.url ? ` — <a href="${esc(c.url)}">${esc(c.url)}</a>` : ''}</div>${c.nota ? `<div class="nota">Nota: ${esc(c.nota)}</div>` : ''}${c.erro ? `<div class="erro">Erro: ${esc(c.erro)}</div>` : ''}</td></tr>`;
     return cab + c.itens.map((i) => `<tr class="${i.ok ? '' : 'falha'}"><td>${esc(i.grandeza)}</td><td class="n">${esc(numeroBr(i.esperado))}</td><td class="n">${esc(numeroBr(i.obtido))}</td><td>${esc(i.unidade)}</td><td class="n">${percentual(i.diferenca)} <span class="tol">/ ${percentual(i.tolerancia)}</span></td><td class="st">${i.ok ? 'ok' : 'FALHA'}</td></tr>`).join('');
   };
   return `<!doctype html>
@@ -57,6 +57,9 @@ td.n, th.n { text-align:right; white-space:nowrap; }
 tr.caso td { padding-top:14px; border-bottom:0; }
 .id { color:var(--suave); font-size:12px; margin-left:6px; }
 .fonte { color:var(--tinta2); font-size:12.5px; margin-top:2px; }
+.problema { font-size:13px; margin-top:3px; }
+.nota { color:var(--tinta2); font-size:12px; font-style:italic; margin-top:2px; }
+.fonte a { color:inherit; word-break:break-all; }
 .erro, tr.falha td, .st { color:var(--erro); }
 tr:not(.falha) .st { color:var(--ok); font-weight:600; }
 tr.falha .st { font-weight:700; }

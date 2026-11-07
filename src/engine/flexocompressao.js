@@ -66,6 +66,23 @@ export function momentoResistente(Nd, sec, c, s) {
   return { MRd: esforcosResistentes(x, sec, c, s).M / 100, x, Nmax, ok: true };
 }
 
+/**
+ * Armadura simétrica em duas faces opostas (flexo-compressão normal) para Nd e Md dados — o mesmo arranjo dos ábacos
+ * de flexão normal (As/2 a d' de cada face). Usado para comparar com exemplos resolvidos por ábaco.
+ * @returns {{As:number, omega:number, nu:number, mu:number, ok:boolean}}  As em cm²
+ */
+export function armaduraDuasFaces({ Nd, Md, b, h, dl, c, s }) {
+  const sec = (As) => ({ b, h, barras: [{ y: dl, A: As / 2 }, { y: h - dl, A: As / 2 }] });
+  const resiste = (As) => { const r = momentoResistente(Nd, sec(As), c, s); return r.ok && r.MRd >= Md; };
+  const fcd = c.fcd / 10, fyd = s.fyd / 10, Ac = b * h;
+  let lo = 0, hi = 0.08 * Ac;
+  const nu = Nd / (Ac * fcd), mu = (Md * 100) / (Ac * h * fcd);
+  if (!resiste(hi)) return { As: NaN, omega: NaN, nu, mu, ok: false };
+  if (resiste(0)) return { As: 0, omega: 0, nu, mu, ok: true };
+  for (let it = 0; it < 60; it++) { const m = (lo + hi) / 2; if (resiste(m)) hi = m; else lo = m; }
+  return { As: hi, omega: (hi * fyd) / (Ac * fcd), nu, mu, ok: true };
+}
+
 /** Distribui n barras no contorno de uma seção bx × by (coordenadas do centro das barras, cm). */
 export function distribuirBarras({ bx, by, n, o }) {
   let kx = 0, ky = 0; // barras intermediárias por face paralela a x / a y

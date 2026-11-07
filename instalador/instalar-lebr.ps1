@@ -69,6 +69,18 @@ function Baixar([string]$Url, [string]$Destino) {
   }
 }
 
+# GET na API do GitHub; devolve $null quando o recurso não existe (404)
+function ConsultarGitHub([string]$Caminho) {
+  try {
+    return Invoke-RestMethod -Uri "https://api.github.com/$Caminho" -Headers $Cabecalho -UseBasicParsing
+  } catch {
+    $resp = $_.Exception.Response
+    if ($resp -and [int]$resp.StatusCode -eq 404) { return $null }
+    if ($resp -and [int]$resp.StatusCode -eq 403) { Falhar 'O GitHub recusou a consulta (limite de 60 consultas por hora sem login). Tente de novo em alguns minutos.' }
+    Falhar "Não foi possível consultar o GitHub ($($_.Exception.Message)). Verifique a conexão com a internet."
+  }
+}
+
 function ConferirSha256([string]$Arquivo, [string]$Esperado, [string]$Nome) {
   $obtido = (Get-FileHash -Path $Arquivo -Algorithm SHA256).Hash.ToLowerInvariant()
   if ($obtido -ne $Esperado.ToLowerInvariant()) {
@@ -109,11 +121,27 @@ try {
 
   # 1 — última release ------------------------------------------------------------------------------------------
   Etapa 1 'Consultando a última versão no GitHub…'
-  $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repositorio/releases/latest" -Headers $Cabecalho -UseBasicParsing
-  $tag = [string]$release.tag_name
+  if (-not (ConsultarGitHub "repos/$Repositorio")) {
+    Falhar "O repositório github.com/$Repositorio não foi encontrado. Ele precisa ser público para o instalador baixar o código."
+  }
+  $release = ConsultarGitHub "repos/$Repositorio/releases/latest"
+  if ($release) {
+    $tag = [string]$release.tag_name
+    Escrever "Última release: $tag (publicada em $($release.published_at))"
+  } else {
+    # sem release publicada (só rascunhos ou nenhuma): usa a tag de versão mais alta, se houver
+    Escrever "O repositório ainda não tem release publicada; procurando a tag de versão mais recente…"
+    $tags = @(@(ConsultarGitHub "repos/$Repositorio/tags?per_page=100") | ForEach-Object { $_ } | Where-Object { $_ -and ([string]$_.name -match '^v?\d+\.\d+\.\d+$') })
+    if ($tags.Count -eq 0) {
+      Falhar "Ainda não há nenhuma versão publicada em github.com/$Repositorio (nem release nem tag vX.Y.Z). Publique uma release (veja docs/INSTALACAO.md) e rode o instalador de novo."
+    }
+    $tag = ($tags | Sort-Object { [version]($_.name -replace '^v', '') } -Descending | Select-Object -First 1).name
+    $release = [pscustomobject]@{ tag_name = $tag; assets = @() }
+    Escrever "Usando a tag $tag."
+  }
   if ($tag -notmatch '^v?(\d+\.\d+\.\d+)$') { Falhar "A última release tem uma tag inesperada: '$tag'." }
   $versao = $Matches[1]
-  Escrever "Última versão: $versao (publicada em $($release.published_at))"
+  Escrever "Versão: $versao"
   Escrever "@@VERSAO|$versao"
 
   # 2 — código-fonte --------------------------------------------------------------------------------------------

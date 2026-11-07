@@ -23,7 +23,8 @@
  * Formato de um arquivo de casos:
  *   { grupo, descricao, casos: [caso] }
  * Caso:
- *   { id, titulo, fonte,
+ *   { id, titulo, fonte, descricao?, url?, nota?,    (descricao: enunciado do problema; url: onde a fonte está
+ *                                                     publicada; nota: diferenças de hipótese entre a fonte e o LEBR)
  *     alvo: 'motor',    funcao: 'viga.analisarViga', args: [...]
  *   | alvo: 'elemento', modulo: 'concreto.viga', elemento: {...}, parametros?: {...}, pavimentos?: [...], outros?: [...],
  *     esperado: [{ grandeza, caminho, valor, unidade?, tolerancia?, toleranciaAbs?, ausenteVale? }] }
@@ -37,7 +38,7 @@ import { dimensionarFlexao, armaduraMinima } from '../engine/flexao.js';
 import { dimensionarEstribos, verificarCortanteLaje } from '../engine/cisalhamento.js';
 import { analisarViga } from '../engine/viga-solver.js';
 import { analisarPlaca, areasDeInfluencia } from '../engine/placa.js';
-import { momentoTotal, dimensionarPilar } from '../engine/flexocompressao.js';
+import { momentoTotal, dimensionarPilar, armaduraDuasFaces } from '../engine/flexocompressao.js';
 import { madeira, flexaoMadeira, cisalhamentoMadeira, compressaoMadeira } from '../engine/madeira.js';
 import { pesoAlvenaria, cargaParede, cargaRevestimento, cargaUso } from '../engine/cargas.js';
 import { gerarCombinacoes, envolvente } from '../engine/combinacoes.js';
@@ -73,6 +74,7 @@ export const MOTORES = {
   'placa.areasDeInfluencia': areasDeInfluencia,
   'pilar.momentoTotal': momentoTotal,
   'pilar.dimensionarPilar': dimensionarPilar,
+  'pilar.armaduraDuasFaces': armaduraDuasFaces,
   'madeira.madeira': madeira,
   'madeira.flexaoMadeira': flexaoMadeira,
   'madeira.cisalhamentoMadeira': cisalhamentoMadeira,
@@ -234,7 +236,7 @@ export function comparar(e, obtido) {
 
 /** Roda um caso e devolve o relatório dele. */
 export function executarCaso(caso) {
-  const base = { id: caso.id, titulo: caso.titulo, fonte: caso.fonte, alvo: caso.alvo, onde: caso.alvo === 'motor' ? caso.funcao : caso.modulo };
+  const base = { id: caso.id, titulo: caso.titulo, fonte: caso.fonte, descricao: caso.descricao ?? '', url: caso.url ?? '', nota: caso.nota ?? '', alvo: caso.alvo, onde: caso.alvo === 'motor' ? caso.funcao : caso.modulo };
   let r;
   try {
     r = caso.alvo === 'elemento' ? rodarElemento(caso) : rodarMotor(caso);
