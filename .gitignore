@@ -8,3 +8,6 @@ out/
 validacao/relatorio.html
 validacao/relatorio.json
 Thumbs.db
+
+# código-fonte da release (npm run fonte)
+lebr-fonte.zip

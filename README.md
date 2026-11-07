@@ -6,7 +6,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 > [!WARNING]
-> **Protótipo 0.33.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.33.3 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -502,10 +502,12 @@ Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
-- **Instalador e atualização automática (0.33.1):** instalador do Windows (`LEBR-Setup-…-win-x64.exe`), com
-  atalhos e desinstalação; o programa instalado procura novas versões nas releases do GitHub
-  (github.com/danielcarli/lebr), baixa em segundo plano e oferece **Reiniciar e atualizar** — também em
-  **Ajuda → Verificar atualizações**. Ver [docs/INSTALACAO.md](docs/INSTALACAO.md).
+- **Instalador do Windows (0.33.3):** `LEBR-Instalador.exe` (Inno Setup, cerca de 2 MB, na pasta `instalador/` e
+  nas releases) que **monta o LEBR no computador** a partir do código-fonte da última release do GitHub: confere o
+  SHA-256 do código-fonte e do Node.js, instala as dependências travadas com `npm ci`, roda os testes e só então
+  instala, sem precisar de administrador. O programa avisa quando há versão nova (**Atualizar agora**, também em
+  **Ajuda → Verificar atualizações** e no atalho **Atualizar o LEBR** do menu Iniciar). Ver
+  [docs/INSTALACAO.md](docs/INSTALACAO.md).
 - **Ajustes da tela do elemento (0.33.1):** o estado do elemento aparece só no chip da barra de cálculo (saiu o selo
   verde repetido no canto do cabeçalho), e os textos dos gráficos — esquema da viga, diagramas de momento, cortante,
   torção e flecha, curva de interação do pilar e curva da estaca — têm o dobro do tamanho, com os espaçamentos e a

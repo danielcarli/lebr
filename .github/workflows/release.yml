@@ -1,5 +1,9 @@
-# Gera o instalador do Windows e publica na release do GitHub quando uma tag vX.Y.Z é enviada.
-# O LEBR instalado consulta essas releases (latest.yml) e se atualiza sozinho.
+# Publica uma versão do LEBR quando uma tag vX.Y.Z é enviada:
+#   1. confere a versão e roda os testes;
+#   2. gera o código-fonte da release (lebr-fonte.zip) e o instalador do Windows (LEBR-Instalador.exe, Inno Setup);
+#   3. cria a release com os dois anexos — o GitHub calcula o SHA-256 de cada anexo, que o instalador confere;
+#   4. testa o instalador de ponta a ponta: roda o instalar-lebr.ps1, que baixa esta release, confere, testa e
+#      monta o LEBR num Windows limpo.
 name: Release Windows
 
 on:
@@ -19,9 +23,43 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Conferir a versão da tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          if [ "v$VERSAO" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não corresponde à versão do package.json ($VERSAO)."; exit 1
+          fi
+
       - run: npm ci
       - run: npm test
-      - name: Instalador NSIS e publicação na release
-        run: npx electron-builder --win nsis --x64 --publish always
+
+      - name: Código-fonte da release
+        shell: bash
+        run: git archive --format=zip --prefix=lebr/ -o lebr-fonte.zip HEAD
+
+      - name: Instalador (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" instalador\lebr.iss
+
+      - name: Publicar na release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARQS="instalador/LEBR-Instalador.exe lebr-fonte.zip"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" $ARQS --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" $ARQS --title "LEBR ${GITHUB_REF_NAME#v}" --generate-notes --latest
+          fi
+
+      - name: Testar a instalação de ponta a ponta
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File instalador\instalar-lebr.ps1

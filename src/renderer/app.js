@@ -62,7 +62,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.33.1';
+const VERSAO = '0.33.3';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -1153,12 +1153,14 @@ function ligarEventos() {
   lebr?.janela.aoComandoDoMenu((id) => comandos.executar(id));
   // atualização automática pelo GitHub: avisa quando a nova versão já está baixada; a pedido, diz também o resto
   lebr?.atualizacao?.aoMudar((st) => {
-    if (st.fase === 'pronto') {
+    if (st.fase === 'disponivel') {
+      notificar(`A versão ${st.versao} do LEBR está disponível no GitHub.`, 'info', { duracao: 0, acoes: [{ texto: 'Atualizar agora', aoClicar: () => lebr.atualizacao.instalar() }] });
+    } else if (st.fase === 'pronto') {
       notificar(`A versão ${st.versao} do LEBR já foi baixada.`, 'ok', { duracao: 0, acoes: [{ texto: 'Reiniciar e atualizar', aoClicar: () => lebr.atualizacao.instalar() }] });
     } else if (st.manual) {
       if (st.fase === 'atualizado') notificar(`O LEBR já está na versão mais recente (${VERSAO}).`, 'ok');
       else if (st.fase === 'baixando' && st.progresso === 0) notificar(`Baixando a versão ${st.versao}…`, 'info');
-      else if (st.fase === 'indisponivel') notificar('A atualização automática só funciona na versão instalada pelo instalador do Windows. Baixe a nova versão em github.com/danielcarli/lebr.', 'info', { duracao: 9000 });
+      else if (st.fase === 'indisponivel') notificar('A atualização automática só funciona no LEBR instalado pelo instalador do Windows. Baixe a versão nova em github.com/danielcarli/lebr.', 'info', { duracao: 9000 });
       else if (st.fase === 'erro') notificar(`Não foi possível verificar atualizações: ${st.erro}`, 'erro', { duracao: 8000 });
     }
   });

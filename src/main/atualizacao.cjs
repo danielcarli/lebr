@@ -12,25 +12,66 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 /**
- * Atualização automática pelo GitHub (releases de https://github.com/danielcarli/lebr).
+ * Atualização do LEBR, conforme a forma como ele foi instalado:
  *
- * Só funciona no aplicativo instalado (instalador do Windows); no código-fonte e no executável portátil o
- * electron-updater não tem onde instalar, então nada é verificado. O fluxo: ao abrir, o programa consulta o
- * latest.yml da última release; se houver versão mais nova, baixa em segundo plano e avisa a interface, que
- * oferece "Reiniciar e atualizar". O comando ajuda.atualizar faz a verificação a pedido.
+ * - **Instalador que monta o programa no computador** (LEBR-Instalador.exe, Inno Setup): o programa consulta a
+ *   última release em api.github.com/repos/danielcarli/lebr e, havendo versão mais nova, oferece "Atualizar agora",
+ *   que fecha o LEBR e roda de novo o instalador guardado em %LOCALAPPDATA%\LEBR-Instalador (/ATUALIZAR: baixa o
+ *   código-fonte novo, confere, testa, monta e reabre o programa).
+ * - **Instalador com o programa pronto** (electron-builder, quando houver app-update.yml nos recursos): o
+ *   electron-updater baixa a versão nova em segundo plano e oferece "Reiniciar e atualizar".
+ * - Código-fonte (npm start) e executável portátil: sem atualização automática.
+ *
+ * Ao abrir, a verificação é silenciosa; o comando ajuda.atualizar faz a verificação a pedido.
  */
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, net } = require('electron');
+const fs = require('node:fs');
+const path = require('node:path');
+const { spawn } = require('node:child_process');
 
+const REPOSITORIO = 'danielcarli/lebr';
 let autoUpdater = null;
+let atualizador = null;   // caminho do LEBR-Instalador.exe (modo instalador)
 let janela = null;
 let estado = { fase: 'ocioso', versao: null, progresso: 0, erro: null };
 
 function enviar() { janela?.webContents.send('atualizacao:estado', estado); }
 function mudar(parcial) { estado = { ...estado, ...parcial }; enviar(); }
 
+/** compara versões x.y.z: > 0 quando a é mais nova que b */
+function compararVersoes(a, b) {
+  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0), pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+  return 0;
+}
+
+async function verificarNoGitHub(manual) {
+  mudar({ fase: 'verificando', erro: null, manual });
+  try {
+    const r = await net.fetch(`https://api.github.com/repos/${REPOSITORIO}/releases/latest`, {
+      headers: { 'User-Agent': 'LEBR', Accept: 'application/vnd.github+json' },
+    });
+    if (!r.ok) throw new Error(`GitHub respondeu ${r.status}`);
+    const rel = await r.json();
+    const versao = String(rel.tag_name ?? '').replace(/^v/, '');
+    if (!/^\d+\.\d+\.\d+$/.test(versao)) throw new Error(`tag inesperada: ${rel.tag_name}`);
+    mudar(compararVersoes(versao, app.getVersion()) > 0 ? { fase: 'disponivel', versao } : { fase: 'atualizado', versao });
+  } catch (err) {
+    mudar({ fase: 'erro', erro: String(err?.message ?? err) });
+  }
+}
+
 function iniciar(j) {
   janela = j;
-  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR) {
+  const yml = path.join(process.resourcesPath ?? '', 'app-update.yml');
+  const exe = path.join(process.env.LOCALAPPDATA ?? '', 'LEBR-Instalador', 'LEBR-Instalador.exe');
+  if (app.isPackaged && process.platform === 'win32' && !fs.existsSync(yml) && fs.existsSync(exe)) {
+    atualizador = exe;
+    registrar();
+    setTimeout(() => verificarNoGitHub(false), 8000);
+    return;
+  }
+  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !fs.existsSync(yml)) {
     estado = { ...estado, fase: 'indisponivel' };
     registrar();
     return;
@@ -57,6 +98,7 @@ function iniciar(j) {
 }
 
 function verificar(manual) {
+  if (atualizador) { verificarNoGitHub(manual); return; }
   if (!autoUpdater) { mudar({ fase: 'indisponivel', manual }); return; }
   mudar({ manual });
   autoUpdater.checkForUpdates().catch((err) => mudar({ fase: 'erro', erro: String(err?.message ?? err) }));
@@ -65,7 +107,13 @@ function verificar(manual) {
 function registrar() {
   ipcMain.handle('atualizacao:estado', () => estado);
   ipcMain.handle('atualizacao:verificar', () => { verificar(true); return estado; });
-  ipcMain.handle('atualizacao:instalar', () => { if (autoUpdater && estado.fase === 'pronto') autoUpdater.quitAndInstall(false, true); });
+  ipcMain.handle('atualizacao:instalar', () => {
+    if (atualizador && estado.fase === 'disponivel') {
+      // roda o instalador em modo de atualização (pula as telas iniciais e reabre o LEBR no fim) e fecha o programa
+      spawn(atualizador, ['/ATUALIZAR', '/SP-'], { detached: true, stdio: 'ignore' }).unref();
+      setTimeout(() => app.quit(), 300);
+    } else if (autoUpdater && estado.fase === 'pronto') autoUpdater.quitAndInstall(false, true);
+  });
 }
 
 module.exports = { iniciar };

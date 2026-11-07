@@ -1,0 +1,27 @@
+﻿O QUE ESTE INSTALADOR FAZ
+
+Este instalador não traz o programa pronto. Ele monta o LEBR neste computador a partir do código-fonte da versão mais recente publicada em github.com/danielcarli/lebr:
+
+ 1. consulta a última release publicada no GitHub;
+ 2. baixa o código-fonte e confere o SHA-256 calculado pelo GitHub;
+ 3. baixa o Node.js 22 (LTS) oficial de nodejs.org e confere o SHA-256 publicado;
+ 4. instala as dependências nas versões travadas do projeto (npm ci), conferidas uma a uma;
+ 5. roda os testes automáticos do LEBR — se algum falhar, nada é instalado;
+ 6. monta o programa e o instala na sua pasta de usuário.
+
+Tudo é baixado por HTTPS. Não são necessários direitos de administrador.
+
+REQUISITOS
+
+ - Windows 10 (versão 1809 ou mais nova) ou Windows 11, de 64 bits;
+ - conexão com a internet durante a instalação (cerca de 300 MB de downloads);
+ - cerca de 1,5 GB livres durante a montagem (a pasta temporária é apagada no fim);
+ - de 5 a 15 minutos, conforme a internet e o computador.
+
+ATUALIZAR
+
+Para atualizar, use o atalho "Atualizar o LEBR" no menu Iniciar (ou Ajuda > Verificar atualizações no programa). O instalador busca de novo a última versão do GitHub; seus projetos e preferências são mantidos. Se algo falhar, a versão instalada continua como estava.
+
+AVISO
+
+O LEBR é um protótipo em desenvolvimento e ainda não deve ser usado em projetos estruturais reais.
