@@ -6,7 +6,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 > [!WARNING]
-> **Protótipo 0.34.4 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.34.5 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]

@@ -58,26 +58,69 @@ function Baixar([string]$Url, [string]$Destino) {
   $tentativas = 0
   while ($true) {
     try {
-      Invoke-WebRequest -Uri $Url -OutFile $Destino -UseBasicParsing -Headers @{ 'User-Agent' = 'LEBR-Instalador' } -MaximumRedirection 10
+      Invoke-WebRequest -Uri $Url -OutFile $Destino -UseBasicParsing -Headers @{ 'User-Agent' = 'LEBR-Instalador' } -MaximumRedirection 10 -TimeoutSec 600
       return
     } catch {
       $tentativas++
-      if ($tentativas -ge 3) { Falhar "Não foi possível baixar $Url ($($_.Exception.Message))" }
-      Escrever "Falha no download, tentando de novo ($tentativas/3)…"
+      if ($tentativas -ge 4) { Falhar "Não foi possível baixar $Url ($($_.Exception.Message))" }
+      Escrever "Falha no download, tentando de novo ($tentativas/4)…"
       Start-Sleep -Seconds (3 * $tentativas)
     }
   }
 }
 
-# GET na API do GitHub; devolve $null quando o recurso não existe (404)
+# GET na API do GitHub; devolve $null quando o recurso não existe (404). Erros passageiros do GitHub (5xx, 429,
+# conexão caída ou tempo esgotado) são tentados de novo, com espera crescente; se persistirem, lança uma exceção
+# com Indisponivel = $true, e quem chamou pode seguir pelo caminho sem a API (ResolverPelaWeb).
 function ConsultarGitHub([string]$Caminho) {
-  try {
-    return Invoke-RestMethod -Uri "https://api.github.com/$Caminho" -Headers $Cabecalho -UseBasicParsing
-  } catch {
-    $resp = $_.Exception.Response
-    if ($resp -and [int]$resp.StatusCode -eq 404) { return $null }
-    if ($resp -and [int]$resp.StatusCode -eq 403) { Falhar 'O GitHub recusou a consulta (limite de 60 consultas por hora sem login). Tente de novo em alguns minutos.' }
-    Falhar "Não foi possível consultar o GitHub ($($_.Exception.Message)). Verifique a conexão com a internet."
+  $esperas = @(2, 5, 10, 20)
+  for ($i = 0; ; $i++) {
+    try {
+      return Invoke-RestMethod -Uri "https://api.github.com/$Caminho" -Headers $Cabecalho -UseBasicParsing -TimeoutSec 30
+    } catch {
+      $resp = $_.Exception.Response
+      $codigo = if ($resp) { [int]$resp.StatusCode } else { 0 }
+      if ($codigo -eq 404) { return $null }
+      $limite = $codigo -eq 403 -or $codigo -eq 429
+      $passageiro = $codigo -eq 0 -or $codigo -ge 500 -or $codigo -eq 429
+      if ($passageiro -and $i -lt $esperas.Count) {
+        Escrever "O GitHub não respondeu ($($_.Exception.Message)); tentando de novo em $($esperas[$i]) s ($($i + 1)/$($esperas.Count))…"
+        Start-Sleep -Seconds $esperas[$i]
+        continue
+      }
+      $erro = New-Object System.Exception($(if ($limite) { 'O GitHub recusou a consulta à API (limite de consultas por hora sem login).' } else { "A API do GitHub não respondeu ($($_.Exception.Message))." }))
+      $erro.Data['Indisponivel'] = $true
+      throw $erro
+    }
+  }
+}
+
+# Caminho sem a API: github.com/<repo>/releases/latest redireciona para .../releases/tag/<tag>. Lê o endereço do
+# redirecionamento sem segui-lo. Devolve a tag, ou $null se o repositório ainda não tem release publicada.
+function ResolverPelaWeb {
+  $esperas = @(2, 5, 10)
+  for ($i = 0; ; $i++) {
+    try {
+      $req = [System.Net.HttpWebRequest]::Create("https://github.com/$Repositorio/releases/latest")
+      $req.AllowAutoRedirect = $false
+      $req.UserAgent = 'LEBR-Instalador'
+      $req.Timeout = 30000
+      $resp = $req.GetResponse()
+      try { $destino = [string]$resp.Headers['Location']; $codigo = [int]$resp.StatusCode } finally { $resp.Close() }
+      if ($codigo -ge 300 -and $codigo -lt 400 -and $destino -match '/releases/tag/([^/?#]+)$') { return [uri]::UnescapeDataString($Matches[1]) }
+      return $null
+    } catch {
+      $msg = if ($_.Exception.InnerException) { $_.Exception.InnerException.Message } else { $_.Exception.Message }
+      $r = $_.Exception.InnerException.Response
+      if (-not $r) { $r = $_.Exception.Response }
+      if ($r -and [int]$r.StatusCode -eq 404) { Falhar "O repositório github.com/$Repositorio não foi encontrado. Ele precisa ser público para o instalador baixar o código." }
+      if ($i -lt $esperas.Count) {
+        Escrever "github.com não respondeu ($msg); tentando de novo em $($esperas[$i]) s…"
+        Start-Sleep -Seconds $esperas[$i]
+        continue
+      }
+      Falhar "Não foi possível falar com o GitHub ($msg). O GitHub pode estar instável neste momento: confira a conexão com a internet e rode o instalador de novo em alguns minutos."
+    }
   }
 }
 
@@ -121,10 +164,23 @@ try {
 
   # 1 — última release ------------------------------------------------------------------------------------------
   Etapa 1 'Consultando a última versão no GitHub…'
-  if (-not (ConsultarGitHub "repos/$Repositorio")) {
-    Falhar "O repositório github.com/$Repositorio não foi encontrado. Ele precisa ser público para o instalador baixar o código."
+  $semApi = $false
+  try {
+    if (-not (ConsultarGitHub "repos/$Repositorio")) {
+      Falhar "O repositório github.com/$Repositorio não foi encontrado. Ele precisa ser público para o instalador baixar o código."
+    }
+    $release = ConsultarGitHub "repos/$Repositorio/releases/latest"
+  } catch {
+    if (-not $_.Exception.Data['Indisponivel']) { throw }
+    # a API falhou (instabilidade ou limite de consultas): segue pela página de releases do github.com
+    Escrever "$($_.Exception.Message) Seguindo pela página de releases do github.com."
+    $semApi = $true
+    $tagWeb = ResolverPelaWeb
+    if (-not $tagWeb) {
+      Falhar "Não há release publicada em github.com/$Repositorio, ou o GitHub não respondeu. Rode o instalador de novo em alguns minutos."
+    }
+    $release = [pscustomobject]@{ tag_name = $tagWeb; published_at = '(consultado sem a API)'; assets = @() }
   }
-  $release = ConsultarGitHub "repos/$Repositorio/releases/latest"
   if ($release) {
     $tag = [string]$release.tag_name
     Escrever "Última release: $tag (publicada em $($release.published_at))"
@@ -150,7 +206,16 @@ try {
   New-Item -ItemType Directory -Force -Path $Trabalho | Out-Null
   $zipFonte = Join-Path $Trabalho 'fonte.zip'
   $anexo = $release.assets | Where-Object { $_.name -match '^lebr-fonte.*\.zip$' } | Select-Object -First 1
-  if ($anexo) {
+  if ($semApi) {
+    # sem a API não há o SHA-256 do anexo: baixa o lebr-fonte.zip da release pelo github.com (HTTPS) e, se não
+    # existir, o .zip que o GitHub gera para a tag; a conferência do package.json abaixo continua valendo
+    Escrever 'Aviso: sem a API do GitHub o SHA-256 do anexo não está disponível; seguindo só com a conexão HTTPS.'
+    try { Baixar "https://github.com/$Repositorio/releases/download/$tag/lebr-fonte.zip" $zipFonte }
+    catch {
+      Escrever 'A release não tem o anexo lebr-fonte.zip (ou ele não baixou); usando o arquivo .zip gerado pelo GitHub para a tag.'
+      Baixar "https://github.com/$Repositorio/archive/refs/tags/$tag.zip" $zipFonte
+    }
+  } elseif ($anexo) {
     Baixar $anexo.browser_download_url $zipFonte
     $digest = [string]$anexo.digest
     if ($digest -match '^sha256:([0-9a-fA-F]{64})$') { ConferirSha256 $zipFonte $Matches[1] $anexo.name }

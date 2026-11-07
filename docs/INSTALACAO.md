@@ -31,6 +31,10 @@ O `LEBR-Instalador.exe` é feito com o **Inno Setup** (o mesmo usado pelo Visual
 5. roda os **testes automáticos** do LEBR — se algum falhar, nada é instalado;
 6. monta o programa (`electron-builder --win dir`) e o instala.
 
+Se a API do GitHub estiver instável (erro 5xx, tempo esgotado) ou no limite de consultas, o instalador tenta de novo
+algumas vezes e, se continuar, descobre a última versão pela página de releases do github.com. Nesse caminho o SHA-256
+do anexo não está disponível: valem a conexão HTTPS e a conferência do `package.json`. O aviso aparece no registro.
+
 Segurança: só HTTPS (TLS 1.2 ou 1.3); endereços fixos (o repositório oficial e `nodejs.org`); todo download
 conferido por SHA-256; nada roda como administrador; se qualquer etapa falhar, a instalação existente fica como
 estava. O registro completo fica em `%LOCALAPPDATA%\LEBR-Instalador\instalacao.log`. O Node.js e os caches de
@@ -53,8 +57,8 @@ Cada release precisa de dois anexos: **`lebr-fonte.zip`** (o código-fonte) e **
 correspondente:
 
 ```bash
-git tag v0.34.4
-git push origin v0.34.4
+git tag v0.34.5
+git push origin v0.34.5
 ```
 
 O fluxo [`.github/workflows/release.yml`](../.github/workflows/release.yml) confere a versão, roda os testes, gera

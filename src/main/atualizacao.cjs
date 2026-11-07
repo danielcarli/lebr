@@ -45,16 +45,37 @@ function compararVersoes(a, b) {
   return 0;
 }
 
-async function verificarNoGitHub(manual) {
-  mudar({ fase: 'verificando', erro: null, manual });
+/** Tag da última release pela API do GitHub; em instabilidade (5xx, 403/429 do limite, rede), pela página de releases. */
+async function ultimaTag() {
   try {
     const r = await net.fetch(`https://api.github.com/repos/${REPOSITORIO}/releases/latest`, {
       headers: { 'User-Agent': 'LEBR', Accept: 'application/vnd.github+json' },
     });
-    if (!r.ok) throw new Error(`GitHub respondeu ${r.status}`);
-    const rel = await r.json();
-    const versao = String(rel.tag_name ?? '').replace(/^v/, '');
-    if (!/^\d+\.\d+\.\d+$/.test(versao)) throw new Error(`tag inesperada: ${rel.tag_name}`);
+    if (r.ok) return String((await r.json()).tag_name ?? '');
+    if (r.status === 404) throw new Error('nenhuma release publicada');
+  } catch (err) {
+    if (/nenhuma release/.test(err?.message)) throw err;
+  }
+  // github.com/<repo>/releases/latest redireciona para .../releases/tag/<tag>: lê o destino sem segui-lo
+  const destino = await new Promise((ok, falha) => {
+    const req = net.request({ url: `https://github.com/${REPOSITORIO}/releases/latest`, redirect: 'manual' });
+    req.setHeader('User-Agent', 'LEBR');
+    req.on('redirect', (_status, _metodo, url) => { ok(url); req.abort(); });
+    req.on('response', (res) => { res.on('data', () => {}); ok(null); });
+    req.on('error', falha);
+    req.end();
+  });
+  const m = /\/releases\/tag\/([^/?#]+)$/.exec(destino ?? '');
+  if (!m) throw new Error('o GitHub não respondeu; tente de novo em alguns minutos');
+  return decodeURIComponent(m[1]);
+}
+
+async function verificarNoGitHub(manual) {
+  mudar({ fase: 'verificando', erro: null, manual });
+  try {
+    const tag = await ultimaTag();
+    const versao = tag.replace(/^v/, '');
+    if (!/^\d+\.\d+\.\d+$/.test(versao)) throw new Error(`tag inesperada: ${tag}`);
     mudar(compararVersoes(versao, app.getVersion()) > 0 ? { fase: 'disponivel', versao } : { fase: 'atualizado', versao });
   } catch (err) {
     mudar({ fase: 'erro', erro: String(err?.message ?? err) });
