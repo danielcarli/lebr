@@ -56,6 +56,14 @@ const CORES = {
   laje: '#d9d3c7', viga: '#9a948a', pilar: '#5f5a53', sapata: '#b3ab9e', estaca: '#8a8378',
   atende: '#9fae93', desatualizado: '#d8d2c6',
 };
+/** Tema blueprint: superfícies claras sobre o papel azul, arestas em azul-marinho e "não atende" em laranja. */
+const CORES_AZUL = {
+  concreto: '#eef3fa', madeira: '#f3c993', aco: '#cfd9e6',
+  laje: '#f6f9fd', viga: '#d9e5f4', pilar: '#b9cce6', sapata: '#efe3bf', estaca: '#d9c99f',
+  atende: '#f4f8ff', desatualizado: '#93b2dd', falha: '#ff9466', borda: '#0e3670',
+};
+const azul = () => document.documentElement.dataset.tema === 'blueprint';
+const paleta = () => (azul() ? CORES_AZUL : CORES);
 
 export function aba3D(acoes) {
   return {
@@ -66,8 +74,11 @@ export function aba3D(acoes) {
   };
 }
 
+/** Elemento de onde as cores são lidas (o tema blueprint redefine as variáveis dentro da vista 3D). */
+let elementoCor = null;
 function corDoTema(nome, padrao) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
+  const el = elementoCor?.isConnected ? elementoCor : document.documentElement;
+  const v = getComputedStyle(el).getPropertyValue(nome).trim();
   return v || padrao;
 }
 
@@ -86,6 +97,7 @@ function renderizar(container, acoes) {
     icone('lateral', { tamanho: 15 }), h('span', null, 'Controles'));
   const raiz = h('div', { class: ['v3d', !vista.painelVisivel && 'sem-painel'] }, palco, painel, botaoMostrar, cartao, dica);
   container.append(raiz);
+  elementoCor = raiz;
   /** Esconde ou mostra o painel de controles lateral; a cena ganha a largura toda. */
   function alternarPainel(visivel = !vista.painelVisivel) {
     vista.painelVisivel = visivel;
@@ -127,13 +139,14 @@ function renderizar(container, acoes) {
     const mod = modulos.obter(el.modulo);
     if (vista.cores === 'verificacao') {
       const st = estadoDoResultado(el);
-      if (st.tipo === 'falha') return corDoTema('--acento', '#B85438');
-      if (st.tipo === 'ok') return CORES.atende;
-      return CORES.desatualizado;
+      if (st.tipo === 'falha') return azul() ? CORES_AZUL.falha : corDoTema('--acento', '#B85438');
+      if (st.tipo === 'ok') return paleta().atende;
+      return paleta().desatualizado;
     }
-    if (vista.cores === 'tipo') return CORES[t];
+    if (vista.cores === 'tipo') return paleta()[t];
     const mat = (mod?.material ?? '').toLowerCase();
-    return mat.includes('madeira') ? CORES.madeira : mat.includes('aço') ? CORES.aco : CORES.concreto;
+    const P = paleta();
+    return mat.includes('madeira') ? P.madeira : mat.includes('aço') ? P.aco : P.concreto;
   }
 
   function construir() {
@@ -148,7 +161,7 @@ function renderizar(container, acoes) {
     const proj = estado.projeto;
     const pavs = pavimentosOrdenados(proj);
     const deslocamento = (pavId) => pavs.findIndex((x) => x.id === pavId) * vista.afastar;
-    const corBorda = new THREE.Color(corDoTema('--tinta', '#161514'));
+    const corBorda = new THREE.Color(azul() ? CORES_AZUL.borda : corDoTema('--tinta', '#161514'));
 
     /** Espessura (cm) das lajes que apoiam na viga — base da viga invertida; 10 cm sem laje ligada. */
     const espessuraApoiada = (viga) => {
@@ -573,9 +586,9 @@ function renderizar(container, acoes) {
         h('span', { class: 'v3d-rot' }, 'Cores'),
         ui.segmentado({ valor: vista.cores, compacto: true, opcoes: [{ valor: 'verificacao', texto: 'Verificação' }, { valor: 'material', texto: 'Material' }, { valor: 'tipo', texto: 'Tipo' }], aoMudar: (v) => { vista.cores = v; construir(); } }),
         vista.cores === 'verificacao' ? h('div', { class: 'v3d-legenda' },
-          h('span', null, h('i', { style: { background: CORES.atende } }), 'Atende'),
-          h('span', null, h('i', { style: { background: corDoTema('--acento', '#B85438') } }), 'Não atende'),
-          h('span', null, h('i', { style: { background: CORES.desatualizado } }), 'Não calculado')) : null),
+          h('span', null, h('i', { style: { background: paleta().atende } }), 'Atende'),
+          h('span', null, h('i', { style: { background: azul() ? CORES_AZUL.falha : corDoTema('--acento', '#B85438') } }), 'Não atende'),
+          h('span', null, h('i', { style: { background: paleta().desatualizado } }), 'Não calculado')) : null),
       h('div', { class: 'v3d-grupo' },
         ui.alternar({ rotulo: 'Lajes transparentes', valor: vista.lajesTransp, aoMudar: (v) => { vista.lajesTransp = v; construir(); } }),
         ui.alternar({ rotulo: 'Afastar pavimentos', valor: vista.afastar > 0, aoMudar: (v) => { vista.afastar = v ? 1.5 : 0; construir(); enquadrar(); desenhar(); } })),

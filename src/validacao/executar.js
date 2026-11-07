@@ -23,7 +23,7 @@
  * Formato de um arquivo de casos:
  *   { grupo, descricao, casos: [caso] }
  * Caso:
- *   { id, titulo, fonte, descricao?, url?, nota?,    (descricao: enunciado do problema; url: onde a fonte está
+ *   { id, titulo, fonte, descricao?, url?, nota?, referencia?, local?,  (referencia: a obra sem o lugar; local: exemplo/página)    (descricao: enunciado do problema; url: onde a fonte está
  *                                                     publicada; nota: diferenças de hipótese entre a fonte e o LEBR)
  *     alvo: 'motor',    funcao: 'viga.analisarViga', args: [...]
  *   | alvo: 'elemento', modulo: 'concreto.viga', elemento: {...}, parametros?: {...}, pavimentos?: [...], outros?: [...],
@@ -236,7 +236,7 @@ export function comparar(e, obtido) {
 
 /** Roda um caso e devolve o relatório dele. */
 export function executarCaso(caso) {
-  const base = { id: caso.id, titulo: caso.titulo, fonte: caso.fonte, descricao: caso.descricao ?? '', url: caso.url ?? '', nota: caso.nota ?? '', alvo: caso.alvo, onde: caso.alvo === 'motor' ? caso.funcao : caso.modulo };
+  const base = { id: caso.id, titulo: caso.titulo, fonte: caso.fonte, descricao: caso.descricao ?? '', url: caso.url ?? '', nota: caso.nota ?? '', referencia: caso.referencia ?? '', local: caso.local ?? '', alvo: caso.alvo, onde: caso.alvo === 'motor' ? caso.funcao : caso.modulo };
   let r;
   try {
     r = caso.alvo === 'elemento' ? rodarElemento(caso) : rodarMotor(caso);

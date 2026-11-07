@@ -158,7 +158,8 @@ sondagem = {'id': 'f1', 'modulo': 'geotecnia.sondagem', 'codigo': 'SP1', 'nome':
             'spt': [{'prof': i + 1, 'n': n, 'pen': 30 if i < 17 else 11} for i, n in enumerate(spt)]}
 for id, tipo, nome, alfa, Rp in [('ufpr-dq-cravada', 'premoldada', 'cravada', 1.0, 455.6), ('ufpr-dq-helice', 'helice', 'hélice contínua', 0.3, 136.7)]:
     casos.append({'id': id, 'titulo': f'Décourt-Quaresma: estaca {nome} ø 30, L = 15 m, ponta em silte arenoso — resistência de ponta',
-                  'fonte': f"{UFPR['fonte']} Exercício Décourt-Quaresma (1978){' — variante hélice contínua' if tipo == 'helice' else ''}.", 'url': UFPR['url'],
+                  'fonte': f"{UFPR['fonte']} Exercício Décourt-Quaresma (1978){' — variante hélice contínua' if tipo == 'helice' else ''}.", 'referencia': UFPR['fonte'],
+                  'local': f"Exercício Décourt-Quaresma (1978){' — variante hélice contínua' if tipo == 'helice' else ''}", 'url': UFPR['url'],
                   'descricao': f'Estaca {nome} ø 30 cm, L = 15 m, SPT de metro em metro: 6, 4, 2, 4, 2, 3, 4, 5, 10, 15, 25, 20, 22, 25, 23, 29, 30, 30/11. Ponta em silte arenoso (C = 250 kPa), α = {str(alfa).replace(".", ",")}. Np = média dos N a 14, 15 e 16 m = 25,67; Rp = α·C·Np·Ap.',
                   'nota': 'Só a resistência de ponta é conferida. No atrito lateral a fonte usa a média dos N de 1 a 15 m sem o limite N ≥ 3 e sem excluir os ensaios usados na ponta (NL = 11,33), e o LEBR aplica os dois critérios do método; o Rl não é comparável. A sondagem do caso tem uma só camada (silte arenoso): as faixas de solo do fuste não estão legíveis na fonte e não alteram Rp. A fonte usa Ap = 0,071 m² (exato: 0,0707).',
                   'alvo': 'elemento', 'modulo': 'geotecnia.estaca', 'outros': [sondagem],

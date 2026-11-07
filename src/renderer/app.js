@@ -41,6 +41,7 @@ import { abaMemorialProjeto, abaCargasFundacao } from './views/relatorios.js';
 import { abaParametros } from './views/parametros.js';
 import { abaRoteiro } from './views/roteiro.js';
 import { abaValidacao } from './views/validacao.js';
+import { abaBibliografia } from './views/bibliografia.js';
 import { abaCatalogoCargas } from './views/catalogo-cargas.js';
 import { abaMontagem, selecionarNaMontagem } from './views/montagem.js';
 import { aba3D, opcoes3D, alternarPainel3D } from './views/visualizacao3d.js';
@@ -62,7 +63,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.34.5';
+const VERSAO = '0.35.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -71,7 +72,11 @@ function aplicarTema(tema) {
   lebr?.janela.definirTema(tema);
 }
 const temaAtual = () => document.documentElement.dataset.tema ?? 'claro';
-aplicarTema((() => { try { return localStorage.getItem('lebr.tema'); } catch { return null; } })() ?? 'claro');
+/** Temas na ordem do ciclo (Exibir › Alternar tema e o item da barra de status). */
+const TEMAS = [{ id: 'claro', nome: 'Claro' }, { id: 'escuro', nome: 'Escuro' }, { id: 'blueprint', nome: 'Blueprint' }];
+const nomeTema = (t = temaAtual()) => TEMAS.find((x) => x.id === t)?.nome ?? 'Claro';
+const proximoTema = () => TEMAS[(TEMAS.findIndex((x) => x.id === temaAtual()) + 1) % TEMAS.length].id;
+aplicarTema((() => { try { const t = localStorage.getItem('lebr.tema'); return TEMAS.some((x) => x.id === t) ? t : null; } catch { return null; } })() ?? 'claro');
 
 /* ====================================================================== workbench */
 const wb = new Workbench(document.getElementById('app'), { plataforma });
@@ -484,6 +489,41 @@ async function exportarPdf(id = elementoAtivo()) {
   }
 }
 
+/* ---------------------------------------------------------------- exercícios resolvidos da bibliografia (0.35) */
+function abrirBibliografia() {
+  wb.abrirAba(abaBibliografia({
+    versao: VERSAO,
+    lerCasos: () => (lebr?.validacao ? lebr.validacao.casos() : Promise.reject(new Error('disponível só no app desktop'))),
+    exportarPdf: lebr?.pdf ? exportarBibliografiaPdf : null,
+  }));
+}
+async function exportarBibliografiaPdf() {
+  const destino = await lebr.pdf.escolherDestino('LEBR - exercicios resolvidos da bibliografia', estado.caminho ?? null);
+  if (!destino) return;
+  abrirBibliografia();
+  const raiz = document.documentElement;
+  const temaAnterior = temaAtual();
+  raiz.dataset.tema = 'claro';
+  document.querySelectorAll('.notificacao').forEach((n) => n.remove());
+  try {
+    await document.fonts.ready;
+    await proximoQuadro(); await proximoQuadro();
+    const caminho = await lebr.pdf.gravar({
+      cabecalho: ['LEBR — Laboratório de Estruturas Brasil', 'Exercícios resolvidos: LEBR × fontes publicadas'],
+      rodape: `LEBR ${VERSAO} · emitido em ${dataHora(new Date().toISOString())}`,
+    });
+    registrarSaida(`Exercícios resolvidos: PDF exportado — ${caminho}`);
+    notificar('Exercícios resolvidos: PDF salvo.', 'ok', { duracao: 8000, acoes: [
+      { texto: 'Abrir PDF', aoClicar: () => lebr.sistema.abrirArquivo(caminho) },
+      { texto: 'Mostrar na pasta', aoClicar: () => lebr.sistema.mostrarArquivo(caminho) },
+    ] });
+  } catch (err) {
+    notificar(`Não foi possível exportar o PDF: ${err.message}`, 'erro', { duracao: 7000 });
+  } finally {
+    raiz.dataset.tema = temaAnterior;
+  }
+}
+
 /* ---------------------------------------------------------------- relatórios do projeto (0.32) */
 const acoesRelatorio = () => ({ exportarPdf: exportarAbaPdf, calcularTodos: async () => { await calcularTodos(); wb.redesenharTodas(); }, abrirElemento: (id) => abrirElemento(id) });
 function abrirMemorialProjeto() {
@@ -821,7 +861,10 @@ function registrarComandos() {
   C({ id: 'exibir.painel', categoria: 'Exibir', titulo: 'Alternar painel', icone: 'painel', tecla: 'Ctrl+J', executar: () => wb.alternarPainel() });
   C({ id: 'exibir.console', categoria: 'Exibir', titulo: 'Console de comandos (JavaScript)', icone: 'console', tecla: 'Ctrl+Shift+Y', executar: () => { wb.mostrarPainel('console'); consoleLebr.focar(); } });
   C({ id: 'exibir.problemas', categoria: 'Exibir', titulo: 'Problemas', icone: 'alerta', tecla: 'Ctrl+Shift+M', executar: () => wb.mostrarPainel('problemas') });
-  C({ id: 'exibir.tema', categoria: 'Exibir', titulo: 'Alternar tema claro / escuro', icone: 'tema', executar: () => { aplicarTema(temaAtual() === 'claro' ? 'escuro' : 'claro'); atualizarStatus(); } });
+  C({ id: 'exibir.tema', categoria: 'Exibir', titulo: 'Alternar tema (claro, escuro, blueprint)', icone: 'tema', executar: () => { aplicarTema(proximoTema()); atualizarStatus(); } });
+  for (const t of TEMAS) {
+    C({ id: `exibir.tema.${t.id}`, categoria: 'Exibir', titulo: `Tema ${t.nome.toLowerCase()}`, icone: 'tema', executar: () => { aplicarTema(t.id); atualizarStatus(); } });
+  }
   C({ id: 'exibir.zoomMais', categoria: 'Exibir', titulo: 'Aumentar zoom', tecla: 'Ctrl+=', executar: () => lebr?.janela.zoom(0.5) });
   C({ id: 'exibir.zoomMenos', categoria: 'Exibir', titulo: 'Diminuir zoom', tecla: 'Ctrl+-', executar: () => lebr?.janela.zoom(-0.5) });
   C({ id: 'exibir.zoomPadrao', categoria: 'Exibir', titulo: 'Restaurar zoom', tecla: 'Ctrl+0', executar: () => lebr?.janela.zoom(0) });
@@ -853,6 +896,7 @@ function registrarComandos() {
     lerCasos: () => (lebr?.validacao ? lebr.validacao.casos() : Promise.reject(new Error('disponível só no app desktop'))),
     abrirPasta: lebr?.validacao ? () => lebr.validacao.abrirPasta() : null,
   })) });
+  C({ id: 'ajuda.bibliografia', categoria: 'Ajuda', titulo: 'Exercícios resolvidos (LEBR × fontes)', icone: 'documento', executar: abrirBibliografia });
   C({ id: 'ajuda.cargas', categoria: 'Ajuda', titulo: 'Catálogo de cargas (NBR 6120)', icone: 'carga', executar: () => wb.abrirAba(abaCatalogoCargas()) });
   C({ id: 'ajuda.roteiro', categoria: 'Ajuda', titulo: 'Roteiro (road map)', icone: 'roteiro', executar: () => wb.abrirAba(abaRoteiro({ versao: VERSAO })) });
   C({ id: 'ajuda.sobre', categoria: 'Ajuda', titulo: 'Sobre o LEBR', icone: 'info', executar: mostrarSobre });
@@ -895,7 +939,7 @@ function definirMenus() {
       { comando: 'exibir.lateral' }, { comando: 'exibir.painel' }, { comando: 'exibir.problemas' }, { comando: 'exibir.console' }, '-',
       { comando: 'aba.proxima' }, { comando: 'aba.anterior' }, { comando: 'aba.ultima' }, { comando: 'aba.lista' }, { comando: 'aba.reabrir' }, { comando: 'aba.fechar' }, '-',
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
-      { comando: 'exibir.tema' }, { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
+      { comando: 'exibir.tema' }, { comando: 'exibir.tema.claro' }, { comando: 'exibir.tema.escuro' }, { comando: 'exibir.tema.blueprint' }, '-', { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
     { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
@@ -903,7 +947,7 @@ function definirMenus() {
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
       '-', { comando: 'exibir.modulos' }, { comando: 'modulos.abrirPasta' }, { comando: 'ajuda.modulos' },
     ] },
-    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
+    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
   ]);
 }
 
@@ -980,7 +1024,7 @@ function atualizarStatus() {
     );
   }
   direita.push(
-    itemStatus({ texto: temaAtual() === 'claro' ? 'Claro' : 'Escuro', icone: 'tema', titulo: 'Alternar tema claro / escuro', aoClicar: () => comandos.executar('exibir.tema') }),
+    itemStatus({ texto: nomeTema(), icone: 'tema', titulo: 'Alternar tema (claro, escuro, blueprint)', aoClicar: () => comandos.executar('exibir.tema') }),
     itemStatus({ texto: `LEBR ${VERSAO}`, titulo: 'Laboratório de Estruturas Brasil' }),
   );
   wb.definirStatus({ esquerda, direita, situacao: sit.situacao, titulo: sit.titulo });
@@ -1181,7 +1225,7 @@ function configurarAtividade() {
     aoClicar: (e, b) => {
       const r = b.getBoundingClientRect();
       menuContexto({ preventDefault() {}, stopPropagation() {}, clientX: r.right + 4, clientY: r.top - 150 }, [
-        { comando: 'paleta.abrir' }, { comando: 'projeto.parametros' }, { comando: 'exibir.tema' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.sobre' },
+        { comando: 'paleta.abrir' }, { comando: 'projeto.parametros' }, { comando: 'exibir.tema' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.sobre' },
       ]);
     },
   });

@@ -39,6 +39,7 @@ const FILTROS = [
 const OVERLAY = {
   claro: { color: '#DCD6CC', symbolColor: '#161514', height: 36 },
   escuro: { color: '#0A0A0A', symbolColor: '#E8E8E8', height: 36 },
+  blueprint: { color: '#0E3670', symbolColor: '#FFFFFF', height: 36 },
 };
 
 let janela = null;
@@ -292,7 +293,7 @@ function registrarIPC() {
   ipcMain.on('janela:sujo', (_e, valor) => { sujo = !!valor; janela?.setDocumentEdited?.(sujo); });
   ipcMain.on('janela:titulo', (_e, titulo) => janela?.setTitle(titulo));
   ipcMain.on('janela:tema', (_e, tema) => {
-    nativeTheme.themeSource = tema === 'escuro' ? 'dark' : 'light';
+    nativeTheme.themeSource = tema === 'claro' ? 'light' : 'dark';
     if (!EH_MAC && janela) janela.setTitleBarOverlay(OVERLAY[tema] ?? OVERLAY.claro);
   });
   ipcMain.on('janela:fechar-confirmado', () => { fechamentoConfirmado = true; janela?.close(); });

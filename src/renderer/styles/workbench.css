@@ -203,6 +203,7 @@ button.status-item:hover { background: rgba(255, 255, 255, 0.14); }
 .status.situacao-ok { background: #556b2f; color: #ffffff; }
 .status.situacao-pendente { background: #555151; color: #ffffff; }
 .status.situacao-falha { background: var(--acento); }
+:root[data-tema='blueprint'] .status.situacao-falha { background: #C4684A; color: #ffffff; }
 
 /* paleta de comandos */
 .paleta-fundo { position: fixed; inset: 0; z-index: 90; }

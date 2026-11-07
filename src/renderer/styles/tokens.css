@@ -129,3 +129,85 @@
   --sombra: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px #262626;
   color-scheme: dark;
 }
+
+/* Tema blueprint (0.35): navegação (barra de título, atividades, explorador e abas) em azul bem escuro; a página dos
+   elementos em branco, com o texto do tema claro e o acento em azul; os desenhos, as vistas 3D e a montagem em
+   estilo cópia heliográfica (papel azul, traço branco, quadriculado e o amarelo do lápis). A lista de pavimentos da
+   montagem fica em branco. */
+:root[data-tema='blueprint'] {
+  --fundo: #0A1E3C;
+  --papel: #FFFFFF;
+  --lateral: #0A1E3C;
+  --atividade: #071630;
+  --cartao: #EEF3FA;
+  --cartao-tinta: #121A26;
+  --campo: #F7F9FC;
+  --sobreposicao: rgba(7, 22, 48, 0.4);
+  --flutuante: #FFFFFF;
+
+  --tinta: #121A26;
+  --tinta-2: #3B4656;
+  --suave: #5B6F8A;
+  --tenue: #94A3B8;
+  --filete: #D6DFEB;
+  --filete-forte: #121A26;
+  --hover: rgba(18, 26, 38, 0.06);
+  --selecao: rgba(31, 95, 175, 0.14);
+
+  --acento: #1F5FAF;
+  --acento-forte: #174A8A;
+  --acento-tinta: #FFFFFF;
+  --acento-suave: rgba(31, 95, 175, 0.12);
+
+  --ponto-apagado: #DCE4EF;
+  --ponto-aceso: #121A26;
+
+  --degrade-ini: #121A26;
+  --degrade-fim: #8A97A8;
+
+  --sombra: 0 12px 40px rgba(7, 22, 48, 0.22), 0 2px 6px rgba(7, 22, 48, 0.1);
+  color-scheme: light;
+}
+
+/* navegação: azul bem escuro, texto claro */
+:root[data-tema='blueprint'] :is(.titulo, .atividade, .lateral, .abas, .abas-acoes) {
+  --fundo: #0A1E3C; --lateral: #0A1E3C; --atividade: #071630; --campo: #10294D;
+  --tinta: #FFFFFF; --tinta-2: #C9D6EA; --suave: #9FB3D1; --tenue: #7F95B5;
+  --filete: #1B355C; --filete-forte: #FFFFFF; --hover: rgba(255, 255, 255, 0.08); --selecao: rgba(127, 178, 255, 0.22);
+  --acento: #7FB2FF; --acento-forte: #A9CBFF; --acento-tinta: #0A1E3C; --acento-suave: rgba(127, 178, 255, 0.18);
+  color-scheme: dark;
+}
+:root[data-tema='blueprint'] .aba.ativa { color: #121A26; --tinta: #121A26; --tinta-2: #3B4656; --tenue: #94A3B8; --acento: #1F5FAF; }
+
+/* desenhos, vistas 3D e montagem: cópia heliográfica */
+:root[data-tema='blueprint'] :is(.esquema-slot, .planta-slot, .previa-secao, .desenho-caixa, .figura-secao, .v3a-moldura, .v3d, .montagem) {
+  --papel: #1A57A3; --campo: #1A57A3; --cartao: #2265B3; --cartao-tinta: #FFFFFF; --flutuante: #17519A; --lateral: #144A8C;
+  --tinta: #FFFFFF; --tinta-2: #D3E2F6; --suave: #A9C7EE; --tenue: #7EA3D5;
+  --filete: #4F84C6; --filete-forte: #FFFFFF; --hover: rgba(255, 255, 255, 0.09); --selecao: rgba(255, 255, 255, 0.18);
+  --acento: #FFD166; --acento-forte: #FFE29A; --acento-tinta: #0E3670; --acento-suave: rgba(255, 209, 102, 0.2);
+  --ponto-apagado: #2A6CBA; --ponto-aceso: #FFFFFF; --degrade-ini: #FFFFFF; --degrade-fim: #5C8CCB;
+  color: var(--tinta);
+  color-scheme: dark;
+}
+:root[data-tema='blueprint'] :is(.esquema-slot, .planta-slot, .previa-secao, .desenho-caixa, .figura-secao, .v3a-moldura, .mont-planta) {
+  background-color: #1A57A3;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  border-color: #0E3670;
+}
+:root[data-tema='blueprint'] .montagem { background: #1A57A3; }
+:root[data-tema='blueprint'] :is(.mont-barra, .mont-rodape) { background: #FFFFFF; }
+
+/* a lista de pavimentos, a barra e a lista de ligações da montagem e os painéis de comandos do 3D ficam como no tema
+   claro (fundo branco, texto escuro, destaque em azul) */
+:root[data-tema='blueprint'] :is(.mont-lateral, .mont-barra, .mont-rodape, .v3d-painel, .v3d-mostrar, .v3d-cartao, .v3d-dica) {
+  --papel: #FFFFFF; --campo: #F7F9FC; --cartao: #EEF3FA; --cartao-tinta: #121A26; --lateral: #FFFFFF; --flutuante: #FFFFFF;
+  --tinta: #121A26; --tinta-2: #3B4656; --suave: #5B6F8A; --tenue: #94A3B8;
+  --filete: #D6DFEB; --filete-forte: #121A26; --hover: rgba(18, 26, 38, 0.06); --selecao: rgba(31, 95, 175, 0.14);
+  --acento: #1F5FAF; --acento-forte: #174A8A; --acento-tinta: #FFFFFF; --acento-suave: rgba(31, 95, 175, 0.12);
+  color: var(--tinta);
+  color-scheme: light;
+}

@@ -31,3 +31,29 @@ test('roteiro: docs/ROTEIRO.md está em dia com os dados', () => {
   const md = fs.readFileSync(new URL('../docs/ROTEIRO.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   assert.equal(md.trim(), roteiroMarkdown().trim(), 'gere de novo: node -e "…roteiroMarkdown()" > docs/ROTEIRO.md');
 });
+
+test('roteiro: estados dos itens (0.35)', async () => {
+  const { estadoDe, contarEstados } = await import('../src/renderer/views/roteiro-dados.js');
+  for (const x of ROTEIRO.fases[0].itens) assert.equal(estadoDe(x), 'feito', x);
+  assert.equal(estadoDe('Radier'), 'falta');
+  assert.equal(estadoDe('Torção de equilíbrio e de compatibilidade, combinada com cortante (NBR 6118, 17.5)'), 'parcial');
+  const c = contarEstados();
+  assert.ok(c.feito > 0 && c.parcial > 0 && c.falta > 0);
+  const lanc = ROTEIRO.areas.find((a) => a.titulo === 'Lançamento da estrutura');
+  assert.ok(lanc && lanc.linhas.length >= 15);
+  assert.ok(ROTEIRO.planos[0][1].filter((p) => p.startsWith('- L')).length === 15);
+});
+
+test('bibliografia: divergências e exercícios excluídos documentados', async () => {
+  const { DIVERGENCIAS, EXCLUIDOS, ehArquivoBibliografia } = await import('../src/validacao/bibliografia-notas.js');
+  assert.ok(DIVERGENCIAS.some((d) => d.situacao === 'revisar'));
+  assert.ok(EXCLUIDOS.length >= 5);
+  assert.ok(ehArquivoBibliografia('28-bibliografia-fundacoes.json') && !ehArquivoBibliografia('11-puncao.json'));
+  const fs = await import('node:fs');
+  const nomes = fs.readdirSync(new URL('../validacao/casos/', import.meta.url)).filter(ehArquivoBibliografia);
+  let n = 0;
+  for (const f of nomes) for (const c of JSON.parse(fs.readFileSync(new URL(`../validacao/casos/${f}`, import.meta.url), 'utf8')).casos) {
+    assert.ok(c.referencia && c.url && c.descricao, c.id); n++;
+  }
+  assert.equal(n, 158);
+});

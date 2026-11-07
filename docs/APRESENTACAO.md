@@ -8,6 +8,16 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 ![Estado: fase inicial](https://img.shields.io/badge/estado-fase%20inicial%20de%20desenvolvimento-orange)
 ![Colaboradores procurados](https://img.shields.io/badge/procuramos-colaboradores-brightgreen)
 
+<p align="center">
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar o instalador para Windows" src="https://img.shields.io/badge/Windows-Baixar%20o%20instalador%20%28LEBR--Instalador.exe%29-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+</p>
+
+> [!TIP]
+> **Instalar no Windows:** baixe o **[LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe)**
+> (cerca de 2 MB) e execute. Ele monta o LEBR no seu computador a partir da última versão publicada no GitHub e
+> serve também para atualizar. Detalhes e requisitos em [INSTALACAO.md](INSTALACAO.md). Outras versões na
+> [página de releases](https://github.com/danielcarli/lebr/releases).
+
 > [!WARNING]
 > **O LEBR está em fase inicial de desenvolvimento e não deve ser usado para calcular estruturas reais.**
 > Cada função ainda precisa ser conferida de forma independente. Os resultados servem para estudo e para o próprio
@@ -20,7 +30,7 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 
 ![Tela inicial do LEBR](imagens/tela-inicial.png)
 
-*Capturas da versão 0.33.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
+*Capturas da versão 0.35.0, com o exemplo de edifício de 3 pavimentos que acompanha o programa.*
 
 ---
 
@@ -39,6 +49,9 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 | **Montagem** | planta de arquitetura em **DXF como fundo**, eixos e malha de encaixe |
 | **Saída** | memorial de cálculo, PDF por elemento, **memorial do edifício** e **cargas na fundação** em PDF, quantitativos e CSV, **pranchas em DXF**, **armadura em 3D** de cada elemento |
 | **Madeira** | vigas, pilares e entrepisos pela NBR 7190-1:2022 |
+| **Validação** | 315 casos conferidos a cada versão, **158 deles tirados de exercícios resolvidos publicados** (apostilas, livros, TCCs), com o relatório **LEBR × fontes** |
+| **Instalação** | instalador do Windows que monta o programa a partir da última versão do GitHub e avisa quando há versão nova |
+| **Temas** | claro, escuro e **blueprint** (desenhos, 3D e montagem em cópia heliográfica; página do elemento em branco) |
 
 O caminho até um projeto real está no [roteiro](ROTEIRO.md).
 
@@ -174,6 +187,36 @@ Cada caso compara o resultado do LEBR com um valor de referência calculado fora
 clássicas, cálculo manual — com a fonte e a tolerância.
 
 ![Relatório de validação](imagens/validacao.png)
+
+### Exercícios resolvidos: LEBR × fontes
+
+**Ajuda › Exercícios resolvidos** reúne os 158 problemas tirados de apostilas, livros, TCCs e dissertações
+publicados online (Bastos/UNESP, Pinheiro/EESC-USP, UFPR, PUC Goiás, Alonso e outros). Cada problema traz o
+enunciado, a fonte com o link, o valor publicado no material, o valor do LEBR, a diferença e as hipóteses que mudam
+de um para o outro. No fim estão as divergências que a comparação revelou — como o limite k ≤ 2 do τRd1 na punção,
+que precisa de revisão — e os exercícios que ficaram de fora. A página sai também em PDF. Detalhes em
+[VALIDACAO-BIBLIOGRAFIA.md](VALIDACAO-BIBLIOGRAFIA.md).
+
+![Exercícios resolvidos: LEBR × fontes](imagens/exercicios-resolvidos.png)
+
+### Tema blueprint
+
+Além do claro e do escuro, o tema **blueprint** traz a cópia heliográfica para os desenhos: o explorador, as abas e
+os menus ficam em azul bem escuro; a página do elemento fica branca, com o texto do tema claro e os destaques em azul;
+os desenhos, as vistas 3D e a planta da montagem ficam em papel azul, com traço branco, quadriculado e o amarelo do
+lápis. A lista de pavimentos da montagem continua branca. Troque em **Exibir › Tema blueprint** ou clicando no nome
+do tema na barra inferior.
+
+| Elemento | Montagem |
+|---|---|
+| ![Tema blueprint: elemento](imagens/tema-blueprint.png) | ![Tema blueprint: montagem](imagens/tema-blueprint-montagem.png) |
+
+### Roteiro
+
+**Ajuda › Roteiro** mostra o que já foi feito, o que está parcial e o que falta, por área e por fase, e o plano
+para o lançamento da estrutura na planta.
+
+![Roteiro](imagens/roteiro.png)
 
 ---
 

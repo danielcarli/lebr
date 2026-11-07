@@ -13,7 +13,7 @@ def item(g, c, v, u='', tol=0.005, **k):
 
 def caso(id, titulo, ref, local, descricao, funcao, args, esperado, nota=None):
     """Caso que chama uma função do motor. `ref` = {fonte, url}; `local` = onde está na fonte."""
-    c = {'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'url': ref['url'], 'descricao': descricao}
+    c = {'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'referencia': ref['fonte'], 'local': local, 'url': ref['url'], 'descricao': descricao}
     if nota:
         c['nota'] = nota
     c.update({'alvo': 'motor', 'funcao': funcao, 'args': args, 'esperado': esperado})

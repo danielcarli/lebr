@@ -27,6 +27,12 @@ const CORES = {
   positiva: 0xb85438, construtiva: 0xc98a6e, negativa: 0x2f5fa3, 'porta-estribo': 0x7b8fae, pele: 0x6f8f3a, 'torção': 0x8c5fb0,
   estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae,
 };
+/** Tema blueprint: cores claras e saturadas, com contraste sobre o papel azul. */
+const CORES_AZUL = {
+  positiva: 0xffb347, construtiva: 0xffd9a8, negativa: 0x7fe3ff, 'porta-estribo': 0xd6e2f3, pele: 0xbdf08c, 'torção': 0xe6b3ff,
+  estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3,
+};
+const corBarra = (t) => ((document.documentElement.dataset.tema === 'blueprint' ? CORES_AZUL : CORES)[t] ?? 0x888888);
 const NOMES = {
   positiva: 'Positiva', construtiva: 'Construtiva', negativa: 'Negativa', 'porta-estribo': 'Porta-estribo', pele: 'Pele', 'torção': 'Torção',
   estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição',
@@ -70,9 +76,10 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
       g.rotateX(Math.PI / 2);
     } else g = new THREE.BoxGeometry(...d);
     const apoio = c.tipo !== 'concreto';
-    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: apoio ? 0.07 : 0.14, depthWrite: false }));
+    const azul = document.documentElement.dataset.tema === 'blueprint';   // tema blueprint: arestas brancas no papel azul
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: azul ? 0xe8f0fb : apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: apoio ? 0.07 : 0.14, depthWrite: false }));
     m.position.set(...c.min.map((v, i) => v + d[i] / 2));
-    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
+    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: azul ? 0xffffff : apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
     arestas.position.copy(m.position);
     grupoConcreto.add(m, arestas);
   }
@@ -82,7 +89,7 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   const grupoBarras = new THREE.Group(), grupoEstribos = new THREE.Group();
   const materiais = new Map();
   const mat = (tipo) => {
-    if (!materiais.has(tipo)) materiais.set(tipo, new THREE.MeshStandardMaterial({ color: CORES[tipo] ?? 0x888888, roughness: 0.55, metalness: 0.25 }));
+    if (!materiais.has(tipo)) materiais.set(tipo, new THREE.MeshStandardMaterial({ color: corBarra(tipo), roughness: 0.55, metalness: 0.25 }));
     return materiais.get(tipo);
   };
   const destaqueMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x553300, roughness: 0.4 });
@@ -203,7 +210,7 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
       alternar('concreto', grupoConcreto, 'Concreto'),
       grupoEstribos.children.length ? alternar('estribos', grupoEstribos, 'Estribos') : '',
       h('button', { class: 'v3a-bt', title: 'Voltar à vista inicial', onClick: enquadrar }, icone('cubo', { tamanho: 13, traco: 1.8 }), 'Enquadrar'),
-      h('span', { class: 'v3a-legenda' }, tipos.map((t) => h('span', { class: 'v3a-leg' }, h('i', { style: { background: `#${(CORES[t] ?? 0x888888).toString(16).padStart(6, '0')}` } }), NOMES[t] ?? t))),
+      h('span', { class: 'v3a-legenda' }, tipos.map((t) => h('span', { class: 'v3a-leg' }, h('i', { style: { background: `#${corBarra(t).toString(16).padStart(6, '0')}` } }), NOMES[t] ?? t))),
       h('span', { class: 'v3a-ajuda' }, 'arrastar gira · Shift+arrastar desloca · roda aproxima')),
     h('div', { class: 'v3a-moldura' }, palco, dica),
   );

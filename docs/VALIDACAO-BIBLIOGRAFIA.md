@@ -9,6 +9,10 @@ alunos: apostilas, livros com amostra aberta, TCCs, dissertações e monografias
 - `descricao`: o enunciado do problema, com os dados usados;
 - `nota`: o que a fonte faz diferente do LEBR e por que a tolerância é aquela.
 
+No programa, **Ajuda › Exercícios resolvidos (LEBR × fontes)** mostra todos esses problemas com o enunciado, a fonte
+com o link, o valor do material publicado e o do LEBR, as hipóteses diferentes, as divergências e os exercícios que
+ficaram de fora, e exporta a página em PDF.
+
 Os arquivos são gerados por scripts em `tools/bibliografia/` (um por grupo), para que a fonte, o enunciado e os
 valores fiquem juntos e possam ser revistos:
 

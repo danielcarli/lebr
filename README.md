@@ -5,8 +5,18 @@ armado (**ABNT NBR 6118:2023**) e de madeira (**NBR 7190-1:2022** e **NBR 16936:
 JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
+<p align="center">
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar o instalador para Windows" src="https://img.shields.io/badge/Windows-Baixar%20o%20instalador%20%28LEBR--Instalador.exe%29-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+</p>
+
+> [!TIP]
+> **Instalar no Windows:** baixe o **[LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe)**
+> (cerca de 2 MB) e execute. Ele monta o LEBR no seu computador a partir da última versão publicada no GitHub e
+> serve também para atualizar. Detalhes e requisitos em [INSTALACAO.md](docs/INSTALACAO.md). Outras versões na
+> [página de releases](https://github.com/danielcarli/lebr/releases).
+
 > [!WARNING]
-> **Protótipo 0.34.5 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.35.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -505,6 +515,13 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.35.0:** **Ajuda › Exercícios resolvidos (LEBR × fontes)** mostra cada um dos 158 problemas
+  publicados com o enunciado, a fonte com link, o valor do material e o do LEBR, as hipóteses diferentes, as
+  divergências encontradas e os exercícios que ficaram de fora, e exporta em PDF. Novo **tema blueprint**: navegação em azul
+  bem escuro, página do elemento em branco com destaques em azul, e desenhos, vistas 3D e montagem em cópia heliográfica
+  (papel azul, traço branco, quadriculado); em **Exibir** ou na barra inferior. O **roteiro** marca cada item como feito, parcial
+  ou a fazer e ganhou a área **Lançamento da estrutura**, com as boas práticas de TQS, Eberick e CYPECAD
+  ([docs/LANCAMENTO.md](docs/LANCAMENTO.md)) e o plano em 15 etapas pequenas.
 - **Validação com a bibliografia (0.34.0):** 158 casos novos tirados de exercícios resolvidos publicados (pilares,
   blocos, sapatas, estacas, vigas, lajes, punção, escadas, reservatórios, madeira, vento e γz), cada um com a fonte,
   o link e o enunciado, que o **Relatório de validação** mostra. As divergências de hipótese encontradas (por
@@ -579,12 +596,14 @@ src/
 validacao/
   casos/*.json        casos de validação com fonte e tolerância
 tools/bibliografia/   geradores dos casos tirados de exercícios resolvidos publicados
+tools/capturas/       refaz as capturas de tela de docs/imagens (python3 tools/capturas/capturar.py)
 docs/
   APRESENTACAO.md     apresentação do projeto com capturas de tela (para o GitHub)
   imagens/            capturas de tela usadas na documentação
   FORMATO.md          esquema do arquivo .lebr.json
   VALIDACAO.md        banco de casos de validação: formato e como incluir casos
   VALIDACAO-BIBLIOGRAFIA.md  exercícios resolvidos publicados: fontes e divergências encontradas
+  LANCAMENTO.md       boas práticas de lançamento da estrutura (TQS, Eberick, CYPECAD) e o plano L1–L15
   VENTO.md            vento (NBR 6123): dados, Ca, aplicação no pórtico e limitações
   ESTABILIDADE.md     desaprumo, α, γz, rigidez reduzida e majoração por 0,95·γz
   SONDAGEM.md         sondagem SPT: dados do furo, classificação, perfil e uso pelas fundações

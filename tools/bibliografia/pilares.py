@@ -17,11 +17,11 @@ casos = []
 def mt(id, titulo, ref, local, descricao, fck, Nd, h, b, le, esperado, MA=0, MB=0, nota=NOTA_MT):
     a = {'Nd': Nd, 'h': h, 'b': b, 'le': le, 'c': {'$concreto': fck}}
     if MA: a['MA'] = MA; a['MB'] = MB
-    casos.append({'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'url': ref['url'], 'descricao': descricao, 'nota': nota,
+    casos.append({'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'referencia': ref['fonte'], 'local': local, 'url': ref['url'], 'descricao': descricao, 'nota': nota,
                   'alvo': 'motor', 'funcao': 'pilar.momentoTotal', 'args': [a], 'esperado': esperado})
 
 def af(id, titulo, ref, local, descricao, fck, Nd, Md, b, h, dl, As, abaco):
-    casos.append({'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'url': ref['url'], 'descricao': descricao,
+    casos.append({'id': id, 'titulo': titulo, 'fonte': f"{ref['fonte']} {local}.", 'referencia': ref['fonte'], 'local': local, 'url': ref['url'], 'descricao': descricao,
                   'nota': f"A fonte lê ω no {abaco} (armadura simétrica em duas faces, diagrama parábola-retângulo); o LEBR integra a seção com o diagrama retangular simplificado e duas camadas de As/2 a d' das faces. A leitura gráfica do ábaco e a diferença de diagrama explicam diferenças de alguns por cento — tolerância de 10%.",
                   'alvo': 'motor', 'funcao': 'pilar.armaduraDuasFaces', 'args': [{'Nd': Nd, 'Md': Md, 'b': b, 'h': h, 'dl': dl, 'c': {'$concreto': fck}, 's': {'$aco': 500}}],
                   'esperado': [item('As (armadura total)', 'As', As, 'cm²', 0.10)]})
