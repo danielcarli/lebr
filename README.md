@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.56.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.56.2 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -521,6 +521,8 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.56.2:** no calendário da tela inicial, os quadrados dos dias que não existem (antes do dia 1 e
+  depois do último dia do mês) ficam cheios, na cor da malha.
 - **Novidades da 0.56.1:** no tema escuro, o calendário da tela inicial fica em cinza chumbo escuro; o workflow de
   release usa `actions/checkout@v5` e `actions/setup-node@v5` (Node 24).
 - **Novidades da 0.56.0 (laje nervurada em 3D):** a **visualização 3D** desenha a laje nervurada inteira — capa,

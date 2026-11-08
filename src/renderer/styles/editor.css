@@ -398,7 +398,7 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .cal .pontos { gap: 0; border-top: 1px solid var(--cal-malha); border-left: 1px solid var(--cal-malha); }
 .cal .pontos-rot { border-right: 1px solid var(--cal-malha); border-bottom: 1px solid var(--cal-malha); padding: 5px 0 4px; }
 .cal .ponto { border-radius: 0; border-right: 1px solid var(--cal-malha); border-bottom: 1px solid var(--cal-malha); }
-.cal .ponto.vazio { visibility: visible; display: grid; padding: 0; gap: 0; }
+.cal .ponto.vazio { visibility: visible; display: grid; padding: 0; gap: 0; background: var(--cal-malha); } /* dias fora do mês: cheios na cor da malha */
 .cal .ponto.apagado { background: transparent; }
 .cal .ponto.aceso::before { border-radius: 0; inset: 3px; transform: none; background: var(--cal-oliva); }
 .cal .ponto.destaque { background: var(--acento); }

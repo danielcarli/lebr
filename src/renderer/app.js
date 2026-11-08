@@ -74,7 +74,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.56.1';
+const VERSAO = '0.56.2';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {

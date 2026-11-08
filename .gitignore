@@ -11,3 +11,8 @@ Thumbs.db
 
 # código-fonte da release (npm run fonte)
 lebr-fonte.zip
+
+# script local de publicacao (commit, tag e push) e a mensagem do commit: nao vao para o repositorio
+publicar.ps1
+publicar.cmd
+commit.txt
