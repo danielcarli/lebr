@@ -115,3 +115,25 @@ test('comando: telhado sobre o pavimento mais alto com a cumeeira no sentido mai
   const ts = p.elementos.find((e) => e.id === r.tesoura);
   assert.ok(!calcularElemento(ts, p, reg).erro);
 });
+
+test('modelo 3D do telhado: tesouras com as barras da treliça, terças em cada nó, duas águas de telha e oitões', async () => {
+  const { modeloTelhado, modeloTesoura } = await import('../src/modules/madeira-comum/telhado3d.js');
+  const p = lerProjeto(fs.readFileSync(new URL('../exemplos/sobrado-garagem.lebr.json', import.meta.url), 'utf8'));
+  const tel = p.elementos.find((e) => e.modulo === 'madeira.telhado'), ts = p.elementos.find((e) => e.modulo === 'madeira.tesoura');
+  const g = geometriaTelhado(tel);
+  const m = modeloTelhado(tel, { secoes: ts.secoes, tipo: ts.geometria.tipo });
+  const nBarras = geometriaTesoura({ tipo: 'howe', L: g.L, inclinacao: g.i, paineis: g.n }).barras.length;
+  const conta = (t) => m.pecas.filter((q) => q.tipo === t).length;
+  assert.equal(conta('tesoura'), g.tesouras.length * nBarras);
+  assert.equal(conta('terca'), g.n + 1);
+  assert.equal(conta('telha'), 2);
+  assert.ok(conta('caibro') > 10 && conta('ripa') > 10);
+  assert.equal(m.empenas.length, 2);
+  // terças apoiadas no banzo superior: a face inferior de cada terça toca a face superior da perna
+  const t0 = m.pecas.find((q) => q.tipo === 'terca' && q.rotulo.startsWith('Cumeeira'));
+  assert.ok(Math.abs(t0.p[0] - g.L * 50) < 1e-6);
+  const r = calcularElemento(ts, p, reg);
+  const mt = modeloTesoura(r, ts.secoes);
+  assert.equal(mt.pecas.length, r.barras.length);
+  assert.ok(mt.pecas.some((q) => q.tipo === 'tracao') && mt.pecas.some((q) => q.tipo === 'compressao'));
+});

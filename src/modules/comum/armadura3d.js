@@ -408,7 +408,8 @@ export function modeloNervurada(el, det, posicoes, { cob = 2.5, maxEstribos = 40
 /** Caixa que envolve o modelo (para enquadrar a câmera). */
 export function limitesDoModelo(m) {
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
-  const pts = [...m.caixas.flatMap((c) => [c.min, c.max]), ...m.barras.flatMap((b) => b.pts)];
+  const pts = [...m.caixas.flatMap((c) => [c.min, c.max]), ...m.barras.flatMap((b) => b.pts), ...(m.pecas ?? []).flatMap((q) => [q.p, q.q]),
+    ...(m.empenas ?? []).flatMap((e) => [[0, e.y, 0], [e.L, e.y, e.H]])];
   for (const p of pts) for (let i = 0; i < 3; i++) { min[i] = Math.min(min[i], p[i]); max[i] = Math.max(max[i], p[i]); }
   return { min, max };
 }

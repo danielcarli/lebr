@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.60.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.60.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -561,6 +561,10 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.60.1:** o telhado ganhou a seção **Estrutura em 3D** na página do elemento — tesouras, terças,
+  caibros, ripas, telhas, oitões e apoios nas seções do cálculo, com um botão para mostrar ou esconder cada camada e o
+  nome e a seção da peça sob o mouse. A tesoura ganhou a **Tesoura em 3D**, com as barras coloridas pelo esforço que
+  governa (tração em azul, compressão em vermelho). A visualização 3D do projeto usa o mesmo modelo do telhado.
 - **Novidades da 0.60.0 (telhado e tesouras de madeira; dobras das barras):** novos módulos **Telhado de madeira** e
   **Tesoura de madeira** (NBR 7190-1:2022 e NBR 6120:2019). O telhado de duas águas verifica ripas (flexão oblíqua),
   caibros (contínuos com o beiral, 1 kN concentrado) e terças (flexão, 1 kN, sucção do vento com flexão oblíqua),

@@ -1,7 +1,7 @@
 {
   "name": "lebr",
   "productName": "LEBR",
-  "version": "0.60.0",
+  "version": "0.60.1",
   "description": "LEBR — Laboratório de Estruturas Brasil: sistema aberto e modular para cálculo de estruturas de concreto armado e de madeira segundo as normas brasileiras.",
   "license": "AGPL-3.0-only",
   "type": "module",

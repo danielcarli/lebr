@@ -18,6 +18,9 @@ import { TIPOS_TESOURA } from '../../engine/tesoura.js';
 import { secaoMaterial } from '../madeira-comum/material.js';
 import { criarDesenhosTelhado } from '../madeira-comum/desenho-telhado.js';
 import { novoId, proximoCodigo } from '../../renderer/core/projeto.js';
+import { vistaArmadura3D } from '../../renderer/ui/armadura3d.js';
+import { modeloTelhado } from '../madeira-comum/telhado3d.js';
+import { SECOES_TESOURA_PADRAO } from './calculo.js';
 
 export default function moduloTelhado(api) {
   const { h } = api.dom;
@@ -139,19 +142,26 @@ export default function moduloTelhado(api) {
         ui.arco({ rotulo: 'Terças', valor: `${num(r.terca.uso * 100, 0)}%`, fracao: r.terca.uso, legenda: `${num(el.terca.b, 1)} × ${num(el.terca.h, 1)} · vão ${num(g.et, 2)} m` }),
         ui.numeroGrande({ rotulo: 'Telhado', valor: num(r.quant.area, 1), unidade: 'm²', linhas: [`${g.tesouras.length} tesouras · ${g.n + 1} terças`, `${num(g.i, 0)}% (${num(g.alfaGraus, 1)}°) · ≈ ${r.quant.telhas} telhas`] }),
       ));
-      raiz.append(ui.secao({ numero: '07', titulo: 'Desenhos', descricao: `${r.telha.texto} · ${num(r.telha.peso, 2)} kN/m²${r.telha.ripas ? ` · galga ${num(r.telha.galga, 3)} m` : ''}`,
+      const tes = tesouraDoTelhado(ctx.projeto, el);
+      let vista3d = null;
+      try {
+        const modelo = modeloTelhado(el, { secoes: tes?.secoes ?? SECOES_TESOURA_PADRAO, tipo: tes?.geometria?.tipo ?? el.tipoTesoura ?? 'howe' });
+        vista3d = h('div', null, vistaArmadura3D(modelo, { altura: 480 }), h('p', { class: 'combinacoes-nota a3d-legenda' }, modelo.legenda));
+      } catch (err) { vista3d = h('p', { class: 'combinacoes-nota' }, `Não foi possível montar a vista 3D: ${err.message}`); }
+      raiz.append(ui.secao({ numero: '07', titulo: 'Estrutura em 3D', descricao: 'Tesouras, terças, caibros, ripas e telhas nas posições e seções do cálculo; os botões mostram ou escondem cada camada e o mouse identifica a peça', filhos: [vista3d] }));
+      raiz.append(ui.secao({ numero: '08', titulo: 'Desenhos', descricao: `${r.telha.texto} · ${num(r.telha.peso, 2)} kN/m²${r.telha.ripas ? ` · galga ${num(r.telha.galga, 3)} m` : ''}`,
         filhos: [h('div', { class: 'desenho-caixa' }, d.corteTelhado(el, r)), h('div', { class: 'desenho-caixa' }, d.plantaTelhado(el, r))] }));
       const linhas = [];
       if (r.ripa) linhas.push(['Ripas', `${num(el.ripa.b, 1)} × ${num(el.ripa.h, 1)}`, `${num(r.ripa.L, 2)} m (biapoiada)`, `${num(r.ripa.gL, 3)} / ${num(r.ripa.qL, 3)}`, `⊥ ${num(r.ripa.Mx, 4)} · ∥ ${num(r.ripa.My, 4)}`, `${num(r.ripa.uso * 100, 0)}%`, `${num(r.ripa.u, 1)} / ${num(r.ripa.ulim, 1)}`]);
       if (r.caibro) linhas.push(['Caibros', `${num(el.caibro.b, 1)} × ${num(el.caibro.h, 1)}`, `${num(g.lp, 2)} m (contínuo${g.beiralS > 0.05 ? ' + beiral' : ''})`, `${num(r.caibro.gL, 3)} / ${num(r.caibro.qL, 3)}`, `${num(r.caibro.Md, 3)} (1 kN: ${num(r.caibro.MdP, 3)})`, `${num(r.caibro.uso * 100, 0)}%`, `${num(r.caibro.u, 1)} / ${num(r.caibro.ulim, 1)}`]);
       linhas.push(['Terças', `${num(el.terca.b, 1)} × ${num(el.terca.h, 1)}`, `${num(r.terca.L, 2)} m (biapoiada)`, `${num(r.terca.gL, 3)} / ${num(r.terca.qL, 3)}`, `${num(r.terca.Md, 3)} (1 kN: ${num(r.terca.MdP, 3)})`, `${num(r.terca.uso * 100, 0)}%`, `${num(r.terca.u, 1)} / ${num(r.terca.ulim, 1)}`]);
-      raiz.append(ui.secao({ numero: '08', titulo: 'Peças do telhado', descricao: 'Cargas características g / q por metro (normais à água nas ripas e nos caibros; verticais nas terças) e momentos de cálculo',
+      raiz.append(ui.secao({ numero: '09', titulo: 'Peças do telhado', descricao: 'Cargas características g / q por metro (normais à água nas ripas e nos caibros; verticais nas terças) e momentos de cálculo',
         filhos: [ui.tabela({ colunas: [{ titulo: 'Peça' }, { titulo: 'Seção (cm)' }, { titulo: 'Vão' }, { titulo: 'g / q (kN/m)', alinhar: 'dir' }, { titulo: 'Md (kN·m)', alinhar: 'dir' }, { titulo: 'Uso', alinhar: 'dir' }, { titulo: 'Flecha / limite (mm)', alinhar: 'dir' }], linhas })] }));
-      raiz.append(ui.secao({ numero: '09', titulo: 'Cargas nos nós da tesoura', descricao: `Por tesoura (espaçamento ${num(g.et, 2)} m), valores característicos — a tesoura ligada usa estes valores`,
+      raiz.append(ui.secao({ numero: '10', titulo: 'Cargas nos nós da tesoura', descricao: `Por tesoura (espaçamento ${num(g.et, 2)} m), valores característicos — a tesoura ligada usa estes valores`,
         filhos: [ui.tabela({ colunas: [{ titulo: 'Nó superior' }, { titulo: 'G (kN)', alinhar: 'dir' }, { titulo: 'Q (kN)', alinhar: 'dir' }, { titulo: 'Vento (kN)', alinhar: 'dir' }],
           linhas: r.nos.sup.map((c, k) => [k === 0 || k === g.n ? `${k} — apoio (frechal)` : k === g.np ? `${k} — cumeeira` : `${k}`, num(c.G, 2), num(c.Q, 2), `${num(c.W[0], 2)} ; ${num(c.W[1], 2)}`]) })] }));
       const re = r.reacoes;
-      raiz.append(ui.secao({ numero: '10', titulo: 'Apoios e quantidades', descricao: 'Cargas por metro levadas às vigas ou paredes de apoio pela ligação do telhado',
+      raiz.append(ui.secao({ numero: '11', titulo: 'Apoios e quantidades', descricao: 'Cargas por metro levadas às vigas ou paredes de apoio pela ligação do telhado',
         filhos: [ui.tabela({ colunas: [{ titulo: 'Item' }, { titulo: 'Valor', alinhar: 'dir' }], linhas: [
           ['Beirais A e B (g / q)', `${num(re.a.g, 2)} / ${num(re.a.q, 2)} kN/m`],
           ...(re.oitao ? [['Oitões (g / q)', `${num(re.oitao.g, 2)} / ${num(re.oitao.q, 2)} kN/m`]] : []),

@@ -86,6 +86,12 @@ const CORES_AZUL = {
   estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3,
 };
 const corBarra = (t) => ((document.documentElement.dataset.tema === 'blueprint' ? CORES_AZUL : CORES)[t] ?? 0x888888);
+/** Peças de madeira e de vedação (telhado e tesoura): cor, opacidade e nome. */
+const PECAS = {
+  tesoura: { cor: 0xa0703f, nome: 'Tesouras' }, terca: { cor: 0xc08a4f, nome: 'Terças' }, caibro: { cor: 0x8a5a2b, nome: 'Caibros' },
+  ripa: { cor: 0xd8b07a, nome: 'Ripas' }, telha: { cor: 0xb8603e, nome: 'Telhas', opacidade: 0.42 }, oitao: { cor: 0xcfc6b8, nome: 'Oitões', opacidade: 0.5 },
+  tracao: { cor: 0x3f7fc0, nome: 'Tração' }, compressao: { cor: 0xc0533a, nome: 'Compressão' }, nula: { cor: 0x9a958e, nome: 'Esforço nulo' },
+};
 const NOMES = {
   positiva: 'Positiva', construtiva: 'Construtiva', negativa: 'Negativa', 'porta-estribo': 'Porta-estribo', pele: 'Pele', 'torção': 'Torção',
   estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição',
@@ -178,6 +184,43 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   }
   cena.add(grupoBarras, grupoEstribos);
 
+  // peças orientadas (madeira do telhado e da tesoura) e empenas triangulares, um grupo por tipo
+  const gruposPeca = new Map();
+  const grupoPeca = (tipo) => { if (!gruposPeca.has(tipo)) { const g = new THREE.Group(); gruposPeca.set(tipo, g); cena.add(g); } return gruposPeca.get(tipo); };
+  const matPeca = (tipo) => {
+    const k = `peca:${tipo}`, def = PECAS[tipo] ?? { cor: 0xa0703f };
+    if (!materiais.has(k)) materiais.set(k, new THREE.MeshStandardMaterial({ color: def.cor, roughness: 0.85, metalness: 0, transparent: !!def.opacidade, opacity: def.opacidade ?? 1, depthWrite: !def.opacidade, side: def.opacidade ? THREE.DoubleSide : THREE.FrontSide }));
+    return materiais.get(k);
+  };
+  const arestaPeca = new THREE.LineBasicMaterial({ color: 0x3d2a17, transparent: true, opacity: 0.35 });
+  for (const q of modelo.pecas ?? []) {
+    const p0 = new THREE.Vector3(...q.p), p1 = new THREE.Vector3(...q.q);
+    const L = p0.distanceTo(p1);
+    if (L < 1e-3) continue;
+    const ex = p1.clone().sub(p0).normalize();
+    const c = new THREE.Vector3(...(q.cima ?? [0, 0, 1]));
+    const ey = c.sub(ex.clone().multiplyScalar(c.dot(ex))).normalize();
+    const ez = ex.clone().cross(ey);
+    const geo = new THREE.BoxGeometry(L, q.h, q.b);
+    const malha = new THREE.Mesh(geo, matPeca(q.tipo));
+    malha.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex, ey, ez));
+    malha.position.copy(p0.add(p1).multiplyScalar(0.5));
+    malha.userData = { id: null, peca: true, tipo: q.tipo, rotulo: q.rotulo };
+    if (!PECAS[q.tipo]?.opacidade && q.tipo !== 'ripa') malha.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), arestaPeca));
+    grupoPeca(q.tipo).add(malha);
+    malhas.push(malha);
+  }
+  for (const e of modelo.empenas ?? []) {
+    const forma = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(e.L, 0), new THREE.Vector2(e.L / 2, e.H)]);
+    const geo = new THREE.ExtrudeGeometry(forma, { depth: e.esp, bevelEnabled: false });
+    geo.rotateX(Math.PI / 2);                       // forma no plano x–z, extrudada no sentido −y
+    const malha = new THREE.Mesh(geo, matPeca(e.tipo));
+    malha.position.set(0, e.y + e.esp / 2, 0);
+    malha.userData = { id: null, peca: true, tipo: e.tipo, rotulo: e.rotulo };
+    grupoPeca(e.tipo).add(malha);
+    malhas.push(malha);
+  }
+
   // câmera: órbita em torno do centro do modelo
   const { min, max } = limitesDoModelo(modelo);
   const centro = new THREE.Vector3(...min.map((v, i) => (v + max[i]) / 2));
@@ -253,18 +296,18 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
     // barra sob o mouse
     const r = palco.getBoundingClientRect();
     raycaster.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
-    const alvo = raycaster.intersectObjects(malhas.filter((m) => m.parent.visible), false)[0]?.object ?? null;
-    const id = alvo?.userData.id ?? null;
+    const alvo = raycaster.intersectObjects(malhas.filter((m) => m.parent.visible && !(m.userData.peca && PECAS[m.userData.tipo]?.opacidade)), false)[0]?.object ?? null;
+    const id = alvo ? (alvo.userData.peca ? alvo.uuid : alvo.userData.id) : null;
     if (id !== sobre) {
       sobre = id;
-      for (const m of malhas) m.material = m.userData.id === id ? destaqueMat : mat(m.userData.tipo);
-      dica.textContent = alvo ? `${alvo.userData.N ?? ''} · ${NOMES[alvo.userData.tipo] ?? alvo.userData.tipo} · ø ${String(alvo.userData.phi).replace('.', ',')}` : '';
+      for (const m of malhas) m.material = (m.userData.peca ? m.uuid : m.userData.id) === id && id ? destaqueMat : m.userData.peca ? matPeca(m.userData.tipo) : mat(m.userData.tipo);
+      dica.textContent = alvo ? (alvo.userData.peca ? alvo.userData.rotulo ?? '' : `${alvo.userData.N ?? ''} · ${NOMES[alvo.userData.tipo] ?? alvo.userData.tipo} · ø ${String(alvo.userData.phi).replace('.', ',')}`) : '';
       dica.classList.toggle('visivel', !!alvo);
       aoDestacar?.(id);
       desenhar();
     }
   });
-  palco.addEventListener('pointerleave', () => { if (sobre) { sobre = null; for (const m of malhas) m.material = mat(m.userData.tipo); dica.classList.remove('visivel'); aoDestacar?.(null); desenhar(); } });
+  palco.addEventListener('pointerleave', () => { if (sobre) { sobre = null; for (const m of malhas) m.material = m.userData.peca ? matPeca(m.userData.tipo) : mat(m.userData.tipo); dica.classList.remove('visivel'); aoDestacar?.(null); desenhar(); } });
   palco.addEventListener('wheel', (e) => { e.preventDefault(); orbita.dist = Math.min(tamanho * 8, Math.max(tamanho * 0.15, orbita.dist * (e.deltaY > 0 ? 1.12 : 0.89))); desenhar(); }, { passive: false });
   const ro = new ResizeObserver(() => desenhar());
   ro.observe(palco);
@@ -276,10 +319,12 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   const tipos = [...new Set(modelo.barras.map((b) => b.tipo))];
   raiz.append(
     h('div', { class: 'v3a-barra' },
-      alternar('concreto', grupoConcreto, 'Concreto'),
+      modelo.caixas.length ? alternar('concreto', grupoConcreto, modelo.pecas?.length ? 'Apoios' : 'Concreto') : '',
       grupoEstribos.children.length ? alternar('estribos', grupoEstribos, 'Estribos') : '',
+      ...[...gruposPeca.keys()].filter((t) => !['tracao', 'compressao', 'nula'].includes(t)).map((t) => { estado[t] = true; return alternar(t, gruposPeca.get(t), PECAS[t]?.nome ?? t); }),
       h('button', { class: 'v3a-bt', title: 'Voltar à vista inicial', onClick: enquadrar }, icone('cubo', { tamanho: 13, traco: 1.8 }), 'Enquadrar'),
-      h('span', { class: 'v3a-legenda' }, tipos.map((t) => h('span', { class: 'v3a-leg' }, h('i', { style: { background: `#${corBarra(t).toString(16).padStart(6, '0')}` } }), NOMES[t] ?? t))),
+      h('span', { class: 'v3a-legenda' }, tipos.map((t) => h('span', { class: 'v3a-leg' }, h('i', { style: { background: `#${corBarra(t).toString(16).padStart(6, '0')}` } }), NOMES[t] ?? t)),
+        [...gruposPeca.keys()].filter((t) => ['tracao', 'compressao', 'nula'].includes(t)).map((t) => h('span', { class: 'v3a-leg' }, h('i', { style: { background: `#${PECAS[t].cor.toString(16).padStart(6, '0')}` } }), PECAS[t].nome))),
       h('span', { class: 'v3a-ajuda' }, 'arrastar gira · Shift+arrastar desloca · roda aproxima')),
     h('div', { class: 'v3a-moldura' }, palco, dica),
   );
@@ -290,9 +335,9 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
     clearInterval(vigia); ro.disconnect();
     cena.traverse((o) => { o.geometry?.dispose(); });
     for (const m of materiais.values()) m.dispose();
-    destaqueMat.dispose();
+    destaqueMat.dispose(); arestaPeca.dispose();
     if (dono === raiz) dono = null;
   }, 3000);
-  raiz.destacar = (id) => { for (const m of malhas) m.material = m.userData.id === id ? destaqueMat : mat(m.userData.tipo); desenhar(); };
+  raiz.destacar = (id) => { for (const m of malhas) if (!m.userData.peca) m.material = m.userData.id === id ? destaqueMat : mat(m.userData.tipo); desenhar(); };
   return raiz;
 }

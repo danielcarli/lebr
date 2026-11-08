@@ -16,6 +16,8 @@ import { calcularTesoura, criarTesoura, cargasTransmitidas, ligacoes } from './c
 import { TIPOS_TESOURA, GRUPOS_TESOURA } from '../../engine/tesoura.js';
 import { secaoMaterial } from '../madeira-comum/material.js';
 import { criarDesenhosTelhado } from '../madeira-comum/desenho-telhado.js';
+import { vistaArmadura3D } from '../../renderer/ui/armadura3d.js';
+import { modeloTesoura } from '../madeira-comum/telhado3d.js';
 
 export default function moduloTesoura(api) {
   const { h } = api.dom;
@@ -98,12 +100,14 @@ export default function moduloTesoura(api) {
       ));
       raiz.append(ui.secao({ numero: '05', titulo: 'Esforços', descricao: 'Esforço normal de cálculo que governa cada barra; linha vermelha tracejada: barra que não atende',
         filhos: [h('div', { class: 'desenho-caixa' }, d.elevacaoTesoura(r))] }));
-      raiz.append(ui.secao({ numero: '06', titulo: 'Barras', descricao: 'NG, NQ e NW característicos; Nt e Nc de cálculo (combinação que governa)',
+      const m3d = modeloTesoura(r, el.secoes);
+      raiz.append(ui.secao({ numero: '06', titulo: 'Tesoura em 3D', descricao: 'Peças com as seções do cálculo, coloridas pelo esforço que governa', filhos: [h('div', null, vistaArmadura3D(m3d, { altura: 400 }), h('p', { class: 'combinacoes-nota a3d-legenda' }, m3d.legenda))] }));
+      raiz.append(ui.secao({ numero: '07', titulo: 'Barras', descricao: 'NG, NQ e NW característicos; Nt e Nc de cálculo (combinação que governa)',
         filhos: [ui.tabela({
           colunas: [{ titulo: 'Barra' }, { titulo: 'Seção' }, { titulo: 'L (m)', alinhar: 'dir' }, { titulo: 'NG', alinhar: 'dir' }, { titulo: 'NQ', alinhar: 'dir' }, { titulo: 'NW', alinhar: 'dir' }, { titulo: 'Nt,d', alinhar: 'dir' }, { titulo: 'Nc,d', alinhar: 'dir' }, { titulo: 'λ', alinhar: 'dir' }, { titulo: 'Uso', alinhar: 'dir' }],
           linhas: r.barras.map((b) => [b.nome, `${num(b.b, 0)} × ${num(b.h, 0)}`, num(b.L, 2), num(b.NG, 1), num(b.NQ, 1), num(b.NW, 1), b.Nt > 0 ? `${num(b.Nt, 1)} (${b.combT})` : '—', b.Nc < 0 ? `${num(-b.Nc, 1)} (${b.combC})` : '—', b.lambda ?? '—', `${num(b.uso * 100, 0)}%${b.ok ? '' : ' ✗'}`]),
         })] }));
-      raiz.append(ui.secao({ numero: '07', titulo: 'Nó de apoio e reações', descricao: 'Entalhe simples da perna na linha; reações por tesoura (kN)',
+      raiz.append(ui.secao({ numero: '08', titulo: 'Nó de apoio e reações', descricao: 'Entalhe simples da perna na linha; reações por tesoura (kN)',
         filhos: [
           h('div', { class: 'desenho-caixa centro' }, d.noApoio(r, el.secoes)),
           ui.tabela({ colunas: [{ titulo: 'Apoio' }, { titulo: 'Rg,k', alinhar: 'dir' }, { titulo: 'Rq,k', alinhar: 'dir' }, { titulo: 'Rw,k', alinhar: 'dir' }, { titulo: 'Rd (G+Q)', alinhar: 'dir' }, { titulo: 'Rd (G+W)', alinhar: 'dir' }],
