@@ -20,6 +20,7 @@
  * Cada barra é uma linha poligonal pelo eixo (com ganchos e dobras); a vista desenha um tubo de diâmetro ø.
  */
 
+import { pernaGancho90, pinoEstribo } from '../../engine/detalhamento.js';
 import { geometriaNervurada } from './nervurada-geometria.js';
 
 const r1 = (v) => Math.round(v * 10) / 10;
@@ -144,7 +145,7 @@ export function modeloViga(el, det, posicoes, { cob = 3, dmax = 19 } = {}) {
     for (const { q, ini, encosta } of colocadas) {
       const phi = q.phi / 10;
       const sobe = face === 'inferior' ? 1 : -1;  // gancho para dentro da seção
-      const gancho = Math.min(10 * phi, h - 2 * cob - 2 * phiT - phi);
+      const gancho = Math.max(0, Math.min(pernaGancho90(q.phi), h - 2 * cob - 2 * phiT - phi)); // 9.4.2.3 + Tabela 9.1
       const xa = q.x0 * 100, xb = q.x1 * 100;
       for (let k = 0; k < q.n; k++) {
         const { y: y1, dz } = posicao(ini + k);
@@ -173,7 +174,7 @@ export function modeloViga(el, det, posicoes, { cob = 3, dmax = 19 } = {}) {
     const fi = cantos.inferior || 1, fs = cantos.superior || fi;
     const u0 = cob + pt + Math.max(fi, fs) / 2, u1 = b - u0;
     const v0 = cob + pt + fi / 2, v1 = h - cob - pt - fs / 2;
-    const r = Math.max(fi, fs) / 2 + pt / 2;
+    const r = Math.max(Math.max(fi, fs) / 2, (pinoEstribo(q.phi) / 2) * pt) + pt / 2; // dobra do estribo ≥ pino de 9.4.6.1
     let i = 0;
     for (const t of q.trechos ?? []) {
       const n = Math.max(1, Math.round(t.qtd ?? 1));
@@ -240,7 +241,7 @@ export function modeloPilar(el, det, posicoes, { pontos = [], cob = 3, dmax = 19
       } else {
         const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
         const [u0, u1, v0, v1] = pts.length ? [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)] : [cob + pt + phiL / 2, bx - cob - pt - phiL / 2, cob + pt + phiL / 2, by - cob - pt - phiL / 2];
-        const r = phiL / 2 + pt / 2;
+        const r = Math.max(phiL / 2, (pinoEstribo(est.phi) / 2) * pt) + pt / 2;
         barras.push({ id: est.id, N: est.N, tipo: 'estribo', phi: est.phi, pts: eixoEstriboRetangular(u0, v0, u1, v1, r, est.phi, i % 4).map(([u, v, w]) => [u, v, z + w]) });
       }
     });
@@ -295,7 +296,7 @@ export function modeloLaje(el, det, posicoes, { cob = 2.5 } = {}) {
     const ts = espalhar(n, q.t0 * 100 + cob, q.t1 * 100 - cob);
     // trecho atravessando a borda: [início, fim] na direção da barra
     const [u0, u1] = { x0: [-q.a2, q.a1], x1: [lx - q.a1, lx + q.a2], y0: [-q.a2, q.a1], y1: [ly - q.a1, ly + q.a2] }[q.borda] ?? [0, 0];
-    const baixo = z - Math.min(dobra, h - 2 * cob);
+    const baixo = Math.max(z - dobra, cob + phi / 2);   // a ponta da dobra para no cobrimento de baixo
     for (const t of ts) {
       const P = (u, zz) => (q.dir === 'x' ? [u, t, zz] : [t, u, zz]);
       barras.push({ id: q.id, N: q.N, tipo: 'negativa', phi: q.phi, pts: [P(u0, baixo), P(u0, z), P(u1, z), P(u1, baixo)] });

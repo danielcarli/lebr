@@ -22,12 +22,64 @@ import * as THREE from '../assets/vendor/three/three.module.min.js';
 import { h } from './dom.js';
 import { icone } from './icones.js';
 import { limitesDoModelo } from '../../modules/comum/armadura3d.js';
+import { raioDobraEixo } from '../../engine/detalhamento.js';
 import { COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 
 const CORES = {
   positiva: 0xb85438, construtiva: 0xc98a6e, negativa: 0x2f5fa3, 'porta-estribo': 0x7b8fae, pele: 0x6f8f3a, 'torção': 0x8c5fb0,
   estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae,
 };
+/**
+ * Linha poligonal para o TubeGeometry: o parâmetro u anda de vértice em vértice (u·(n−1) = índice), e a tangente num
+ * vértice é a média das direções dos dois trechos — com tubularSegments = n − 1, cada anel cai num vértice.
+ */
+class Poligonal extends THREE.Curve {
+  constructor(pts) { super(); this.pts = pts; }
+  getPoint(u, alvo = new THREE.Vector3()) {
+    const n = this.pts.length - 1, s = Math.min(Math.max(u, 0), 1) * n, i = Math.min(Math.floor(s), n - 1);
+    return alvo.copy(this.pts[i]).lerp(this.pts[i + 1], s - i);
+  }
+  getPointAt(u, alvo) { return this.getPoint(u, alvo); }
+  getTangent(u, alvo = new THREE.Vector3()) {
+    const n = this.pts.length - 1, s = Math.min(Math.max(u, 0), 1) * n, i = Math.round(s);
+    const dir = (k) => this.pts[k + 1].clone().sub(this.pts[k]).normalize();
+    if (Math.abs(s - i) < 1e-6) {
+      if (i === 0) return alvo.copy(dir(0));
+      if (i === n) return alvo.copy(dir(n - 1));
+      return alvo.copy(dir(i - 1).add(dir(i)).normalize());
+    }
+    return alvo.copy(dir(Math.min(Math.floor(s), n - 1)));
+  }
+  getTangentAt(u, alvo) { return this.getTangent(u, alvo); }
+}
+
+/**
+ * Troca cada canto vivo da barra (desvio acima de 20°) por um arco de raio R no eixo (pino da Tabela 9.1 da
+ * NBR 6118: R = pino/2 + ø/2). Num trecho curto o raio é reduzido para caber.
+ */
+export function dobrasArredondadas(pts, R) {
+  if (pts.length < 3 || !(R > 0)) return pts;
+  const out = [pts[0]];
+  const trecho = pts.map((p, k) => (k < pts.length - 1 ? pts[k + 1].distanceTo(p) : 0));
+  for (let k = 1; k < pts.length - 1; k++) {
+    const d1 = pts[k].clone().sub(pts[k - 1]).normalize(), d2 = pts[k + 1].clone().sub(pts[k]).normalize();
+    const teta = Math.acos(Math.min(1, Math.max(-1, d1.dot(d2))));
+    if (teta < (20 * Math.PI) / 180 || teta > Math.PI - 1e-3) { out.push(pts[k]); continue; }
+    const tg = Math.tan(teta / 2);
+    const t = Math.min(R * tg, 0.5 * trecho[k - 1], 0.5 * trecho[k]);
+    const r = t / tg;
+    const T1 = pts[k].clone().sub(d1.clone().multiplyScalar(t));
+    const eixo = d1.clone().cross(d2).normalize();
+    const n = d2.clone().sub(d1.clone().multiplyScalar(d1.dot(d2))).normalize();
+    const C = T1.clone().add(n.multiplyScalar(r));
+    const raio = T1.clone().sub(C);
+    const passos = Math.max(2, Math.ceil(teta / ((15 * Math.PI) / 180)));
+    for (let i = 0; i <= passos; i++) out.push(C.clone().add(raio.clone().applyAxisAngle(eixo, (teta * i) / passos)));
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
 /** Tema blueprint: cores claras e saturadas, com contraste sobre o papel azul. */
 const CORES_AZUL = {
   positiva: 0xffb347, construtiva: 0xffd9a8, negativa: 0x7fe3ff, 'porta-estribo': 0xd6e2f3, pele: 0xbdf08c, 'torção': 0xe6b3ff,
@@ -113,13 +165,12 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   const destaqueMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x553300, roughness: 0.4 });
   const malhas = [];
   for (const b of modelo.barras) {
-    const pts = b.pts.map((p) => new THREE.Vector3(...p));
+    // dobras com o pino da Tabela 9.1 (os estribos já vêm com os arcos de dobra)
+    const pts = dobrasArredondadas(b.pts.map((p) => new THREE.Vector3(...p)).filter((p, i, a) => i === 0 || p.distanceTo(a[i - 1]) > 1e-6), raioDobraEixo(b.phi, b.aco));
     if (pts.length < 2) continue;
     const raio = Math.max(b.phi / 20, 0.22);
-    const curva = new THREE.CurvePath();
-    for (let i = 0; i < pts.length - 1; i++) if (pts[i].distanceTo(pts[i + 1]) > 1e-6) curva.add(new THREE.LineCurve3(pts[i], pts[i + 1]));
-    if (!curva.curves.length) continue;
-    const geo = new THREE.TubeGeometry(curva, Math.max(1, curva.curves.length) * 2, raio, 8, false);
+    // um anel do tubo em cada vértice: a seção passa exatamente pelas dobras (sem cortar os cantos)
+    const geo = new THREE.TubeGeometry(new Poligonal(pts), pts.length - 1, raio, 8, false);
     const malha = new THREE.Mesh(geo, mat(b.tipo));
     malha.userData = { id: b.id, N: b.N, tipo: b.tipo, phi: b.phi };
     (b.tipo === 'estribo' ? grupoEstribos : grupoBarras).add(malha);

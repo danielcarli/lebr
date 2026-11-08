@@ -16,6 +16,7 @@
  * dos modelos de armadura3d.js — { caixas, barras, legenda } em cm, z para cima — com a geometria tirada do
  * resultado do cálculo e as bitolas e quantidades da lista de ferros (já com as edições).
  */
+import { pernaGancho90 } from '../../engine/detalhamento.js';
 import { eixoEstriboRetangular, eixoEstriboCircular } from './armadura3d.js';
 
 const espalhar = (n, a, b) => (n <= 1 ? [(a + b) / 2] : Array.from({ length: n }, (_, i) => a + ((b - a) * i) / (n - 1)));
@@ -29,10 +30,16 @@ const tocoPilar = (cx, cy, ap, bp, z0, alt = 40) => ({ min: [cx - ap / 2, cy - b
  * Barra reta com gancho a 90° nas duas pontas (subindo, sinal +1, ou descendo, −1).
  * @param {number[]} p0 @param {number[]} p1  pontas da parte reta
  */
-function comGanchos(p0, p1, gancho, sinal = 1) {
-  if (!(gancho > 0)) return [p0, p1];
-  return [[p0[0], p0[1], p0[2] + sinal * gancho], p0, p1, [p1[0], p1[1], p1[2] + sinal * gancho]];
+function comGanchos(p0, p1, gancho, sinal = 1, phi = 0) {
+  // as pontas chegam no cobrimento: o eixo da perna fica a ø/2 para dentro
+  const L = Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]) || 1;
+  const d = [0, 1, 2].map((i) => ((p1[i] - p0[i]) / L) * (phi / 2));
+  const a = p0.map((v, i) => v + d[i]), b = p1.map((v, i) => v - d[i]);
+  if (!(gancho > 0)) return [a, b];
+  return [[a[0], a[1], a[2] + sinal * gancho], a, b, [b[0], b[1], b[2] + sinal * gancho]];
 }
+/** Perna do gancho a 90° (9.4.2.3, pino da Tabela 9.1) limitada ao espaço disponível (cm). */
+const perna90 = (phiMm, espaco) => Math.max(0, Math.min(pernaGancho90(phiMm), espaco));
 
 /* ------------------------------------------------------------------ sapata isolada */
 
@@ -51,12 +58,12 @@ export function modeloSapata(r, posicoes) {
   const qa = pos(posicoes, 'malha-a'), qb = pos(posicoes, 'malha-b');
   const phiA = (qa?.phi ?? 10) / 10;
   if (qa) {
-    const phi = qa.phi / 10, z = cob + phi / 2, g = Math.min(10 * phi, h0 - 2 * cob);
-    for (const y of espalhar(Math.max(1, Math.round(qa.n)), cob + phi / 2, B - cob - phi / 2)) barras.push({ id: qa.id, N: qa.N, tipo: 'positiva', phi: qa.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], g) });
+    const phi = qa.phi / 10, z = cob + phi / 2, g = perna90(qa.phi, h0 - 2 * cob - phi);
+    for (const y of espalhar(Math.max(1, Math.round(qa.n)), cob + phi / 2, B - cob - phi / 2)) barras.push({ id: qa.id, N: qa.N, tipo: 'positiva', phi: qa.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], g, 1, phi) });
   }
   if (qb) {
-    const phi = qb.phi / 10, z = cob + phiA + phi / 2, g = Math.min(10 * phi, h0 - 2 * cob);
-    for (const x of espalhar(Math.max(1, Math.round(qb.n)), cob + phi / 2, A - cob - phi / 2)) barras.push({ id: qb.id, N: qb.N, tipo: 'distribuição', phi: qb.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], g) });
+    const phi = qb.phi / 10, z = cob + phiA + phi / 2, g = perna90(qb.phi, h0 - 2 * cob - phi);
+    for (const x of espalhar(Math.max(1, Math.round(qb.n)), cob + phi / 2, A - cob - phi / 2)) barras.push({ id: qb.id, N: qb.N, tipo: 'distribuição', phi: qb.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], g, 1, phi) });
   }
   return {
     caixas, barras, eixos: { x: 'A', y: 'B', z: 'h' }, vista: { teta: -Math.PI / 3.2, fi: 1.05 },
@@ -149,35 +156,40 @@ export function modeloBloco(r, posicoes) {
       }
     } else {
       const ys = linhas(1), por = Math.max(1, Math.round(qx.n / ys.length));
-      for (const yl of ys) for (const y of espalhar(por, Math.max(cob, yl - D / 2), Math.min(B - cob, yl + D / 2))) barras.push({ id: qx.id, N: qx.N, tipo: 'positiva', phi: qx.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], perna) });
+      for (const yl of ys) for (const y of espalhar(por, Math.max(cob, yl - D / 2), Math.min(B - cob, yl + D / 2))) barras.push({ id: qx.id, N: qx.N, tipo: 'positiva', phi: qx.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], perna, 1, qx.phi / 10) });
     }
   }
   if (qy) {
     const phi = qy.phi / 10, z = cob + zTirX + phi / 2;
     const xs = linhas(0), por = Math.max(1, Math.round(qy.n / xs.length));
-    for (const xl of xs) for (const x of espalhar(por, Math.max(cob, xl - D / 2), Math.min(A - cob, xl + D / 2))) barras.push({ id: qy.id, N: qy.N, tipo: 'positiva', phi: qy.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], perna) });
+    for (const xl of xs) for (const x of espalhar(por, Math.max(cob, xl - D / 2), Math.min(A - cob, xl + D / 2))) barras.push({ id: qy.id, N: qy.N, tipo: 'positiva', phi: qy.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], perna, 1, phi) });
   }
   // malhas de distribuição
   for (const [id, dir] of [['malha-x', 'x'], ['malha-y', 'y']]) {
     const q = pos(posicoes, id);
     if (!q) continue;
-    const phi = q.phi / 10, z = cob + zTirX + 2 + phi / 2 + (dir === 'y' ? phi : 0), g = 10 * phi;
+    const phi = q.phi / 10, z = cob + zTirX + 2 + phi / 2 + (dir === 'y' ? phi : 0), g = perna90(q.phi, h - z - cob - phi / 2);
     const L = dir === 'x' ? A : B, W = dir === 'x' ? B : A;
     for (const c of espalhar(Math.max(1, Math.round(q.n)), cob, W - cob)) {
-      barras.push({ id: q.id, N: q.N, tipo: 'distribuição', phi: q.phi, pts: dir === 'x' ? comGanchos([cob, c, z], [L - cob, c, z], g) : comGanchos([c, cob, z], [c, L - cob, z], g) });
+      barras.push({ id: q.id, N: q.N, tipo: 'distribuição', phi: q.phi, pts: dir === 'x' ? comGanchos([cob, c, z], [L - cob, c, z], g, 1, phi) : comGanchos([c, cob, z], [c, L - cob, z], g, 1, phi) });
     }
   }
   // superior (ganchos descendo) e pele nas duas faces
   const qs = pos(posicoes, 'superior');
   if (qs) {
     const phi = qs.phi / 10, z = h - cob - phi / 2;
-    for (const y of espalhar(Math.max(1, Math.round(qs.n)), cob + 3, B - cob - 3)) barras.push({ id: qs.id, N: qs.N, tipo: 'construtiva', phi: qs.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], perna, -1) });
+    for (const y of espalhar(Math.max(1, Math.round(qs.n)), cob + 3, B - cob - 3)) barras.push({ id: qs.id, N: qs.N, tipo: 'construtiva', phi: qs.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], perna, -1, phi) });
   }
   const qp = pos(posicoes, 'pele');
   if (qp) {
     const phi = qp.phi / 10, porFace = Math.max(1, Math.round(qp.n / 2));
     const zs = espalhar(porFace + 2, cob, h - cob).slice(1, -1);
-    for (const y of [cob + 1 + phi / 2, B - cob - 1 - phi / 2]) for (const z of zs) barras.push({ id: qp.id, N: qp.N, tipo: 'pele', phi: qp.phi, pts: comGanchos([cob, y, z], [A - cob, y, z], 10 * phi * 0, 1) });
+    const g = perna90(qp.phi, B / 2 - cob - phi);
+    for (const y of [cob + 1 + phi / 2, B - cob - 1 - phi / 2]) for (const z of zs) {
+      // armadura de pele com ganchos a 90° deitados, voltados para o miolo do bloco
+      const dy = y < B / 2 ? g : -g, x0 = cob + phi / 2, x1 = A - cob - phi / 2;
+      barras.push({ id: qp.id, N: qp.N, tipo: 'pele', phi: qp.phi, pts: [[x0, y + dy, z], [x0, y, z], [x1, y, z], [x1, y + dy, z]] });
+    }
   }
   // estribos verticais (e de suspensão): no plano y–z, ao longo de A
   for (const id of ['estribo-vertical', 'suspensao']) {
@@ -230,8 +242,8 @@ export function modeloSapataCorrida(r, posicoes) {
   const barras = [];
   const qt = pos(posicoes, 'transversal'), ql = pos(posicoes, 'longitudinal');
   if (qt) {
-    const phi = qt.phi / 10, z = cob + phi / 2, s = qt.s ?? 15, g = Math.min(10 * phi, h0 - 2 * cob);
-    for (let x = cob; x <= L - cob + 0.1; x += s) barras.push({ id: qt.id, N: qt.N, tipo: 'positiva', phi: qt.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], g) });
+    const phi = qt.phi / 10, z = cob + phi / 2, s = qt.s ?? 15, g = perna90(qt.phi, h0 - 2 * cob - phi);
+    for (let x = cob; x <= L - cob + 0.1; x += s) barras.push({ id: qt.id, N: qt.N, tipo: 'positiva', phi: qt.phi, pts: comGanchos([x, cob, z], [x, B - cob, z], g, 1, phi) });
   }
   if (ql) {
     const phi = ql.phi / 10, z = cob + (qt?.phi ?? 10) / 10 + phi / 2;
@@ -264,7 +276,7 @@ export function modeloRadier(r, posicoes, { maxBarras = 160 } = {}) {
     const g = h - 2 * cob - 2;                          // pernas fechando na outra face
     for (const c of cs) {
       const p0 = dir === 'x' ? [cob, c, z] : [c, cob, z], p1 = dir === 'x' ? [L - cob, c, z] : [c, L - cob, z];
-      barras.push({ id: q.id, N: q.N, tipo: face === 'inf' ? 'positiva' : 'negativa', phi: q.phi, pts: comGanchos(p0, p1, Math.min(g, 15 * phi), face === 'inf' ? 1 : -1) });
+      barras.push({ id: q.id, N: q.N, tipo: face === 'inf' ? 'positiva' : 'negativa', phi: q.phi, pts: comGanchos(p0, p1, Math.min(g, 15 * phi), face === 'inf' ? 1 : -1, phi) });
     }
   };
   malha('inferior-x', 'x', 'inf', 0); malha('inferior-y', 'y', 'inf', 1);

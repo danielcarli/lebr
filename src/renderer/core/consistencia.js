@@ -181,7 +181,8 @@ export function verificarConsistencia(projeto, registro) {
       }
       // transição: a base é recebida por uma viga
       const vigaDeBaixo = (recebe.get(`${e.id}|base`) ?? []).find((r) => tipo(r) === 'viga');
-      if (vigaDeBaixo) add('pilar-transicao', e, `${e.codigo} nasce sobre ${vigaDeBaixo.codigo} (viga de transição) — confira a viga e a ligação.`, { ponto: centroPilar(e), relacionados: [vigaDeBaixo.id] });
+      // pontalete de madeira sobre viga é o apoio normal do telhado, não uma transição
+      if (vigaDeBaixo && !e.modulo?.startsWith('madeira.')) add('pilar-transicao', e, `${e.codigo} nasce sobre ${vigaDeBaixo.codigo} (viga de transição) — confira a viga e a ligação.`, { ponto: centroPilar(e), relacionados: [vigaDeBaixo.id] });
       const pd = peDireito(projeto, e.posicao.pavimento);
       if (pd > 0 && Math.abs((e.comprimento ?? 0) - pd) > 0.005) {
         add('pe-direito', e, `${e.codigo}: comprimento ${fmt(e.comprimento)} m diferente do pé-direito ${fmt(pd)} m do lance.`, { ponto: centroPilar(e), ajustarComprimento: pd });

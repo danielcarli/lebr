@@ -35,6 +35,8 @@ import { CASOS_VENTO } from '../../engine/combinacoes.js';
 import { deformadaBarra } from '../../engine/portico.js';
 import { geometriaNervurada, COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 import { eixoSapataCorrida } from '../../modules/concreto-sapata-corrida/calculo.js';
+import { geometriaTelhado, telhaDe, tesouraDoTelhado, SECOES_TESOURA_PADRAO } from '../../modules/madeira-telhado/calculo.js';
+import { geometriaTesoura } from '../../engine/tesoura.js';
 
 /** Estado da câmera e das opções (sobrevive aos redesenhos). */
 const vista = { projeto: null, alvo: null, raio: 18, teta: -0.9, fi: 0.95, cores: 'verificacao', lajesTransp: false, ocultos: new Set(), afastar: 0, deformada: false, casoDef: 'GQ', fatorDef: 1, vento: false, casoVento: 'V1' };
@@ -183,6 +185,7 @@ function renderizar(container, acoes) {
     for (const el of proj.elementos) {
       const pos = el.posicao;
       const pav = pos && pavimento(proj, pos.pavimento);
+      if (el.modulo === 'madeira.telhado' && pav && !vista.ocultos.has(pav.id)) { try { desenharTelhado3D(el, pav); } catch { /* geometria inválida: fica de fora */ } continue; }
       const t = tipoDe(el, modulos);
       if (!pav || !t || vista.ocultos.has(pav.id)) continue;
       if (t === 'escada') { desenharEscada3D(el, pav); continue; }
@@ -252,6 +255,102 @@ function renderizar(container, acoes) {
         grupo.add(mesh);
         malhas.push({ mesh, el, linhas, cor: mat.color.clone() });
         limites.expandByObject(mesh);
+      }
+    }
+
+    /**
+     * Telhado de madeira: tesouras (com as seções da tesoura ligada), terças em pé, caibros, ripas e telhas, mais os
+     * oitões de alvenaria quando as pontas não têm tesoura. A base das tesouras fica na cota do pavimento de apoio.
+     */
+    function desenharTelhado3D(el, pav) {
+      const g = geometriaTelhado(el), telha = telhaDe(el);
+      const tes = tesouraDoTelhado(proj, el);
+      const sec = tes?.secoes ?? SECOES_TESOURA_PADRAO;
+      const z0 = pav.cota + deslocamento(pav.id);
+      const { x = 0, y = 0, angulo = 0 } = el.posicao;
+      const ang = (angulo * Math.PI) / 180, cs = Math.cos(ang), sn = Math.sin(ang);
+      // (u ao longo do vão, v ao longo da cumeeira, z para cima) → mundo three (x, z, −y)
+      const W = (u, v, z) => new THREE.Vector3(x + u * cs - v * sn, z, -(y + u * sn + v * cs));
+      const corMad = cor(el, 'viga');
+      const matMad = new THREE.MeshStandardMaterial({ color: corMad, roughness: 0.9, metalness: 0, transparent: vista.deformada, opacity: vista.deformada ? 0.18 : 1 });
+      /** Peça de seção b (ao longo de "lado") × h (ao longo de "cima") entre dois pontos do mundo. */
+      const peca = (p, q, b, h, cima, idSel = el.id, arestas = true, mat = matMad) => {
+        const d = q.clone().sub(p), L = d.length();
+        if (L < 1e-4) return;
+        const ex = d.clone().normalize();
+        const ey = cima.clone().sub(ex.clone().multiplyScalar(cima.dot(ex))).normalize();
+        const ez = ex.clone().cross(ey);
+        const geo = new THREE.BoxGeometry(L, h, b);
+        const mesh = new THREE.Mesh(geo, mat.clone());
+        mesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex, ey, ez));
+        mesh.position.copy(p.clone().add(q).multiplyScalar(0.5));
+        mesh.userData.id = idSel;
+        const linhas = arestas ? new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.3 })) : new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial());
+        mesh.add(linhas);
+        grupo.add(mesh);
+        malhas.push({ mesh, el, linhas, cor: mesh.material.color.clone() });
+        limites.expandByObject(mesh);
+      };
+      const t = g.i / 100, cosA = g.cos, sinA = g.sin;
+      const hi = sec.banzoInf.h / 100, hs = sec.banzoSup.h / 100;
+      const zEixo = z0 + hi / 2;                                   // eixo do banzo inferior
+      const linhaTopo = (u) => zEixo + t * Math.min(u, g.L - u) + hs / (2 * cosA); // face superior da perna
+      // tesouras
+      const gt = geometriaTesoura({ tipo: tes?.geometria?.tipo ?? el.tipoTesoura ?? 'howe', L: g.L, inclinacao: g.i, paineis: g.n });
+      for (const v of g.tesouras) for (const b of gt.barras) {
+        const p = gt.nos[b.i], q = gt.nos[b.j], s0 = sec[b.grupo];
+        const nPlano = W(-(q.y - p.y), 0, q.x - p.x).sub(W(0, 0, 0)).normalize();
+        peca(W(p.x, v, zEixo + p.y), W(q.x, v, zEixo + q.y), s0.b / 100, s0.h / 100, nPlano.y < 0 ? nPlano.negate() : nPlano, tes?.id ?? el.id);
+      }
+      // terças (em pé) nos nós do banzo superior, com o beiral do oitão
+      const ht = el.terca.h / 100, bt = el.terca.b / 100, v0 = -g.beiralOitao, v1 = g.C + g.beiralOitao;
+      const up = new THREE.Vector3(0, 1, 0);
+      for (const tc of g.tercas) {
+        const zc = linhaTopo(tc.x) + ht / 2;
+        peca(W(tc.x, v0, zc), W(tc.x, v1, zc), bt, ht, up);
+      }
+      // plano de apoio dos caibros (topo das terças) e as camadas de cima, medidas na normal da água
+      const zApoio = (u) => linhaTopo(Math.min(Math.max(u, 0), g.L)) + ht + (u < 0 ? u * t : u > g.L ? -(u - g.L) * t : 0);
+      const agua = (lado) => {
+        const u0 = lado < 0 ? -g.beiral : g.L + g.beiral, u1 = g.L / 2;
+        const nrm = lado < 0 ? [-sinA, cosA] : [sinA, cosA];
+        const P = (u, v, off) => W(u + nrm[0] * off, v, zApoio(u) + nrm[1] * off);
+        const cimaN = W(nrm[0], 0, nrm[1]).sub(W(0, 0, 0)).normalize();
+        let offTelha = 0.02;
+        if (telha.ripas) {
+          const hc = el.caibro.h / 100, bc = el.caibro.b / 100, hr = el.ripa.h / 100, br = el.ripa.b / 100;
+          const ec = Number(el.espacCaibros) || 0.5;
+          for (let v = v0 + bc / 2; v <= v1 - bc / 2 + 1e-6; v += ec) peca(P(u0, v, hc / 2), P(u1, v, hc / 2), bc, hc, cimaN, el.id, false);
+          const galga = Number(el.galga) || telha.galga;
+          const sTot = Math.hypot(u1 - u0, (u1 - u0) * t);
+          for (let s = 0.03; s <= sTot - 0.02; s += galga) {
+            const u = u0 + (s / sTot) * (u1 - u0);
+            peca(P(u, v0, hc + hr / 2), P(u, v1, hc + hr / 2), br, hr, cimaN, el.id, false);
+          }
+          offTelha = hc + hr + 0.015;
+        }
+        const matTelha = new THREE.MeshStandardMaterial({ color: new THREE.Color('#b8603e'), roughness: 0.85, metalness: 0, transparent: true, opacity: vista.lajesTransp || vista.deformada ? 0.15 : 0.5, depthWrite: false, side: THREE.DoubleSide });
+        const vm = (v0 + v1) / 2;
+        peca(P(u0, vm, offTelha), P(u1, vm, offTelha), v1 - v0, 0.015, cimaN, el.id, false, matTelha);
+      };
+      agua(-1); agua(1);
+      // oitões de alvenaria (empenas) sob a linha das terças
+      if (g.oitoes) {
+        const matAlv = new THREE.MeshStandardMaterial({ color: cor(el, 'laje'), roughness: 0.95, metalness: 0, transparent: true, opacity: 0.55, depthWrite: false, side: THREE.DoubleSide });
+        for (const v of [0, g.C]) {
+          const forma = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(g.L, 0), new THREE.Vector2(g.L / 2, g.H)]);
+          const geo = new THREE.ExtrudeGeometry(forma, { depth: 0.14, bevelEnabled: false });
+          const mesh = new THREE.Mesh(geo, matAlv.clone());
+          const ex = W(1, 0, 0).sub(W(0, 0, 0)).normalize(), ey = new THREE.Vector3(0, 1, 0), ez = ex.clone().cross(ey);
+          mesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex, ey, ez));
+          mesh.position.copy(W(0, v + 0.07, z0));   // a extrusão vai no sentido −v (ez = −dir v): parede centrada no eixo
+          mesh.userData.id = el.id;
+          const linhas = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.3 }));
+          mesh.add(linhas);
+          grupo.add(mesh);
+          malhas.push({ mesh, el, linhas, cor: mesh.material.color.clone() });
+          limites.expandByObject(mesh);
+        }
       }
     }
 

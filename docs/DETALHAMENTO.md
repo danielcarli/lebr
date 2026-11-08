@@ -24,7 +24,8 @@ a lista de ferros editável e o resumo do aço.
 | Pele (17.3.5.2.3) | h > 60 cm: 0,10 %·b·h por face, ø 8, espaçamento ≤ 20 cm |
 | Torção | a parcela de Asl nas faces laterais (proporcional ao perímetro), em ø 10, no vão com torção mais lb para cada lado |
 | Estribos (9.4.6) | perímetro externo 2·(b − 2c) + 2·(h − 2c) mais dois ganchos de 8ø ≥ 6 cm; quantidade ⌈vão livre/s⌉ + 1 por vão |
-| Ganchos (9.4.2.3) | a 90°, 10ø de barra por gancho (ponta reta de 8ø, pino de 5ø) |
+| Ganchos (9.4.2.3) | a 90°, 10ø de barra por gancho na lista (ponta reta de 8ø depois da dobra) |
+| Dobras (Tabela 9.1) | pino de 5ø (ø < 20) ou 8ø (ø ≥ 20) no CA-50, 6ø no CA-60, 4ø/5ø no CA-25; na armadura em 3D cada dobra é um arco de raio pino/2 + ø/2 no eixo e a perna do gancho a 90° vai do eixo até a ponta com raio + 8ø (11ø ou 12,5ø), limitada ao espaço da peça — nas sapatas, um aviso diz quando a borda h0 não comporta o gancho. Estribos: pino de 3øt (øt ≤ 10 mm), sem ficar menor que a barra de canto |
 | Emendas (9.5.2.2) | barra acima de 12 m: uma emenda por traspasse a cada 12 m, l0t = 1,8·lb,nec ≥ máx(0,3·1,8·lb; 15ø; 20 cm) somada ao comprimento |
 | Comprimentos | arredondados para cima, de 5 em 5 cm |
 

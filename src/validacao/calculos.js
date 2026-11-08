@@ -32,6 +32,8 @@ import * as escada from '../modules/concreto-escada/calculo.js';
 import * as reservatorio from '../modules/concreto-reservatorio/calculo.js';
 import * as sapataCorrida from '../modules/concreto-sapata-corrida/calculo.js';
 import * as radier from '../modules/concreto-radier/calculo.js';
+import * as telhado from '../modules/madeira-telhado/calculo.js';
+import * as tesoura from '../modules/madeira-tesoura/calculo.js';
 
 const mod = (criar, calcular, m, categoria) => ({ criar, calcular, cargasTransmitidas: m.cargasTransmitidas, ligacoes: m.ligacoes, categoria });
 
@@ -53,4 +55,6 @@ export const MODULOS_CALCULO = {
   'concreto.reservatorio': mod(reservatorio.criarReservatorio, reservatorio.calcularReservatorio, reservatorio, 'reservatorios'),
   'concreto.sapataCorrida': mod(sapataCorrida.criarSapataCorrida, sapataCorrida.calcularSapataCorrida, sapataCorrida, 'fundacoes'),
   'concreto.radier': mod(radier.criarRadier, radier.calcularRadier, radier, 'fundacoes'),
+  'madeira.telhado': mod(telhado.criarTelhado, telhado.calcularTelhado, telhado, 'telhados'),
+  'madeira.tesoura': mod(tesoura.criarTesoura, tesoura.calcularTesoura, tesoura, 'telhados'),
 };

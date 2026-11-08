@@ -20,6 +20,7 @@
  * face da parede e, na sapata flexível, cortante como laje (19.4.1); armadura longitudinal de distribuição
  * ≥ 0,2·As principal e ≥ 0,9 cm²/m (20.1, como nas lajes armadas numa direção).
  */
+import { pernaGancho90 } from '../../engine/detalhamento.js';
 import { dimensionarFlexao } from '../../engine/flexao.js';
 import { verificarCortanteLaje } from '../../engine/cisalhamento.js';
 import { areaBarra, fmtPhi } from '../../engine/barras.js';
@@ -166,6 +167,7 @@ export function calcularSapataCorrida(el, ctx) {
     verificacoes.push({ nome: 'Cortante sem armadura transversal (por metro)', item: '19.4.1', valor: `VSd = ${f(cortante.Vd, 1)} kN/m`, limite: `≤ VRd1 = ${f(cortante.VRd1, 1)} kN/m`, ok: cortante.ok });
   }
   if (h0 < Math.max(20, h / 3) - 1e-6) avisos.push(`Altura da borda h0 = ${f(h0, 0)} cm abaixo do usual (≥ h/3 e ≥ 20 cm).`);
+  if (trans?.phi && h0 - 2 * cob - trans.phi / 10 < pernaGancho90(trans.phi) - 1e-6) avisos.push(`Gancho a 90° das barras transversais ø ${trans.phi}: a borda de ${f(h0, 0)} cm não comporta o pino da Tabela 9.1 mais 8ø (${f(pernaGancho90(trans.phi), 1)} cm, 9.4.2.3) — use gancho a 135° ou 180°, ou aumente h0.`);
 
   // ---------------------------------------------------------------- lista de ferros
   const posicoes = [];

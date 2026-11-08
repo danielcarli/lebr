@@ -166,6 +166,7 @@ function licaoCaminho(licao, ctx) {
       h('p', null, 'Para ver o mesmo caminho num edifício de verdade, abra um exemplo e a vista 3D: cada laje, viga, pilar e fundação aparece com o seu cálculo.'),
       h('div', { class: 'apr-botoes' },
         ui.botao({ texto: 'Abrir o exemplo térreo com baldrame', icone: 'sapata', aoClicar: () => comandos.executar('projeto.abrirExemploTerreo') }),
+        ui.botao({ texto: 'Abrir o exemplo do sobrado', icone: 'casa', aoClicar: () => comandos.executar('projeto.abrirExemploSobrado') }),
         ui.botao({ texto: 'Abrir o exemplo de 3 pavimentos', icone: 'cubo', aoClicar: () => comandos.executar('projeto.abrirExemplo3') }),
         ui.botao({ texto: 'Ver o projeto aberto em 3D', icone: 'cubo', tipo: 'fantasma', aoClicar: () => comandos.executar('estrutura.3d') }))),
   ];

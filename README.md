@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.58.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.60.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -24,12 +24,50 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > com cálculos feitos **à mão ou em planilhas** comparados com os resultados do programa. Veja
 > [CONTRIBUTING.md](CONTRIBUTING.md) e a [apresentação do projeto](docs/APRESENTACAO.md), com capturas de tela.
 
-![LEBR: elemento e visualização 3D lado a lado](docs/imagens/abas-lado-a-lado-3d.png)
+![Sobrado com garagem em 3D no tema Blueprint](docs/imagens/blueprint-sobrado-3d.png)
+
+<p align="center"><sub>Exemplo do sobrado com garagem na visualização 3D, no tema <b>Blueprint</b> (Exibir › Alternar tema).</sub></p>
 
 | | |
 |---|---|
-| ![Tela inicial](docs/imagens/tela-inicial.png) | ![Detalhamento de viga](docs/imagens/viga-detalhamento.png) |
-| ![Montagem por pavimentos](docs/imagens/montagem.png) | ![Quantitativos](docs/imagens/quantitativos.png) |
+| ![Tela inicial](docs/imagens/blueprint-tela-inicial.png) | ![Detalhamento de viga](docs/imagens/blueprint-viga-detalhamento.png) |
+| ![Montagem por pavimentos](docs/imagens/blueprint-montagem.png) | ![Quantitativos](docs/imagens/blueprint-quantitativos.png) |
+| ![Laje nervurada com a armadura em 3D](docs/imagens/blueprint-nervurada-3d.png) | ![Sapata com a armadura em 3D](docs/imagens/blueprint-sapata-3d.png) |
+| ![Telhado de madeira: corte e planta](docs/imagens/telhado-desenhos.png) | ![Tesoura: esforços normais nas barras](docs/imagens/telhado-tesoura-esforcos.png) |
+
+### Aprender cálculo estrutural
+
+O menu **Aprender** (também na tela inicial) tem seis lições: o caminho das cargas, os esforços na viga, a flexão na
+seção, a viga completa, a laje maciça e o pilar. Cada uma tem controles que refazem o cálculo na hora, gráficos animados
+com as caixas *Para que serve* e *Como ler* e, nas de viga, laje e pilar, o cálculo feito pelos mesmos módulos do
+programa, com a lista de ferros e a armadura em 3D.
+
+| | |
+|---|---|
+| ![Lição: o caminho das cargas](docs/imagens/aprender-caminho-das-cargas.png) | ![Lição: flexão na seção](docs/imagens/aprender-flexao.png) |
+| ![Lição: a viga completa com a armadura em 3D](docs/imagens/aprender-viga-3d.png) | ![Lição: pilar, flambagem e envoltória](docs/imagens/aprender-pilar.png) |
+
+Os **exercícios resolvidos** (Ajuda › Exercícios resolvidos) comparam o LEBR com 158 exercícios da bibliografia; cada
+um tem o memorial de cálculo recolhido, com os passos e um desenho da solução.
+
+![Exercício resolvido com o memorial de cálculo aberto](docs/imagens/exercicio-memorial.png)
+
+### Projetos de exemplo
+
+Todos abrem em **Arquivo › Abrir exemplo** ou na tela inicial, já calculados e sem pendências de montagem:
+
+| Exemplo | O que mostra |
+|---|---|
+| **Sobrado com garagem** | Dois pavimentos de 8 × 13,5 m: lajes treliçadas, laje nervurada de 8 × 5 m sobre a sala (sem pilar no meio), laje maciça no banheiro e na sacada em balanço, escada em U, caixa d’água elevada, telhado cerâmico com tesouras Howe de madeira e oitões, sondagem SPT, baldrame e sapatas |
+| **Residência térrea com baldrame** | Casa de um pavimento com vigas baldrame e sapatas pela tensão admissível do SPT — o tutorial em PDF parte dela |
+| **Edifício de 3 pavimentos** | Grelha por pavimento, escadas em U, reservatório sobre a escada e blocos sobre estacas hélice |
+| **Edifício de 18 pavimentos** | Pórtico espacial com vento (NBR 6123), desaprumo e γz |
+| **Terminal de aeroporto** e **aeroporto com satélite** | Malha de 9 m, lajes nervuradas, pilares circulares, marquise em balanço e conector elevado |
+
+| | |
+|---|---|
+| ![Exemplo: edifício de 3 pavimentos](docs/imagens/exemplo-3-pavimentos.png) | ![Exemplo: edifício de 18 pavimentos](docs/imagens/exemplo-18-pavimentos.png) |
+| ![Exemplo: aeroporto com terminal e satélite](docs/imagens/exemplo-aeroporto-satelite.png) | ![Viga de madeira](docs/imagens/blueprint-madeira.png) |
 
 Mais capturas e o convite para colaborar na [apresentação do projeto](docs/APRESENTACAO.md).
 
@@ -89,6 +127,8 @@ Tipografia: [Livvic](https://fonts.google.com/specimen/Livvic) (Fonthausen, lice
 | **Viga de madeira** (`madeira.viga`) | NBR 7190-1:2022: classes nativas D20–D60 e estruturais C14–C50 / D18–D70, kmod1·kmod2, vigas contínuas, flexão, cisalhamento, estabilidade lateral, compressão normal no apoio e flecha final com fluência. |
 | **Pilar / montante de madeira** (`madeira.pilar`) | Esbeltez relativa, kc (βc 0,2 ou 0,1), flexocompressão com kM = 0,7, limite L0 ≤ 40·dimensão, montante de light wood frame travado pelo painel (NBR 16936:2023). |
 | **Entrepiso de madeira** (`madeira.entrepiso`) | Light wood frame (NBR 16936:2023): vigotas sob painel OSB ou compensado, flexão, cisalhamento, estabilidade com bloqueadores, apoio, flecha com fluência e frequência natural; vigotas apoiadas, engastadas ou em **balanço**. Detalhes em [docs/MADEIRA.md](docs/MADEIRA.md). |
+| **Telhado de madeira** (`madeira.telhado`) | Duas águas com catálogo de telhas: ripas (flexão oblíqua), caibros contínuos com o beiral, terças em pé (1 kN concentrado da NBR 6120 e sucção do vento em flexão oblíqua), tesouras nas pontas ou oitões, cargas nos nós da tesoura, quantidades de madeira e telhas e as cargas por metro ligadas às vigas da montagem. |
+| **Tesoura de madeira** (`madeira.tesoura`) | Howe ou Pratt de duas águas como treliça de nós articulados: tração com área líquida, compressão com kc no plano e fora dele, limites de esbeltez, entalhe do nó de apoio (Hankinson), reação de arrancamento e flecha com fluência. Detalhes em [docs/MADEIRA.md](docs/MADEIRA.md). |
 | **Pilar** (`concreto.pilar`) | Seção retangular ou circular, momento mínimo, esbeltez, 2ª ordem pelo pilar-padrão com curvatura aproximada (λ ≤ 90), flexo-compressão por compatibilidade de deformações, busca do arranjo de barras de menor área, γn para seções < 19 cm, reações vindas das vigas. |
 
 Em vigas, lajes e pilares de concreto, a seção **Armadura** permite escolher a bitola de cada
@@ -521,6 +561,28 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.60.0 (telhado e tesouras de madeira; dobras das barras):** novos módulos **Telhado de madeira** e
+  **Tesoura de madeira** (NBR 7190-1:2022 e NBR 6120:2019). O telhado de duas águas verifica ripas (flexão oblíqua),
+  caibros (contínuos com o beiral, 1 kN concentrado) e terças (flexão, 1 kN, sucção do vento com flexão oblíqua),
+  com catálogo de telhas, tesouras nas pontas ou oitões de alvenaria, cargas nos nós da tesoura, quantidades de
+  madeira e telhas e as cargas por metro ligadas às vigas da montagem. A tesoura Howe ou Pratt é resolvida como
+  treliça de nós articulados: tração com área líquida, compressão com flambagem no plano e fora dele, limites de
+  esbeltez, entalhe do nó de apoio (Hankinson) e flecha com fluência, com a elevação colorida dos esforços. Comando
+  **Estrutura › Criar telhado de madeira sobre o pavimento mais alto**; a visualização 3D mostra tesouras, terças,
+  caibros, ripas, telhas e oitões. O sobrado de exemplo passou a ter telhado cerâmico com tesouras Howe de 13,5 m.
+  **Dobras das barras:** na armadura em 3D cada dobra é um arco com o pino da Tabela 9.1 da NBR 6118 (5ø ou 8ø no
+  CA-50, 6ø no CA-60), os ganchos a 90° têm 8ø de ponta reta depois da dobra (9.4.2.3), as pernas param no
+  cobrimento, a armadura de pele dos blocos ganhou os ganchos da lista, os estribos respeitam o pino de 3øt e o
+  tubo de cada barra passa exatamente pelos vértices (antes os cantos eram cortados). As sapatas avisam quando a
+  borda h0 não comporta o gancho.
+- **Novidades da 0.59.0 (sobrado de exemplo e README no tema Blueprint):** novo exemplo **Sobrado com garagem**
+  (Arquivo › Abrir exemplo, tela inicial e lição do caminho das cargas): dois pavimentos com lajes treliçadas, laje
+  nervurada de 8 × 5 m sobre a sala sem pilar no meio, laje maciça no banheiro e na sacada em balanço, escada em U, caixa
+  d’água elevada sobre a escada, telhado pontaletado de madeira (terças, cumeeira e pontaletes ligados às vigas do
+  forro), dois furos SPT, baldrame e sapatas — tudo atende e sem pendências de montagem. Pontaletes de madeira sobre
+  vigas não geram mais o aviso de viga de transição. No tema Blueprint, a marca LEBR da barra de título volta a
+  aparecer. A página inicial do repositório ganhou capturas no tema Blueprint, a seção do módulo Aprender e a dos
+  projetos de exemplo.
 - **Novidades da 0.58.0 (fundações completas e memorial dos exercícios):** novas fundações **sapata corrida**
   (sob paredes ou vigas do baldrame; carga por metro tirada das reações da viga, largura pela tensão admissível,
   flexão pelo CEB-70, compressão diagonal e armaduras transversal e de distribuição) e **radier** (método rígido:
@@ -749,7 +811,7 @@ src/
   modules/            módulos de elementos (cada um: index.js + calculo.js)
     concreto-viga/  concreto-laje-macica/  concreto-pilar/
     concreto-laje-trelicada/  concreto-laje-nervurada/  concreto-laje-alveolar/
-    madeira-viga/  madeira-pilar/  madeira-entrepiso/  madeira-comum/  geotecnia-sondagem/  concreto-sapata/  geotecnia-estaca/  concreto-bloco/  concreto-escada/  concreto-reservatorio/  comum/
+    madeira-viga/  madeira-pilar/  madeira-entrepiso/  madeira-telhado/  madeira-tesoura/  madeira-comum/  geotecnia-sondagem/  concreto-sapata/  geotecnia-estaca/  concreto-bloco/  concreto-escada/  concreto-reservatorio/  comum/
   renderer/           interface
     core/             estado, projeto (formato JSON), comandos, módulos, API
     ui/               workbench, menus, paleta, diálogos, componentes, ícones

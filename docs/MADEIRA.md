@@ -25,6 +25,25 @@ correspondem aos elementos do sistema **light wood frame** da **ABNT NBR 16936:2
 | Espécies nativas | D20 a D60 (corpos de prova); fm,d = fc0,d |
 | Peças estruturais | coníferas C14 a C50, folhosas D18 a D70 (fm,k, ft0,k, fc0,k, fc90,k, fv,k, E0,med, E0,05, ρ) |
 
+## Telhado e tesoura (0.60)
+
+O **telhado de madeira** (`madeira.telhado`) monta a estrutura usual de duas águas — telhas sobre ripas, ripas sobre
+caibros, caibros sobre as terças e terças sobre as tesouras (ou sobre oitões de alvenaria nas pontas) — e a
+**tesoura** (`madeira.tesoura`) calcula a treliça Howe ou Pratt que recebe as terças nos nós.
+
+| Peça | Modelo e verificações |
+|---|---|
+| Telhas | catálogo com peso saturado, inclinação mínima usual, galga das ripas e telhas por m² (cerâmicas francesa, romana, portuguesa e colonial, concreto, fibrocimento e aço; as duas últimas apoiam direto nas terças, com vão máximo) |
+| Ripas | biapoiadas entre caibros; flexão oblíqua (componentes normal e paralela à água, kM = 0,7) e flecha |
+| Caibros | vigas contínuas sobre as terças com o beiral em balanço; flexão, cisalhamento, flecha e a carga concentrada de 1 kN da NBR 6120 (kmod de duração curta); travados pelas ripas |
+| Terças | em pé, biapoiadas entre tesouras (emendas sobre os apoios); flexão, cisalhamento, flecha, 1 kN concentrado e a sucção do vento normal à água com flexão oblíqua (kmod instantâneo, γg favorável) |
+| Tesoura | treliça plana de nós articulados (método dos deslocamentos); peso próprio, telhado, sobrecarga, forro no banzo inferior e sucção do vento; tração com área líquida nas ligações e λ ≤ 173, compressão com kc no plano (entre nós) e fora do plano (perna travada pelas terças), λ ≤ 140; entalhe simples no nó de apoio (Hankinson, e ≤ h/4, folga f pelo cisalhamento); flecha com fluência |
+| Apoios | cargas por metro nos beirais (e nas empenas, com oitões), ligadas às vigas da montagem pelo Conectar; reação de arrancamento avisada |
+
+Pontos a conferir: a flecha não inclui o deslizamento das ligações (avisa para prever contraflecha); as ligações das
+diagonais e montantes não são dimensionadas (só o nó de apoio); o vento é uma sucção uniforme informada (cpe·q da
+NBR 6123), sem os coeficientes por zona; as reações das tesouras são repartidas ao longo dos beirais.
+
 ## Pontos a conferir no texto da norma
 
 Os valores acima foram reunidos de trabalhos acadêmicos que reproduzem a NBR 7190-1:2022.

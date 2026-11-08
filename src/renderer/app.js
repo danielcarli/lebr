@@ -61,6 +61,7 @@ import { manterPontosFixos } from './core/pilares.js';
 // pilar com ponto fixo (etapa L10): depois de qualquer mudança de seção, o ponto fixo fica no lugar
 estado.normalizadores.push(manterPontosFixos);
 import { criarSapatasNosPilares, criarBlocosNosPilares, criarNivelBaldrame, criarRadierNosPilares, criarSapatasCorridasNasVigas } from './core/fundacoes.js';
+import { criarTelhadoNaCobertura } from './core/telhados.js';
 import { limparGeometria, folgasGeometricas, toleranciaGeometrica, detectarLigacoes, aplicarLigacoes } from './core/montagem.js';
 import { proximoCodigo, novoId } from './core/projeto.js';
 import { lerIfc } from '../engine/ifc.js';
@@ -76,7 +77,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.58.0';
+const VERSAO = '0.60.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -323,6 +324,16 @@ async function criarRadierFundacao() {
 }
 
 /** Sapatas corridas sob as vigas do nível mais baixo (o baldrame). */
+async function criarTelhadoMadeira() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  let r = null;
+  estado.alterar((p) => { r = criarTelhadoNaCobertura(p, modulos); }, { descricao: 'Criar telhado de madeira', estrutural: true });
+  if (!r) return notificar('Não há pavimento com vigas de concreto sem telhado para receber o telhado.', 'info');
+  await calcular(r.telhado); await calcular(r.tesoura);
+  abrirElemento(r.telhado);
+  notificar(`Telhado e tesoura criados sobre o pavimento mais alto, com ${r.ligacoes} ligação(ões) às vigas de apoio — confira o vão, a telha e as seções.`, 'ok', { duracao: 6000 });
+}
+
 async function criarSapatasCorridas() {
   if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
   let ids = [];
@@ -565,7 +576,7 @@ function iniciarCalculoTodos(errosMontagem = 0) {
   if (calculandoTodos) return calculandoTodos;
   if (errosMontagem) registrarSaida(`Calculando com ${errosMontagem} erro(s) de montagem — os resultados podem não refletir a planta (painel Problemas).`, 'erro');
   // lajes → vigas → pilares, para que as reações já estejam prontas na leitura
-  const ordem = { sondagens: -1, lajes: 0, escadas: 0.5, reservatorios: 0.6, vigas: 1, pilares: 2, fundacoes: 3 };
+  const ordem = { sondagens: -1, telhados: -0.5, lajes: 0, escadas: 0.5, reservatorios: 0.6, vigas: 1, pilares: 2, fundacoes: 3 };
   const projeto = estado.projeto;
   const els = [...projeto.elementos].sort((a, b) => (ordem[modulos.obter(a.modulo)?.categoria] ?? 9) - (ordem[modulos.obter(b.modulo)?.categoria] ?? 9));
   const marcas = new Map(els.map((e) => [e.id, marcaDe(e.id)]));
@@ -1060,6 +1071,7 @@ function registrarComandos() {
   C({ id: 'projeto.abrir', categoria: 'Arquivo', titulo: 'Abrir projeto…', icone: 'pasta', tecla: 'Ctrl+O', executar: abrirProjeto });
   C({ id: 'projeto.abrirExemplo', categoria: 'Arquivo', titulo: 'Abrir projeto de exemplo', icone: 'documento', executar: () => abrirExemplo('padrao') });
   C({ id: 'projeto.abrirExemploTerreo', categoria: 'Arquivo', titulo: 'Abrir exemplo: residência térrea com baldrame e sapatas', icone: 'sapata', executar: () => abrirExemplo('terreo') });
+  C({ id: 'projeto.abrirExemploSobrado', categoria: 'Arquivo', titulo: 'Abrir exemplo: sobrado com garagem (concreto e telhado de madeira)', icone: 'casa', executar: () => abrirExemplo('sobrado') });
   C({ id: 'projeto.abrirExemplo18', categoria: 'Arquivo', titulo: 'Abrir exemplo: edifício de 18 pavimentos (pórtico com vento)', icone: 'cubo', executar: () => abrirExemplo('18-pavimentos') });
   C({ id: 'projeto.abrirExemploAeroporto', categoria: 'Arquivo', titulo: 'Abrir exemplo: terminal de aeroporto de médio porte', icone: 'cubo', executar: () => abrirExemplo('aeroporto') });
   C({ id: 'projeto.abrirExemploSatelite', categoria: 'Arquivo', titulo: 'Abrir exemplo: aeroporto com terminal e satélite', icone: 'cubo', executar: () => abrirExemplo('satelite') });
@@ -1099,6 +1111,7 @@ function registrarComandos() {
   C({ id: 'estrutura.sapatas', categoria: 'Estrutura', titulo: 'Criar sapatas nos pilares da fundação', icone: 'sapata', habilitado: temProjeto, executar: criarSapatas });
   C({ id: 'estrutura.blocos', categoria: 'Estrutura', titulo: 'Criar blocos sobre estacas nos pilares da fundação', icone: 'bloco', habilitado: temProjeto, executar: criarBlocos });
   C({ id: 'estrutura.radier', categoria: 'Estrutura', titulo: 'Criar radier sob os pilares da fundação', icone: 'laje', habilitado: temProjeto, executar: criarRadierFundacao });
+  C({ id: 'estrutura.telhado', categoria: 'Estrutura', titulo: 'Criar telhado de madeira sobre o pavimento mais alto', icone: 'casa', habilitado: temProjeto, executar: criarTelhadoMadeira });
   C({ id: 'estrutura.sapatasCorridas', categoria: 'Estrutura', titulo: 'Criar sapatas corridas sob as vigas do baldrame', icone: 'sapata', habilitado: temProjeto, executar: criarSapatasCorridas });
   C({ id: 'projeto.memorial', categoria: 'Estrutura', titulo: 'Memorial do edifício (PDF)', icone: 'documento', habilitado: temProjeto, executar: abrirMemorialProjeto });
   C({ id: 'projeto.cargasFundacao', categoria: 'Estrutura', titulo: 'Cargas na fundação (PDF)', icone: 'sapata', habilitado: temProjeto, executar: abrirCargasFundacao });
@@ -1217,7 +1230,7 @@ function definirMenus() {
   const novos = () => modulos.lista().map((m) => ({ comando: `elemento.novo.${m.id}` }));
   wb.definirMenus([
     { rotulo: 'Arquivo', itens: [
-      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
+      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
       { cabecalho: 'Recentes' }, ...recentesMenu,
       '-', { comando: 'projeto.salvar' }, { comando: 'projeto.salvarComo' }, { comando: 'projeto.mostrarArquivo' },
       '-', { comando: 'projeto.importarIFC' }, { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
@@ -1232,7 +1245,7 @@ function definirMenus() {
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
       { comando: 'exibir.tema' }, { comando: 'exibir.tema.claro' }, { comando: 'exibir.tema.escuro' }, { comando: 'exibir.tema.blueprint' }, '-', { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
-    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.radier' }, { comando: 'estrutura.sapatasCorridas' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.radier' }, { comando: 'estrutura.sapatasCorridas' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.telhado' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
     { rotulo: 'Módulos', itens: () => [
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
@@ -1242,7 +1255,7 @@ function definirMenus() {
       { comando: 'ajuda.aprender', rotulo: 'Todas as lições' }, '-',
       ...LICOES.map((l) => ({ comando: `aprender.${l.id}` })), '-',
       { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-',
-      { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemplo3' }, '-',
+      { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, '-',
       { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.cargas' },
     ] },
     { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.aprender' }, { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },

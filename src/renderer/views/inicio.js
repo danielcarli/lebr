@@ -86,6 +86,7 @@ function colunaPrincipal(lista, { abrirCaminho, removerRecente, redesenhar }) {
           acao('ajuda.tutorialCasa', 'Tutorial: casa térrea', 'pdf', 'Passo a passo em PDF, do projeto em branco às sapatas'),
           acao('projeto.abrirExemplo', 'Abrir exemplo', 'documento', 'Pavimento com lajes, vigas e pilares'),
           acao('projeto.abrirExemploTerreo', 'Exemplo térreo com baldrame', 'sapata', 'Casa de um pavimento, vigas baldrame e sapatas'),
+          acao('projeto.abrirExemploSobrado', 'Exemplo: sobrado com garagem', 'casa', 'Treliçada, nervurada, escada, caixa d’água, telhado de madeira e sapatas'),
           acao('projeto.abrirExemplo3', 'Exemplo de 3 pavimentos', 'cubo', 'Edifício com escadas, baldrame e blocos sobre estacas'),
           acao('projeto.abrirExemplo18', 'Exemplo de 18 pavimentos', 'cubo', 'Torre em pórtico espacial com vento e γz'),
           acao('projeto.abrirExemploAeroporto', 'Exemplo: terminal de aeroporto', 'cubo', 'Dois níveis, malha de 9 m, lajes nervuradas e marquise'),

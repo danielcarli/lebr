@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 55 feitos, 22 parciais e 34 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 57 feitos, 23 parciais e 33 a fazer.
 
 ## O que existe hoje
 
@@ -99,7 +99,7 @@ O edifício é analisado no pórtico espacial e na grelha de cada pavimento; cad
 - ○ Protendido e pré-moldados
 - ◐ Madeira: ligações, MLC, CLT
 - ○ Situação de incêndio
-- ○ Coberturas e treliças
+- ◐ Coberturas e treliças
 - ○ Orçamento (SINAPI)
 - ○ Repositório de módulos
 
@@ -212,6 +212,8 @@ Quase toda edificação tem pelo menos uma escada e um reservatório, então est
 | ◐ | Marquises e balanços | Verificação de equilíbrio, tombamento e engaste na viga, com γn |
 | ○ | Consolos e dentes | Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5) |
 | ✅ | Vigas T e L | Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0 |
+| ✅ | Telhado e tesouras de madeira | Telhado de duas águas com telhas, ripas, caibros e terças verificados, tesoura Howe ou Pratt com esforços nas barras, flambagem, entalhe do nó de apoio e flecha; cargas ligadas às vigas e o telhado completo na visualização 3D — feito na 0.60.0 |
+| ✅ | Dobras das barras pela Tabela 9.1 | Armadura em 3D com as dobras em arco pelo pino da NBR 6118 (5ø ou 8ø no CA-50) e ganchos a 90° com ponta reta de 8ø depois da dobra — feito na 0.60.0 |
 | ✅ | Memorial dos exercícios resolvidos | Em cada exercício da bibliografia, o memorial de cálculo do LEBR recolhido, com os passos, as fórmulas com os números e um desenho que explica a solução (seção, bielas, tensões no solo, contornos de punção, diagramas, curvas) — feito na 0.58.0 |
 | ✅ | Módulo educacional (Aprender) | Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0 |
 | ✅ | Laje nervurada em 3D | Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0 |
@@ -228,7 +230,7 @@ O modelo de módulos já prevê novos materiais; cada um abaixo entra como um co
 | ○ | Aço (perfis laminados e soldados) | Vigas com flambagem lateral com torção, pilares e flexo-compressão, terças e contraventamentos, ligações parafusadas e soldadas, placas de base e chumbadores | NBR 8800 |
 | ○ | Aço (perfis formados a frio) | Terças, montantes e vigas de light steel frame, com flambagem local e distorcional | NBR 14762, NBR 15253 |
 | ○ | Estruturas mistas | Vigas mistas com conectores, pilares mistos, lajes com fôrma de aço incorporada (steel deck) | NBR 8800, anexos O a Q |
-| ○ | Coberturas | Tesouras e treliças de aço e de madeira, terças, caibros e ripas, vento em coberturas | NBR 6123, NBR 7190, NBR 8800 |
+| ◐ | Coberturas | Telhado de madeira (ripas, caibros, terças) e tesouras Howe e Pratt feitos na 0.60.0; faltam treliças de aço, ligações das barras e o vento por zonas da NBR 6123 | NBR 6123, NBR 7190, NBR 8800 |
 | ○ | Madeira (complementos) | Ligações por pinos, parafusos e pregos; peças compostas; madeira lamelada colada (MLC) e lamelada cruzada (CLT); paredes de light wood frame | NBR 7190-1:2022, NBR 16936:2023 |
 | ○ | Alvenaria estrutural | Paredes de blocos de concreto e cerâmicos: compressão, cisalhamento, flexão, distribuição das cargas por grupos de paredes, vergas | NBR 16868 |
 | ○ | Concreto protendido | Lajes e vigas pós-tracionadas com cordoalha engraxada: traçado, perdas, verificações em vazio e em serviço | NBR 6118 (9.6 e 17.2.4) |

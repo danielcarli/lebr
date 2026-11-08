@@ -23,11 +23,31 @@
  *   Cortes (18.3.2.3): a barra termina aℓ + lb além do ponto em que deixa de ser necessária, no diagrama deslocado.
  *   Apoios extremos (18.3.2.4): As,apoio ≥ (aℓ/d)·VSd/fyd e ≥ 1/3 do As do vão; ancoragem a partir da face com gancho.
  *   Traspasse (9.5.2.2): l0t = α0t·lb,nec ≥ máx(0,3·α0t·lb; 15ø; 20 cm), α0t = 1,8 (50 % das barras emendadas na seção).
- *   Ganchos (9.4.2.3): a 90° com ponta reta de 8ø e pino de 5ø — 10ø de barra por gancho; estribos (9.4.6): ganchos
+ *   Ganchos (9.4.2.3): a 90° com ponta reta de 8ø e pino da Tabela 9.1 (5ø; 8ø para ø ≥ 20) — 10ø de barra por gancho; estribos (9.4.6): ganchos
  *   a 45° (135°) com ponta de 5ø ≥ 5 cm — 8ø ≥ 6 cm de barra por gancho.
  */
 
 export const COMPRIMENTO_COMERCIAL = 1200; // cm — barras de 12 m
+
+/**
+ * Diâmetro interno de dobramento dos ganchos (NBR 6118, Tabela 9.1), em múltiplos de ø:
+ * CA-25 4ø (ø < 20) e 5ø; CA-50 5ø (ø < 20) e 8ø; CA-60 6ø.
+ * @param {number} phi  bitola (mm)
+ */
+export function pinoGancho(phi, aco = 'CA-50') {
+  if (aco === 'CA-60') return 6;
+  if (aco === 'CA-25') return phi < 20 ? 4 : 5;
+  return phi < 20 ? 5 : 8;
+}
+/** Raio da dobra medido no eixo da barra (cm): pino/2 + ø/2. */
+export const raioDobraEixo = (phi, aco) => ((pinoGancho(phi, aco) + 1) / 2) * (phi / 10);
+/**
+ * Perna do gancho a 90° do eixo da barra à ponta (cm): raio da dobra no eixo + ponta reta de 8ø (9.4.2.3) —
+ * 11ø com pino de 5ø e 12,5ø com pino de 8ø.
+ */
+export const pernaGancho90 = (phi, aco) => raioDobraEixo(phi, aco) + 8 * (phi / 10);
+/** Diâmetro interno mínimo de dobramento dos estribos (9.4.6.1), em múltiplos de øt: 3øt (øt ≤ 10), 4øt (até 20), 5øt. */
+export const pinoEstribo = (phiT) => (phiT <= 10 ? 3 : phiT < 20 ? 4 : 5);
 export const massaLinear = (phi) => (Math.PI * (phi / 1000) ** 2 / 4) * 7850; // kg/m
 export const areaBarra = (phi) => (Math.PI * (phi / 10) ** 2) / 4;          // cm²
 const arred5 = (cm) => Math.ceil(cm / 5 - 1e-9) * 5;
@@ -174,7 +194,7 @@ export function detalharViga(p) {
       const avalia = (nAp) => {
         const AsApoio = nAp * areaBarra(phi);
         const lbNec = ancoragemNecessaria({ lb, phi, AsCalc: Math.max(AsNec, 1e-6), AsEf: AsApoio, gancho: true });
-        return { AsApoio, minimo: Math.max(lbNec, (2.5 * phi + 5.5 * phi) / 10, 6) }; // ≥ r + 5,5ø (pino 5ø) e ≥ 6 cm
+        return { AsApoio, minimo: Math.max(lbNec, ((pinoGancho(phi) / 2) * phi + 5.5 * phi) / 10, 6) }; // ≥ r + 5,5ø (pino da Tabela 9.1) e ≥ 6 cm
       };
       const chegam = () => gr.reduce((s, nb, gi) => s + (cortes[gi][lado] === ponta[lado] ? nb : 0), 0);
       let r = avalia(chegam());

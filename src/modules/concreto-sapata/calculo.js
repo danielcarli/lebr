@@ -19,6 +19,7 @@
  * Estrutura (valores de cálculo, γf da carga do pilar): flexão pelo CEB-70 nas duas direções, compressão
  * diagonal no contorno C (rígidas e flexíveis) e, nas flexíveis, punção em C' e cortante como laje.
  */
+import { pernaGancho90 } from '../../engine/detalhamento.js';
 import { dimensionarFlexao } from '../../engine/flexao.js';
 import { verificarCortanteLaje } from '../../engine/cisalhamento.js';
 import { resistenciaConcreto, perimetro } from '../../engine/puncao.js';
@@ -256,6 +257,10 @@ export function calcularSapata(el, ctx) {
   const hUtilAnc = h - cob - 2 * ((fx.malha?.phi ?? 12.5) / 10);
   verificacoes.push({ nome: `Ancoragem das barras do pilar (ø ${fmtPhi(phiPilar)})`, item: '9.4.2.4', valor: `h − c − 2ø = ${f(hUtilAnc, 1)} cm`, limite: `≥ lb = ${f(anc.lb, 1)} cm`, ok: hUtilAnc >= anc.lb - 1e-6 });
   if (h0 < Math.max(20, h / 3) - 1e-6) avisos.push(`Altura da borda h0 = ${f(h0, 0)} cm abaixo do usual (≥ h/3 e ≥ 20 cm).`);
+  for (const phiM of [fx.malha?.phi, fy.malha?.phi].filter(Boolean)) {
+    const espaco = h0 - 2 * cob - phiM / 10;
+    if (espaco < pernaGancho90(phiM) - 1e-6) { avisos.push(`Gancho a 90° da malha ø ${fmtPhi(phiM)}: a borda de ${f(h0, 0)} cm deixa ${f(espaco, 1)} cm para a perna, menos que o pino da Tabela 9.1 mais 8ø (${f(pernaGancho90(phiM), 1)} cm, 9.4.2.3) — use gancho a 135° (4ø) ou a 180° (2ø), bitola menor ou h0 maior.`); break; }
+  }
   const incl = h > h0 ? Math.atan((h - h0) / Math.max(1, Math.min(cx, cy) - 2.5)) * (180 / Math.PI) : 0;
   if (incl > 33) avisos.push(`Inclinação das faces de ${f(incl, 0)}°: acima de cerca de 30° o concreto precisa de fôrma na face superior.`);
 

@@ -29,6 +29,7 @@
  */
 
 import { geometriaDa } from '../../modules/concreto-escada/calculo.js';
+import { linhasDeApoioTelhado } from '../../modules/madeira-telhado/calculo.js';
 export const TOLERANCIA = 0.1; // m — distância máxima para considerar dois elementos ligados
 const RAD = Math.PI / 180;
 
@@ -302,6 +303,29 @@ export function detectarLigacoes(projeto, registro, { tol = TOLERANCIA, tolGeo =
         for (const pilar of pilares.filter((p) => mesmoPav(p, res))) {
           const { bx, by } = secaoPilar(pilar);
           if (dist(cantos[k], centroPilar(pilar)) <= Math.max(tol, Math.max(bx, by) / 200)) out.push({ tipo: 'reservatorio-pilar', receptor: pilar, fonte: res, ligacao: lig.id, texto: `${res.codigo} · ${lig.nome} → ${pilar.codigo}` });
+        }
+      }
+    }
+  }
+
+  // telhado → vigas: beirais (e oitões) sobre o eixo das vigas do pavimento em que as tesouras apoiam
+  for (const tel of posicionados.filter((e) => e.modulo === 'madeira.telhado')) {
+    const linhas = linhasDeApoioTelhado(tel);
+    for (const [lig, seg] of Object.entries(linhas)) {
+      for (const viga of vigas.filter((v) => mesmoPav(v, tel))) {
+        const eixo = eixoViga(viga);
+        const ov = sobreposicao(seg, eixo, Math.max(tol, secaoViga(viga).b / 200 + 0.02));
+        if (!ov) continue;
+        const vaos = vaosCobertos(eixo, ov);
+        for (const vao of vaos === 'todos' ? ['todos'] : vaos) {
+          let trecho = null;
+          if (vao !== 'todos') {
+            const [a, b] = eixo.vaos[vao];
+            const t0 = Math.max(a, ov[0]) - a, t1 = Math.min(b, ov[1]) - a;
+            if (t1 - t0 < b - a - 0.05) trecho = [Math.round(t0 * 1000) / 1000, Math.round(t1 * 1000) / 1000];
+          }
+          const nome = lig.startsWith('oitao') ? `oitão ${Number(lig.slice(-1)) + 1}` : `apoio ${lig.slice(-1).toUpperCase()}`;
+          out.push({ tipo: 'telhado-viga', receptor: viga, fonte: tel, ligacao: lig, vao, trecho, texto: `${tel.codigo} · ${nome} → ${viga.codigo}${vao === 'todos' ? '' : ` (vão ${vao + 1})`}` });
         }
       }
     }

@@ -208,6 +208,36 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .mad-painel { fill: color-mix(in srgb, #D8B783 55%, var(--campo)); stroke: var(--tinta); stroke-width: 1.2; }
 .mad-eixo { stroke: var(--acento); stroke-width: 1; stroke-dasharray: 5 3; }
 .secao-madeira { width: auto; max-width: 100%; }
+/* tesoura e telhado de madeira (0.60) */
+.ts-barra { stroke-linecap: round; }
+.ts-barra.tracao { stroke: #3F7FC0; }
+.ts-barra.compressao { stroke: #C0533A; }
+.ts-barra.nula { stroke: var(--tenue); stroke-dasharray: 5 4; }
+.ts-barra.falha { stroke-dasharray: 8 4; }
+.ts-n { font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--campo); stroke-width: 3px; }
+.ts-n.tracao { fill: #2F6BA8; } .ts-n.compressao { fill: #A8432C; }
+.ts-no { fill: var(--campo); stroke: var(--tinta); stroke-width: 1.4; }
+.ts-apoio { fill: none; stroke: var(--tinta); stroke-width: 1.4; }
+.ts-perna { stroke: var(--tinta); stroke-width: 1.2; }
+.ts-parafuso { fill: var(--tinta-2); }
+.tl-parede { fill: color-mix(in srgb, var(--tinta) 22%, transparent); }
+.tl-tesoura { stroke: color-mix(in srgb, #8A5A2B 80%, var(--tinta)); stroke-linecap: round; }
+.tl-terca { fill: color-mix(in srgb, #C9A26B 70%, var(--campo)); stroke: var(--tinta); stroke-width: 1; }
+.tl-caibro { fill: none; stroke: color-mix(in srgb, #8A5A2B 70%, var(--tinta)); stroke-width: 4; }
+.tl-telha { fill: none; stroke: #B8603E; stroke-width: 3; stroke-dasharray: 9 3; }
+.tl-projecao { fill: color-mix(in srgb, #B8603E 10%, transparent); stroke: #B8603E; stroke-dasharray: 6 4; }
+.tl-contorno { fill: none; stroke: var(--tinta); stroke-width: 1.4; }
+.tl-cumeeira { stroke: #B8603E; stroke-width: 2.4; }
+.tl-terca-planta { stroke: color-mix(in srgb, #8A5A2B 70%, var(--tinta)); stroke-width: 1.4; }
+.tl-tesoura-planta { stroke: var(--tinta); stroke-width: 3; }
+.tl-oitao { stroke: var(--tinta-2); stroke-width: 6; opacity: 0.6; }
+.tl-planta { max-width: 760px; margin: 0 auto; }
+.ts-no-apoio { max-width: 470px; margin: 0 auto; }
+.tl-rotulo-peca { min-width: 92px; align-self: end; padding-bottom: 8px; font-size: 12.5px; font-weight: 650; }
+:root[data-tema='blueprint'] .ts-barra.tracao, :root[data-tema='blueprint'] .ts-n.tracao { stroke: #9CD3FF; } 
+:root[data-tema='blueprint'] .ts-n.tracao { fill: #FFFFFF; stroke: #1A57A3; }
+:root[data-tema='blueprint'] .ts-barra.compressao { stroke: #FFB38A; }
+:root[data-tema='blueprint'] .ts-n.compressao { fill: #FFE1CF; stroke: #1A57A3; }
 :root[data-tema='escuro'] .mad-secao { fill: #5a4630; }
 :root[data-tema='escuro'] .mad-painel { fill: #6b5638; }
 :root[data-tema='blueprint'] .mad-secao { fill: #2C6FBF; }

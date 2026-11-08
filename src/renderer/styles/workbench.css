@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   background: var(--fundo);
+  color: var(--tinta); /* no blueprint a marca LEBR herdava a tinta escura da página */
   border-bottom: 1px solid var(--filete);
   -webkit-app-region: drag;
   padding-right: 140px; /* área dos botões nativos (Windows/Linux) */

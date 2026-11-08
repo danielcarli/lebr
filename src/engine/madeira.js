@@ -255,3 +255,14 @@ export function compressaoMadeira({ Nd, Mxd = 0, Myd = 0, b, h, L0x, L0y, m }) {
 
 /** Flecha final com fluência: ufin = (uG + ψ2·uQ)·(1 + φ). */
 export const flechaFinal = ({ uG, uQ, psi2, phi }) => (uG + psi2 * uQ) * (1 + phi);
+
+/**
+ * Flexão oblíqua de peça retangular b × h (NBR 7190-1): σMx,d/fm,d + kM·σMy,d/fm,d ≤ 1 e kM·σMx,d/fm,d + σMy,d/fm,d ≤ 1.
+ * Mx (kN·m) flete no plano de h; My (kN·m) no plano de b.
+ */
+export function flexaoObliquaMadeira({ Mx = 0, My = 0, b, h, m }) {
+  const sx = (Math.abs(Mx) * 100 / ((b * h * h) / 6)) * 10, sy = (Math.abs(My) * 100 / ((h * b * b) / 6)) * 10;
+  const i1 = sx / m.fmd + m.kM * sy / m.fmd, i2 = m.kM * sx / m.fmd + sy / m.fmd;
+  const uso = Math.max(i1, i2);
+  return { sigmaX: sx, sigmaY: sy, i1, i2, uso, ok: uso <= 1 + 1e-9 };
+}
