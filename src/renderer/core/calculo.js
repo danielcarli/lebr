@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Contexto de cálculo entregue aos módulos.
@@ -18,6 +18,8 @@
  * executados e testados fora do Electron (ver test/modulos.test.js).
  */
 import { contextoConcreto } from '../../engine/materiais.js';
+import { parametrosDoElemento, avisosDeCriterios } from './criterios.js';
+import { expandirTipos } from './tipos.js';
 import { criterioDe, otimizarBitolas, memorialOtimizacao, POSICOES_OTIMIZAVEIS } from '../../modules/comum/otimizacao.js';
 
 /**
@@ -25,11 +27,14 @@ import { criterioDe, otimizarBitolas, memorialOtimizacao, POSICOES_OTIMIZAVEIS }
  * @param {{obter(id:string):object}} registro  registro de módulos
  * @param {string[]} pilha  elementos já em cálculo (detecta dependência circular)
  */
-export function contextoCalculo(projeto, registro, pilha = []) {
+export function contextoCalculo(projeto, registro, pilha = [], elemento = null) {
+  // exceções de fck e cobrimento do elemento (etapa L7) sobre os parâmetros do projeto
+  const el0 = elemento ?? (pilha.length ? projeto.elementos.find((e) => e.id === pilha[pilha.length - 1]) : null);
+  const parametros = parametrosDoElemento(projeto.parametros, el0);
   const ctx = {
     projeto,
-    parametros: projeto.parametros,
-    materiais: contextoConcreto(projeto.parametros),
+    parametros,
+    materiais: contextoConcreto(parametros),
     elemento: (id) => projeto.elementos.find((e) => e.id === id) ?? null,
     modulo: (id) => registro.obter(id),
 
@@ -53,7 +58,10 @@ export function contextoCalculo(projeto, registro, pilha = []) {
 }
 
 /** Executa o cálculo de um elemento e devolve o resultado (ou um resultado de erro). */
-export function calcularElemento(el, projeto, registro) {
+export function calcularElemento(el0, projeto0, registro) {
+  // pavimento tipo (etapa L9): calcula no projeto com os níveis desdobrados — o elemento do tipo é o do nível 1
+  const projeto = expandirTipos(projeto0);
+  const el = projeto === projeto0 ? el0 : (projeto.elementos.find((e) => e.id === el0.id) ?? el0);
   const mod = registro.obter(el.modulo);
   if (!mod) throw new Error(`Módulo "${el.modulo}" não instalado.`);
   try {
@@ -74,13 +82,14 @@ export function calcularElemento(el, projeto, registro) {
       const { resultado, otimizacao } = otimizarBitolas(el, projeto, calcular, criterio);
       if (resultado?.erro) throw new Error(resultado.erro);
       return {
-        ...resultado, otimizacao,
+        ...resultado, otimizacao, avisos: [...(resultado.avisos ?? []), ...avisosDeCriterios(projeto.parametros, el)],
         memorial: [...(resultado.memorial ?? []), memorialOtimizacao(otimizacao, POSICOES_OTIMIZAVEIS[el.modulo])],
         calculadoEm: new Date().toISOString(), desatualizado: false,
       };
     }
     const r = calcular(el);
-    return { ...r, calculadoEm: new Date().toISOString(), desatualizado: false };
+    const avisosCrit = avisosDeCriterios(projeto.parametros, el);
+    return { ...r, avisos: [...(r.avisos ?? []), ...avisosCrit], calculadoEm: new Date().toISOString(), desatualizado: false };
   } catch (err) {
     return {
       ok: false, erro: err.message, calculadoEm: new Date().toISOString(), desatualizado: false,

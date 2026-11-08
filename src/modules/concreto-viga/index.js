@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Módulo: Viga de concreto armado (NBR 6118:2023)
@@ -23,6 +23,7 @@ import { editorCargas } from '../comum/cargas.js';
 import { editorVaos } from '../comum/vaos.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
 import { modeloViga } from '../comum/armadura3d.js';
+import { mesaDasLajes } from '../comum/mesa-colaborante.js';
 
 export default function moduloViga(api) {
   const { h } = api.dom;
@@ -125,7 +126,8 @@ export default function moduloViga(api) {
 
     resumo: (el) => {
       const total = el.vaos.reduce((a, v) => a + v.L, 0);
-      return `${el.baldrame ? 'Baldrame · ' : ''}${el.invertida ? 'Invertida · ' : ''}Seção ${num(el.secao.b, 0)} × ${num(el.secao.h, 0)} cm · ${el.vaos.length} ${el.vaos.length > 1 ? 'vãos' : 'vão'} · ${num(total)} m`;
+      const sec = el.mesa?.tipo === 'T' || el.mesa?.tipo === 'L' ? `Viga ${el.mesa.tipo} ${num(el.secao.b, 0)} × ${num(el.secao.h, 0)} cm (hf ${num(el.mesa.hf, 0)})` : `Seção ${num(el.secao.b, 0)} × ${num(el.secao.h, 0)} cm`;
+      return `${el.baldrame ? 'Baldrame · ' : ''}${el.invertida ? 'Invertida · ' : ''}${sec} · ${el.vaos.length} ${el.vaos.length > 1 ? 'vãos' : 'vão'} · ${num(total)} m`;
     },
 
     /* ------------------------------------------------------------------ entrada */
@@ -138,9 +140,48 @@ export default function moduloViga(api) {
 
       const { sequencia, acoes } = editorVaos(api, ctx, mudar);
 
+      /** Viga T ou L (NBR 6118, 14.6.2.2): a laje moldada junto com a viga trabalha como mesa colaborante. */
+      const camposMesa = () => {
+        const tipo = el.mesa?.tipo === 'T' || el.mesa?.tipo === 'L' ? el.mesa.tipo : 'R';
+        const doProjeto = ctx.projeto && el.posicao ? mesaDasLajes(ctx.projeto, el) : null;
+        const pegar = () => ctx.alterar((e) => { const m = mesaDasLajes(ctx.projeto, e); if (m) { const { lajes, ...resto } = m; e.mesa = resto; } }, { estrutural: true, descricao: `Mesa colaborante de ${el.codigo}` });
+        const mudarMesa = (fn) => ctx.alterar((e) => { e.mesa ??= { tipo: 'T', hf: 10, b2a: 300, b2b: 300 }; fn(e.mesa); }, { estrutural: true });
+        const lista = [ui.segmentado({
+          rotulo: 'Seção transversal', valor: tipo,
+          opcoes: [{ valor: 'R', texto: 'Retangular' }, { valor: 'T', texto: 'Viga T' }, { valor: 'L', texto: 'Viga L' }],
+          aoMudar: (v) => ctx.alterar((e) => {
+            if (v === 'R') { delete e.mesa; return; }
+            const auto = ctx.projeto && e.posicao ? mesaDasLajes(ctx.projeto, e) : null;
+            const hf = e.mesa?.hf ?? auto?.hf ?? 10;
+            e.mesa = v === 'T'
+              ? { tipo: 'T', hf, b2a: e.mesa?.b2a ?? auto?.b2a ?? auto?.b2 ?? 300, b2b: e.mesa?.b2b ?? auto?.b2b ?? auto?.b2 ?? 300 }
+              : { tipo: 'L', hf, b2: e.mesa?.b2 ?? auto?.b2 ?? auto?.b2a ?? 300, b4: e.mesa?.b4 ?? 0 };
+          }, { estrutural: true }),
+        })];
+        if (tipo === 'R') {
+          if (doProjeto) lista.push(h('p', { class: 'mesa-dica' }, `As lajes ligadas (${doProjeto.lajes.join(', ')}) podem trabalhar como mesa: escolha Viga ${doProjeto.tipo} para usar a largura colaborante.`));
+          return lista;
+        }
+        const m = el.mesa;
+        lista.push(ui.linhaCampos(
+          ui.campo({ rotulo: 'Mesa hf', valor: m.hf, unidade: 'cm', casas: 1, min: 4, max: 60, dica: 'Espessura da laje que trabalha como mesa (nas nervuradas e treliçadas, a capa)', aoMudar: (v) => mudarMesa((x) => { x.hf = v; }) }),
+          ...(tipo === 'T' ? [
+            ui.campo({ rotulo: 'b2 de um lado', valor: m.b2a, unidade: 'cm', casas: 0, min: 0, max: 5000, dica: 'Distância livre entre a face desta viga e a da nervura (viga) vizinha', aoMudar: (v) => mudarMesa((x) => { x.b2a = v; }) }),
+            ui.campo({ rotulo: 'b2 do outro lado', valor: m.b2b ?? m.b2a, unidade: 'cm', casas: 0, min: 0, max: 5000, aoMudar: (v) => mudarMesa((x) => { x.b2b = v; }) }),
+          ] : [
+            ui.campo({ rotulo: 'b2 (lado da laje)', valor: m.b2, unidade: 'cm', casas: 0, min: 0, max: 5000, dica: 'Distância livre entre a face desta viga e a da viga vizinha, do lado da laje', aoMudar: (v) => mudarMesa((x) => { x.b2 = v; }) }),
+            ui.campo({ rotulo: 'b4 (aba em balanço)', valor: m.b4 ?? 0, unidade: 'cm', casas: 0, min: 0, max: 500, dica: 'Aba da mesa do outro lado, em balanço até a borda (0 = sem aba)', aoMudar: (v) => mudarMesa((x) => { x.b4 = v; }) }),
+          ]),
+        ));
+        lista.push(h('p', { class: 'mesa-dica' },
+          'Largura colaborante pela NBR 6118, 14.6.2.2: bf = bw + b1 de cada lado, com b1 ≤ 0,5·b2 e ≤ 0,10·a (a = ℓ, 0,75ℓ ou 0,60ℓ pela continuidade do tramo); na aba em balanço, b3 ≤ b4 e ≤ 0,10·a. A mesa só conta onde está comprimida. ',
+          doProjeto ? h('button', { class: 'link', onClick: pegar }, `Pegar das lajes ligadas (${doProjeto.lajes.join(', ')})`) : null));
+        return lista;
+      };
+
       raiz.append(
         ui.secao({
-          numero: '01', titulo: 'Seção e vãos', descricao: 'Seção retangular constante',
+          numero: '01', titulo: 'Seção e vãos', descricao: el.mesa?.tipo === 'T' ? 'Viga T: alma retangular com a laje como mesa colaborante' : el.mesa?.tipo === 'L' ? 'Viga L: alma retangular com a laje de um lado como mesa colaborante' : 'Seção retangular constante',
           filhos: [
             ui.linhaCampos(
               ui.campo({ rotulo: 'Largura b', valor: el.secao.b, unidade: 'cm', casas: 1, min: 10, max: 200, aoMudar: (v) => mudar((e) => { e.secao.b = v; }) }),
@@ -148,6 +189,7 @@ export default function moduloViga(api) {
             ),
             ui.alternar({ rotulo: 'Viga baldrame (no nível da fundação, em contato com o solo)', valor: !!el.baldrame, dica: 'Usa o cobrimento de elementos em contato com o solo (NBR 6118, Tabela 7.2) e recebe as paredes do térreo', aoMudar: (v) => ctx.alterar((e) => { e.baldrame = v; }, { estrutural: true }) }),
             ui.alternar({ rotulo: 'Viga invertida (laje apoiada na face inferior)', valor: !!el.invertida, dica: 'A viga sobe acima da laje; as reações das lajes e escadas ficam penduradas e pedem estribos de suspensão (NBR 6118, 18.3.6)', aoMudar: (v) => ctx.alterar((e) => { e.invertida = v; }, { estrutural: true }) }),
+            ...camposMesa(),
             esquemaSlot,
             sequencia,
             acoes,
@@ -220,7 +262,7 @@ export default function moduloViga(api) {
       const secoes = res.vaos.map((v, i) => {
         const negs = [res.apoios[i]?.negativa, res.apoios[i + 1]?.negativa].filter(Boolean).sort((a, b) => b.As - a.As)[0];
         return h('figure', { class: 'figura-secao' },
-          desenho.secao(el.secao, { inf: v.positiva?.barras, sup: negs?.barras, phiT: v.estribos.phi ?? 5, cob, titulo: `VÃO ${i + 1}`, laje: el.invertida ? 'inferior' : el.baldrame ? null : 'superior' }),
+          desenho.secao(el.secao, { inf: v.positiva?.barras, sup: negs?.barras, phiT: v.estribos.phi ?? 5, cob, titulo: `VÃO ${i + 1}`, laje: el.invertida ? 'inferior' : el.baldrame ? null : 'superior', mesa: v.mesa ? { tipo: el.mesa?.tipo, hf: el.mesa?.hf, bf: v.mesa.bf } : null }),
           h('figcaption', null,
             h('span', null, h('i', { class: 'leg-barra' }), `Inferior: ${v.positiva?.barras?.rotulo ?? '—'}`),
             h('span', null, h('i', { class: `leg-barra ${negs ? 'negativa' : 'porta'}` }), `Superior: ${negs?.barras?.rotulo ?? '2 ø 8 (porta-estribo)'}`),

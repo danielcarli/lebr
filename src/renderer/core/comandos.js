@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Comandos e atalhos de teclado, no mesmo modelo do VS Code:
@@ -30,6 +30,7 @@ class RegistroComandos extends Emissor {
    * @param {string} [c.tecla]       atalho, ex.: 'Ctrl+Shift+P' (Ctrl vira ⌘ no macOS)
    * @param {Function} c.executar
    * @param {(...args) => boolean} [c.habilitado]  recebe os mesmos argumentos de executar (ex.: o id do elemento)
+   * @param {(...args) => void} [c.aoNegar]  chamado quando se tenta executar o comando desabilitado
    * @param {boolean} [c.ocultoNaPaleta]
    */
   registrar(c) {
@@ -42,7 +43,8 @@ class RegistroComandos extends Emissor {
   async executar(id, ...args) {
     const c = this.#comandos.get(id);
     if (!c) return console.warn(`Comando desconhecido: ${id}`);
-    if (!c.habilitado(...args)) return;
+    // desabilitado: o comando pode explicar o porquê (ex.: cálculo bloqueado por erros de montagem)
+    if (!c.habilitado(...args)) { c.aoNegar?.(...args); return; }
     try {
       return await c.executar(...args);
     } catch (err) {

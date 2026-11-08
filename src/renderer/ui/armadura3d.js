@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Vista 3D isolada da armadura de um elemento (0.32) — Three.js, com um único contexto WebGL reaproveitado entre as
@@ -22,6 +22,7 @@ import * as THREE from '../assets/vendor/three/three.module.min.js';
 import { h } from './dom.js';
 import { icone } from './icones.js';
 import { limitesDoModelo } from '../../modules/comum/armadura3d.js';
+import { COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 
 const CORES = {
   positiva: 0xb85438, construtiva: 0xc98a6e, negativa: 0x2f5fa3, 'porta-estribo': 0x7b8fae, pele: 0x6f8f3a, 'torção': 0x8c5fb0,
@@ -76,8 +77,9 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
       g.rotateX(Math.PI / 2);
     } else g = new THREE.BoxGeometry(...d);
     const apoio = c.tipo !== 'concreto';
+    const enchimento = c.tipo === 'enchimento';                          // blocos da laje nervurada
     const azul = document.documentElement.dataset.tema === 'blueprint';   // tema blueprint: arestas brancas no papel azul
-    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: azul ? 0xe8f0fb : apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: apoio ? 0.07 : 0.14, depthWrite: false }));
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: azul ? 0xe8f0fb : enchimento ? (COR_ENCHIMENTO[c.material] ?? 0xcfc8bd) : apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: enchimento ? 0.22 : apoio ? 0.07 : 0.14, depthWrite: false }));
     m.position.set(...c.min.map((v, i) => v + d[i] / 2));
     const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: azul ? 0xffffff : apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
     arestas.position.copy(m.position);

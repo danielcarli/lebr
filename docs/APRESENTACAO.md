@@ -4,7 +4,7 @@
 madeira (NBR 7190-1:2022 e NBR 16936:2023), fundações, vento e estabilidade global. Desktop para Windows, macOS e
 Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**.
 
-![Licença GPL-3.0](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0-blue)
+![Licença AGPL-3.0](https://img.shields.io/badge/licen%C3%A7a-AGPL--3.0-blue)
 ![Estado: fase inicial](https://img.shields.io/badge/estado-fase%20inicial%20de%20desenvolvimento-orange)
 ![Colaboradores procurados](https://img.shields.io/badge/procuramos-colaboradores-brightgreen)
 
@@ -285,9 +285,9 @@ npm run validar  # banco de casos de validação (grava validacao/relatorio.html
 
 ## Licença
 
-O LEBR é **software livre**, distribuído sob a **GNU General Public License, versão 3** ([LICENSE](../LICENSE)): você
-pode usá-lo, estudá-lo, modificá-lo e redistribuí-lo, desde que as versões distribuídas mantenham a mesma licença e o
-código-fonte aberto. É distribuído **sem nenhuma garantia**.
+O LEBR é **software livre**, distribuído sob a **GNU Affero General Public License, versão 3** ([LICENSE](../LICENSE)):
+você pode usá-lo, estudá-lo, modificá-lo e redistribuí-lo, desde que as versões distribuídas mantenham a mesma licença e
+o código-fonte aberto — inclusive as versões modificadas oferecidas para uso pela rede. É distribuído **sem nenhuma garantia**.
 
 ## Autoria
 

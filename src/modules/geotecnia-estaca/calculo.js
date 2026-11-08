@@ -4,17 +4,19 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Estaca isolada — capacidade de carga pelo SPT (Aoki-Velloso e Décourt-Quaresma) e carga admissível (NBR 6122).
  */
 import { capacidadeEstaca, cargaEstrutural, TIPOS_ESTACA, FS_SEMIEMPIRICO } from '../../engine/estacas.js';
+import { armaduraEstaca } from '../../engine/fundacoes-armadura.js';
+import { COBRIMENTO_MM } from '../../engine/materiais.js';
 import { analisarSondagem, nsptNa, camadaNa, furoMaisProximo } from '../../engine/sondagem.js';
 import { centroPilar } from '../../renderer/core/montagem.js';
 import { porticoDoPilar, porticoNosPilares } from '../comum/portico-edificio.js';
@@ -106,6 +108,21 @@ export function calcularEstaca(el, ctx) {
   }
 
   const g = r.geometria;
+  // ---------------------------------------------------------------- armadura (NBR 6122:2019, 8.6.3 e Tabela 4)
+  const atrito = perfilAtrito(r);
+  const NkArm = Nk ?? Padm;
+  let arm = null;
+  try {
+    arm = armaduraEstaca({
+      tipo: el.tipo, D: el.D, secao: el.secao, L: el.L, Nk: NkArm, caa: ctx.materiais.caa, fck: el.estrutural?.fck, gc: el.estrutural?.gc,
+      aco: ctx.materiais.aco, fctd: ctx.materiais.concreto.fctd, cob: (COBRIMENTO_MM.solo[ctx.materiais.caa] ?? 30) / 10, dmax: ctx.materiais.dmax ?? 19, atrito,
+    });
+  } catch (err) { avisos.push(`Armadura da estaca: ${err.message}`); }
+  if (arm?.aplicavel) {
+    verificacoes.push(...arm.verificacoes);
+    if (!Nk) avisos.push('Sem carga de trabalho: a armadura foi calculada para a carga admissível da estaca.');
+  }
+  if (arm) avisos.push(...arm.avisos);
   const memorial = [
     { titulo: 'Estaca', linhas: [
       `${t.nome}, ${el.secao === 'quadrada' ? 'seção quadrada' : 'diâmetro'} ${f(el.D, 0)} cm: U = ${f(g.U, 3)} m, Ap = ${f(g.Ap, 4)} m²; comprimento ${f(el.L)} m, topo a ${f(el.topo)} m do terreno.`,
@@ -123,6 +140,7 @@ export function calcularEstaca(el, ctx) {
       `Fator de segurança global ${f(FS_SEMIEMPIRICO, 1)} para métodos semiempíricos (NBR 6122). Geotécnica: ${f(Pgeo, 1)} kN (o menor dos dois métodos)${estrut ? `; estrutural: ${f(estrut, 1)} kN${t.fck ? ` (0,85·fck/γc·A/1,4 com fck = ${f(el.estrutural?.fck ?? t.fck, 0)} MPa e γc = ${f(el.estrutural?.gc ?? t.gc, 1)})` : ' (catálogo)'}` : ''}. Adotada: ${f(Padm, 1)} kN (${governa}).`,
       Nk ? `Carga de trabalho: ${f(Nk, 1)} kN (${origemCarga}).` : 'Sem carga de trabalho informada.',
     ] },
+    ...(arm?.aplicavel ? [{ titulo: 'Armadura da estaca (NBR 6122:2019, 8.6.3 e Tabela 4)', linhas: arm.memorial }] : []),
   ];
 
   return {
@@ -135,6 +153,33 @@ export function calcularEstaca(el, ctx) {
     dq: { Np: r2(r.dq.Np), Nl: r2(r.dq.Nl), C: r.dq.C, alfa: r.dq.alfa, beta: r2(r.dq.beta), rp: r1(r.dq.rp), rl: r1(r.dq.rl), Rp: r1(r.dq.Rp), Rl: r1(r.dq.Rl), R: r1(r.dq.R), Padm: r1(r.dq.adm.P), limitePonta: r.dq.adm.limitePonta },
     estrutural: estrut != null ? r1(estrut) : null, Padm: r1(Padm), governa, Nk: Nk != null ? r1(Nk) : null, origemCarga, Lmin,
     trechos: r.trechos.map((x) => ({ de: r2(x.de), ate: r2(x.ate), N: x.N, solo: x.solo.av, semAtrito: x.solo.semAtrito, rlAV: r1(x.rlAV), ponta: x.usadoPontaDQ })),
+    armadura: arm?.aplicavel ? resumoArmaduraEstaca(arm) : null,
+    detalhamento: arm?.aplicavel && arm.posicoes.length ? { posicoes: arm.posicoes, avisos: [], verificacoes: [] } : null,
+    perfilAtrito: atrito,
     curva, camadas: an.camadas.map((c) => ({ de: c.de, ate: c.ate, solo: c.solo, nome: c.nome })), nivelAgua: an.nivelAgua, limiteFuro: an.limite,
+  };
+}
+
+/**
+ * Atrito lateral último por trecho do fuste (kN), a partir do topo: o menor entre Aoki-Velloso e Décourt-Quaresma,
+ * para a queda da carga ao longo da estaca (comprimento armado).
+ */
+export function perfilAtrito(r) {
+  const U = r.geometria.U;
+  return r.trechos.map((x) => {
+    const av = x.solo.semAtrito ? 0 : U * x.rlAV * x.dl;
+    const dq = x.solo.semAtrito || x.usadoPontaDQ ? 0 : U * r.dq.rl * x.dl;
+    return { de: Math.round((x.de - r.topo) * 1000) / 1000, ate: Math.round((x.ate - r.topo) * 1000) / 1000, R: Math.min(av, dq) };
+  });
+}
+
+/** Saída compacta da armadura da estaca. */
+export function resumoArmaduraEstaca(a) {
+  const r2 = (v) => Math.round(v * 100) / 100 || 0;
+  return {
+    sigma: r2(a.sigma), sigmaLim: a.sigmaLim, precisa: a.precisa, fck: a.fck, gc: a.gc, Nk: r2(a.Nk), Nd: r2(a.Nd),
+    AsMin: r2(a.AsMin), AsNec: r2(a.AsNec), As: r2(a.As), Larm: a.Larm, Lmin: a.Lmin,
+    barras: a.barras && { n: a.barras.n, phi: a.barras.phi, AsEf: r2(a.barras.AsEf), rotulo: `${a.barras.n} ø ${String(a.barras.phi).replace('.', ',')}` },
+    estribo: { ...a.estribo, rotulo: `ø ${String(a.estribo.phi).replace('.', ',')} c/ ${String(a.estribo.s).replace('.', ',')}` }, espera: Math.round(a.espera),
   };
 }

@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * LEBR — Laboratório de Estruturas Brasil — inicialização da interface.
@@ -33,7 +33,7 @@ import { criarProjeto, lerProjeto, serializar } from './core/projeto.js';
 import * as motor from './core/motor.js';
 import { CRITERIOS, otimizavel } from '../modules/comum/otimizacao.js';
 import { fundacoesDesatualizadas } from '../modules/comum/armadura.js';
-import { lerNumero, dataHora, CODIGO_VALIDO, compararCodigos } from './core/formatar.js';
+import { num, lerNumero, dataHora, CODIGO_VALIDO, compararCodigos } from './core/formatar.js';
 
 import { abaInicio } from './views/inicio.js';
 import { abaElemento, estadoDoResultado, marcarCalculo } from './views/elemento.js';
@@ -44,14 +44,25 @@ import { abaValidacao } from './views/validacao.js';
 import { abaBibliografia } from './views/bibliografia.js';
 import { abaCatalogoCargas } from './views/catalogo-cargas.js';
 import { abaMontagem, selecionarNaMontagem } from './views/montagem.js';
-import { aba3D, opcoes3D, alternarPainel3D } from './views/visualizacao3d.js';
+import { aba3D, opcoes3D, alternarPainel3D, focarNo3D } from './views/visualizacao3d.js';
 import { abaVento } from './views/vento.js';
 import { abaEstabilidade } from './views/estabilidade.js';
 import { abaQuantitativos } from './views/quantitativos.js';
 import { gerarPranchas } from '../modules/comum/pranchas.js';
-import { montagemDoProjeto } from './core/situacao-montagem.js';
+import { montagemDoProjeto, problemasDoProjeto } from './core/situacao-montagem.js';
+import { REGRAS, problemasPorPavimento, contarProblemas, errosDoElemento, correcaoDe, corrigiveis, resolverAutomaticamente } from './core/consistencia.js';
+import { definirCruzamento, definirTodosCruzamentos, sugerirCruzamento } from './core/cruzamentos.js';
+import { avisosDeCriterios } from './core/criterios.js';
+import { planoDeRenumeracao, renumerar } from './core/renumerar.js';
+import { manterPontosFixos } from './core/pilares.js';
+
+// pilar com ponto fixo (etapa L10): depois de qualquer mudança de seção, o ponto fixo fica no lugar
+estado.normalizadores.push(manterPontosFixos);
 import { criarSapatasNosPilares, criarBlocosNosPilares, criarNivelBaldrame } from './core/fundacoes.js';
+import { limparGeometria, folgasGeometricas, toleranciaGeometrica, detectarLigacoes, aplicarLigacoes } from './core/montagem.js';
 import { proximoCodigo, novoId } from './core/projeto.js';
+import { lerIfc } from '../engine/ifc.js';
+import { planoIfc, aplicarIfc } from './core/importar-ifc.js';
 import { criarConsole } from './views/console.js';
 import { criarApiScript } from './core/script.js';
 import { definirUnidadeComprimento, observarUnidades } from './core/unidades.js';
@@ -63,7 +74,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.35.1';
+const VERSAO = '0.56.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -250,7 +261,7 @@ const elementoAtivo = () => wb.abaAtiva()?.elementoId ?? wb.abasVisiveis().find(
 
 function abrirElemento(id) {
   if (!estado.elemento(id)) return;
-  wb.abrirAba(abaElemento(id, { api, calcular, abrirElemento, mostrarMemorial, exportarPdf }));
+  wb.abrirAba(abaElemento(id, { api, calcular, abrirElemento, mostrarMemorial, exportarPdf, bloqueio: (x) => errosDeMontagem(x), bloqueia: () => bloqueiaCalculo(), verProblemas: () => wb.mostrarPainel('problemas-montagem') }));
 }
 
 function criarElemento(moduloId) {
@@ -320,6 +331,84 @@ async function criarBaldrame() {
   abrirMontagem();
 }
 
+/**
+ * Limpar geometria (roteiro, etapa L1): mostra o que muda com a tolerância escolhida e aplica. Os nós a menos da
+ * tolerância se fundem e os apoios das vigas chegam à face dos pilares e ao eixo das vigas que os recebem.
+ */
+async function limparGeometriaProjeto() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  const tolProjeto = toleranciaGeometrica(estado.projeto) * 1000;
+  const v = { tol: tolProjeto };
+  const mmTxt = (x) => `${String(Math.round(x * 10) / 10).replace('.', ',')} mm`;
+  const previa = h('div', { class: 'limpeza-previa' });
+  const atualizar = () => {
+    previa.replaceChildren();
+    const feitas = limparGeometria(structuredClone(estado.projeto), modulos, { tol: v.tol / 1000 });
+    const folgas = folgasGeometricas(estado.projeto, modulos).length;
+    previa.append(...[
+      h('p', { class: 'limpeza-total' }, feitas.length ? `${feitas.length} correção(ões) com ${mmTxt(v.tol)}:` : `Nada a corrigir com ${mmTxt(v.tol)}.`),
+      feitas.length ? h('ul', { class: 'limpeza-lista' }, feitas.slice(0, 12).map((f) => h('li', null, f.texto)), feitas.length > 12 ? h('li', { class: 'mais' }, `e mais ${feitas.length - 12}`) : null) : null,
+      folgas ? h('p', { class: 'limpeza-nota' }, `A montagem aponta ${folgas} folga(s) acima da tolerância do projeto; uma tolerância maior aqui pode resolvê-las.`) : null,
+    ].filter(Boolean));
+  };
+  atualizar();
+  const ok = await dialogo({
+    rotulo: 'Montagem', titulo: 'Limpar geometria', largura: '560px',
+    texto: 'Funde os nós que estão mais próximos que a tolerância: o apoio de cada viga vai até o nó da outra viga, até a face do pilar ou até o eixo da viga que o recebe, ao longo do próprio eixo (nenhuma viga gira), e o pilar de cima vai para o prumo do de baixo.',
+    corpo: () => [ui.linhaCampos(
+      ui.campo({ rotulo: 'Tolerância desta limpeza', valor: v.tol, unidade: 'mm', casas: 1, min: 0.1, max: 50, largura: '210px', aoMudar: (x) => { v.tol = x; atualizar(); } }),
+    ), h('p', { class: 'limpeza-nota' }, `A tolerância do projeto (Parâmetros › Montagem) é ${mmTxt(tolProjeto)} — é com ela que a montagem liga os apoios e aponta as folgas.`), previa],
+    botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: false }, { texto: 'Limpar geometria', tipo: 'primario', valor: true, padrao: true }],
+  });
+  if (!ok) return;
+  let feitas = [];
+  estado.alterar((p) => {
+    feitas = limparGeometria(p, modulos, { tol: v.tol / 1000 });
+    for (const f of feitas) if (f.elemento.resultado) f.elemento.resultado.desatualizado = true;
+  }, { descricao: 'Limpar geometria', estrutural: true, invalidar: false });
+  if (!feitas.length) return notificar(`Nada a corrigir com ${mmTxt(v.tol)}.`, 'info');
+  for (const f of feitas) registrarSaida(`Limpar geometria: ${f.texto}`);
+  const p = estado.projeto;
+  const novas = detectarLigacoes(p, modulos).filter((d) => !(Array.isArray(d.receptor.cargas) ? d.receptor.cargas : []).some((c) => c.tipo === 'elemento' && c.elementoId === d.fonte.id && c.ligacao === d.ligacao));
+  notificar(`${feitas.length} correção(ões) de geometria aplicada(s)${novas.length ? `; a planta indica ${novas.length} ligação(ões) ainda não aplicada(s)` : ''}.`, 'ok', {
+    duracao: 7000,
+    acoes: novas.length ? [{ texto: 'Conectar', aoClicar: () => estado.alterar((pp) => { aplicarLigacoes(pp, detectarLigacoes(pp, modulos)); }, { descricao: 'Conectar elementos', estrutural: true, invalidar: false }) }] : [],
+  });
+}
+
+/** Renumeração (etapa L11): P, V e L de cima para baixo e da esquerda para a direita, com prévia. */
+async function renumerarProjeto(pavId = null) {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  const op = { esquema: estado.projeto.elementos.some((e) => /^[A-Z]+\d{3,}$/.test(e.codigo ?? '')) ? 'pavimento' : 'sequencial', pavimentos: pavId ? [pavId] : null };
+  const previa = h('div', { class: 'limpeza-previa' });
+  const atualizar = () => {
+    previa.replaceChildren();
+    const plano = planoDeRenumeracao(estado.projeto, modulos, op);
+    previa.append(...[
+      h('p', { class: 'limpeza-total' }, plano.length ? `${plano.length} código(s) mudam:` : 'Os códigos já estão em ordem.'),
+      plano.length ? h('ul', { class: 'limpeza-lista' }, plano.slice(0, 40).map((m) => h('li', null, `${m.de} → ${m.para}`)), plano.length > 40 ? h('li', { class: 'mais' }, `e mais ${plano.length - 40}`) : null) : null,
+    ].filter(Boolean));
+  };
+  atualizar();
+  const pavs = [...pavimentosOrdenadosApp()].reverse();
+  const ok = await dialogo({
+    rotulo: 'Estrutura', titulo: 'Renumerar pilares, vigas e lajes', largura: '560px',
+    texto: 'De cima para baixo e da esquerda para a direita na planta; nas vigas, as horizontais primeiro e depois as verticais. As ligações acompanham os elementos; nomes e descrições que repetem o código são atualizados.',
+    corpo: () => [ui.linhaCampos(
+      ui.segmentado({ rotulo: 'Numeração', valor: op.esquema, opcoes: [{ valor: 'pavimento', texto: 'Por pavimento (P101…)', dica: 'O índice do pavimento antes do número: P001 no mais baixo, P101 no seguinte…' }, { valor: 'sequencial', texto: 'Sequencial (P1, P2…)' }], aoMudar: (v) => { op.esquema = v; atualizar(); } }),
+      ui.selecao({ rotulo: 'Pavimentos', valor: pavId ?? '', largura: '200px', opcoes: [{ valor: '', texto: 'Todos' }, ...pavs.map((pv) => ({ valor: pv.id, texto: pv.nome }))], aoMudar: (v) => { op.pavimentos = v ? [v] : null; atualizar(); } }),
+    ), previa],
+    botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: false }, { texto: 'Renumerar', tipo: 'primario', valor: true, padrao: true }],
+  });
+  if (!ok) return;
+  let plano = [];
+  estado.alterar((p) => { plano = renumerar(p, modulos, op); }, { descricao: 'Renumerar', estrutural: true, invalidar: false });
+  wb.desenharAbas?.();
+  notificar(plano.length ? `${plano.length} código(s) renumerado(s). Ctrl+Z desfaz.` : 'Os códigos já estavam em ordem.', plano.length ? 'ok' : 'info');
+  if (plano.length) registrarSaida(`Renumeração: ${plano.map((m) => `${m.de}→${m.para}`).join(', ')}.`);
+}
+const pavimentosOrdenadosApp = () => [...(estado.projeto?.pavimentos ?? [])].sort((a, b) => a.cota - b.cota);
+
 /** Duplica um elemento; a cópia vai para "Não posicionados" e sem as ligações do original. */
 function duplicar(id) {
   const orig = estado.elemento(id);
@@ -341,10 +430,72 @@ const marcaDe = (id) => `${carimbos.get(id) ?? 0}|${carimboGeral}`;
 
 const resultadoDeErro = (err) => ({ ok: false, erro: err.message, calculadoEm: new Date().toISOString(), desatualizado: false, verificacoes: [], avisos: [err.message], memorial: [] });
 
+/* ---------------------------------------------------------------- bloqueio do cálculo (roteiro, etapa L2) */
+/** Erros de montagem que impedem calcular: todos (Calcular todos) ou os do elemento. */
+const errosDeMontagem = (id = null) => (id ? errosDoElemento(problemasDoProjeto(), id) : problemasDoProjeto().filter((p) => p.gravidade === 'erro'));
+
+/** O que fazer ao calcular com erros de montagem (Parâmetros › Montagem): 'perguntar' (padrão), 'calcular' ou 'bloquear'. */
+const politicaErros = () => estado.projeto?.parametros?.montagem?.erros ?? 'perguntar';
+const bloqueiaCalculo = () => politicaErros() === 'bloquear';
+
+/** Pergunta antes de calcular tudo com erros de montagem: 'calcular', 'ver' ou undefined (cancelar). */
+async function perguntarCalculoComErros(erros) {
+  let lembrar = false;
+  const r = await dialogo({
+    rotulo: 'Calcular', titulo: `${erros.length} erro(s) de montagem`, largura: '560px',
+    texto: 'A montagem tem problemas que podem deixar o cálculo diferente da planta (cargas que não chegam aos apoios, vigas sem apoio, cruzamentos sem definição). É possível calcular mesmo assim, com os dados como estão.',
+    corpo: () => [
+      h('ul', { class: 'limpeza-lista' }, erros.slice(0, 6).map((p) => h('li', null, p.texto)), erros.length > 6 ? h('li', { class: 'mais' }, `e mais ${erros.length - 6}`) : null),
+      h('label', { class: 'dialogo-check' }, h('input', { type: 'checkbox', onChange: (e) => { lembrar = e.target.checked; } }), 'Não perguntar de novo neste projeto (Parâmetros › Montagem)'),
+    ],
+    botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: undefined }, { texto: 'Ver problemas', tipo: 'secundario', valor: 'ver' }, { texto: 'Calcular mesmo assim', tipo: 'primario', valor: 'calcular', padrao: true }],
+  });
+  if (r === 'calcular' && lembrar) estado.alterar((p) => { p.parametros.montagem = { ...(p.parametros.montagem ?? {}), erros: 'calcular' }; }, { descricao: 'Calcular com erros de montagem', tipo: 'parametros' });
+  return r;
+}
+
+function avisarBloqueio(id = null) {
+  const erros = errosDeMontagem(id);
+  if (!erros.length) return;
+  const texto = id
+    ? `${estado.elemento(id)?.codigo ?? ''} não pode ser calculado: ${erros[0].texto}${erros.length > 1 ? ` (e mais ${erros.length - 1})` : ''}`
+    : `Cálculo bloqueado: ${erros.length} erro(s) de montagem. Corrija-os no painel Problemas — ${erros[0].texto}`;
+  registrarSaida(texto, 'erro');
+  notificar(texto, 'erro', { duracao: 7000, acoes: [{ texto: 'Ver problemas', aoClicar: () => wb.mostrarPainel('problemas-montagem') }] });
+}
+
+/** Resolver automaticamente os problemas de montagem que têm correção sem decisão do engenheiro. */
+function resolverTudo() {
+  let r;
+  estado.alterar((p) => { r = resolverAutomaticamente(p, modulos); }, { descricao: 'Resolver problemas de montagem', estrutural: true, invalidar: false });
+  for (const t of r.textos) registrarSaida(`Montagem: ${t}`);
+  notificar(r.feitas ? `${r.feitas} correção(ões) aplicada(s)${r.restantes ? `; ${r.restantes} problema(s) pedem a sua decisão` : ' — a montagem está consistente'}. Ctrl+Z desfaz.` : 'Nenhum problema tem correção automática: escolha a solução em cada um.', r.feitas ? 'ok' : 'info', { duracao: 7000 });
+}
+
+/** Mostra o problema: na montagem, com zoom no ponto; fora da planta, abre o elemento. */
+function mostrarProblema(p) {
+  const el = p.elemento && estado.elemento(p.elemento.id);
+  if (!el) return;
+  if (el.posicao && estado.projeto.pavimentos.some((pv) => pv.id === el.posicao.pavimento)) {
+    selecionarNaMontagem(el.id, { ponto: p.ponto });
+    abrirMontagem();
+    wb.redesenharAba('montagem');
+  } else if (p.alvo?.posicao) {
+    selecionarNaMontagem(p.alvo.id, { ponto: p.ponto });
+    abrirMontagem();
+    wb.redesenharAba('montagem');
+  } else abrirElemento(el.id);
+}
+
 /** Calcula um elemento (no Worker de cálculo, quando possível) e grava o resultado. */
 async function calcular(id = elementoAtivo()) {
   const el = estado.elemento(id);
   if (!el) return;
+  const errosEl = errosDeMontagem(id);
+  if (errosEl.length) {
+    if (bloqueiaCalculo()) { avisarBloqueio(id); return; }
+    registrarSaida(`${el.codigo}: calculado com erro de montagem — ${errosEl[0].texto}`, 'erro');
+  }
   const projeto = estado.projeto;
   const marca = marcaDe(id);
   const inicio = performance.now();
@@ -369,6 +520,23 @@ let calculandoTodos = null;
 function calcularTodos() {
   if (!estado.projeto) return;
   if (calculandoTodos) return calculandoTodos;
+  const erros = errosDeMontagem();
+  if (erros.length) {
+    if (bloqueiaCalculo()) { avisarBloqueio(); return Promise.resolve(); }
+    if (politicaErros() === 'perguntar') {
+      return (async () => {
+        const r = await perguntarCalculoComErros(erros);
+        if (r === 'ver') wb.mostrarPainel('problemas-montagem');
+        if (r === 'calcular') return iniciarCalculoTodos(erros.length);
+      })();
+    }
+  }
+  return iniciarCalculoTodos(erros.length);
+}
+
+function iniciarCalculoTodos(errosMontagem = 0) {
+  if (calculandoTodos) return calculandoTodos;
+  if (errosMontagem) registrarSaida(`Calculando com ${errosMontagem} erro(s) de montagem — os resultados podem não refletir a planta (painel Problemas).`, 'erro');
   // lajes → vigas → pilares, para que as reações já estejam prontas na leitura
   const ordem = { sondagens: -1, lajes: 0, escadas: 0.5, reservatorios: 0.6, vigas: 1, pilares: 2, fundacoes: 3 };
   const projeto = estado.projeto;
@@ -656,7 +824,7 @@ const consoleLebr = criarConsole({
 /* ====================================================================== montagem e 3D */
 const acoesMontagem = {
   abrirElemento: (id) => abrirElemento(id),
-  abrir3D: () => abrir3D(),
+  abrir3D: (id) => abrir3D(id),
   abrirVento: () => abrirVento(),
   abrirEstabilidade: () => abrirEstabilidade(),
   abrirMontagem: (id) => abrirMontagem(id),
@@ -697,9 +865,12 @@ function abrirMontagem(id) {
   else wb.abrirAba(abaMontagem(acoesMontagem));
 }
 
-function abrir3D() {
+function abrir3D(id) {
   if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
-  wb.abrirAba(aba3D(acoesMontagem));
+  // com um elemento: abre (ou ativa) o 3D já com ele selecionado e a câmera nele
+  if (typeof id === 'string') focarNo3D(id);
+  if (wb.grupoDaAba('visualizacao3d') >= 0) wb.ativarAba('visualizacao3d');
+  else wb.abrirAba(aba3D(acoesMontagem));
 }
 
 function abrirVento() {
@@ -709,6 +880,61 @@ function abrirVento() {
 
 /* ---------------------------------------------------------------- exportação DXF */
 const PREF_DXF = 'lebr.dxf.opcoes';
+/** Importar modelo IFC (etapa L15): pavimentos, pilares e lajes; paredes e vigas na planta de fundo. */
+async function importarIfc(dado) {
+  let arq = dado?.texto ? dado : null; // { nome, texto } já lido (arrastar e soltar, testes)
+  if (!arq) {
+    if (!lebr?.ifc?.abrir) return notificar('Importar IFC só funciona no aplicativo instalado.', 'erro');
+    try { arq = await lebr.ifc.abrir(estado.caminho); } catch (err) { notificar(`Não foi possível ler o arquivo: ${err.message}`, 'erro'); return; }
+  }
+  if (!arq) return;
+  let modelo;
+  try { modelo = lerIfc(arq.texto); } catch (err) { notificar(`${arq.nome}: ${err.message}`, 'erro', { duracao: 8000 }); return; }
+  const util = modelo.elementos.filter((e) => !e.ignorado).length;
+  if (!modelo.pavimentos.length && !util) return notificar(`${arq.nome}: nenhum pavimento, pilar, laje, parede ou viga com geometria legível.`, 'erro', { duracao: 8000 });
+  const novo = !estado.projeto;
+  const base = estado.projeto ?? criarProjeto({ nome: arq.nome.replace(/\.ifc$/i, '') || 'Projeto do IFC' });
+  const op = { criarPilares: true, criarLajes: true };
+  const caixa = h('div', { class: 'ifc-dlg' });
+  const n2 = (v) => num(v, 2);
+  const desenhar = () => {
+    const pl = planoIfc(base, modelo, op);
+    caixa.replaceChildren(...[
+      h('p', { class: 'ifc-origem' }, `${modelo.esquema || 'IFC'} · ${modelo.aplicativo || 'aplicativo não informado'} · unidade ${modelo.unidade}`,
+        pl.deslocamento.some(Boolean) ? ` · coordenadas de levantamento: a origem da montagem fica em (${num(-pl.deslocamento[0], 0)}; ${num(-pl.deslocamento[1], 0)}) m do modelo` : ''),
+      h('table', { class: 'ifc-niveis' },
+        h('thead', null, h('tr', null, h('th', null, 'Pavimento'), h('th', { class: 'num' }, 'Cota'), h('th', { class: 'num' }, 'Pilares'), h('th', { class: 'num' }, 'Lajes'), h('th', null, ''))),
+        h('tbody', null, pl.niveis.map((nv) => h('tr', null,
+          h('td', null, nv.nome), h('td', { class: 'num' }, `${n2(nv.cota)} m`),
+          h('td', { class: 'num' }, String(pl.pilares.filter((x) => x.nivel === nv && x.criar).length)),
+          h('td', { class: 'num' }, String(pl.lajes.filter((x) => x.nivel === nv && x.criar).length)),
+          h('td', null, h('em', null, nv.pavimento ? 'já existe (mesma cota)' : 'novo')))))),
+      ui.linhaCampos(
+        ui.alternar({ rotulo: `Criar os pilares (${pl.pilares.length})`, valor: op.criarPilares, aoMudar: (v) => { op.criarPilares = v; desenhar(); } }),
+        ui.alternar({ rotulo: `Criar as lajes retangulares (${pl.lajes.filter((x) => !x.motivo).length})`, valor: op.criarLajes, aoMudar: (v) => { op.criarLajes = v; desenhar(); } })),
+      h('p', { class: 'ifc-nota' }, `Planta de fundo de cada pavimento: ${pl.resumo.paredes} parede(s), ${pl.resumo.vigas} viga(s)`,
+        pl.resumo.lajesFundo ? `, ${pl.resumo.lajesFundo} laje(s) que não viram elemento (${[...new Set(pl.lajes.filter((x) => x.motivo).map((x) => x.motivo))].join(', ')})` : '',
+        ' e o contorno dos pilares. Lance as vigas por cima e use Montagem → … → Paredes da planta de fundo como cargas.'),
+      pl.avisos.length ? h('ul', { class: 'ifc-avisos' }, pl.avisos.map((a) => h('li', null, a))) : null,
+    ].filter(Boolean));
+    return pl;
+  };
+  desenhar();
+  const ok = await dialogo({
+    rotulo: arq.nome, titulo: 'Importar modelo IFC', largura: '640px',
+    texto: 'O mínimo para começar o lançamento: pavimentos pelas cotas dos níveis, pilares com a seção e o ângulo do modelo, lajes retangulares como lajes maciças. Furos e aberturas não entram.',
+    corpo: () => [caixa],
+    botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: false }, { texto: novo ? 'Criar o projeto' : 'Importar', tipo: 'primario', valor: true, padrao: true }],
+  });
+  if (!ok) return;
+  if (novo) abrirNaInterface(base, null);
+  let r;
+  estado.alterar((p) => { r = aplicarIfc(p, modulos, planoIfc(p, modelo, op), { nomeArquivo: arq.nome }); }, { descricao: `Importar IFC: ${arq.nome}`, estrutural: true });
+  notificar(`${arq.nome}: ${r.pavimentos} pavimento(s) novo(s), ${r.pilares} pilar(es), ${r.lajes} laje(s), ${r.plantas} planta(s) de fundo.`, 'ok', { duracao: 9000 });
+  registrarSaida(`IFC importado: ${arq.nome} (${modelo.esquema}, ${modelo.aplicativo || '—'}) — ${r.pilares} pilares, ${r.lajes} lajes, ${r.plantas} plantas de fundo.`);
+  abrirMontagem();
+}
+
 async function exportarDXF() {
   if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
   let op = { formas: true, locacao: true, vigas: true, pilares: true, lajes: true };
@@ -801,9 +1027,12 @@ function registrarComandos() {
   C({ id: 'projeto.abrirExemplo', categoria: 'Arquivo', titulo: 'Abrir projeto de exemplo', icone: 'documento', executar: () => abrirExemplo('padrao') });
   C({ id: 'projeto.abrirExemploTerreo', categoria: 'Arquivo', titulo: 'Abrir exemplo: residência térrea com baldrame e sapatas', icone: 'sapata', executar: () => abrirExemplo('terreo') });
   C({ id: 'projeto.abrirExemplo18', categoria: 'Arquivo', titulo: 'Abrir exemplo: edifício de 18 pavimentos (pórtico com vento)', icone: 'cubo', executar: () => abrirExemplo('18-pavimentos') });
+  C({ id: 'projeto.abrirExemploAeroporto', categoria: 'Arquivo', titulo: 'Abrir exemplo: terminal de aeroporto de médio porte', icone: 'cubo', executar: () => abrirExemplo('aeroporto') });
+  C({ id: 'projeto.abrirExemploSatelite', categoria: 'Arquivo', titulo: 'Abrir exemplo: aeroporto com terminal e satélite', icone: 'cubo', executar: () => abrirExemplo('satelite') });
   C({ id: 'projeto.abrirExemplo3', categoria: 'Arquivo', titulo: 'Abrir exemplo: edifício de 3 pavimentos', icone: 'cubo', executar: () => abrirExemplo('3-pavimentos') });
   C({ id: 'projeto.salvar', categoria: 'Arquivo', titulo: 'Salvar', icone: 'salvar', tecla: 'Ctrl+S', habilitado: temProjeto, executar: salvar });
   C({ id: 'projeto.salvarComo', categoria: 'Arquivo', titulo: 'Salvar como…', tecla: 'Ctrl+Shift+S', habilitado: temProjeto, executar: salvarComo });
+  C({ id: 'projeto.importarIFC', categoria: 'Arquivo', titulo: 'Importar modelo IFC…', icone: 'cubo', executar: (arq) => importarIfc(arq) });
   C({ id: 'projeto.exportarDXF', categoria: 'Arquivo', titulo: 'Exportar pranchas em DXF…', icone: 'planta', tecla: 'Ctrl+Shift+D', habilitado: temProjeto, executar: exportarDXF });
   C({ id: 'projeto.mostrarArquivo', categoria: 'Arquivo', titulo: 'Mostrar arquivo na pasta', habilitado: () => !!estado.caminho, executar: () => lebr.sistema.mostrarArquivo(estado.caminho) });
   C({ id: 'projeto.fechar', categoria: 'Arquivo', titulo: 'Fechar projeto', habilitado: temProjeto, executar: fecharProjeto });
@@ -822,6 +1051,14 @@ function registrarComandos() {
   C({ id: 'elemento.duplicar', categoria: 'Estrutura', titulo: 'Duplicar elemento', icone: 'copiar', habilitado: temElemento, executar: (id = elementoAtivo()) => duplicar(id) });
   C({ id: 'elemento.excluir', categoria: 'Estrutura', titulo: 'Excluir elemento', icone: 'lixeira', habilitado: temElemento, executar: (id) => excluir(id) });
   C({ id: 'estrutura.montagem', categoria: 'Estrutura', titulo: 'Montagem da estrutura (pavimentos e planta)', icone: 'planta', tecla: 'F6', habilitado: temProjeto, executar: (id) => abrirMontagem(id) });
+  C({ id: 'estrutura.limparGeometria', categoria: 'Estrutura', titulo: 'Limpar geometria (fundir nós próximos)…', icone: 'juntar', habilitado: temProjeto, executar: limparGeometriaProjeto });
+  C({ id: 'estrutura.renumerar', categoria: 'Estrutura', titulo: 'Renumerar pilares, vigas e lajes…', icone: 'editar', habilitado: temProjeto, executar: (pavId) => renumerarProjeto(typeof pavId === 'string' ? pavId : null) });
+  C({ id: 'estrutura.resolverProblemas', categoria: 'Estrutura', titulo: 'Resolver automaticamente os problemas de montagem', icone: 'check', habilitado: temProjeto, executar: resolverTudo });
+  C({ id: 'estrutura.definirCruzamentos', categoria: 'Estrutura', titulo: 'Definir todos os cruzamentos de vigas (a mais rígida apoia a outra)', icone: 'viga', habilitado: temProjeto, executar: () => {
+    let n = 0;
+    estado.alterar((p) => { n = definirTodosCruzamentos(p, modulos); }, { descricao: 'Definir todos os cruzamentos', estrutural: true, invalidar: false });
+    notificar(n ? `${n} cruzamento(s) definido(s): em cada um, a viga mais rígida (b·h³/L³) ficou como apoio da outra. Clique no cruzamento na montagem para mudar.` : 'Não há cruzamentos de vigas sem definição.', n ? 'ok' : 'info', { duracao: 6000 });
+  } });
   C({ id: 'estrutura.3d', categoria: 'Estrutura', titulo: 'Visualização 3D', icone: 'cubo', tecla: 'F7', habilitado: temProjeto, executar: abrir3D });
   C({ id: 'estrutura.vigaBaldrame', categoria: 'Estrutura', titulo: 'Nova viga baldrame', icone: 'viga', habilitado: temProjeto, executar: novaVigaBaldrame });
   C({ id: 'estrutura.baldrame', categoria: 'Estrutura', titulo: 'Criar nível de baldrame (arranques e vigas baldrame)…', icone: 'viga', habilitado: temProjeto, executar: criarBaldrame });
@@ -833,8 +1070,9 @@ function registrarComandos() {
   C({ id: 'estrutura.estabilidade', categoria: 'Estrutura', titulo: 'Estabilidade global (α e γz)', icone: 'estabilidade', tecla: 'F9', habilitado: temProjeto, executar: abrirEstabilidade });
   C({ id: 'estrutura.vento', categoria: 'Estrutura', titulo: 'Vento (NBR 6123)', icone: 'vento', tecla: 'F8', habilitado: temProjeto, executar: abrirVento });
   // Calcular
-  C({ id: 'elemento.calcular', categoria: 'Calcular', titulo: 'Calcular elemento', icone: 'calcular', tecla: 'F5', habilitado: temElemento, executar: (id) => calcular(id) });
-  C({ id: 'elemento.calcularTodos', categoria: 'Calcular', titulo: 'Calcular todos os elementos', icone: 'calcular', tecla: 'Shift+F5', habilitado: temProjeto, executar: calcularTodos });
+  const alvoDe = (id) => (typeof id === 'string' ? id : elementoAtivo());
+  C({ id: 'elemento.calcular', categoria: 'Calcular', titulo: 'Calcular elemento', icone: 'calcular', tecla: 'F5', habilitado: (id) => temElemento(id) && !(bloqueiaCalculo() && errosDeMontagem(alvoDe(id)).length), aoNegar: (id) => avisarBloqueio(alvoDe(id)), executar: (id) => calcular(id) });
+  C({ id: 'elemento.calcularTodos', categoria: 'Calcular', titulo: 'Calcular todos os elementos', icone: 'calcular', tecla: 'Shift+F5', habilitado: () => temProjeto() && !(bloqueiaCalculo() && errosDeMontagem().length), aoNegar: () => avisarBloqueio(), executar: calcularTodos });
   C({ id: 'elemento.exportarPdf', categoria: 'Arquivo', titulo: 'Exportar elemento em PDF…', icone: 'pdf', tecla: 'Ctrl+E', habilitado: temElemento, executar: (id) => exportarPdf(id) });
   const otimizavelAtivo = () => { const e = estado.elemento(elementoAtivo()); return !!e && otimizavel(e.modulo); };
   const critAtivo = () => estado.elemento(elementoAtivo())?.otimizacao ?? null;
@@ -859,8 +1097,19 @@ function registrarComandos() {
   C({ id: 'exibir.modulos', categoria: 'Exibir', titulo: 'Módulos', icone: 'modulos', tecla: 'Ctrl+Shift+X', executar: () => wb.mostrarVisao('modulos') });
   C({ id: 'exibir.lateral', categoria: 'Exibir', titulo: 'Alternar barra lateral', icone: 'lateral', tecla: 'Ctrl+B', executar: () => wb.alternarLateral() });
   C({ id: 'exibir.painel', categoria: 'Exibir', titulo: 'Alternar painel', icone: 'painel', tecla: 'Ctrl+J', executar: () => wb.alternarPainel() });
+  // tela cheia para a planta (telas menores): esconde o explorador e o painel inferior; de novo, devolve como estava
+  let antesDoFoco = null;
+  C({ id: 'exibir.focoPlanta', categoria: 'Exibir', titulo: 'Ampliar a área de trabalho (esconde explorador e painel)', icone: 'painel', tecla: 'Ctrl+Shift+F', executar: () => {
+    const lateralAberta = !document.querySelector('.corpo')?.classList.contains('sem-lateral');
+    const painelAberto = !wb.painel.classList.contains('fechado');
+    if (antesDoFoco && !lateralAberta && !painelAberto) { wb.alternarLateral(antesDoFoco.lateral); wb.alternarPainel(antesDoFoco.painel); antesDoFoco = null; }
+    else { antesDoFoco = { lateral: lateralAberta, painel: painelAberto }; wb.alternarLateral(false); wb.alternarPainel(false); }
+    requestAnimationFrame(() => wb.redesenharAba?.('montagem'));
+  } });
   C({ id: 'exibir.console', categoria: 'Exibir', titulo: 'Console de comandos (JavaScript)', icone: 'console', tecla: 'Ctrl+Shift+Y', executar: () => { wb.mostrarPainel('console'); consoleLebr.focar(); } });
-  C({ id: 'exibir.problemas', categoria: 'Exibir', titulo: 'Problemas', icone: 'alerta', tecla: 'Ctrl+Shift+M', executar: () => wb.mostrarPainel('problemas') });
+  C({ id: 'exibir.problemas', categoria: 'Exibir', titulo: 'Problemas', icone: 'alerta', tecla: 'Ctrl+Shift+M', executar: () => wb.mostrarPainel(problemasDoProjeto().length || !problemas().length ? 'problemas-montagem' : 'problemas-calculo') });
+  C({ id: 'exibir.problemasMontagem', categoria: 'Exibir', titulo: 'Problemas de montagem', icone: 'planta', executar: () => wb.mostrarPainel('problemas-montagem') });
+  C({ id: 'exibir.problemasCalculo', categoria: 'Exibir', titulo: 'Problemas de cálculo', icone: 'calcular', executar: () => wb.mostrarPainel('problemas-calculo') });
   C({ id: 'exibir.tema', categoria: 'Exibir', titulo: 'Alternar tema (claro, escuro, blueprint)', icone: 'tema', executar: () => { aplicarTema(proximoTema()); atualizarStatus(); } });
   for (const t of TEMAS) {
     C({ id: `exibir.tema.${t.id}`, categoria: 'Exibir', titulo: `Tema ${t.nome.toLowerCase()}`, icone: 'tema', executar: () => { aplicarTema(t.id); atualizarStatus(); } });
@@ -888,6 +1137,8 @@ function registrarComandos() {
   } });
   // Módulos e ajuda
   C({ id: 'modulos.abrirPasta', categoria: 'Módulos', titulo: 'Abrir pasta de módulos externos', icone: 'pasta', executar: () => lebr?.modulos.abrirPasta() });
+  C({ id: 'ajuda.tutorialCasa', categoria: 'Ajuda', titulo: 'Tutorial: casa térrea simples (PDF)', icone: 'pdf', executar: () => (lebr?.tutorial ? lebr.tutorial.abrir('casa-terrea') : notificar('Os tutoriais em PDF abrem no aplicativo instalado (pasta tutoriais).', 'info')) });
+  C({ id: 'ajuda.tutoriais', categoria: 'Ajuda', titulo: 'Pasta dos tutoriais', icone: 'pasta', executar: () => (lebr?.tutorial ? lebr.tutorial.abrirPasta() : notificar('Os tutoriais ficam na pasta tutoriais do programa.', 'info')) });
   C({ id: 'ajuda.atalhos', categoria: 'Ajuda', titulo: 'Atalhos de teclado', icone: 'info', executar: mostrarAtalhos });
   C({ id: 'ajuda.modulos', categoria: 'Ajuda', titulo: 'Como criar um módulo', icone: 'modulos', executar: mostrarAjudaModulos });
   C({ id: 'ajuda.colaborar', categoria: 'Ajuda', titulo: 'Como colaborar (estudos de caso e validação)', icone: 'info', executar: () => mostrarColaborar() });
@@ -926,28 +1177,28 @@ function definirMenus() {
   const novos = () => modulos.lista().map((m) => ({ comando: `elemento.novo.${m.id}` }));
   wb.definirMenus([
     { rotulo: 'Arquivo', itens: [
-      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' },
+      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
       { cabecalho: 'Recentes' }, ...recentesMenu,
       '-', { comando: 'projeto.salvar' }, { comando: 'projeto.salvarComo' }, { comando: 'projeto.mostrarArquivo' },
-      '-', { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
+      '-', { comando: 'projeto.importarIFC' }, { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
       '-', { comando: 'projeto.parametros' }, '-', { comando: 'projeto.fechar' },
     ] },
     { rotulo: 'Editar', itens: [{ comando: 'editar.desfazer' }, { comando: 'editar.refazer' }, '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Exibir', itens: [
       { comando: 'paleta.abrir' }, { comando: 'paleta.elementos' }, '-',
       { comando: 'exibir.explorador' }, { comando: 'exibir.agruparPavimento' }, { comando: 'exibir.soPendencias' }, { comando: 'exibir.modulos' }, { comando: 'exibir.inicio' }, '-',
-      { comando: 'exibir.lateral' }, { comando: 'exibir.painel' }, { comando: 'exibir.problemas' }, { comando: 'exibir.console' }, '-',
+      { comando: 'exibir.lateral' }, { comando: 'exibir.painel' }, { comando: 'exibir.focoPlanta' }, { comando: 'exibir.problemasMontagem' }, { comando: 'exibir.problemasCalculo' }, { comando: 'exibir.console' }, '-',
       { comando: 'aba.proxima' }, { comando: 'aba.anterior' }, { comando: 'aba.ultima' }, { comando: 'aba.lista' }, { comando: 'aba.reabrir' }, { comando: 'aba.fechar' }, '-',
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
       { comando: 'exibir.tema' }, { comando: 'exibir.tema.claro' }, { comando: 'exibir.tema.escuro' }, { comando: 'exibir.tema.blueprint' }, '-', { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
-    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
     { rotulo: 'Módulos', itens: () => [
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
       '-', { comando: 'exibir.modulos' }, { comando: 'modulos.abrirPasta' }, { comando: 'ajuda.modulos' },
     ] },
-    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
+    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
   ]);
 }
 
@@ -963,6 +1214,8 @@ async function atualizarRecentesMenu() {
 function problemas() {
   if (!estado.projeto) return [];
   const out = [];
+  // exceções de fck e cobrimento abaixo do mínimo da classe de agressividade (etapa L7)
+  for (const el of estado.projeto.elementos) for (const a of avisosDeCriterios(estado.projeto.parametros, el)) out.push({ el, texto: a });
   for (const el of estado.projeto.elementos) {
     const r = el.resultado;
     if (!r) continue;
@@ -983,15 +1236,56 @@ function configurarPainel() {
     },
     { id: 'console', titulo: 'Console', render: (el) => consoleLebr.render(el) },
     {
-      id: 'problemas', titulo: 'Problemas', contador: () => problemas().length,
+      id: 'problemas-montagem', titulo: 'Problemas de montagem', contador: () => problemasDoProjeto().length,
+      render: (el) => {
+        const mont = problemasDoProjeto();
+        if (!mont.length) { el.append(h('div', { class: 'saida-linha' }, h('time', null, ''), h('span', null, estado.projeto ? 'Nenhum problema de montagem: a planta está consistente.' : 'Nenhum projeto aberto.'))); return; }
+        {
+          const { erros, avisos } = contarProblemas(mont);
+          const nome = Object.fromEntries(REGRAS.map((r) => [r.id, r.nome]));
+          el.append(h('div', { class: ['prob-cab', erros && 'erro'] },
+            h('strong', null, 'Montagem'),
+            h('span', null, [erros && `${erros} erro(s)`, avisos && `${avisos} aviso(s)`].filter(Boolean).join(' · ')),
+            erros ? h('span', { class: 'prob-bloqueio' }, icone('alerta', { tamanho: 12, traco: 1.8 }), bloqueiaCalculo() ? 'os erros bloqueiam o cálculo' : 'o cálculo roda, mas pode não refletir a planta') : null,
+            h('span', { style: { flex: '1' } }),
+            corrigiveis(mont) ? h('button', { class: 'botao-resolver forte', title: 'Desfaz as ligações que não conferem, encosta as folgas, ajusta os pés-direitos, define os cruzamentos pela rigidez e conecta o que a planta indica. Dá para desfazer (Ctrl+Z).', onClick: resolverTudo }, icone('check', { tamanho: 13, traco: 2 }), `Resolver automaticamente (${corrigiveis(mont)})`) : null));
+          for (const g of problemasPorPavimento(estado.projeto, mont)) {
+            el.append(h('div', { class: 'prob-pav' }, g.nome, h('span', null, String(g.problemas.length))));
+            for (const p of g.problemas) {
+              const acoesLinha = [];
+              // correção de um clique, quando não depende de decisão do engenheiro
+              const cor = correcaoDe(p);
+              if (cor) acoesLinha.push(h('button', { class: ['botao-resolver', cor.automatica === false && 'decisao'], title: cor.descricao, onClick: () => estado.alterar((pp) => cor.aplicar(pp, modulos), { descricao: `${cor.rotulo} (${p.elemento?.codigo ?? ''})`, estrutural: true, invalidar: false }) }, icone(cor.automatica === false ? 'editar' : 'check', { tamanho: 12, traco: 2 }), cor.rotulo));
+              if (p.regra === 'cruzamento-indefinido') {
+                const c = p.cruzamento;
+                acoesLinha.push(
+                  h('button', { class: 'link', onClick: () => estado.alterar((pp) => definirCruzamento(pp, c.pavimento, c.chave, 'sem'), { descricao: 'Sem transferência', estrutural: true, invalidar: false }) }, 'Sem transferência'),
+                  h('button', { class: 'link', title: 'Abre o menu do cruzamento na planta', onClick: () => mostrarProblema(p) }, 'Outra opção…'));
+              }
+              el.append(h('div', { class: ['prob-linha', p.gravidade], title: 'Clique para mostrar na planta', onClick: (e) => { if (!e.target.closest('button')) mostrarProblema(p); } },
+                icone(p.gravidade === 'erro' ? 'alerta' : 'info', { tamanho: 13, traco: 1.8 }),
+                h('span', { class: 'prob-regra' }, nome[p.regra] ?? p.regra),
+                h('span', { class: 'prob-texto' }, p.texto),
+                ...acoesLinha,
+                h('button', { class: 'link', onClick: () => mostrarProblema(p) }, p.elemento?.posicao ? 'Mostrar' : 'Abrir')));
+            }
+          }
+        }
+      },
+    },
+    {
+      id: 'problemas-calculo', titulo: 'Problemas de cálculo', contador: () => problemas().length,
       render: (el) => {
         const lista = problemas();
         if (!lista.length) { el.append(h('div', { class: 'saida-linha' }, h('time', null, ''), h('span', null, 'Nenhum problema nos elementos calculados.'))); return; }
-        el.append(ui.tabela({
-          classe: 'problemas',
-          colunas: [{ titulo: 'Elemento' }, { titulo: 'Descrição' }],
-          linhas: lista.map((p) => ({ celulas: [h('button', { class: 'link', onClick: () => abrirElemento(p.el.id) }, `${p.el.codigo} · ${p.el.nome}`), p.texto] })),
-        }));
+        {
+          el.append(h('div', { class: 'prob-cab' }, h('strong', null, 'Cálculo'), h('span', null, `${lista.length} verificação(ões) não atendida(s) ou erro(s) de cálculo`)));
+          el.append(ui.tabela({
+            classe: 'problemas',
+            colunas: [{ titulo: 'Elemento' }, { titulo: 'Descrição' }],
+            linhas: lista.map((p) => ({ celulas: [h('button', { class: 'link', onClick: () => abrirElemento(p.el.id) }, `${p.el.codigo} · ${p.el.nome}`), p.texto] })),
+          }));
+        }
       },
     },
   ]);
@@ -999,7 +1293,7 @@ function configurarPainel() {
 
 function atualizarStatus() {
   const p = estado.projeto;
-  const probs = problemas().length;
+  const errosMont = errosDeMontagem().length;
   const esquerda = [itemStatus({ texto: 'NBR 6118:2023', icone: 'lebr', titulo: 'Norma de referência' })];
   const sit = situacaoDoProjeto();
   if (p) {
@@ -1011,8 +1305,16 @@ function atualizarStatus() {
     }));
     esquerda.push(
       itemStatus({ texto: `${r.vigas} vigas · ${r.lajes} lajes · ${r.pilares} pilares${r.escadas ? ` · ${r.escadas} escada${r.escadas > 1 ? 's' : ''}` : ''}${r.reservatorios ? ` · ${r.reservatorios} reservatório${r.reservatorios > 1 ? 's' : ''}` : ''}${r.sapatas ? ` · ${r.sapatas} sapata${r.sapatas > 1 ? 's' : ''}` : ''}${r.blocos ? ` · ${r.blocos} bloco${r.blocos > 1 ? 's' : ''}` : ''}${r.estacas ? ` · ${r.estacas} estaca${r.estacas > 1 ? 's' : ''}` : ''}${r.sondagens ? ` · ${r.sondagens} furo${r.sondagens > 1 ? 's' : ''}` : ''}`, icone: 'explorador', aoClicar: () => wb.mostrarVisao('explorador') }),
-      itemStatus({ texto: String(probs), icone: 'alerta', titulo: 'Problemas', aoClicar: () => wb.mostrarPainel('problemas') }),
+      itemStatus({ texto: String(problemas().length), icone: 'alerta', titulo: 'Problemas de cálculo (verificações não atendidas e erros)', aoClicar: () => wb.mostrarPainel('problemas-calculo') }),
     );
+    if (errosMont) {
+      const bloq = bloqueiaCalculo();
+      esquerda.push(itemStatus({
+        texto: bloq ? `Cálculo bloqueado · ${errosMont} erro${errosMont > 1 ? 's' : ''}` : `${errosMont} erro${errosMont > 1 ? 's' : ''} de montagem`, icone: 'alerta',
+        titulo: bloq ? 'Há erros de montagem e o projeto bloqueia o cálculo até corrigi-los (Parâmetros › Montagem). Clique para ver os problemas.' : 'Há erros de montagem: o cálculo roda, mas pode não refletir a planta. Clique para ver os problemas.',
+        aoClicar: () => wb.mostrarPainel('problemas-montagem'),
+      }));
+    }
   }
   const direita = [];
   if (p) {
@@ -1091,7 +1393,7 @@ async function mostrarSobre() {
     corpo: () => [
       ui.ficha([
         { rotulo: 'Versão', valor: VERSAO }, { rotulo: 'Electron', valor: info.electron ?? '—' },
-        { rotulo: 'Plataforma', valor: plataforma }, { rotulo: 'Licença', valor: 'GPL-3.0' },
+        { rotulo: 'Plataforma', valor: plataforma }, { rotulo: 'Licença', valor: 'AGPL-3.0' },
       ], { colunas: 4 }),
       h('p', null, 'Laboratório de Estruturas Brasil — sistema aberto e modular para cálculo de estruturas segundo as normas brasileiras. Os resultados são de apoio ao projeto e devem ser verificados por profissional habilitado.'),
       h('div', { class: 'sobre-autoria' },
@@ -1100,7 +1402,7 @@ async function mostrarSobre() {
       h('div', { class: 'sobre-aviso' },
         icone('alerta', { tamanho: 16, traco: 1.8 }),
         h('p', null, 'O software ainda encontra-se em estágio inicial de desenvolvimento e não deve ser utilizado para cálculos reais de estruturas. Procuramos colaboradores para estudos de caso e validação independente das funções.')),
-      h('p', { class: 'combinacoes-nota' }, 'Software livre: você pode redistribuí-lo e modificá-lo nos termos da GNU General Public License, versão 3 (arquivo LICENSE). É distribuído na esperança de ser útil, mas SEM NENHUMA GARANTIA, nem mesmo a implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA.'),
+      h('p', { class: 'combinacoes-nota' }, 'Software livre: você pode redistribuí-lo e modificá-lo nos termos da GNU Affero General Public License, versão 3 (arquivo LICENSE); quem oferecer uma versão modificada para uso pela rede também deve oferecer o código-fonte dela. É distribuído na esperança de ser útil, mas SEM NENHUMA GARANTIA, nem mesmo a implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA.'),
     ],
     botoes: [{ texto: 'Como colaborar', tipo: 'fantasma', valor: 'colaborar' }, { texto: 'Ver roteiro', tipo: 'fantasma', valor: 'roteiro' }, { texto: 'Fechar', tipo: 'primario', padrao: true }],
   });

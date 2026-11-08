@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Bloco sobre estacas — cálculo (NBR 6118:2023, 22.7 · NBR 6122).
@@ -24,6 +24,9 @@ import { ancoragemBasica } from '../../engine/sapata.js';
 import { dadosDoPilar, escolherMalha, COBRIMENTO_SOLO } from '../concreto-sapata/calculo.js';
 import { calcularEstaca, criarEstaca } from '../geotecnia-estaca/calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
+import { armaduraEstaca, detalharBloco } from '../../engine/fundacoes-armadura.js';
+import { COBRIMENTO_MM } from '../../engine/materiais.js';
+import { resumoArmaduraEstaca } from '../geotecnia-estaca/calculo.js';
 
 const f = (v, c = 2) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 const r1 = (v) => Math.round(v * 10) / 10 || 0;
@@ -145,14 +148,14 @@ export function calcularBloco(el, ctx) {
       return { As, faixas: k, AsFaixa: As / k, barras: escolherBarrasViga({ As: As / k, bw: faixa + 2 * cob, cob, phiT: 0, min: 2 }) };
     };
     const x = dir('x', bt.Tx), y = n === 3 ? null : dir('y', bt.Ty);
-    // malha de distribuição: 20 % dos esforços totais em cada direção (22.7.4.1.3)
+    // malha de distribuição: 20 % dos esforços totais em cada direção (22.7.4.1.2)
     const Ast = Math.max(x?.As ?? 0, y?.As ?? 0, n === 3 ? x.As : 0);
     const malha = { As: 0.2 * Ast, x: escolherMalha({ As: 0.2 * Ast, largura: B, cob }), y: escolherMalha({ As: 0.2 * Ast, largura: A, cob }) };
     armad = { tipo: bt.tirantes.tipo, x, y, malha, fator: fat };
     if (n === 3) armad.lados = x;
   }
   const susp = sMin != null && sMin > 3 * D + 0.5 ? Nd / (1.5 * n * fyd) : null;
-  if (susp) avisos.push(`Espaçamento entre estacas maior que 3·D: prever armadura de suspensão (22.7.4.1), As,susp ≈ Nd/(1,5·n·fyd) = ${f(susp)} cm².`);
+  if (susp) avisos.push(`Espaçamento entre estacas maior que 3·D: prever armadura de suspensão (22.7.4.1.3), As,susp ≈ Nd/(1,5·n·fyd) = ${f(susp)} cm².`);
 
   if (n >= 2) {
     // 5 e 6 estacas: as bielas das estacas próximas do pilar ficam mais íngremes; a que governa os tirantes é a
@@ -172,6 +175,22 @@ export function calcularBloco(el, ctx) {
   const semBarras = n >= 2 && [armad.x, armad.y].some((a) => a && !a.barras);
   if (semBarras) avisos.push('A armadura do tirante não cabe na faixa sobre as estacas com as bitolas usuais: aumente a altura do bloco.');
 
+  // ---------------------------------------------------------------- armadura das estacas (NBR 6122:2019) e lista de ferros
+  let armEst = null;
+  try {
+    armEst = armaduraEstaca({
+      tipo: est.tipo ?? 'helice', D, secao: est.secao, L: Number(est.L) || 8, Nk: Math.max(0, Rmax), caa: ctx.materiais.caa, fck: est.estrutural?.fck, gc: est.estrutural?.gc,
+      aco: s, fctd: c.fctd, cob: (COBRIMENTO_MM.solo[ctx.materiais.caa] ?? 30) / 10, dmax: ctx.materiais.dmax ?? 19, atrito: cap.perfilAtrito,
+    });
+  } catch (err) { avisos.push(`Armadura das estacas: ${err.message}`); }
+  if (armEst?.aplicavel) verificacoes.push(...armEst.verificacoes.map((v) => ({ ...v, nome: `${v.nome} (Rmáx)` })));
+  if (armEst) for (const a of armEst.avisos) if (!avisos.includes(a)) avisos.push(a);
+  const emLinha = n >= 2 && (new Set(pos.map((p) => Math.round(p.y))).size === 1 || new Set(pos.map((p) => Math.round(p.x))).size === 1);
+  const armSaida = n === 1
+    ? { tipo: 'fendilhamento', rotulo: armad.estribos?.rotulo ?? null }
+    : { tipo: armad.tipo, x: armad.x && { rotulo: armad.x.barras?.rotulo, faixas: armad.x.faixas }, y: armad.y && { rotulo: armad.y.barras?.rotulo, faixas: armad.y.faixas }, malha: { x: armad.malha.x?.rotulo ?? null, y: armad.malha.y?.rotulo ?? null } };
+  const detalhamento = detalharBloco({ n, A, B, h, cob, e, D, armadura: armSaida, suspensao: susp, emLinha, estaca: armEst?.aplicavel ? armEst : null });
+
   // ---------------------------------------------------------------- memorial
   memorial.push(
     { titulo: 'Pilar e estacas', linhas: [
@@ -186,10 +205,12 @@ export function calcularBloco(el, ctx) {
         `Nd = ${f(Nd, 1)} kN; d = h − ${D_LINHA} = ${f(d, 1)} cm; α = ${f(bt.alfaMin, 1)}°${bt.alfaMax !== bt.alfaMin ? ` a ${f(bt.alfaMax, 1)}°` : ''}.`,
         `${bt.tirantes.texto}: ${bt.tirantes.tipo === 'lados' ? `${f(bt.tirantes.lado, 1)} kN por lado` : `${f(bt.Tx, 1)} kN em x${bt.Ty ? `, ${f(bt.Ty, 1)} kN em y` : ''}`}${armad.fator > 1 ? ' (armadura com 15 % a mais)' : ''}.`,
         `Bielas: junto ao pilar σ = Nd/(Ap·sen²α) = ${f(bt.sigmaPil)} MPa; junto à estaca σ = Rd/(Ae·sen²α) = ${f(bt.sigmaEst)} MPa; limite ${f(bt.fator, 2)}·KR·fcd = ${f(bt.limite)} MPa (KR = ${f(KR)}).`,
-        `Malha de distribuição: 20 % dos esforços totais (22.7.4.1.3) = ${f(armad.malha.As)} cm² em cada direção.`,
+        `Malha de distribuição: 20 % dos esforços totais (22.7.4.1.2) = ${f(armad.malha.As)} cm² em cada direção.`,
       ] },
   );
 
+  if (detalhamento.notas.length) memorial.push({ titulo: 'Armaduras laterais e superior (22.7.4.1.5)', linhas: [...detalhamento.notas, ...detalhamento.posicoes.filter((q) => ['superior', 'pele', 'estribo-vertical'].includes(q.id)).map((q) => `${q.N}: ${q.local} → ${q.n} ø ${String(q.phi).replace('.', ',')}`)] });
+  if (armEst?.aplicavel) memorial.push({ titulo: `Armadura das estacas — Rmáx = ${f(Rmax, 1)} kN (NBR 6122:2019, 8.6.3 e Tabela 4)`, linhas: armEst.memorial });
   const barra = (a) => a && { As: r2(a.As), faixas: a.faixas, AsFaixa: r2(a.AsFaixa), rotulo: a.barras?.rotulo ?? null };
   return {
     ok: verificacoes.every((v) => v.ok) && !semBarras,
@@ -204,6 +225,9 @@ export function calcularBloco(el, ctx) {
       ? { tipo: 'fendilhamento', Td: { x: r1(armad.Td.x), y: r1(armad.Td.y) }, As: r2(armad.As), rotulo: armad.estribos?.rotulo ?? null }
       : { tipo: armad.tipo, x: barra(armad.x), y: barra(armad.y), malha: { As: r2(armad.malha.As), x: armad.malha.x?.rotulo ?? null, y: armad.malha.y?.rotulo ?? null } },
     suspensao: susp != null ? r2(susp) : null,
+    emLinha,
+    armaduraEstaca: armEst?.aplicavel ? resumoArmaduraEstaca(armEst) : null,
+    detalhamento,
     profundidade: el.profundidade, cobrimento: cob,
   };
 }

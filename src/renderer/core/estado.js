@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Estado da aplicação: projeto aberto, caminho do arquivo, alterações
@@ -28,6 +28,8 @@ class Estado extends Emissor {
   caminho = null;
   sujo = false;
   #desfazer = [];
+  /** Funções (projeto, info) chamadas dentro de cada alteração, depois da mudança. */
+  normalizadores = [];
   #refazer = [];
 
   abrir(projeto, caminho = null) {
@@ -73,6 +75,8 @@ class Estado extends Emissor {
       this.#refazer = [];
     }
     fn(this.projeto);
+    // ajustes que valem depois de qualquer mudança (ponto fixo dos pilares, por exemplo)
+    if (!info.calculo) for (const f of this.normalizadores) f(this.projeto, info);
     if (info.elementoId && info.invalidar !== false) {
       const el = this.elemento(info.elementoId);
       if (el?.resultado) el.resultado.desatualizado = true;

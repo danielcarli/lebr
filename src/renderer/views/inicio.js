@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Tela inicial: escolher um projeto recente ou criar um novo.
@@ -82,10 +82,13 @@ function colunaPrincipal(lista, { abrirCaminho, removerRecente, redesenhar }) {
         h('div', { class: 'inicio-acoes' },
           acao('projeto.novo', 'Novo projeto', 'novo', 'Começar com parâmetros da norma'),
           acao('projeto.abrir', 'Abrir projeto…', 'pasta', 'Arquivo .lebr.json do computador'),
+          acao('ajuda.tutorialCasa', 'Tutorial: casa térrea', 'pdf', 'Passo a passo em PDF, do projeto em branco às sapatas'),
           acao('projeto.abrirExemplo', 'Abrir exemplo', 'documento', 'Pavimento com lajes, vigas e pilares'),
           acao('projeto.abrirExemploTerreo', 'Exemplo térreo com baldrame', 'sapata', 'Casa de um pavimento, vigas baldrame e sapatas'),
           acao('projeto.abrirExemplo3', 'Exemplo de 3 pavimentos', 'cubo', 'Edifício com escadas, baldrame e blocos sobre estacas'),
           acao('projeto.abrirExemplo18', 'Exemplo de 18 pavimentos', 'cubo', 'Torre em pórtico espacial com vento e γz'),
+          acao('projeto.abrirExemploAeroporto', 'Exemplo: terminal de aeroporto', 'cubo', 'Dois níveis, malha de 9 m, lajes nervuradas e marquise'),
+          acao('projeto.abrirExemploSatelite', 'Exemplo: aeroporto com satélite', 'cubo', 'Terminal, conector elevado sobre o pátio e satélite de portões'),
         ),
       ),
       h('section', { class: 'inicio-bloco' },
@@ -97,7 +100,7 @@ function colunaPrincipal(lista, { abrirCaminho, removerRecente, redesenhar }) {
       { rotulo: 'Módulos', valor: `${modulos.lista().length} INSTALADOS` },
       { rotulo: 'Normas', valor: 'NBR 6118 · NBR 7190' },
       { rotulo: 'Formato', valor: 'JSON ABERTO' },
-      { rotulo: 'Licença', valor: 'GPL-3.0' },
+      { rotulo: 'Licença', valor: 'AGPL-3.0' },
       { rotulo: 'Descrição', valor: 'Projeto modular: novos tipos de laje, madeira e aço entram como módulos', largura: 3 },
       { rotulo: 'Documento nº', valor: `LEBR.000.${new Date().getFullYear()}` },
     ], { colunas: 4 }),

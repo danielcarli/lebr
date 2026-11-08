@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Geometria 3D da armadura de UM elemento (0.32), a partir da lista de ferros do detalhamento — para a vista isolada
@@ -19,6 +19,8 @@
  * Saída: { caixas: [{ min:[x,y,z], max:[x,y,z], tipo }], barras: [{ id, N, tipo, phi, pts: [[x,y,z], …] }] }.
  * Cada barra é uma linha poligonal pelo eixo (com ganchos e dobras); a vista desenha um tubo de diâmetro ø.
  */
+
+import { geometriaNervurada } from './nervurada-geometria.js';
 
 const r1 = (v) => Math.round(v * 10) / 10;
 /** distribui n pontos entre a e b (um só: no meio) */
@@ -314,6 +316,92 @@ export function modeloLaje(el, det, posicoes, { cob = 2.5 } = {}) {
     }
   }
   return { caixas, barras, eixos: { x: 'lx', y: 'ly', z: 'h' } };
+}
+
+/**
+ * Laje nervurada: capa, nervuras, faixas de borda, travamentos e enchimento (nervurada-geometria.js) com as barras de
+ * cada nervura no fundo, as negativas e a distribuição no topo da capa, a malha da capa e os estribos, se houver.
+ * Coordenadas em cm, z = 0 no fundo das nervuras. Estribos demais (laje grande) são mostrados de k em k.
+ */
+export function modeloNervurada(el, det, posicoes, { cob = 2.5, maxEstribos = 400 } = {}) {
+  const geo = det?.geometria ?? geometriaNervurada(el);
+  const { lx, ly, h, hf, bw } = geo;
+  const caixas = geo.caixas.map((c) => ({ min: c.min, max: c.max, tipo: c.tipo, ...(c.material ? { material: c.material } : {}) }));
+  const barras = [];
+  const est = posicoes.find((q) => q.tipo === 'estribo');
+  const phiT = est ? est.phi / 10 : 0;
+  const phiX = (posicoes.find((q) => q.id === 'nerv-x')?.phi ?? 10) / 10;
+  // barras das nervuras (e dos travamentos): no fundo, as de y por cima das de x
+  for (const q of posicoes.filter((p) => p.eixos && (p.tipo === 'positiva' || p.tipo === 'construtiva'))) {
+    const phi = q.phi / 10;
+    const k = Math.max(1, Math.round(q.porNervura ?? 1)), camadas = Math.max(1, q.camadas ?? 1);
+    const porCamada = Math.ceil(k / camadas);
+    const z0 = cob + phiT + phi / 2 + (q.dir === 'y' ? phiX : 0);
+    for (const c of q.eixos) {
+      const lo = c - bw / 2 + cob + phiT + phi / 2, hi = c + bw / 2 - cob - phiT - phi / 2;
+      let resto = k;
+      for (let cam = 0; cam < camadas && resto > 0; cam++) {
+        const nc = Math.min(porCamada, resto); resto -= nc;
+        const z = z0 + cam * (phi + 2);
+        for (const u of hi > lo ? espalhar(nc, lo, hi) : [c]) {
+          const pts = q.dir === 'x' ? [[q.a * 100, u, z], [q.b * 100, u, z]] : [[u, q.a * 100, z], [u, q.b * 100, z]];
+          barras.push({ id: q.id, N: q.N, tipo: q.tipo, phi: q.phi, pts });
+        }
+      }
+    }
+  }
+  // negativas no topo da capa, atravessando a borda
+  const trecho = (q) => ({ x0: [-q.a2, q.a1], x1: [lx - q.a1, lx + q.a2], y0: [-q.a2, q.a1], y1: [ly - q.a1, ly + q.a2] }[q.borda] ?? [0, 0]);
+  for (const q of posicoes.filter((p) => p.tipo === 'negativa')) {
+    const phi = q.phi / 10, z = h - cob - phi / 2;
+    const [u0, u1] = trecho(q);
+    for (const t of espalhar(Math.max(1, Math.round(q.n)), q.t0 * 100 + cob, q.t1 * 100 - cob)) {
+      barras.push({ id: q.id, N: q.N, tipo: 'negativa', phi: q.phi, pts: q.dir === 'x' ? [[u0, t, z], [u1, t, z]] : [[t, u0, z], [t, u1, z]] });
+    }
+  }
+  for (const q of posicoes.filter((p) => p.tipo === 'distribuição' && p.borda)) {
+    const phiN = (posicoes.find((p) => p.tipo === 'negativa' && p.borda === q.borda)?.phi ?? 8) / 10;
+    const phi = q.phi / 10, z = h - cob - phiN - phi / 2;
+    const [u0, u1] = trecho(q);
+    const t0 = q.t0 * 100 + cob, t1 = q.t1 * 100 - cob;
+    for (const u of espalhar(Math.max(1, Math.round(q.n)), u0 + 3, u1 - 3)) {
+      barras.push({ id: q.id, N: q.N, tipo: 'distribuição', phi: q.phi, pts: q.dir === 'y' ? [[u, t0, z], [u, t1, z]] : [[t0, u, z], [t1, u, z]] });
+    }
+  }
+  // malha da capa, no meio da capa (y por cima de x)
+  for (const q of posicoes.filter((p) => p.face === 'capa')) {
+    const phi = q.phi / 10, z = h - hf / 2 + (q.dir === 'y' ? phi / 2 : -phi / 2);
+    const D = q.dir === 'x' ? ly : lx, L = q.dir === 'x' ? lx : ly;
+    for (const c of espalhar(Math.max(1, Math.round(q.n)), cob, D - cob)) {
+      barras.push({ id: q.id, N: q.N, tipo: 'distribuição', phi: q.phi, pts: q.dir === 'x' ? [[cob, c, z], [L - cob, c, z]] : [[c, cob, z], [c, L - cob, z]] });
+    }
+  }
+  // estribos das nervuras
+  let passo = 1;
+  if (est) {
+    const total = (est.trechos ?? []).reduce((s, t) => s + t.qtd, 0);
+    passo = Math.max(1, Math.ceil(total / maxEstribos));
+    const pt = est.phi / 10, fi = phiX;
+    for (const t of est.trechos ?? []) {
+      const u0 = t.eixo - bw / 2 + cob + pt + fi / 2, u1 = t.eixo + bw / 2 - cob - pt - fi / 2;
+      const v0 = cob + pt + fi / 2, v1 = h - cob - pt - fi / 2;
+      const r = fi / 2 + pt / 2;
+      for (let k = 0; k < t.qtd; k += passo) {
+        const x = Math.min(t.ate, t.de + k * t.s);
+        const eixo = eixoEstriboRetangular(Math.min(u0, t.eixo - 0.5), v0, Math.max(u1, t.eixo + 0.5), v1, r, est.phi, k % 2 ? 2 : 3);
+        barras.push({ id: est.id, N: est.N, tipo: 'estribo', phi: est.phi, pts: eixo.map(([u, v, w]) => (t.dir === 'x' ? [x + w, u, v] : [u, x + w, v])) });
+      }
+    }
+  }
+  const nx = geo.nervurasX.length, ny = geo.duas ? geo.nervurasY.length : 0;
+  const legenda = [
+    geo.duas ? `${nx} nervuras em x e ${ny} em y` : `${nx} nervuras em x${geo.travamento.length ? ` · ${geo.travamento.length} de travamento` : ''}`,
+    `intereixo ${virg(geo.e, 0)} cm · bw ${virg(bw)} cm · capa ${virg(hf)} cm · h ${virg(h)} cm`,
+    `faixa maciça de borda ${virg(geo.faixasY.borda)} cm`,
+    geo.enchimento ? `enchimento: ${{ eps: 'EPS', ceramico: 'bloco cerâmico', concreto: 'concreto celular' }[geo.enchimento] ?? geo.enchimento}` : 'vazios das cubetas',
+    est && passo > 1 ? `estribos mostrados de ${passo} em ${passo}` : '',
+  ].filter(Boolean).join(' · ');
+  return { caixas, barras, legenda, eixos: { x: 'lx', y: 'ly', z: 'h' }, vista: { teta: -Math.PI / 3, fi: 2.05 } };
 }
 
 /** Caixa que envolve o modelo (para enquadrar a câmera). */

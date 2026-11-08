@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * LEBR — Laboratório de Estruturas Brasil — processo principal (Electron)
@@ -115,6 +115,8 @@ function configurarMenuNativo() {
       { label: 'Salvar', accelerator: 'Cmd+S', click: cmd('projeto.salvar') },
       { label: 'Salvar como…', accelerator: 'Shift+Cmd+S', click: cmd('projeto.salvarComo') },
       { type: 'separator' },
+      { label: 'Importar modelo IFC…', click: cmd('projeto.importarIFC') },
+      { type: 'separator' },
       { label: 'Exportar elemento em PDF…', accelerator: 'Cmd+E', click: cmd('elemento.exportarPdf') },
       { label: 'Exportar pranchas em DXF…', accelerator: 'Shift+Cmd+D', click: cmd('projeto.exportarDXF') },
     ] },
@@ -173,7 +175,7 @@ function registrarIPC() {
     return r.filePath;
   });
 
-  const EXEMPLOS = { padrao: 'edificio-exemplo.lebr.json', '3-pavimentos': 'edificio-3-pavimentos.lebr.json', terreo: 'residencia-terrea-baldrame.lebr.json', '18-pavimentos': 'edificio-18-pavimentos.lebr.json' };
+  const EXEMPLOS = { padrao: 'edificio-exemplo.lebr.json', '3-pavimentos': 'edificio-3-pavimentos.lebr.json', terreo: 'residencia-terrea-baldrame.lebr.json', '18-pavimentos': 'edificio-18-pavimentos.lebr.json', aeroporto: 'terminal-aeroporto.lebr.json', satelite: 'aeroporto-terminal-satelite.lebr.json' };
   ipcMain.handle('projeto:exemplo', (_e, nome) => lerProjeto(path.join(RAIZ, 'exemplos', EXEMPLOS[nome] ?? EXEMPLOS.padrao)));
 
   ipcMain.handle('recentes:listar', () => recentes.listar());
@@ -237,6 +239,18 @@ function registrarIPC() {
     return { nome: path.basename(r.filePaths[0]), texto };
   });
 
+  // Modelo IFC (etapa L15): só leitura do arquivo escolhido pelo usuário
+  ipcMain.handle('ifc:abrir', async (_e, { caminhoProjeto } = {}) => {
+    const pasta = caminhoProjeto && fss.existsSync(path.dirname(caminhoProjeto)) ? path.dirname(caminhoProjeto) : app.getPath('documents');
+    const r = await dialog.showOpenDialog(janela, { title: 'Modelo BIM (IFC)', defaultPath: pasta, properties: ['openFile'], filters: [{ name: 'Modelo IFC', extensions: ['ifc'] }] });
+    if (r.canceled || !r.filePaths?.[0]) return null;
+    const buf = await fs.readFile(r.filePaths[0]);
+    if (buf.length > 300 * 1024 * 1024) throw new Error('Arquivo IFC maior que 300 MB.');
+    let texto;
+    try { texto = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { texto = new TextDecoder('windows-1252').decode(buf); }
+    return { nome: path.basename(r.filePaths[0]), texto };
+  });
+
   // Exportar PDF em duas etapas: a interface pede o destino, prepara a página e só então
   // pede a gravação. O caminho fica guardado aqui, então a interface nunca escolhe onde gravar.
   ipcMain.handle('pdf:escolher-destino', async (_e, { nomeSugerido, caminhoProjeto }) => {
@@ -282,6 +296,12 @@ function registrarIPC() {
     }));
   });
   ipcMain.handle('validacao:abrir-pasta', () => shell.openPath(pastaCasos));
+
+  // Tutoriais em PDF (pasta tutoriais/, fora do app.asar no programa empacotado)
+  const pastaTutoriais = path.join(RAIZ, 'tutoriais').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+  const TUTORIAIS = { 'casa-terrea': '01-casa-terrea.pdf' };
+  ipcMain.handle('tutorial:abrir', (_e, nome) => (TUTORIAIS[nome] ? shell.openPath(path.join(pastaTutoriais, TUTORIAIS[nome])) : null));
+  ipcMain.handle('tutorial:abrir-pasta', () => shell.openPath(pastaTutoriais));
 
   ipcMain.handle('sistema:info', () => ({
     versao: app.getVersion(),

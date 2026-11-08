@@ -72,11 +72,42 @@ cruzamentos pela geometria, e **nada é calculado enquanto houver algo indefinid
 malha; "Conectar automaticamente" com aviso de ligação; 3D fixo ao lado; parâmetros pela CAA; duplicar pavimento;
 catálogo de cargas da NBR 6120; sugestão da menor seção depois do cálculo.
 
-**Falta** (plano em etapas no [roteiro](ROTEIRO.md#plano-de-ação-lançamento-da-estrutura)): L1 tolerância e fusão
-de nós · L2 painel de problemas que bloqueia o cálculo · L3 apoio explícito nos cruzamentos · L4 viga em cadeia ·
-L5 laje por clique no contorno · L6 dados do próximo elemento e conta-gotas · L7 critérios por elemento · L8
-pré-dimensionamento no lançamento · L9 pavimento tipo e cópia seletiva · L10 pilar com ponto fixo e lance · L11
-renumeração · L12 paredes do DXF como cargas · L13 carga padrão por pavimento · L14 versões do projeto · L15 IFC.
+**Feito:** L1 tolerância e fusão de nós (0.36.0) — tolerância em Parâmetros › Montagem, apoio encostado na face do
+pilar a menos dela, Estrutura › Limpar geometria e aviso de folga com o botão Encostar. L2 painel de problemas que
+bloqueia o cálculo (0.37.0) — regras independentes em `src/renderer/core/consistencia.js`, lista por pavimento no
+painel Problemas com zoom no ponto da planta; um erro desabilita Calcular e Calcular todos. Os arquivos de teste
+(`test/fixtures/consistencia`, gerados por `tools/consistencia/gerar-casos.mjs`) têm um defeito cada e geram
+exatamente um problema; os exemplos geram zero.
+
+L3 apoio explícito nos cruzamentos (0.38.0) — `src/renderer/core/cruzamentos.js`; a escolha fica em
+`pavimento.cruzamentos`, a grelha põe rótula na viga apoiada e "sem transferência" não cria nó comum.
+
+L4 viga em cadeia (0.39.0) — `vigasEmCadeia` em `src/renderer/core/lancamento.js`, modo V na montagem.
+
+L5 laje por clique no contorno (0.40.0) — `regioesDoPavimento` e `criarLajeNaRegiao` em `src/renderer/core/lancamento.js`; os fechamentos de bordo ficam em `pavimento.fechamentos`.
+
+L6 dados do próximo elemento e conta-gotas e L7 critérios por elemento (0.41.0) — `dadosAtuais`, `copiarPropriedades` e `aplicarPropriedades` em `src/renderer/core/lancamento.js`; `src/renderer/core/criterios.js` e `elemento.criterios`. Correções de um clique: `correcaoDe` e `resolverAutomaticamente` em `src/renderer/core/consistencia.js`.
+
+L8 pré-dimensionamento no lançamento (0.42.0) — `src/renderer/core/predimensionamento.js`.
+
+L13 carga padrão por pavimento (0.45.0) — `pavimento.cargaPadrao` e `aplicarCargaPadrao` em `src/renderer/core/lancamento.js`.
+
+L11 renumeração (0.46.0) — `src/renderer/core/renumerar.js`.
+
+L10 pilar com ponto fixo e lance (0.47.0) — `src/renderer/core/pilares.js`; a transição (pilar sobre viga) é uma ligação `concentrada` criada por `detectarLigacoes`.
+
+L9 pavimento tipo e cópia seletiva (0.48.0) — `src/renderer/core/tipos.js` (`pavimento.repeticoes`, `expandirTipos`).
+
+L12 paredes do DXF como cargas (0.49.0) — `src/renderer/core/paredes.js` (`paredesDeSegmentos`, `planoDeParedes`, `aplicarParedes`); cargas marcadas com `origem: 'paredes'`.
+
+L15 importar IFC, mínimo (0.50.0) — `src/engine/ifc.js` (leitor STEP e geometria) e `src/renderer/core/importar-ifc.js` (`planoIfc`, `aplicarIfc`); teste com um IFC no estilo do Revit em `test/fixtures/ifc/`.
+
+**Laje nervurada em 3D (0.56.0):** `modules/comum/nervurada-geometria.js` monta a geometria (m = ⌊(L − bw)/e⌋ vazios
+por direção, nervura nas duas pontas, a sobra como faixa maciça de borda; travamentos a L/2 acima de 4 m e nos terços
+acima de 6 m nas lajes em uma direção). A vista 3D do edifício junta as caixas numa malha por laje; o detalhamento
+(`detalhamentoNervurada`) e o modelo 3D da armadura (`modeloNervurada`) usam a mesma geometria.
+
+**Falta** (plano em etapas no [roteiro](ROTEIRO.md#plano-de-ação-lançamento-da-estrutura)): L14 versões do projeto.
 
 ## O que não foi confirmado
 

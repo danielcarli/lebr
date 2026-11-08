@@ -1,0 +1,1609 @@
+{
+  "formato": "lebr.projeto",
+  "versao": 1,
+  "meta": {
+    "nome": "Casa térrea — tutorial",
+    "autor": "Seu nome",
+    "descricao": "",
+    "criadoEm": "2026-11-08T04:44:58.521Z",
+    "modificadoEm": "2026-11-08T04:46:43.432Z",
+    "aplicativo": "LEBR 0.54.0"
+  },
+  "parametros": {
+    "norma": "NBR 6118:2023",
+    "classeAgressividade": "II",
+    "concreto": {
+      "fck": 25,
+      "agregado": "granito",
+      "pesoEspecifico": 25
+    },
+    "aco": {
+      "fyk": 500,
+      "Es": 210000
+    },
+    "agregadoDmax": 19,
+    "cobrimento": {
+      "viga": 3,
+      "pilar": 3,
+      "laje": 2.5
+    },
+    "coeficientes": {
+      "gc": 1.4,
+      "gs": 1.15,
+      "gg": 1.4,
+      "ggFav": 1,
+      "gq": 1.4,
+      "psi0": 0.5,
+      "psi1": 0.4,
+      "psi2": 0.3
+    },
+    "uso": "residencial",
+    "els": {
+      "t0": 1
+    },
+    "unidades": {
+      "comprimento": "cm"
+    },
+    "analiseGlobal": {
+      "pilares": "elementos"
+    },
+    "vento": {
+      "ativo": false,
+      "V0": 45,
+      "referencia": "",
+      "topografia": "plano",
+      "S1": 1,
+      "categoria": "IV",
+      "classe": "auto",
+      "grupo": 2,
+      "Ca": {
+        "x": null,
+        "y": null
+      }
+    },
+    "estabilidade": {
+      "desaprumo": true,
+      "rigidez": "separada",
+      "contraventamento": "porticos",
+      "majorar": true
+    },
+    "montagem": {
+      "tolerancia": 1,
+      "erros": "perguntar"
+    },
+    "madeira": {
+      "classe": "C24",
+      "umidade": 2,
+      "carregamento": "longa",
+      "tipo": "serrada",
+      "gwc": 1.4,
+      "gwv": 1.8,
+      "gg": 1.4,
+      "gq": 1.5,
+      "flecha": 200
+    }
+  },
+  "pavimentos": [
+    {
+      "id": "pav1",
+      "nome": "Cobertura",
+      "cota": 2.8,
+      "cargaPadrao": {
+        "uso": "cob-manutencao"
+      }
+    },
+    {
+      "id": "pav_9175j",
+      "nome": "Baldrame",
+      "cota": 0,
+      "tipo": "baldrame",
+      "analise": "isolada"
+    }
+  ],
+  "elementos": [
+    {
+      "id": "p_x5xv29mdsa",
+      "modulo": "concreto.pilar",
+      "codigo": "P1",
+      "nome": "P1",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cms66a6b",
+          "tipo": "elemento",
+          "elementoId": "v_qpiir3ms66",
+          "ligacao": "apoio-0",
+          "descricao": "V1"
+        },
+        {
+          "id": "cmw7cmuq3vnj",
+          "tipo": "elemento",
+          "elementoId": "v_p1501imuq3",
+          "ligacao": "apoio-0",
+          "descricao": "V3"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_1qudatmfpo",
+      "modulo": "concreto.pilar",
+      "codigo": "P2",
+      "nome": "P2",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cms66559",
+          "tipo": "elemento",
+          "elementoId": "v_qpiir3ms66",
+          "ligacao": "apoio-1",
+          "descricao": "V1"
+        },
+        {
+          "id": "cmw7cmvorzjr",
+          "tipo": "elemento",
+          "elementoId": "v_72skzimvor",
+          "ligacao": "apoio-0",
+          "descricao": "V4"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_v2mzdlmham",
+      "modulo": "concreto.pilar",
+      "codigo": "P3",
+      "nome": "P3",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cms66pes",
+          "tipo": "elemento",
+          "elementoId": "v_qpiir3ms66",
+          "ligacao": "apoio-2",
+          "descricao": "V1"
+        },
+        {
+          "id": "cmw7cmwnfyyq",
+          "tipo": "elemento",
+          "elementoId": "v_04ktcvmwnf",
+          "ligacao": "apoio-0",
+          "descricao": "V5"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_kza2q9miv4",
+      "modulo": "concreto.pilar",
+      "codigo": "P4",
+      "nome": "P4",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmtrmk4p",
+          "tipo": "elemento",
+          "elementoId": "v_xo8voymtrm",
+          "ligacao": "apoio-0",
+          "descricao": "V2"
+        },
+        {
+          "id": "cmw7cmuq3tpw",
+          "tipo": "elemento",
+          "elementoId": "v_p1501imuq3",
+          "ligacao": "apoio-1",
+          "descricao": "V3"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_vwa8wvmkf4",
+      "modulo": "concreto.pilar",
+      "codigo": "P5",
+      "nome": "P5",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmtrm0x3",
+          "tipo": "elemento",
+          "elementoId": "v_xo8voymtrm",
+          "ligacao": "apoio-1",
+          "descricao": "V2"
+        },
+        {
+          "id": "cmw7cmvor351",
+          "tipo": "elemento",
+          "elementoId": "v_72skzimvor",
+          "ligacao": "apoio-1",
+          "descricao": "V4"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_q4jyvzmlzn",
+      "modulo": "concreto.pilar",
+      "codigo": "P6",
+      "nome": "P6",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 2.8,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmtrmiyr",
+          "tipo": "elemento",
+          "elementoId": "v_xo8voymtrm",
+          "ligacao": "apoio-2",
+          "descricao": "V2"
+        },
+        {
+          "id": "cmw7cmwnfbrv",
+          "tipo": "elemento",
+          "elementoId": "v_04ktcvmwnf",
+          "ligacao": "apoio-1",
+          "descricao": "V5"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "v_qpiir3ms66",
+      "modulo": "concreto.viga",
+      "codigo": "V1",
+      "nome": "V1",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmzj2fxw",
+          "tipo": "elemento",
+          "elementoId": "l_kizxcpmzj2",
+          "ligacao": "y0",
+          "descricao": "L1",
+          "vao": 0
+        },
+        {
+          "id": "cmw7cn037orc",
+          "tipo": "elemento",
+          "elementoId": "l_to67lzn037",
+          "ligacao": "y0",
+          "descricao": "L2",
+          "vao": 1
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "v_xo8voymtrm",
+      "modulo": "concreto.viga",
+      "codigo": "V2",
+      "nome": "V2",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmzj26hm",
+          "tipo": "elemento",
+          "elementoId": "l_kizxcpmzj2",
+          "ligacao": "y1",
+          "descricao": "L1",
+          "vao": 0
+        },
+        {
+          "id": "cmw7cn037jf1",
+          "tipo": "elemento",
+          "elementoId": "l_to67lzn037",
+          "ligacao": "y1",
+          "descricao": "L2",
+          "vao": 1
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null
+    },
+    {
+      "id": "v_p1501imuq3",
+      "modulo": "concreto.viga",
+      "codigo": "V3",
+      "nome": "V3",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmzj233h",
+          "tipo": "elemento",
+          "elementoId": "l_kizxcpmzj2",
+          "ligacao": "x0",
+          "descricao": "L1",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "v_72skzimvor",
+      "modulo": "concreto.viga",
+      "codigo": "V4",
+      "nome": "V4",
+      "secao": {
+        "b": 14,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cmzj2koz",
+          "tipo": "elemento",
+          "elementoId": "l_kizxcpmzj2",
+          "ligacao": "x1",
+          "descricao": "L1",
+          "vao": "todos"
+        },
+        {
+          "id": "cmw7cn03757e",
+          "tipo": "elemento",
+          "elementoId": "l_to67lzn037",
+          "ligacao": "x0",
+          "descricao": "L2",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "v_04ktcvmwnf",
+      "modulo": "concreto.viga",
+      "codigo": "V5",
+      "nome": "V5",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn037p6s",
+          "tipo": "elemento",
+          "elementoId": "l_to67lzn037",
+          "ligacao": "x1",
+          "descricao": "L2",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null
+    },
+    {
+      "id": "l_kizxcpmzj2",
+      "modulo": "concreto.laje.macica",
+      "codigo": "L1",
+      "nome": "L1",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 1
+      },
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "l_to67lzn037",
+      "modulo": "concreto.laje.macica",
+      "codigo": "L2",
+      "nome": "L2",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 1
+      },
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p_o9mcl1n9s3",
+      "modulo": "concreto.pilar",
+      "codigo": "PB1",
+      "nome": "Arranque de P1",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4fi9",
+          "tipo": "elemento",
+          "elementoId": "v_e65bifn9s4",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw7cn9s5qve",
+          "tipo": "elemento",
+          "elementoId": "v_8999ivn9s4",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V3"
+        },
+        {
+          "id": "cmw7cn9s58p2",
+          "tipo": "elemento",
+          "elementoId": "p_x5xv29mdsa",
+          "ligacao": "base",
+          "descricao": "P1"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 0,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_dhz9qqn9s4",
+      "modulo": "concreto.pilar",
+      "codigo": "PB2",
+      "nome": "Arranque de P2",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4mes",
+          "tipo": "elemento",
+          "elementoId": "v_e65bifn9s4",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw7cn9s5lka",
+          "tipo": "elemento",
+          "elementoId": "v_bnmyt9n9s4",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V4"
+        },
+        {
+          "id": "cmw7cn9s52tl",
+          "tipo": "elemento",
+          "elementoId": "p_1qudatmfpo",
+          "ligacao": "base",
+          "descricao": "P2"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 4,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_rb8rd8n9s4",
+      "modulo": "concreto.pilar",
+      "codigo": "PB3",
+      "nome": "Arranque de P3",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4997",
+          "tipo": "elemento",
+          "elementoId": "v_e65bifn9s4",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V1"
+        },
+        {
+          "id": "cmw7cn9s5qdy",
+          "tipo": "elemento",
+          "elementoId": "v_3d24h6n9s4",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V5"
+        },
+        {
+          "id": "cmw7cn9s5g5l",
+          "tipo": "elemento",
+          "elementoId": "p_v2mzdlmham",
+          "ligacao": "base",
+          "descricao": "P3"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 8,
+        "y": 0,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_04aeh3n9s4",
+      "modulo": "concreto.pilar",
+      "codigo": "PB4",
+      "nome": "Arranque de P4",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4pyb",
+          "tipo": "elemento",
+          "elementoId": "v_godtikn9s4",
+          "ligacao": "apoio-0",
+          "descricao": "Baldrame sob V2"
+        },
+        {
+          "id": "cmw7cn9s5ekw",
+          "tipo": "elemento",
+          "elementoId": "v_8999ivn9s4",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V3"
+        },
+        {
+          "id": "cmw7cn9s51g4",
+          "tipo": "elemento",
+          "elementoId": "p_kza2q9miv4",
+          "ligacao": "base",
+          "descricao": "P4"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 0,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_kx5w7cn9s4",
+      "modulo": "concreto.pilar",
+      "codigo": "PB5",
+      "nome": "Arranque de P5",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s48fa",
+          "tipo": "elemento",
+          "elementoId": "v_godtikn9s4",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V2"
+        },
+        {
+          "id": "cmw7cn9s5ce3",
+          "tipo": "elemento",
+          "elementoId": "v_bnmyt9n9s4",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V4"
+        },
+        {
+          "id": "cmw7cn9s5hgx",
+          "tipo": "elemento",
+          "elementoId": "p_vwa8wvmkf4",
+          "ligacao": "base",
+          "descricao": "P5"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 4,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "p_okywcsn9s4",
+      "modulo": "concreto.pilar",
+      "codigo": "PB6",
+      "nome": "Arranque de P6",
+      "bx": 20,
+      "by": 30,
+      "comprimento": 1,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4ev6",
+          "tipo": "elemento",
+          "elementoId": "v_godtikn9s4",
+          "ligacao": "apoio-2",
+          "descricao": "Baldrame sob V2"
+        },
+        {
+          "id": "cmw7cn9s5f5g",
+          "tipo": "elemento",
+          "elementoId": "v_3d24h6n9s4",
+          "ligacao": "apoio-1",
+          "descricao": "Baldrame sob V5"
+        },
+        {
+          "id": "cmw7cn9s5w4q",
+          "tipo": "elemento",
+          "elementoId": "p_q4jyvzmlzn",
+          "ligacao": "base",
+          "descricao": "P6"
+        }
+      ],
+      "resultado": null,
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 8,
+        "y": 5,
+        "angulo": 0,
+        "secaoRef": {
+          "bx": 20,
+          "by": 30
+        }
+      }
+    },
+    {
+      "id": "v_e65bifn9s4",
+      "modulo": "concreto.viga",
+      "codigo": "VB1",
+      "nome": "Baldrame sob V1",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4n8c",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "v_godtikn9s4",
+      "modulo": "concreto.viga",
+      "codigo": "VB2",
+      "nome": "Baldrame sob V2",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 4
+        },
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s49d9",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "v_8999ivn9s4",
+      "modulo": "concreto.viga",
+      "codigo": "VB3",
+      "nome": "Baldrame sob V3",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4mdx",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "v_bnmyt9n9s4",
+      "modulo": "concreto.viga",
+      "codigo": "VB4",
+      "nome": "Baldrame sob V4",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s4u1y",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "v_3d24h6n9s4",
+      "modulo": "concreto.viga",
+      "codigo": "VB5",
+      "nome": "Baldrame sob V5",
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "cmw7cn9s45vz",
+          "tipo": "alvenaria",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.4,
+          "aberturas": 0,
+          "vao": "todos",
+          "descricao": "Parede do térreo"
+        }
+      ],
+      "posicao": {
+        "pavimento": "pav_9175j",
+        "x": 8,
+        "y": 0,
+        "angulo": 90
+      },
+      "resultado": null,
+      "baldrame": true
+    },
+    {
+      "id": "s_we8p66nclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S1",
+      "nome": "Sapata de PB1",
+      "pilarId": "p_o9mcl1n9s3",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_75dmddnclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S2",
+      "nome": "Sapata de PB2",
+      "pilarId": "p_dhz9qqn9s4",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_yh5rwgnclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S3",
+      "nome": "Sapata de PB3",
+      "pilarId": "p_rb8rd8n9s4",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_28rre0nclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S4",
+      "nome": "Sapata de PB4",
+      "pilarId": "p_04aeh3n9s4",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_f1onuhnclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S5",
+      "nome": "Sapata de PB5",
+      "pilarId": "p_kx5w7cn9s4",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    },
+    {
+      "id": "s_h9b9menclz",
+      "modulo": "concreto.sapata",
+      "codigo": "S6",
+      "nome": "Sapata de PB6",
+      "pilarId": "p_okywcsn9s4",
+      "ap": 20,
+      "bp": 30,
+      "cargas": {
+        "g": 300,
+        "q": 80
+      },
+      "momentos": {
+        "x": 0,
+        "y": 0
+      },
+      "profundidade": 1.5,
+      "solo": {
+        "modo": "informada",
+        "tensao": 200,
+        "sondagemId": null,
+        "gama": 18
+      },
+      "geometria": {
+        "modo": "automatica",
+        "A": 180,
+        "B": 190,
+        "h": 50,
+        "h0": 25
+      },
+      "cobrimento": 3,
+      "armadura": {
+        "phiPilar": null
+      },
+      "resultado": null
+    }
+  ],
+  "eixos": {
+    "x": [
+      0,
+      4,
+      8
+    ],
+    "y": [
+      0,
+      5
+    ]
+  },
+  "lancamento": {
+    "viga": {
+      "secao": {
+        "b": 14,
+        "h": 40
+      },
+      "hPeloVao": false,
+      "alinhamento": "eixo",
+      "deslocamento": 0,
+      "proximoCodigo": null,
+      "criterios": null,
+      "cargas": "nenhuma",
+      "origem": null
+    },
+    "laje": {
+      "modulo": "concreto.laje.macica",
+      "h": 10,
+      "hPeloVao": false,
+      "proximoCodigo": null,
+      "criterios": null,
+      "cargas": {
+        "uso": "cob-manutencao",
+        "revestimento": 1,
+        "acidental": 1,
+        "outras": 1
+      },
+      "origem": "L1"
+    }
+  }
+}

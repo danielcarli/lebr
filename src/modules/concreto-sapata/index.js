@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Módulo: Sapata isolada de concreto armado (NBR 6122:2019 · NBR 6118:2023, 22.6).
@@ -18,6 +18,7 @@
  */
 import { calcularSapata, criarSapata, pilaresDeFundacao, COBRIMENTO_SOLO } from './calculo.js';
 import { criarDesenhoSapata } from './desenho.js';
+import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
 
 export default function moduloSapata(api) {
   const { h } = api.dom;
@@ -122,7 +123,7 @@ export default function moduloSapata(api) {
       }));
     },
 
-    renderResultado(raiz, r) {
+    renderResultado(raiz, r, ctx) {
       const uso = r.tensoes.med / r.sigmaAdm;
       raiz.append(h('div', { class: 'instrumentos' },
         ui.numeroGrande({ rotulo: 'Sapata', valor: `${num(r.A, 0)} × ${num(r.B, 0)}`, unidade: 'cm', linhas: [`h = ${num(r.h, 0)} cm · h0 = ${num(r.h0, 0)} cm`, r.rigida ? 'sapata rígida' : 'sapata flexível'] }),
@@ -153,6 +154,11 @@ export default function moduloSapata(api) {
             linhas: [['Barras paralelas a A (na largura B)', r.flexao.x], ['Barras paralelas a B (na largura A)', r.flexao.y]].map(([t, x]) => [t, num(x.Md, 1), num(x.As), num(x.AsMin), x.malha?.rotulo ?? '—']),
           }),
         ],
+      }));
+      if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
+        titulo: 'Ferragem da sapata', descricao: 'Malhas de flexão de face a face, com gancho nas duas pontas (NBR 6118, 22.6.4.1.1) · lista de ferros editável',
+        volume: r.volume,
+        nota: 'Ganchos a 90° (+10ø em cada ponta). Os arranques (esperas) do pilar estão no detalhamento do pilar; a ancoragem deles na sapata é verificada acima.',
       }));
     },
   };

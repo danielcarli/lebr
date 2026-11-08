@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Grelha de pavimento (NBR 6118, 14.7.6): as vigas de concreto de um pavimento analisadas juntas,
@@ -24,6 +24,8 @@
  *     na viga, rotações impedidas;
  *   - apoio de viga sobre outra viga (sem pilar no ponto): nó comum, sem apoio — a reação passa de uma
  *     viga para a outra;
+ *   - cruzamento definido (core/cruzamentos.js): "A apoia em B" põe rótula em A no nó (A descarrega em B, que
+ *     passa contínua); "sem transferência" não cria nó comum;
  *   - apoio declarado sem pilar e sem outra viga (parede, por exemplo): apoio vertical que impede o giro
  *     da viga em torno do próprio eixo (como na viga isolada), sem impedir a flexão;
  *   - cargas: as mesmas das vigas isoladas, por caso (G e Q): peso próprio, distribuídas, paredes,
@@ -36,6 +38,7 @@ import { analisarPortico, esforcosNaSecao, propriedadesMaterial } from '../../en
 import { contextoCalculo } from '../../renderer/core/calculo.js';
 import { eixoViga, tipoDe, secaoPilar, centroPilar, cantosLaje, pavimento, pavimentoAbaixo, pavimentosOrdenados, TOLERANCIA } from '../../renderer/core/montagem.js';
 import { montarCasos } from '../concreto-viga/calculo.js';
+import { cruzamentosDoPavimento } from '../../renderer/core/cruzamentos.js';
 
 export const FATOR_TORCAO_GRELHA = 0.15;
 export const MODOS_ANALISE = [
@@ -116,9 +119,13 @@ export function montarVigasDoPavimento(projeto, pavId, registro) {
     const xs = eixo.apoios.map((_, k) => eixo.vaos[k]?.[0] ?? eixo.L);
     return { el, eixo, sApoios: xs, sNos: new Set(xs) };
   });
+  // cruzamentos definidos (roteiro, etapa L3): "sem transferência" não cria nó comum; "A apoia em B" dá rótula em A
+  const cruz = new Map(cruzamentosDoPavimento(projeto, registro, pavId).map((c) => [`${c.a.id}|${c.b.id}`, c]));
+  const cruzDe = (x, y) => cruz.get(`${x}|${y}`) ?? cruz.get(`${y}|${x}`);
   // cruzamentos e encontros (com tolerância nas pontas)
   for (let a = 0; a < dados.length; a++) {
     for (let b = a + 1; b < dados.length; b++) {
+      if (cruzDe(dados[a].el.id, dados[b].el.id)?.sem) continue;
       const A = dados[a].eixo, B = dados[b].eixo;
       const den = A.u[0] * B.u[1] - A.u[1] * B.u[0];
       if (Math.abs(den) < 1e-6) continue; // paralelas
@@ -169,6 +176,20 @@ export function montarVigasDoPavimento(projeto, pavId, registro) {
       apoioDe.set(n, a);
     });
   }
+  // ---------------------------------------------------------- cruzamentos com apoio definido: rótula na viga apoiada
+  const rotulas = new Map(); // viga id → Set de nós com rótula
+  for (const c of cruz.values()) {
+    if (!c.apoiada || c.implicito) continue;
+    const d = dados.find((x) => x.el.id === c.apoiada.id);
+    const s = c.apoiada === c.a ? c.sa : c.sb;
+    if (!d) continue;
+    // a viga apoiada com apoio declarado no ponto continua contínua sobre a outra (apoio indireto)
+    if (d.el.apoios?.some((t, k) => t !== 'livre' && Math.abs(d.sApoios[k] - s) <= TOLERANCIA)) continue;
+    const pt = d.pontos.reduce((m, q) => (Math.abs(q.s - s) < Math.abs(m.s - s) ? q : m), d.pontos[0]);
+    if (!rotulas.has(d.el.id)) rotulas.set(d.el.id, new Set());
+    rotulas.get(d.el.id).add(pt.no.id);
+  }
+
   // ---------------------------------------------------------- barras e cargas
   const barras = [];
   for (const d of dados) {
@@ -189,6 +210,8 @@ export function montarVigasDoPavimento(projeto, pavId, registro) {
       if (casos.Q.q[v]) cargas.push({ tipo: 'q', dir: 'Z', valor: -casos.Q.q[v], caso: 'Q' });
       const id = `${d.el.codigo}·${d.barras.length + 1}`;
       const barra = { id, i: P0.no.id, j: P1.no.id, secao: { b, h }, fatorTorcao: FATOR_TORCAO_GRELHA, cargas, s0: P0.s, s1: P1.s, vao: v, Lb };
+      const rot = rotulas.get(d.el.id);
+      if (rot) { const ri = rot.has(P0.no.id), rj = rot.has(P1.no.id); if (ri || rj) barra.rotula = ri && rj ? 'ambas' : ri ? 'i' : 'j'; }
       d.barras.push(barra);
       barras.push(barra);
     }

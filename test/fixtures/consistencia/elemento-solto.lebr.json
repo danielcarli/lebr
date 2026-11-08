@@ -1,0 +1,834 @@
+{
+  "formato": "lebr.projeto",
+  "versao": 1,
+  "meta": {
+    "nome": "Consistência — elemento-solto",
+    "autor": "LEBR (teste)",
+    "descricao": "",
+    "criadoEm": "2026-11-07T00:00:00.000Z",
+    "modificadoEm": "2026-11-07T00:00:00.000Z",
+    "aplicativo": "LEBR 0.37.0"
+  },
+  "parametros": {
+    "norma": "NBR 6118:2023",
+    "classeAgressividade": "II",
+    "concreto": {
+      "fck": 25,
+      "agregado": "granito",
+      "pesoEspecifico": 25
+    },
+    "aco": {
+      "fyk": 500,
+      "Es": 210000
+    },
+    "agregadoDmax": 19,
+    "cobrimento": {
+      "viga": 3,
+      "pilar": 3,
+      "laje": 2.5
+    },
+    "coeficientes": {
+      "gc": 1.4,
+      "gs": 1.15,
+      "gg": 1.4,
+      "ggFav": 1,
+      "gq": 1.4,
+      "psi0": 0.5,
+      "psi1": 0.4,
+      "psi2": 0.3
+    },
+    "uso": "residencial",
+    "els": {
+      "t0": 1
+    },
+    "unidades": {
+      "comprimento": "cm"
+    },
+    "analiseGlobal": {
+      "pilares": "elementos"
+    },
+    "vento": {
+      "ativo": false,
+      "V0": 45,
+      "referencia": "",
+      "topografia": "plano",
+      "S1": 1,
+      "categoria": "IV",
+      "classe": "auto",
+      "grupo": 2,
+      "Ca": {
+        "x": null,
+        "y": null
+      }
+    },
+    "estabilidade": {
+      "desaprumo": true,
+      "rigidez": "separada",
+      "contraventamento": "porticos",
+      "majorar": true
+    },
+    "montagem": {
+      "tolerancia": 1
+    },
+    "madeira": {
+      "classe": "C24",
+      "umidade": 2,
+      "carregamento": "longa",
+      "tipo": "serrada",
+      "gwc": 1.4,
+      "gwv": 1.8,
+      "gg": 1.4,
+      "gq": 1.5,
+      "flecha": 200
+    }
+  },
+  "pavimentos": [
+    {
+      "id": "ter",
+      "nome": "Térreo",
+      "cota": 3
+    },
+    {
+      "id": "p1",
+      "nome": "1º pavimento",
+      "cota": 6
+    }
+  ],
+  "elementos": [
+    {
+      "id": "p1",
+      "modulo": "concreto.pilar",
+      "codigo": "P1",
+      "nome": "P1",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1ows",
+          "tipo": "elemento",
+          "elementoId": "p5",
+          "ligacao": "base",
+          "descricao": "P5"
+        }
+      ],
+      "posicao": {
+        "pavimento": "ter",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p2",
+      "modulo": "concreto.pilar",
+      "codigo": "P2",
+      "nome": "P2",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1ip3",
+          "tipo": "elemento",
+          "elementoId": "p6",
+          "ligacao": "base",
+          "descricao": "P6"
+        }
+      ],
+      "posicao": {
+        "pavimento": "ter",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p3",
+      "modulo": "concreto.pilar",
+      "codigo": "P3",
+      "nome": "P3",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1q1d",
+          "tipo": "elemento",
+          "elementoId": "p7",
+          "ligacao": "base",
+          "descricao": "P7"
+        }
+      ],
+      "posicao": {
+        "pavimento": "ter",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p4",
+      "modulo": "concreto.pilar",
+      "codigo": "P4",
+      "nome": "P4",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1ijg",
+          "tipo": "elemento",
+          "elementoId": "p8",
+          "ligacao": "base",
+          "descricao": "P8"
+        }
+      ],
+      "posicao": {
+        "pavimento": "ter",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p5",
+      "modulo": "concreto.pilar",
+      "codigo": "P5",
+      "nome": "P5",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg16g7",
+          "tipo": "elemento",
+          "elementoId": "v1",
+          "ligacao": "apoio-0",
+          "descricao": "V1"
+        },
+        {
+          "id": "cmw74ssg1hlc",
+          "tipo": "elemento",
+          "elementoId": "v3",
+          "ligacao": "apoio-0",
+          "descricao": "V3"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p6",
+      "modulo": "concreto.pilar",
+      "codigo": "P6",
+      "nome": "P6",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg19vx",
+          "tipo": "elemento",
+          "elementoId": "v1",
+          "ligacao": "apoio-1",
+          "descricao": "V1"
+        },
+        {
+          "id": "cmw74ssg1ove",
+          "tipo": "elemento",
+          "elementoId": "v4",
+          "ligacao": "apoio-0",
+          "descricao": "V4"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 4,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p7",
+      "modulo": "concreto.pilar",
+      "codigo": "P7",
+      "nome": "P7",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1xbg",
+          "tipo": "elemento",
+          "elementoId": "v2",
+          "ligacao": "apoio-1",
+          "descricao": "V2"
+        },
+        {
+          "id": "cmw74ssg1n88",
+          "tipo": "elemento",
+          "elementoId": "v4",
+          "ligacao": "apoio-1",
+          "descricao": "V4"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 4,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p8",
+      "modulo": "concreto.pilar",
+      "codigo": "P8",
+      "nome": "P8",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "concentrada",
+          "natureza": "g",
+          "valor": 300,
+          "descricao": "Pavimentos superiores"
+        },
+        {
+          "id": "cmw74ssg1t6n",
+          "tipo": "elemento",
+          "elementoId": "v2",
+          "ligacao": "apoio-0",
+          "descricao": "V2"
+        },
+        {
+          "id": "cmw74ssg196d",
+          "tipo": "elemento",
+          "elementoId": "v3",
+          "ligacao": "apoio-1",
+          "descricao": "V3"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v1",
+      "modulo": "concreto.viga",
+      "codigo": "V1",
+      "nome": "V1",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.7,
+          "aberturas": 0,
+          "descricao": "Parede"
+        },
+        {
+          "id": "c2",
+          "tipo": "distribuida",
+          "natureza": "q",
+          "vao": "todos",
+          "valor": 3,
+          "descricao": "Sobrecarga"
+        },
+        {
+          "id": "cmw74ssg13fg",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "y0",
+          "descricao": "L1",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v2",
+      "modulo": "concreto.viga",
+      "codigo": "V2",
+      "nome": "V2",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 4
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.7,
+          "aberturas": 0,
+          "descricao": "Parede"
+        },
+        {
+          "id": "c2",
+          "tipo": "distribuida",
+          "natureza": "q",
+          "vao": "todos",
+          "valor": 3,
+          "descricao": "Sobrecarga"
+        },
+        {
+          "id": "cmw74ssg1qgb",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "y1",
+          "descricao": "L1",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 5,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "v3",
+      "modulo": "concreto.viga",
+      "codigo": "V3",
+      "nome": "V3",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.7,
+          "aberturas": 0,
+          "descricao": "Parede"
+        },
+        {
+          "id": "c2",
+          "tipo": "distribuida",
+          "natureza": "q",
+          "vao": "todos",
+          "valor": 3,
+          "descricao": "Sobrecarga"
+        },
+        {
+          "id": "cmw74ssg1qha",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "x0",
+          "descricao": "L1",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 0,
+        "angulo": 90
+      }
+    },
+    {
+      "id": "v4",
+      "modulo": "concreto.viga",
+      "codigo": "V4",
+      "nome": "V4",
+      "secao": {
+        "b": 20,
+        "h": 50
+      },
+      "vaos": [
+        {
+          "L": 5
+        }
+      ],
+      "apoios": [
+        "apoio",
+        "apoio"
+      ],
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [
+        {
+          "id": "c1",
+          "tipo": "alvenaria",
+          "vao": "todos",
+          "material": "ceramico-vedacao",
+          "espessura": 14,
+          "revestimento": 2,
+          "altura": 2.7,
+          "aberturas": 0,
+          "descricao": "Parede"
+        },
+        {
+          "id": "c2",
+          "tipo": "distribuida",
+          "natureza": "q",
+          "vao": "todos",
+          "valor": 3,
+          "descricao": "Sobrecarga"
+        },
+        {
+          "id": "cmw74ssg1spp",
+          "tipo": "elemento",
+          "elementoId": "l1",
+          "ligacao": "x1",
+          "descricao": "L1",
+          "vao": "todos"
+        }
+      ],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 4,
+        "y": 0,
+        "angulo": 90
+      }
+    },
+    {
+      "id": "l1",
+      "modulo": "concreto.laje.macica",
+      "codigo": "L1",
+      "nome": "L1",
+      "lx": 4,
+      "ly": 5,
+      "h": 10,
+      "bordas": {
+        "x0": "apoiada",
+        "x1": "apoiada",
+        "y0": "apoiada",
+        "y1": "apoiada"
+      },
+      "pesoProprio": true,
+      "armadura": {
+        "inferior": "auto",
+        "superior": "auto"
+      },
+      "cargas": {
+        "uso": "res-sala",
+        "revestimento": 1,
+        "acidental": 1.5,
+        "outras": 0
+      },
+      "posicao": {
+        "pavimento": "p1",
+        "x": 0,
+        "y": 0,
+        "angulo": 0
+      }
+    },
+    {
+      "id": "p9",
+      "modulo": "concreto.pilar",
+      "codigo": "P9",
+      "nome": "P9",
+      "bx": 20,
+      "by": 20,
+      "comprimento": 3,
+      "le": {
+        "x": null,
+        "y": null
+      },
+      "pesoProprio": true,
+      "momentos": {
+        "x": {
+          "A": 0,
+          "B": 0
+        },
+        "y": {
+          "A": 0,
+          "B": 0
+        }
+      },
+      "armadura": {
+        "longitudinal": "auto",
+        "estribo": "auto"
+      },
+      "cargas": [],
+      "posicao": {
+        "pavimento": "p1",
+        "x": 9,
+        "y": 9,
+        "angulo": 0
+      }
+    }
+  ]
+}

@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Viga de concreto armado — cálculo (NBR 6118:2023)
@@ -33,6 +33,7 @@ import { analisarViga } from '../../engine/viga-solver.js';
 import { dimensionarFlexao } from '../../engine/flexao.js';
 import { dimensionarEstribos } from '../../engine/cisalhamento.js';
 import { escolherBarrasViga, bitolaFixa, fmtPhi } from '../../engine/barras.js';
+import { propriedadesT, inerciaEstadioIIT, distanciaMomentoNulo, larguraColaboranteViga, flexaoVigaT, ligacaoMesaAlma } from '../../engine/secao-t.js';
 import { detalharViga } from '../../engine/detalhamento.js';
 import { FCK_MIN, COBRIMENTO_MM } from '../../engine/materiais.js';
 import { grelhaDaViga, textoInteracao, FATOR_TORCAO_GRELHA } from '../comum/grelha.js';
@@ -78,6 +79,15 @@ export function montarCasos(el, ctx) {
     } else if (c.tipo === 'elemento') {
       const r = ctx.cargasDe(c.elementoId, c.ligacao);
       const fonte = ctx.elemento(c.elementoId);
+      // pilar que nasce na viga (transição): a normal do pilar é carga concentrada na posição da ligação
+      if (c.concentrada) {
+        const v = Math.min(c.vao === 'todos' ? 0 : Number(c.vao) || 0, nv - 1);
+        const x = Math.max(0, Math.min(c.posicao != null ? Number(c.posicao) : el.vaos[v].L / 2, el.vaos[v].L));
+        G.P.push({ vao: v, x, P: r.g }); Q.P.push({ vao: v, x, P: r.q });
+        suspensas.P.push({ vao: v, x, g: r.g, q: r.q, codigo: fonte?.codigo ?? '?' });
+        origem.push({ texto: `${fonte?.codigo ?? '?'} nasce na viga (transição): ${f(r.g + r.q)} kN (vão ${v + 1}, x = ${f(x)} m)`, g: r.g, q: r.q, vaos: v, pontual: true });
+        continue;
+      }
       // reação numa faixa estreita (escada): resultante concentrada no centro da faixa, na posição da ligação
       if (r.faixa > 0) {
         const v = Math.min(c.vao === 'todos' ? 0 : Number(c.vao) || 0, nv - 1);
@@ -188,6 +198,27 @@ export function calcularViga(el, ctx) {
   const x0 = inicios(el.vaos);
   const xApoio = [...x0, x0[x0.length - 1] + L[L.length - 1]];
 
+  // ---------------------------------------------------------------- viga T ou L: mesa colaborante (14.6.2.2)
+  const mesa = el.mesa && (el.mesa.tipo === 'T' || el.mesa.tipo === 'L') ? el.mesa : null;
+  const hf = mesa ? Number(mesa.hf) || 0 : 0;
+  if (mesa && !(hf > 0)) throw new Error('Informe a espessura da mesa hf da viga T ou L.');
+  if (mesa && hf >= h) throw new Error('A mesa (hf) deve ser mais fina que a altura total da viga.');
+  /** mesa por vão: a, bf e as abas; a mesa só colabora onde está comprimida — no vão (laje em cima) ou no apoio (invertida) */
+  const mesaVao = L.map((Lv, v) => {
+    if (!mesa) return null;
+    const balanco = el.apoios[v] === 'livre' || el.apoios[v + 1] === 'livre';
+    const esq = !balanco && (v > 0 || el.apoios[v] === 'engaste');
+    const dir = !balanco && (v < L.length - 1 || el.apoios[v + 1] === 'engaste');
+    const dist = distanciaMomentoNulo(Lv, { esq, dir, balanco });
+    return { ...dist, ...larguraColaboranteViga({ bw: b, mesa, a: dist.a }), balanco };
+  });
+  /** mesa no apoio k (só na viga invertida): a menor bf dos tramos vizinhos */
+  const mesaApoio = (k) => {
+    if (!mesa || !invertida) return null;
+    const viz = [mesaVao[k - 1], mesaVao[k]].filter(Boolean);
+    return viz.length ? viz.reduce((m, x) => (x.bf < m.bf ? x : m)) : null;
+  };
+
   // ---------------------------------------------------------------- ELU: envoltória das combinações últimas
   const envM = envolvente(elu, { G: rG.pontos.map((p) => p.M), Q: rQ.pontos.map((p) => p.M) });
   const envV = envolvente(elu, { G: rG.pontos.map((p) => p.V), Q: rQ.pontos.map((p) => p.V) });
@@ -212,18 +243,18 @@ export function calcularViga(el, ctx) {
     return h - cob - phiT / 10 - phi - av / 2;
   };
   /** @param phi bitola da face tracionada; @param phiC bitola da face comprimida (armadura dupla) */
-  const dimensionar = (Md, phi, phiC) => {
+  const dimensionar = (Md, phi, phiC, mT = null) => {
     let arr = null, flex = null;
     for (let it = 0; it < 3; it++) {
       const d = alturaUtil(arr ?? (phi ? { phi, camadas: 1 } : null));
-      flex = dimensionarFlexao({ Md, b, h, d, dl, c, s });
+      flex = mT ? flexaoVigaT({ Md, bf: mT.bf, bw: b, hf, h, d, dl, c, s }) : dimensionarFlexao({ Md, b, h, d, dl, c, s });
       flex.d = d;
       const novo = escolherBarrasViga({ As: flex.As, bw: b, cob, phiT, dmax, phi });
       if (novo && arr && novo.phi === arr.phi && novo.camadas === arr.camadas) { arr = novo; break; }
       arr = novo;
     }
     const comp = flex.Asl > 0 ? escolherBarrasViga({ As: flex.Asl, bw: b, cob, phiT, dmax, phi: phiC }) : null;
-    return { flex, barras: arr, barrasComp: comp, phiFixo: phi };
+    return { flex, barras: arr, barrasComp: comp, phiFixo: phi, mesa: mT };
   };
 
   // ---------------------------------------------------------------- torção (17.5): envoltória do momento torçor
@@ -244,7 +275,8 @@ export function calcularViga(el, ctx) {
     const pV = pico(p, (q) => Math.abs(q.Vd));
     const Mdpos = Math.max(0, pM.Md);
     const Vd = Math.abs(pV.Vd);
-    const pos = Mdpos > 0.05 ? dimensionar(Mdpos, phiInf, phiSup) : null;
+    const mT = mesaVao[v] && !invertida && !mesaVao[v].balanco ? mesaVao[v] : null; // laje em cima: comprimida no vão
+    const pos = Mdpos > 0.05 ? dimensionar(Mdpos, phiInf, phiSup, mT) : null;
     const dCort = pos?.flex.d ?? alturaUtil(null);
     let est = dimensionarEstribos({ Vd, bw: b, d: dCort, c, s, phi: phiEst });
     let tor = null;
@@ -272,14 +304,16 @@ export function calcularViga(el, ctx) {
       est = { ...est, aswV: est.aswV ?? est.asw, asw: aswTot, estribo, avisos: [...est.avisos] };
       if (estribo.apertado) est.avisos.push('Estribos para cortante + suspensão com espaçamento abaixo de 7 cm — aumente a seção ou a bitola do estribo.');
     }
-    return { L: Lv, x0: x0[v], gk: G.q[v], qk: Q.q[v], Mdpos, Vd, pos, est, tor, susp, comb: { Mdpos: Mdpos > 0.05 ? pM.cMax : null, Vd: pV.cV } };
+    // ligação mesa–alma (18.3.7) onde a mesa está comprimida
+    const lig = mT ? ligacaoMesaAlma({ Vd, d: dCort, bf: mT.bf, b1: mT.bMax, hf, c, s }) : null;
+    return { L: Lv, x0: x0[v], gk: G.q[v], qk: Q.q[v], Mdpos, Vd, pos, est, tor, susp, lig, mesa: mT, comb: { Mdpos: Mdpos > 0.05 ? pM.cMax : null, Vd: pV.cV } };
   });
 
   const apoios = el.apoios.map((tipo, k) => {
     const prox = pts.filter((q) => Math.abs(q.x - xApoio[k]) < 1e-6);
     const pN = pico(prox, (q) => -q.MdMin);
     const Mdneg = Math.min(0, pN.MdMin);
-    const neg = Mdneg < -0.05 ? dimensionar(-Mdneg, phiSup, phiInf) : null;
+    const neg = Mdneg < -0.05 ? dimensionar(-Mdneg, phiSup, phiInf, mesaApoio(k)) : null;
     const Rg = rG.reacoes[k].V, Rq = rQ.reacoes[k].V;
     const rMax = extremo(elu, { G: Rg, Q: Rq });
     const rMin = extremo(elu, { G: Rg, Q: Rq }, { menor: true });
@@ -297,10 +331,19 @@ export function calcularViga(el, ctx) {
     const arm = balanco ? apoios[el.apoios[v] === 'livre' ? v + 1 : v].neg : vv.pos;
     const As = arm?.barras?.AsEf ?? arm?.flex.As ?? 0.0015 * b * h;
     const d = arm?.flex.d ?? alturaUtil(null);
+    // viga T ou L com a mesa comprimida no vão: Ic e estádio II da seção T, Mr com α = 1,2 (17.3.1)
+    if (vv.mesa) {
+      const pT = propriedadesT({ bf: vv.mesa.bf, bw: b, hf, h });
+      const MrT = (1.2 * (c.fctm / 10) * pT.I) / pT.yBot / 100;
+      const IIIT = inerciaEstadioIIT({ bf: vv.mesa.bf, bw: b, hf, d, As, ae }).I;
+      const rT = Ma > MrT ? (MrT / Ma) ** 3 : 1;
+      vv.els = { Ma, Mr: MrT, III: IIIT, Ic: pT.I, fissurada: Ma > MrT, balanco, T: true };
+      return Math.min(pT.I, rT * pT.I + (1 - rT) * IIIT);
+    }
     const xII = (-ae * As + Math.sqrt((ae * As) ** 2 + 2 * b * ae * As * d)) / b;
     const III = (b * xII ** 3) / 3 + ae * As * (d - xII) ** 2;
     const r = Ma > Mr ? (Mr / Ma) ** 3 : 1;
-    vv.els = { Ma, Mr, III, fissurada: Ma > Mr, balanco };
+    vv.els = { Ma, Mr, III, Ic, fissurada: Ma > Mr, balanco };
     return Math.min(Ic, r * Ic + (1 - r) * III);
   });
   const qEls = G.q.map((g, i) => g + psi2 * Q.q[i]);
@@ -335,14 +378,16 @@ export function calcularViga(el, ctx) {
   const wLim = WK_LIMITE[caa] ?? 0.3;
   const eta1 = ETA1[s.fyk] ?? 2.25;
   const MrForm = (1.5 * (c.fctkInf / 10) * Ic) / (h / 2) / 100; // formação de fissuras (17.3.1), kN·m
+  const MrFormT = (mT) => { const pT = propriedadesT({ bf: mT.bf, bw: b, hf, h }); return (1.2 * (c.fctkInf / 10) * pT.I) / pT.yBot / 100; };
   const fissuras = (arr, Ms, comb) => {
     if (!arr?.barras || !(Ms > 0.01)) return null;
+    const MrF = arr.mesa ? MrFormT(arr.mesa) : MrForm;
     const w = aberturaFissuras({
       Ms, b, h, d: arr.flex.d, phi: arr.barras.phi, n: arr.barras.n, porCamada: arr.barras.porCamada,
       cob, phiT, fctm: c.fctm, eta1, Es: s.Es,
     });
-    const fissurada = Ms > MrForm;
-    return { Ms, comb, Mr: MrForm, fissurada, sigma: w.sigma, w1: w.w1, w2: w.w2, wk: w.wk, Acr: w.Acr, rho: w.rho, lim: wLim, ok: !fissurada || w.wk <= wLim + 1e-9 };
+    const fissurada = Ms > MrF;
+    return { Ms, comb, Mr: MrF, fissurada, sigma: w.sigma, w1: w.w1, w2: w.w2, wk: w.wk, Acr: w.Acr, rho: w.rho, lim: wLim, ok: !fissurada || w.wk <= wLim + 1e-9 };
   };
   vaos.forEach((vv, v) => {
     let melhor = { M: 0, id: null };
@@ -363,6 +408,7 @@ export function calcularViga(el, ctx) {
       nome: `Flexão — vão ${v + 1}`, item: '17.2', valor: `Md = ${f(vv.Mdpos)} kN·m`,
       limite: `As = ${f(vv.pos.flex.As)} cm²${vv.pos.flex.dupla ? ' (dupla)' : ''}`, ok: vv.pos.flex.ok && !!vv.pos.barras,
     });
+    if (vv.lig) verificacoes.push({ nome: `Ligação mesa–alma — vão ${v + 1}`, item: '18.3.7', valor: `vSd = ${f(vv.lig.vSd)} kN/m`, limite: `vRd2 = ${f(vv.lig.vRd2)} kN/m · Asf = ${f(vv.lig.Asf)} cm²/m`, ok: vv.lig.ok });
     verificacoes.push({ nome: `Biela comprimida — vão ${v + 1}`, item: '17.4.2.2', valor: `VSd = ${f(vv.Vd)} kN`, limite: `VRd2 = ${f(vv.est.VRd2)} kN`, ok: vv.est.ok });
     if (vv.tor) {
       verificacoes.push({ nome: `Torção + cortante (bielas) — vão ${v + 1}`, item: '17.7.2.2', valor: `${f(vv.Vd)}/${f(vv.est.VRd2)} + ${f(vv.tor.Td)}/${f(vv.tor.TRd2)} = ${f(vv.tor.interacao)}`, limite: '≤ 1', ok: vv.tor.ok });
@@ -416,7 +462,21 @@ export function calcularViga(el, ctx) {
     ...vaos.map((vv, v) => `Vão ${v + 1}: Md+ = ${f(vv.Mdpos)} kN·m (${nomeComb(vv.comb.Mdpos)}) · Vd,máx = ${f(vv.Vd)} kN (${nomeComb(vv.comb.Vd)})`),
     ...apoios.map((a, k) => `Apoio ${k + 1}: Md− = ${f(a.Mdneg)} kN·m${a.comb.Mdneg ? ` (${nomeComb(a.comb.Mdneg)})` : ''} · Rk = ${f(a.Rg)} + ${f(a.Rq)} kN · Rd = ${f(a.Rd)} kN (${nomeComb(a.comb.Rd)})${a.RdMin < -1e-6 ? ` · Rd,mín = ${f(a.RdMin)} kN (${nomeComb(a.comb.RdMin)}): apoio tracionado` : ''}`),
   ] });
-  const linhaFlex = (rot, x) => x && `${rot}: d = ${f(x.flex.d)} cm · Kmd = ${f(x.flex.Kmd, 4)} · x/d = ${f(x.flex.xi, 3)} (domínio ${x.flex.dominio}) · As,calc = ${f(x.flex.AsCalc)} cm² · As,mín = ${f(x.flex.AsMin)} cm² → ${x.barras?.rotulo ?? '—'} (${f(x.barras?.AsEf)} cm²)${x.flex.Asl ? ` · As' = ${f(x.flex.Asl)} cm²` : ''}`;
+  if (mesa) {
+    const nomeM = mesa.tipo === 'T' ? 'Viga T' : 'Viga L';
+    memorial.push({ titulo: `${nomeM} — mesa colaborante (NBR 6118, 14.6.2.2)`, linhas: [
+      `Mesa hf = ${f(hf, 1)} cm · alma bw = ${f(b, 1)} cm · ${mesa.tipo === 'T' ? `distância livre entre as faces das nervuras: b2 = ${f(Number(mesa.b2a) || 0, 0)} cm de um lado e ${f(Number(mesa.b2b ?? mesa.b2a) || 0, 0)} cm do outro · b1 ≤ 0,5·b2 e b1 ≤ 0,10·a` : `laje de um lado, b2 = ${f(Number(mesa.b2) || 0, 0)} cm (b1 ≤ 0,5·b2 e ≤ 0,10·a)${Number(mesa.b4) > 0 ? ` · aba em balanço do outro lado, b4 = ${f(Number(mesa.b4), 0)} cm (b3 ≤ b4 e ≤ 0,10·a)` : ' · sem aba do outro lado'}`}`,
+      invertida ? 'Viga invertida: a laje fica embaixo e a mesa só é comprimida nos apoios (momento negativo); nos vãos, seção retangular bw × h.' : 'A laje fica em cima: a mesa é comprimida nos vãos (momento positivo); nos apoios, a mesa fica tracionada e vale a seção retangular bw × h.',
+      ...mesaVao.map((m, v) => `Vão ${v + 1} (ℓ = ${f(L[v])} m, ${m.caso}): a = ${f(m.fator)}·ℓ = ${f(m.a)} m · 0,10·a = ${f(m.lim, 1)} cm · ${mesa.tipo === 'T' ? `b1 = ${f(m.b1a, 1)} + ${f(m.b1b, 1)} cm` : `b1 = ${f(m.b1, 1)} cm${m.b3 ? ` · b3 = ${f(m.b3, 1)} cm` : ''}`} → bf = ${f(m.bf, 1)} cm${m.balanco ? ' (balanço: mesa tracionada, seção retangular)' : ''}`),
+      'Os esforços são da análise com a seção retangular bw × h; a mesa entra no dimensionamento à flexão, na armadura mínima (W0 da seção T) e nas flechas e fissuras (Ic e estádio II da seção T, Mr com α = 1,2). Cortante e torção usam a alma bw.',
+    ] });
+    const ligs = vaos.map((vv, v) => vv.lig && `Vão ${v + 1}: vSd = (Vd/z)·(b1/bf) = (${f(vv.Vd)}/${f(0.9 * (vv.pos?.flex.d ?? alturaUtil(null)) / 100, 3)})·(${f(vv.mesa.bMax, 1)}/${f(vv.mesa.bf, 1)}) = ${f(vv.lig.vSd)} kN/m · vRd2 = 0,5·αv2·fcd·hf = ${f(vv.lig.vRd2)} kN/m · Asf/s = vSd/fyd = ${f(vv.lig.AsfCalc)} cm²/m → ${f(vv.lig.Asf)} cm²/m (mín. 1,5 cm²/m), atravessando a ligação na laje`).filter(Boolean);
+    if (ligs.length) memorial.push({ titulo: 'Ligação mesa–alma (18.3.7)', linhas: [
+      'A força de compressão nas abas varia ao longo da viga e passa para a alma por cisalhamento no plano da ligação: biela a 45° no plano da mesa e armadura transversal à viga, que pode ser a própria armadura da laje que atravessa a ligação.',
+      ...ligs,
+    ] });
+  }
+  const linhaFlex = (rot, x) => x && `${rot}: ${x.mesa ? (x.flex.comoT ? `seção T (λx > hf): abas Ff = σcd·(bf − bw)·hf = ${f(x.flex.Ff)} kN, Mf = Ff·(d − hf/2) = ${f(x.flex.Mf)} kN·m, a alma resiste a ${f(x.flex.Md - x.flex.Mf)} kN·m · ` : `λx ≤ hf: retangular bf × h com bf = ${f(x.mesa.bf, 1)} cm · `) : ''}d = ${f(x.flex.d)} cm · Kmd = ${f(x.flex.Kmd, 4)} · x/d = ${f(x.flex.xi, 3)} (domínio ${x.flex.dominio}) · As,calc = ${f(x.flex.AsCalc)} cm² · As,mín = ${f(x.flex.AsMin)} cm² → ${x.barras?.rotulo ?? '—'} (${f(x.barras?.AsEf)} cm²)${x.flex.Asl ? ` · As' = ${f(x.flex.Asl)} cm²` : ''}`;
   memorial.push({ titulo: 'Flexão', linhas: [
     ...vaos.map((vv, v) => linhaFlex(`Vão ${v + 1}`, vv.pos)),
     ...apoios.map((a, k) => linhaFlex(`Apoio ${k + 1}`, a.neg)),
@@ -525,6 +585,7 @@ export function calcularViga(el, ctx) {
   return {
     ok: verificacoes.every((v) => v.ok) && !avisos.some((a) => a.includes('aumente')),
     invertida,
+    mesa: mesa ? { tipo: mesa.tipo, hf } : null,
     avisos, verificacoes, memorial,
     detalhamento,
     diagrama: {
@@ -540,6 +601,8 @@ export function calcularViga(el, ctx) {
     vaos: vaos.map((vv) => ({
       L: vv.L, x0: vv.x0, gk: r2(vv.gk), qk: r2(vv.qk), Mdpos: r2(vv.Mdpos), Vd: r2(vv.Vd), comb: vv.comb,
       positiva: arranjo(vv.pos),
+      mesa: vv.mesa && { bf: r2(vv.mesa.bf), a: r2(vv.mesa.a), comoT: !!vv.pos?.flex.comoT },
+      ligacaoMesa: vv.lig && { vSd: r2(vv.lig.vSd), vRd2: r2(vv.lig.vRd2), Asf: r2(vv.lig.Asf), ok: vv.lig.ok },
       torcao: vv.tor && { Td: r2(vv.tor.Td), comb: vv.tor.comb, TRd2: r2(vv.tor.TRd2), interacao: r2(vv.tor.interacao), he: r2(vv.tor.he), Ae: r2(vv.tor.Ae), ue: r2(vv.tor.ue), A90: r2(vv.tor.A90), A90Calc: r2(vv.tor.A90Calc), Asl: r2(vv.tor.Asl), AslCalc: r2(vv.tor.AslCalc), AslMin: r2(vv.tor.AslMin), ok: vv.tor.ok },
       suspensao: vv.susp && { pd: r2(vv.susp.pd), asw: r2(vv.susp.asw) },
       estribos: { VRd2: r2(vv.est.VRd2), Vc: r2(vv.est.Vc), asw: r2(vv.est.asw), aswV: r2(vv.est.aswV ?? vv.est.asw), ...vv.est.estribo, rotulo: `ø ${f(vv.est.estribo.phi, 1).replace(',0', '')} c/ ${f(vv.est.estribo.s, 1).replace(',0', '')}` },

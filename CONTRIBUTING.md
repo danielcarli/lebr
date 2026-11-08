@@ -26,13 +26,13 @@ programar.
 
 ## Cabeçalho dos arquivos
 
-Todo arquivo JavaScript do LEBR começa com o cabeçalho de autoria e licença (GPL-3.0, `SPDX-License-Identifier:
-GPL-3.0-only`). Ao criar um arquivo novo, copie o cabeçalho de um arquivo existente; se a contribuição for sua,
+Todo arquivo JavaScript do LEBR começa com o cabeçalho de autoria e licença (AGPL-3.0, `SPDX-License-Identifier:
+AGPL-3.0-only`). Ao criar um arquivo novo, copie o cabeçalho de um arquivo existente; se a contribuição for sua,
 acrescente o seu nome numa linha de copyright.
 
 ## Licença das contribuições
 
-O LEBR é distribuído sob a **GNU General Public License, versão 3** ([LICENSE](LICENSE)). Ao enviar uma contribuição,
+O LEBR é distribuído sob a **GNU Affero General Public License, versão 3** ([LICENSE](LICENSE)). Ao enviar uma contribuição,
 você concorda em licenciá-la nos mesmos termos.
 
 Apresentação do projeto, com capturas de tela: [docs/APRESENTACAO.md](docs/APRESENTACAO.md).

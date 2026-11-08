@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Quantitativos de materiais: volume de concreto (m³), área de fôrma (m²) e aço estimado por bitola (kg),
@@ -24,8 +24,10 @@
  * { concreto, forma, aco: { [ø mm]: kg }, estacas?: { n, metros, volume }, notas?: string[] }.
  */
 
+import { expandirTipos } from '../../renderer/core/tipos.js';
 import { aplicarEdicoes } from '../../engine/detalhamento.js';
 import { posicoesDe } from './detalhamento.js';
+import { geometriaNervurada } from './nervurada-geometria.js';
 
 export const BITOLAS_QUANT = [5, 6.3, 8, 10, 12.5, 16, 20, 25, 32];
 /** Massa linear nominal (kg/m) — NBR 7480: 0,00617·ø² (ρ = 7850 kg/m³). */
@@ -136,12 +138,15 @@ function lajeMacica(el, r, projeto) {
   return { ...out, aco: a.kg, pecas: a.pecas };
 }
 
-function lajeNervurada(el) {
-  const e = (el.intereixo ?? 60) / 100, bw = (el.bw ?? 10) / 100, hr = ((el.h ?? 30) - (el.hf ?? 5)) / 100, hf = (el.hf ?? 5) / 100;
-  const duas = el.direcao === 'duas';
-  const porM2 = hf + (duas ? (bw * hr * (2 * e - bw)) / (e * e) : (bw * hr) / e);
+function lajeNervurada(el, r, projeto) {
   const A = (el.lx ?? 1) * (el.ly ?? 1);
-  return { concreto: porM2 * A, forma: A, aco: {}, notas: ['Nervurada: fôrma = área da laje (cubetas); aço das nervuras não estimado.'] };
+  // concreto pela geometria (capa, nervuras, faixas maciças de borda e travamentos)
+  const geo = geometriaNervurada(el);
+  const concreto = geo.caixas.filter((c) => c.tipo === 'concreto').reduce((s, c) => s + (c.max[0] - c.min[0]) * (c.max[1] - c.min[1]) * (c.max[2] - c.min[2]), 0) / 1e6;
+  const out = { concreto, forma: A, notas: ['Nervurada: concreto pela geometria (capa, nervuras e faixas de borda); fôrma = área da laje (cubetas ou enchimento).'] };
+  const a = aco();
+  if (pelaLista(el, r, projeto, a)) return { ...out, aco: a.kg, pecas: a.pecas, notas: [...out.notas, 'Aço pela lista de ferros do detalhamento.'], detalhado: true };
+  return { ...out, aco: {} };
 }
 
 function lajeTrelicada(el) {
@@ -178,20 +183,33 @@ function pilar(el, r, projeto) {
   return { ...out, aco: a.kg, pecas: a.pecas };
 }
 
-function sapata(el, r) {
+/** Aço pela lista de ferros do detalhamento (com as edições do usuário), ou null. */
+function pelaLista(el, r, projeto, a) {
+  const pos = r && !r.erro ? posicoesDe(el, r, projeto) : null;
+  if (!pos) return false;
+  for (const q of pos) a.barras(q.phi, q.n, q.comprimento / 100, q.emendas);
+  return true;
+}
+
+function sapata(el, r, projeto) {
   if (!r || r.erro) return { concreto: 0, forma: 0, aco: {}, notas: ['Sapata sem cálculo.'] };
   const A = r.A / 100, B = r.B / 100, h0 = (r.h0 ?? 20) / 100, cob = (r.cobrimento ?? 4) / 100;
   const a = aco();
+  if (pelaLista(el, r, projeto, a)) return { concreto: r.volume ?? 0, forma: 2 * (A + B) * h0, aco: a.kg, pecas: a.pecas, notas: ['Aço pela lista de ferros do detalhamento.'], detalhado: true };
   const mx = r.flexao?.x?.malha, my = r.flexao?.y?.malha;
   if (mx) a.barras(mx.phi, mx.n, A - 2 * cob + 2 * 0.15);
   if (my) a.barras(my.phi, my.n, B - 2 * cob + 2 * 0.15);
   return { concreto: r.volume ?? 0, forma: 2 * (A + B) * h0, aco: a.kg, pecas: a.pecas, notas: [] };
 }
 
-function bloco(el, r) {
+function bloco(el, r, projeto) {
   if (!r || r.erro) return { concreto: 0, forma: 0, aco: {}, notas: ['Bloco sem cálculo.'] };
   const A = r.A / 100, B = r.B / 100, h = r.h / 100;
   const a = aco();
+  if (pelaLista(el, r, projeto, a)) {
+    const D = (r.estaca?.D ?? 30) / 100, Le = r.estaca?.L ?? 0;
+    return { concreto: A * B * h, forma: 2 * (A + B) * h, aco: a.kg, pecas: a.pecas, estacas: { n: r.n, metros: r.n * Le, volume: r.n * Le * Math.PI * D * D / 4 }, notas: ['Aço pela lista de ferros do detalhamento (bloco e gaiola das estacas).'], detalhado: true };
+  }
   const arm = r.armadura ?? {};
   const gancho = 2 * Math.max(0.2, h - 0.15);
   for (const [k, L] of [['x', A], ['y', B]]) {
@@ -206,10 +224,12 @@ function bloco(el, r) {
   return { concreto: A * B * h, forma: 2 * (A + B) * h, aco: a.kg, pecas: a.pecas, estacas: { n: r.n, metros: r.n * Le, volume: r.n * Le * Math.PI * D * D / 4 }, notas: [] };
 }
 
-function estaca(el) {
+function estaca(el, r, projeto) {
   const D = (el.D ?? 40) / 100, L = el.L ?? 8;
   const A = el.secao === 'quadrada' ? D * D : Math.PI * D * D / 4;
-  return { concreto: 0, forma: 0, aco: {}, estacas: { n: 1, metros: L, volume: A * L }, notas: ['Estaca: concreto em Estacas; armadura de ligação não estimada.'] };
+  const a = aco();
+  if (pelaLista(el, r, projeto, a)) return { concreto: 0, forma: 0, aco: a.kg, pecas: a.pecas, estacas: { n: 1, metros: L, volume: A * L }, notas: ['Estaca: concreto em Estacas; aço pela gaiola calculada (NBR 6122).'], detalhado: true };
+  return { concreto: 0, forma: 0, aco: {}, estacas: { n: 1, metros: L, volume: A * L }, notas: ['Estaca: concreto em Estacas; armadura não calculada.'] };
 }
 
 function escada(el, r) {
@@ -305,7 +325,9 @@ function grupoDe(el, projeto, categoria) {
  * @param {{obter(id):object}} registro  registro de módulos (categoria, nome, `quantitativos` opcional)
  * @returns {{ elementos, pavimentos, total, sem: string[], bitolas: number[] }}
  */
-export function quantitativosDoProjeto(projeto, registro) {
+export function quantitativosDoProjeto(projeto0, registro) {
+  // pavimento tipo (etapa L9): cada repetição conta, com o nome do nível ("Tipo (2/4)")
+  const projeto = expandirTipos(projeto0);
   const elementos = [], sem = [];
   for (const el of projeto.elementos) {
     const mod = registro.obter(el.modulo);

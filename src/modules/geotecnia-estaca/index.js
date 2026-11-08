@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Módulo: Estaca isolada (NBR 6122) — capacidade de carga pelo SPT por Aoki-Velloso e Décourt-Quaresma,
@@ -18,6 +18,7 @@
 import { calcularEstaca, criarEstaca } from './calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
 import { pilaresDeFundacao } from '../concreto-sapata/calculo.js';
+import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
@@ -137,7 +138,7 @@ export default function moduloEstaca(api) {
       }));
     },
 
-    renderResultado(raiz, r) {
+    renderResultado(raiz, r, ctx) {
       raiz.append(h('div', { class: 'instrumentos' },
         ui.numeroGrande({ rotulo: 'Carga admissível', valor: num(r.Padm, 0), unidade: 'kN', linhas: [`governa: ${r.governa}`, r.Nk ? `carga de trabalho ${num(r.Nk, 0)} kN` : 'sem carga de trabalho'] }),
         ui.numeroGrande({ rotulo: 'Aoki-Velloso', valor: num(r.av.R, 0), unidade: 'kN', linhas: [`ponta ${num(r.av.Rp, 0)} + atrito ${num(r.av.Rl, 0)}`, `Padm = ${num(r.av.Padm, 0)} kN`] }),
@@ -171,6 +172,21 @@ export default function moduloEstaca(api) {
           colunas: [{ titulo: 'L (m)', alinhar: 'dir' }, { titulo: 'Aoki-Velloso (kN)', alinhar: 'dir' }, { titulo: 'Décourt-Quaresma (kN)', alinhar: 'dir' }, { titulo: 'Adotada (kN)', alinhar: 'dir' }],
           linhas: r.curva.map((c) => [c.L === r.L ? h('b', null, num(c.L, 0)) : num(c.L, 0), num(c.av, 1), num(c.dq, 1), h('b', null, num(c.adotada, 1))]),
         })],
+      }));
+      const ae = r.armadura;
+      if (ae) raiz.append(ui.secao({
+        numero: '06', titulo: 'Armadura da estaca', descricao: `NBR 6122:2019, 8.6.3 e Tabela 4${r.Nk ? '' : ' — sem carga de trabalho, calculada para a carga admissível'}`,
+        filhos: [ui.tabela({ classe: 'els-tabela', colunas: [{ titulo: 'Grandeza' }, { titulo: 'Valor', alinhar: 'dir' }], linhas: [
+          ['Concreto (Tabela 4)', `C${ae.fck}, γc = ${num(ae.gc, 1)} → fcd = ${num(ae.fck / ae.gc, 2)} MPa`],
+          ['Tensão σ = Nk/Ac', `${num(ae.sigma, 2)} MPa ${ae.precisa ? '>' : '≤'} ${num(ae.sigmaLim, 1)} MPa`],
+          ['Armadura', ae.precisa ? `Nd = ${num(ae.Nd, 1)} kN → As,nec = ${num(ae.AsNec)} cm² (mín. ${num(ae.AsMin)} cm²)` : `só a ligação com o bloco: 0,4 %·Ac = ${num(ae.AsMin)} cm²`],
+          ['Gaiola', `${ae.barras?.rotulo ?? '—'} · estribo circular ${ae.estribo.rotulo}`],
+          ['Comprimento armado', `${num(ae.Larm, 1)} m (mín. ${num(ae.Lmin, 1)} m) + espera de ${num(ae.espera, 0)} cm no bloco`],
+        ] })],
+      }));
+      if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
+        titulo: 'Ferragem da estaca', descricao: 'Gaiola: barras longitudinais e estribo circular (NBR 6118, 18.4) · lista de ferros editável',
+        nota: 'A espera entra no bloco com o comprimento de ancoragem básico (boa aderência). Estribos no trecho armado.',
       }));
     },
   };

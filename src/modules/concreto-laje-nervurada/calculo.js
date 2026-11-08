@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Laje nervurada moldada no local (cubetas ou blocos de enchimento)
@@ -71,7 +71,7 @@ export function cargasNervurada(el, ctx) {
   const nervuras = duas ? (gama * bw * hr * (2 * e - bw)) / (e * e) : (gama * bw * hr) / e;
   const ench = duas ? (el.pesoEnchimento * (e - bw) ** 2 * hr) / (e * e) : (el.pesoEnchimento * (e - bw) * hr) / e;
   const pp = el.pesoProprio ? capa + nervuras + ench : 0;
-  return { pp, capa, nervuras, ench, g: pp + (el.cargas?.revestimento ?? 0) + (el.cargas?.outras ?? 0), q: el.cargas?.acidental ?? 0 };
+  return { pp, capa, nervuras, ench, g: pp + (el.cargas?.revestimento ?? 0) + (el.cargas?.outras ?? 0) + (el.cargas?.paredes ?? 0), q: el.cargas?.acidental ?? 0 };
 }
 
 /** Distância entre momentos nulos (m) a partir dos vínculos das duas bordas opostas. */
@@ -287,9 +287,14 @@ export function calcularLajeNervurada(el, ctx) {
     ok: verificacoes.every((v) => v.ok) && !avisos.some((a) => a.includes('fora do escopo')),
     avisos, verificacoes, memorial,
     duas, balanco, livre, metodoReacoes: duas && livre ? 'placa' : duas ? 'areas' : 'faixa', cargas: { pp: r2(cg.pp), g: r2(cg.g), q: r2(cg.q), pd: r2(pd) },
-    armaduras: armaduras.filter((a) => !a.nula).map((a) => ({ rotulo: a.rotulo, Md: r2(a.Md), As: r2(a.As), porMetro: a.porMetro && r2(a.porMetro), barras: a.barras?.rotulo ?? '—', negativa: !!a.negativa })),
-    mesa: mesa && { Md: r2(mesa.Md), As: r2(mesa.As), barras: mesa.barras?.rotulo ?? '—' },
-    cortante: { Vd: r2(cort.Vd), VR: r2(cort.VR), criterio: cort.criterio },
+    armaduras: armaduras.filter((a) => !a.nula).map((a) => ({
+      rotulo: a.rotulo, Md: r2(a.Md), As: r2(a.As), porMetro: a.porMetro && r2(a.porMetro), barras: a.barras?.rotulo ?? '—', negativa: !!a.negativa,
+      // barras para o detalhamento: por nervura (n, ø, camadas) ou por metro (ø c/ s) nas negativas
+      dir: /^(Nervura|Negativa) y/.test(a.rotulo) ? 'y' : 'x',
+      arranjo: a.barras?.phi ? (a.negativa ? { phi: a.barras.phi, s: a.barras.s } : { phi: a.barras.phi, n: a.barras.n, camadas: a.barras.camadas ?? 1 }) : null,
+    })),
+    mesa: mesa && { Md: r2(mesa.Md), As: r2(mesa.As), barras: mesa.barras?.rotulo ?? '—', arranjo: mesa.barras?.phi ? { phi: mesa.barras.phi, s: mesa.barras.s } : null },
+    cortante: { Vd: r2(cort.Vd), VR: r2(cort.VR), criterio: cort.criterio, estribos: cort.estribos ? { phi: cort.estribos.phi, s: cort.estribos.s } : null },
     flecha: { f0: r2(f0), ft: r2(ft), lim: r2(flim), bordaLivre: !!flechaBorda },
     reacoes: reacoes.map((r) => ({ ...r, g: r2(r.g), q: r2(r.q), d: r2(r.d) })),
     mapa,

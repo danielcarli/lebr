@@ -72,6 +72,8 @@
   --acento-forte: #9A422A;
   --acento-tinta: #E2E8F0;  /* texto sobre terracota (barra de status, botões principais, menus) */
   --acento-suave: rgba(184, 84, 56, 0.12);
+  /* indicativos de erro (não atende, erro de montagem): no claro e no escuro, o próprio terracota */
+  --erro: var(--acento); --erro-forte: var(--acento-forte); --erro-tinta: var(--acento-tinta); --erro-suave: var(--acento-suave);
 
   /* pontos (calendário) */
   --ponto-apagado: #E0DBD4;
@@ -119,6 +121,7 @@
   --acento-forte: #D47C5E;
   --acento-tinta: #E2E8F0;  /* texto sobre terracota (barra de status, botões principais, menus) */
   --acento-suave: rgba(196, 104, 74, 0.2);
+  --erro: var(--acento); --erro-forte: var(--acento-forte); --erro-tinta: var(--acento-tinta); --erro-suave: var(--acento-suave);
 
   --ponto-apagado: #2A2A2A;
   --ponto-aceso: #ECECEC;
@@ -158,6 +161,8 @@
   --acento-forte: #174A8A;
   --acento-tinta: #FFFFFF;
   --acento-suave: rgba(31, 95, 175, 0.12);
+  /* no blueprint o acento é azul: os indicativos de erro ficam em vermelho */
+  --erro: #D32F2F; --erro-forte: #B71C1C; --erro-tinta: #FFFFFF; --erro-suave: rgba(211, 47, 47, 0.12);
 
   --ponto-apagado: #DCE4EF;
   --ponto-aceso: #121A26;
@@ -175,9 +180,10 @@
   --tinta: #FFFFFF; --tinta-2: #C9D6EA; --suave: #9FB3D1; --tenue: #7F95B5;
   --filete: #1B355C; --filete-forte: #FFFFFF; --hover: rgba(255, 255, 255, 0.08); --selecao: rgba(127, 178, 255, 0.22);
   --acento: #7FB2FF; --acento-forte: #A9CBFF; --acento-tinta: #0A1E3C; --acento-suave: rgba(127, 178, 255, 0.18);
+  --erro: #FF5A4E; --erro-forte: #FF8A80; --erro-tinta: #FFFFFF; --erro-suave: rgba(255, 90, 78, 0.2);
   color-scheme: dark;
 }
-:root[data-tema='blueprint'] .aba.ativa { color: #121A26; --tinta: #121A26; --tinta-2: #3B4656; --tenue: #94A3B8; --acento: #1F5FAF; }
+:root[data-tema='blueprint'] .aba.ativa { color: #121A26; --tinta: #121A26; --tinta-2: #3B4656; --tenue: #94A3B8; --acento: #1F5FAF; --erro: #D32F2F; }
 
 /* desenhos, vistas 3D e montagem: cópia heliográfica */
 :root[data-tema='blueprint'] :is(.esquema-slot, .planta-slot, .previa-secao, .desenho-caixa, .figura-secao, .v3a-moldura, .v3d, .montagem) {
@@ -185,6 +191,7 @@
   --tinta: #FFFFFF; --tinta-2: #D3E2F6; --suave: #A9C7EE; --tenue: #7EA3D5;
   --filete: #4F84C6; --filete-forte: #FFFFFF; --hover: rgba(255, 255, 255, 0.09); --selecao: rgba(255, 255, 255, 0.18);
   --acento: #FFD166; --acento-forte: #FFE29A; --acento-tinta: #0E3670; --acento-suave: rgba(255, 209, 102, 0.2);
+  --erro: #FF6B5E; --erro-forte: #FF9A90; --erro-tinta: #FFFFFF; --erro-suave: rgba(255, 107, 94, 0.25);
   --ponto-apagado: #2A6CBA; --ponto-aceso: #FFFFFF; --degrade-ini: #FFFFFF; --degrade-fim: #5C8CCB;
   color: var(--tinta);
   color-scheme: dark;
@@ -203,11 +210,12 @@
 
 /* a lista de pavimentos, a barra e a lista de ligações da montagem e os painéis de comandos do 3D ficam como no tema
    claro (fundo branco, texto escuro, destaque em azul) */
-:root[data-tema='blueprint'] :is(.mont-lateral, .mont-barra, .mont-rodape, .v3d-painel, .v3d-mostrar, .v3d-cartao, .v3d-dica) {
+:root[data-tema='blueprint'] :is(.mont-lateral, .mont-barra, .mont-rodape, .mont-modo, .mont-cartao, .v3d-painel, .v3d-mostrar, .v3d-cartao, .v3d-dica) {
   --papel: #FFFFFF; --campo: #F7F9FC; --cartao: #EEF3FA; --cartao-tinta: #121A26; --lateral: #FFFFFF; --flutuante: #FFFFFF;
   --tinta: #121A26; --tinta-2: #3B4656; --suave: #5B6F8A; --tenue: #94A3B8;
   --filete: #D6DFEB; --filete-forte: #121A26; --hover: rgba(18, 26, 38, 0.06); --selecao: rgba(31, 95, 175, 0.14);
   --acento: #1F5FAF; --acento-forte: #174A8A; --acento-tinta: #FFFFFF; --acento-suave: rgba(31, 95, 175, 0.12);
+  --erro: #D32F2F; --erro-forte: #B71C1C; --erro-tinta: #FFFFFF; --erro-suave: rgba(211, 47, 47, 0.12);
   color: var(--tinta);
   color-scheme: light;
 }

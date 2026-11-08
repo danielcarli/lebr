@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Montagem (0.32): planta de arquitetura em DXF como fundo de cada pavimento, eixos do projeto e malha de encaixe.
@@ -182,7 +182,7 @@ export function encaixarEmEixos(projeto, meus, dx, dy, lim) {
  * @param {{projeto, pav, alterar, importar, mover:boolean, alternarMover}} op
  *   alterar(fn(proj, pavDoProjeto), descricao)
  */
-export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMover, redesenhar, eixosDosPilares }) {
+export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMover, redesenhar, eixosDosPilares, paredes }) {
   const planta = plantaDe(projeto, pav);
   const fundo = pav?.fundo;
   const mudar = (fn, d) => alterar((pp, pv) => { pv.fundo ??= {}; fn(pv.fundo, pp, pv); }, d);
@@ -218,6 +218,8 @@ export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMov
         h('div', { class: 'mont-camadas-lista' }, planta.camadas.map((c) => h('label', { class: 'mont-camada' },
           h('input', { type: 'checkbox', checked: !(fundo.ocultas ?? []).includes(c), onChange: (e) => mudar((f) => { const o = new Set(f.ocultas ?? []); if (e.target.checked) o.delete(c); else o.add(c); f.ocultas = [...o]; }, `Camada ${c}`) }),
           h('span', null, c))))),
+      paredes ? h('div', { class: 'mont-sel-acoes' },
+        ui.botao({ texto: 'Paredes como cargas…', icone: 'carga', tipo: 'secundario', aoClicar: paredes })) : null,
       h('div', { class: 'mont-sel-acoes' },
         ui.botao({ texto: 'Usar em todos os pavimentos', icone: 'copiar', tipo: 'fantasma', aoClicar: () => alterar((pp) => { for (const pv of pp.pavimentos) pv.fundo = { ...JSON.parse(JSON.stringify(fundo)) }; }, 'Planta de fundo em todos os pavimentos') }),
         ui.botao({ texto: 'Trocar…', icone: 'pasta', tipo: 'fantasma', aoClicar: importar }),

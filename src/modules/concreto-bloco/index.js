@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Módulo: Bloco sobre estacas (NBR 6118:2023, 22.7 · NBR 6122).
@@ -19,6 +19,7 @@
 import { calcularBloco, criarBloco } from './calculo.js';
 import { pilaresDeFundacao, COBRIMENTO_SOLO } from '../concreto-sapata/calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
+import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
@@ -157,7 +158,7 @@ export default function moduloBloco(api) {
       }));
     },
 
-    renderResultado(raiz, r) {
+    renderResultado(raiz, r, ctx) {
       const uso = Math.max(...r.Rk) / r.Padm;
       raiz.append(h('div', { class: 'instrumentos' },
         ui.numeroGrande({ rotulo: 'Bloco', valor: `${num(r.A, 0)} × ${num(r.B, 0)} × ${num(r.h, 0)}`, unidade: 'cm', linhas: [`${r.n} estaca${r.n > 1 ? 's' : ''} ${r.estaca.nome.toLowerCase()} ø ${num(r.estaca.D, 0)}`, `espaçamento ${num(r.e, 0)} cm`] }),
@@ -182,6 +183,22 @@ export default function moduloBloco(api) {
       raiz.append(ui.secao({
         numero: '05', titulo: 'Armaduras', descricao: 'NBR 6118, 22.7.4 — barras de face a face com ganchos, ancoradas a partir da face interna das estacas',
         filhos: [ui.tabela({ classe: 'els-tabela', colunas: [{ titulo: 'Armadura' }, { titulo: 'Força', alinhar: 'dir' }, { titulo: 'As (cm²)', alinhar: 'dir' }, { titulo: 'Adotada' }], linhas: linhasArm })],
+      }));
+      const ae = r.armaduraEstaca;
+      if (ae) raiz.append(ui.secao({
+        numero: '06', titulo: 'Armadura das estacas', descricao: `NBR 6122:2019, 8.6.3 e Tabela 4 — estaca mais carregada (Rmáx = ${num(ae.Nk, 1)} kN)`,
+        filhos: [ui.tabela({ classe: 'els-tabela', colunas: [{ titulo: 'Grandeza' }, { titulo: 'Valor', alinhar: 'dir' }], linhas: [
+          ['Concreto (Tabela 4)', `C${ae.fck}, γc = ${num(ae.gc, 1)}`],
+          ['Tensão σ = Nk/Ac', `${num(ae.sigma, 2)} MPa ${ae.precisa ? '>' : '≤'} ${num(ae.sigmaLim, 1)} MPa`],
+          ['Armadura', ae.precisa ? `As,nec = ${num(ae.AsNec)} cm² (mín. ${num(ae.AsMin)} cm²)` : `só a ligação com o bloco: ${num(ae.AsMin)} cm²`],
+          ['Gaiola', `${ae.barras?.rotulo ?? '—'} · estribo ${ae.estribo.rotulo}`],
+          ['Comprimento armado', `${num(ae.Larm, 1)} m (mín. ${num(ae.Lmin, 1)} m) + espera de ${num(ae.espera, 0)} cm no bloco`],
+        ] })],
+      }));
+      if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
+        titulo: 'Ferragem do bloco e das estacas', descricao: 'Tirantes, malha de distribuição, armaduras laterais e superior (estacas em linha), suspensão e a gaiola das estacas · lista de ferros editável',
+        volume: (r.A * r.B * r.h) / 1e6,
+        nota: 'Tirantes e armadura superior com ganchos subindo (ou descendo) pelas faces; malhas e pele com ganchos a 90° (+10ø). A gaiola das estacas conta todas as estacas do bloco. Os arranques do pilar estão no detalhamento do pilar.',
       }));
     },
   };

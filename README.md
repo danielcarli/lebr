@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.35.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.56.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -51,7 +51,7 @@ npm run validar  # banco de casos de validação: grava validacao/relatorio.html
 No Windows, rode os comandos dentro da pasta que contém o `package.json`. Se o PowerShell
 bloquear o `npm` ("a execução de scripts foi desabilitada"), use `npm.cmd install` e `npm.cmd start`.
 
-Na tela inicial há quatro exemplos:
+Na tela inicial há seis exemplos:
 
 - **Abrir exemplo**: um pavimento com duas lajes, cinco vigas e seis pilares já ligados entre si.
 - **Exemplo térreo com baldrame** (`exemplos/residencia-terrea-baldrame.lebr.json`): a mesma casa de um pavimento com o
@@ -67,6 +67,12 @@ Na tela inicial há quatro exemplos:
   com platibanda na cobertura, pilares pelo pórtico espacial com vento (NBR 6123), desaprumo e γz, dois furos de
   sondagem e blocos sobre estacas hélice contínua ø 60 cm. Com cerca de 600 elementos, o cálculo completo leva alguns
   segundos.
+- **Exemplo: terminal de aeroporto** (`exemplos/terminal-aeroporto.lebr.json`): terminal de passageiros de médio porte,
+  72 × 36 m, com embarque a 5,0 m e cobertura a 10,0 m na malha de 9 × 9 m — pilares circulares no miolo, vigas
+  contínuas em grelha, lajes nervuradas em duas direções, saguão com pé-direito duplo, marquise do meio-fio sobre vigas
+  em balanço, nível de baldrame, três furos SPT e blocos sobre estacas hélice contínua.
+- **Exemplo: aeroporto com satélite** (`exemplos/aeroporto-terminal-satelite.lebr.json`): terminal principal, conector
+  elevado sobre o pátio e satélite de portões, na mesma malha de 9 m, com cerca de 470 elementos.
 
 Tipografia: [Livvic](https://fonts.google.com/specimen/Livvic) (Fonthausen, licença OFL 1.1), embutida em
 `src/renderer/assets/fonts`, então funciona sem internet.
@@ -515,6 +521,140 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.56.0 (laje nervurada em 3D):** a **visualização 3D** desenha a laje nervurada inteira — capa,
+  nervuras nas duas direções (ou numa só, com as nervuras transversais de travamento), faixas maciças de borda e os
+  blocos de enchimento (EPS, cerâmico, concreto celular); vista de baixo, aparece a grelha. No resultado da laje, nova
+  seção **Detalhamento das barras**: planta de armação, lista de ferros editável (barras de cada nervura, travamentos,
+  negativas e distribuição na capa, malha da capa calculada ou construtiva, estribos quando o cortante pede) e a
+  **Armadura em 3D**. Os quantitativos da nervurada passam a ter o concreto pela geometria e o aço pela lista.
+  O tutorial da casa térrea teve a planta da página 2 corrigida (textos sobrepostos).
+- **Novidades da 0.55.0:** **Tutorial 1 — casa térrea simples** em PDF (`tutoriais/01-casa-terrea.pdf`, 22 páginas,
+  com as capturas do programa): projeto novo, pavimento e eixos, pilares, vigas em cadeia, lajes no contorno, pincel,
+  nível de baldrame, sapatas, cálculo e correção do que não atende, resultados, quantitativos e documentos; o projeto
+  pronto vem junto (`tutoriais/casa-terrea.lebr.json`). Abre em **Ajuda → Tutorial: casa térrea simples (PDF)**, na
+  tela inicial ou em **Ajuda → Pasta dos tutoriais**. **Licença trocada para a GNU Affero General Public License,
+  versão 3 (AGPL-3.0)**. Correção: o pilar posto na planta pelo botão Adicionar não leva mais a carga de exemplo do
+  módulo (300 kN de "pavimentos superiores").
+- **Novidades da 0.54.0 (ferragem das fundações):** **armadura das estacas** moldadas in loco (NBR 6122:2019, 8.6.3
+  e Tabela 4): concreto e γc da tabela pela classe de agressividade (hélice C30/γc 2,7 ou C40/3,6; escavada e broca
+  C25/3,1 ou C40/5,0); com σ = Nk/Ac até a tensão-limite (6 MPa na hélice, 5 MPa na escavada), só a armadura de ligação
+  com o bloco — 0,4 % de Ac no comprimento útil mínimo (4 m ou 2 m); acima dela, As = (1,4·Nk − 0,85·fcd·Ac)/σs e
+  armada até a carga, descontado o atrito lateral mobilizado, voltar ao limite. Gaiola com no mínimo 6 barras ø ≥ 10
+  mm, estribo circular (NBR 6118, 18.4) e espera no bloco. **Lista de ferros editável** na estaca, na sapata (malhas de
+  face a face com gancho nas duas pontas, 22.6.4.1.1) e no bloco (tirantes, malha de distribuição, suspensão, gaiola das
+  estacas e, nos blocos com as estacas em linha, as armaduras laterais e superior obrigatórias do 22.7.4.1.5, com as
+  quantidades da prática usual: superior 0,2·As, pele e estribos verticais com As/s ≥ 0,075·B). Os quantitativos usam
+  a lista. Os valores da Tabela 4 seguem o texto do projeto de revisão de 2018 que originou a edição de 2019.
+- **Novidades da 0.53.0 (vigas T e L):** na viga, **Seção transversal: Retangular, Viga T ou Viga L**. A laje moldada
+  junto trabalha como mesa colaborante (NBR 6118, 14.6.2.2): bf = bw + b1 de cada lado, com b1 ≤ 0,5·b2 e ≤ 0,10·a, onde
+  a = ℓ, 0,75ℓ ou 0,60ℓ pela continuidade de cada tramo (2ℓ no balanço); na viga L, a aba em balanço entra com
+  b3 ≤ b4 e ≤ 0,10·a. A mesa só conta onde está comprimida (nos vãos; na viga invertida, nos apoios). Flexão com a linha
+  neutra na mesa (retangular bf × h) ou na alma (abas + alma, com armadura dupla quando preciso), armadura mínima com o
+  W0 da seção T, flechas e fissuras com a inércia da seção T (Mr com α = 1,2) e a ligação mesa–alma (18.3.7: biela e
+  armadura, mínimo de 1,5 cm²/m). "Pegar das lajes ligadas" lê na montagem a espessura da mesa e as distâncias até as
+  vigas vizinhas; o desenho da seção mostra a mesa e a bf.
+- **Novidades da 0.52.0 (exemplo):** **aeroporto com terminal e satélite** (Arquivo → Abrir exemplo: aeroporto com
+  terminal e satélite, ou na tela inicial), na configuração de terminal com satélite: terminal principal de 63 × 27 m no
+  lado terra (saguão com pé-direito duplo e marquise no meio-fio), conector elevado de 9 × 54 m sobre o pátio — o térreo
+  fica livre para os veículos de pista — e satélite de portões de 45 × 36 m. Malha de 9 m, embarque a 5,0 m e
+  cobertura a 10,0 m, 91 lajes nervuradas, vigas contínuas em grelha (as transversais do conector, de um vão só, com
+  110 cm), baldrame, três furos SPT e 72 blocos sobre estacas. Medidas adotadas para o exemplo; abre sem problemas de
+  montagem e com tudo atendendo.
+- **Novidades da 0.51.0 (exemplo):** **terminal de passageiros de aeroporto de médio porte** (Arquivo → Abrir exemplo:
+  terminal de aeroporto, ou na tela inicial). 72 × 36 m em dois níveis — térreo de check-in e desembarque, embarque a
+  5,0 m e cobertura a 10,0 m — na malha de 9 × 9 m: pilares circulares ø 65/50 cm no miolo, vigas contínuas 25 × 85 e
+  30 × 85 cm de 8 e 4 vãos (análise em grelha), 60 lajes nervuradas em duas direções (cubetas, intereixo de 80 cm),
+  saguão com pé-direito duplo (vazio de 18 × 18 m no embarque), marquise de 3 m no meio-fio apoiada nas vigas em
+  balanço, fachada em pele de vidro, cargas de uso da Tabela 10 da NBR 6120 (circulação de público e salas de embarque,
+  lojas, praça de alimentação), nível de baldrame, três furos SPT e 45 blocos sobre estacas hélice contínua. Abre sem
+  problemas de montagem e com todos os elementos atendendo.
+- **Novidades da 0.50.0 (lançamento, etapa L15):** **importar modelo IFC** (Arquivo → Importar modelo IFC…; IFC 2x3, 4
+  e 4.3, do Revit, do Archicad e afins). Cada nível (IfcBuildingStorey) vira pavimento com a cota do modelo (num
+  projeto com pavimentos, os de mesma cota são reaproveitados); cada pilar (IfcColumn) vira pilar de concreto no
+  pavimento onde termina, com a seção, o ângulo e o comprimento do modelo (circular quando o perfil é um círculo) e já
+  ligado ao pilar de baixo; lajes (IfcSlab) retangulares de até 60 cm viram lajes maciças. Paredes, vigas, lajes
+  recortadas ou inclinadas e o contorno dos pilares ficam na planta de fundo de cada pavimento (camadas IFC-…), para
+  lançar as vigas por cima e transformar as paredes em cargas pela L12. Coordenadas de levantamento são trazidas para
+  perto da origem; unidades em mm, cm, m ou pés. Geometria lida: sólidos extrudados (perfis retangular, circular,
+  poligonal e I/L/T/U/C), cortes booleanos, itens mapeados, B-rep e malhas; furos e aberturas não entram.
+- **Novidades da 0.49.0 (lançamento, etapa L12):** **paredes do DXF como cargas** (Montagem → "…" → Paredes da planta de fundo
+  como cargas, ou no bloco da planta de fundo). Pares de linhas paralelas de 9 a 25 cm da camada escolhida viram
+  paredes; cada uma carrega as vigas paralelas que estão embaixo (por vão) com o peso da Tabela 2 da NBR 6120 × altura,
+  onde altura = pé-direito do lance − altura da viga (ou da laje). Trecho que cobre ao menos metade do vão: carga de
+  parede no vão inteiro; menor: concentrada com o peso do trecho, no centro dele. Parede sem viga embaixo vai para a
+  laje como peso ÷ área (`cargas.paredes`, kN/m², somado às permanentes). Antes de aplicar, uma lista com planta
+  miniatura mostra cada parede, o bloco adotado (desenho acabado ou só o bloco), a altura editável e o destino;
+  aplicar de novo troca as cargas de parede do pavimento.
+- **Novidades da 0.48.0 (lançamento, etapa L9):** **pavimento tipo**: no cartão do pavimento, **Repetições** (×n). O
+  modelo é um só, editado e calculado uma vez, e vale para n níveis seguidos: aparece com os n níveis no 3D, no
+  pórtico espacial, no vento e nos quantitativos, e os pilares de baixo recebem a carga de todos os níveis; os
+  pavimentos de cima sobem junto para manter o pé-direito. **Copiar pavimento**: total ou só pilares, vigas ou lajes,
+  para um pavimento novo ou um existente. E **Ver em 3D** na janela do elemento abre o 3D com ele selecionado e a
+  câmera apontada para ele.
+- **Novidades da 0.47.0 (lançamento, etapa L10):** no pilar selecionado da montagem, **ponto fixo** (centro, um canto
+  ou o meio de uma face): quando a seção muda, por onde for, esse ponto fica no lugar. **Lance**: a prumada do pilar e
+  "de um pavimento até outro", que cria os pilares que faltam no mesmo prumo e liga cada um ao de baixo. **Pilar
+  nascendo em viga**: sem pilar embaixo e com a base sobre uma viga, a normal do pilar entra na viga como carga
+  concentrada e o painel avisa da transição. A janela do elemento selecionado mostra também **com quem ele se liga**
+  (em quem apoia e o que recebe; clicar seleciona o outro) e tem os botões **Abrir elemento** e **Ver em 3D**.
+- **Novidades da 0.46.0 (lançamento, etapa L11):** **Estrutura › Renumerar** (e, só o pavimento, no menu … da
+  montagem): pilares, vigas e lajes numerados de cima para baixo e da esquerda para a direita na planta, com as vigas
+  horizontais antes das verticais; por pavimento (P001, P101, P201…) ou sequencial (P1, P2…), com prévia. As ligações
+  continuam nos mesmos elementos, e nomes e descrições que repetem o código são atualizados.
+- **Novidades da 0.45.0 (lançamento, etapa L13, e montagem):** **carga padrão por pavimento**: no cartão do
+  pavimento, o uso das lajes novas (catálogo da NBR 6120); toda laje nova do pavimento já sai com a acidental do uso, e
+  cada laje pode mudar depois. Na montagem, a **janela de ligações** flutua no canto da planta, recolhe e esconde (botão
+  na barra), e a **janela do elemento selecionado** abre com os comandos de montagem: girar (−/+ com o passo), mover
+  com as setas (1 cm a 0,5 m; também pelo teclado, Shift dez vezes), x, y, ângulo e pavimento; as propriedades e o
+  pré-dimensionamento ficam recolhidos embaixo.
+- **Novidades da 0.44.0:** o **elemento selecionado** na montagem fica numa janela flutuante no lado esquerdo da
+  planta, como o cartão da vista 3D: título com o código, a situação do cálculo, abrir e fechar; um clique no título
+  recolhe a janela (fica só o título) e a escolha fica lembrada. Os modos de lançamento passam para o lado direito.
+- **Novidades da 0.43.0 (montagem em telas menores):** a barra da montagem encolhe para ícones (com dica) e, mais
+  estreita, guarda as ações de menos uso no menu **…**; o painel dos pavimentos some e volta pelo botão da barra e, com
+  o editor estreito, vira uma gaveta sobre a planta; o nome do pavimento abre a lista para trocar (ou Page Up / Page
+  Down); legenda, lista de ligações e a caixa dos modos de lançamento recolhem com um clique (em janelas baixas já
+  começam recolhidas, e a escolha fica lembrada); **Ampliar a área de trabalho** (Ctrl+Shift+F) esconde explorador e
+  painel inferior e devolve como estavam. A janela não passa mais da largura da tela.
+- **Novidades da 0.42.0 (lançamento, etapa L8):** **pré-dimensionamento**: o elemento selecionado na montagem mostra
+  a sugestão com a conta e o botão **Aplicar sugestão**; o botão do pavimento lista todas as sugestões para marcar e
+  aplicar. Vigas h = L/10 (um vão), L/12 (contínua) ou L/5 (balanço), em múltiplos de 5 cm; lajes maciças
+  máx(Lx/40, 8 cm; 10 cm em balanço); pilares pela área de influência (Nk = q·Ai·n, γ = 1,8, 2,2 ou 2,5), sem nunca
+  diminuir a seção atual. Na Viga em cadeia e na Laje no contorno, a altura pode sair **pelo vão**.
+- **Novidades da 0.41.0 (lançamento, etapas L6 e L7):** **dados do próximo elemento**: seção, concreto, cargas e
+  próximo código ficam escolhidos antes de lançar e valem para todas as vigas e lajes seguintes (Viga em cadeia, Laje
+  no contorno e Adicionar), gravados no projeto. **Conta-gotas** e **Pincel** no elemento selecionado da montagem copiam
+  seção, critérios e cargas próprias para outros elementos, sem levar as ligações. **Critérios do elemento**: exceção
+  de fck e de cobrimento em vigas, pilares, lajes, escadas, reservatórios e fundações, com aviso quando ficam abaixo
+  do mínimo da classe de agressividade (Tabelas 7.1 e 7.2). E nos **problemas de montagem**, um botão por problema
+  resolve o que é mecânico (desfazer a ligação que não confere, conectar, encostar, ajustar o pé-direito, definir o
+  cruzamento) e **Resolver automaticamente** faz tudo de uma vez; o que muda o modelo (tornar a borda livre, tornar
+  o apoio um balanço, retirar da planta) fica como botão de decisão em cada problema.
+- **Novidades da 0.40.0 (lançamento, etapa L5):** **Laje no contorno** (botão na montagem ou tecla **L**): as regiões
+  fechadas pelos eixos das vigas aparecem destacadas na planta; um clique dentro lança a laje (maciça, treliçada,
+  nervurada ou alveolar) com as quatro bordas ligadas às vigas. **Fechamento de bordo**: uma linha que fecha a região
+  de um balanço; a laje fica com a borda livre ali. Lajes em uma direção correm no menor vão.
+- **Novidades da 0.39.0 (lançamento, etapa L4):** **Viga em cadeia** (botão na montagem ou tecla **V**): clicando de
+  pilar em pilar, cada trecho reto vira uma viga, com os vãos quebrados em todos os pilares atravessados; eixo no
+  centro dos pilares ou face rente à face do pilar, deslocamento lateral, Shift trava em 0°/90°, Enter ou duplo
+  clique conclui. As ligações com os pilares entram na hora.
+- **Novidades da 0.38.0 (lançamento, etapa L3):** **cruzamentos de vigas** fora de pilar aparecem na planta com "?";
+  um clique escolhe "A apoia em B", "B apoia em A" ou "sem transferência", e **Definir todos** põe a viga mais rígida
+  (b·h³/L³) como apoio. Na grelha, a viga apoiada recebe uma rótula no cruzamento; sem transferência, as vigas não
+  têm nó comum; indefinido é erro de montagem. Também: **R / Shift+R** giram o elemento selecionado na montagem em
+  torno do centro, com **passo do giro** escolhido (90°, 45°, 30°, 15° ou qualquer valor); o cálculo pode rodar com
+  erros de montagem (Parâmetros › Montagem: perguntar, calcular mesmo assim ou bloquear); o painel tem **Problemas de
+  montagem** e **Problemas de cálculo** em abas separadas; no tema blueprint, os indicativos de erro ficam em vermelho.
+- **Novidades da 0.37.0 (lançamento, etapa L2):** painel **Problemas** (Ctrl+Shift+M) com a consistência da montagem
+  por pavimento: elemento solto, viga sem apoio, laje com contorno aberto, sobreposição, pilar sem continuidade, carga
+  de elemento inexistente, ligação indicada e não aplicada, além de avisos (folgas, pé-direito, pilar sem carga). Clicar
+  num problema aproxima a planta no ponto exato. **Erros bloqueiam o cálculo**: Calcular e Calcular todos ficam
+  desabilitados e a barra de status mostra "Cálculo bloqueado" até a correção.
+- **Novidades da 0.36.0 (lançamento, etapa L1):** **tolerância geométrica** em Parâmetros › Montagem (padrão
+  1 mm): o apoio de viga a menos dela da face do pilar conta como apoiado. **Estrutura › Limpar geometria** funde os
+  nós próximos e leva os apoios das vigas até a face dos pilares e o eixo das vigas que os recebem, ao longo do próprio
+  eixo (nenhuma viga gira), e o pilar de cima ao prumo do de baixo, com prévia das correções. Folgas acima da tolerância
+  (até 20 mm) aparecem como aviso na montagem, com o botão **Encostar**.
 - **Novidades da 0.35.0:** **Ajuda › Exercícios resolvidos (LEBR × fontes)** mostra cada um dos 158 problemas
   publicados com o enunciado, a fonte com link, o valor do material e o do LEBR, as hipóteses diferentes, as
   divergências encontradas e os exercícios que ficaram de fora, e exporta em PDF. Novo **tema blueprint**: navegação em azul
@@ -667,11 +807,13 @@ Opus 5.5. Os créditos também aparecem em **Ajuda › Sobre o LEBR**.
 
 ## Licença
 
-**GNU General Public License, versão 3** (GPL-3.0) — veja [LICENSE](LICENSE). O LEBR é software livre: pode ser
-usado, estudado, modificado e redistribuído, desde que as versões distribuídas mantenham a mesma licença e o
-código-fonte aberto. É distribuído **sem nenhuma garantia**. Até a versão 0.29.1 o projeto era distribuído sob a
-licença MIT. O Three.js, embutido em `src/renderer/assets/vendor/three`, mantém a sua licença MIT.
+**GNU Affero General Public License, versão 3** (AGPL-3.0) — veja [LICENSE](LICENSE). O LEBR é software livre: pode
+ser usado, estudado, modificado e redistribuído, desde que as versões distribuídas mantenham a mesma licença e o
+código-fonte aberto; além disso, quem oferecer uma versão modificada para outras pessoas usarem pela rede (como
+serviço, num servidor ou no navegador) também precisa oferecer o código-fonte dessa versão. É distribuído **sem nenhuma
+garantia**. Até a versão 0.29.1 o projeto era distribuído sob a licença MIT e, da 0.30 à 0.54, sob a GPL-3.0. O
+Three.js, embutido em `src/renderer/assets/vendor/three`, mantém a sua licença MIT.
 
 Cada arquivo JavaScript do projeto traz no cabeçalho a autoria — feito com uso da inteligência artificial Claude
-Opus 5.5, sob a orientação de Daniel Michelon De Carli — e a licença GPL-3.0 (`SPDX-License-Identifier:
-GPL-3.0-only`).
+Opus 5.5, sob a orientação de Daniel Michelon De Carli — e a licença AGPL-3.0 (`SPDX-License-Identifier:
+AGPL-3.0-only`).

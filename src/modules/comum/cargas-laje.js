@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Campos de carga das lajes ligados ao catálogo da NBR 6120:2019 (engine/cargas.js),
@@ -103,6 +103,17 @@ export function camposCargasLaje(api, ctx, { forro = true, larguraCampo = '150px
           h('span', { class: 'num' }, k.espessura != null ? `${num(k.espessura, 1)} cm × ${num(k.gama, 1)} kN/m³ = ` : '', h('b', null, `${num(k.p)} kN/m²`)))),
         h('li', { class: 'total' }, h('span', null, 'Revestimento'), h('span', { class: 'num' }, h('b', null, `${num(r.total)} kN/m²`)))),
     );
+  }
+
+  // paredes lançadas da arquitetura (etapa L12): peso das paredes ÷ área da laje, somado às permanentes
+  if (Number(cg.paredes) > 0) {
+    composicao.push(ui.linhaCampos(
+      ui.campo({
+        rotulo: 'Paredes sobre a laje', valor: cg.paredes, unidade: 'kN/m²', min: 0, largura: larguraCampo,
+        dica: 'Peso das paredes sem viga embaixo ÷ área da laje (Montagem → Paredes do DXF). Prática usual para laje armada em duas direções; em uma direção, confira a faixa de distribuição.',
+        aoMudar: (v) => ctx.alterar((e) => { if (v > 0) e.cargas.paredes = v; else delete e.cargas.paredes; }, redesenhar),
+      }),
+    ));
   }
 
   return { uso, acidental, revestimento, composicao };

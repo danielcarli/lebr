@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Entrepiso de madeira — sistema light wood frame (NBR 16936:2023),
@@ -58,7 +58,7 @@ export function cargasEntrepiso(el, m) {
   const vigotas = (m.peso * el.vigota.b * el.vigota.h) / 1e4 / s;
   const pp = el.pesoProprio ? painel + vigotas : 0;
   const c = el.cargas ?? {};
-  return { painel, vigotas, pp, g: pp + (c.revestimento ?? 0) + (c.forro ?? 0) + (c.outras ?? 0), q: c.acidental ?? 0 };
+  return { painel, vigotas, pp, g: pp + (c.revestimento ?? 0) + (c.forro ?? 0) + (c.outras ?? 0) + (c.paredes ?? 0), q: c.acidental ?? 0 };
 }
 
 function analisar(el, ctx) {

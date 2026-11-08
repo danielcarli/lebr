@@ -1,6 +1,6 @@
 ﻿; LEBR — Laboratório de Estruturas Brasil
 ; Copyright (C) 2026 Daniel Michelon De Carli
-; SPDX-License-Identifier: GPL-3.0-only
+; SPDX-License-Identifier: AGPL-3.0-only
 ;
 ; Instalador do Windows (Inno Setup 6.5 ou mais novo). Não traz o programa: na hora da instalação ele roda o
 ; instalar-lebr.ps1, que baixa o código-fonte da última release do GitHub, confere os arquivos, roda os testes e
@@ -23,7 +23,7 @@ AppPublisher=Daniel Michelon De Carli
 AppPublisherURL=https://github.com/{#Repositorio}
 AppSupportURL=https://github.com/{#Repositorio}/issues
 AppUpdatesURL=https://github.com/{#Repositorio}/releases
-AppCopyright=Copyright (C) 2026 Daniel Michelon De Carli — GPL-3.0
+AppCopyright=Copyright (C) 2026 Daniel Michelon De Carli — AGPL-3.0
 VersionInfoVersion={#VersaoInstalador}
 VersionInfoDescription=Instalador do LEBR (monta a última versão do GitHub)
 VersionInfoProductName={#Nome}

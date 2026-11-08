@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Editor de elemento — moldura comum a todos os módulos:
@@ -28,6 +28,8 @@ import { montagemDoProjeto } from '../core/situacao-montagem.js';
 import { comandos } from '../core/comandos.js';
 import { abrirMenu } from '../ui/menus.js';
 import { secaoSugestoes } from './sugestoes.js';
+import { aceitaCriterios, criteriosDoElemento, criteriosEfetivos, avisosDeCriterios, CLASSES_FCK, tipoDeCobrimento } from '../core/criterios.js';
+import { parametrosDoElemento } from '../core/criterios.js';
 
 /* ------------------------------------------------------------------ estado "calculando" (cálculo no Worker, 0.32) */
 const calculando = new Set(); // ids em cálculo
@@ -86,7 +88,7 @@ function renderizar(container, id, acoes) {
     api: acoes.api,
     get elemento() { return estado.elemento(id); },
     get projeto() { return estado.projeto; },
-    get materiais() { return contextoConcreto(estado.projeto.parametros); },
+    get materiais() { return contextoConcreto(parametrosDoElemento(estado.projeto.parametros, estado.elemento(id))); },
     contextoCalculo: () => contextoCalculo(estado.projeto, modulos, [id]),
     alterar(fn, op = {}) {
       estado.alterar((p) => fn(estado.elemento(id), p), {
@@ -165,10 +167,13 @@ function renderizar(container, id, acoes) {
     const e = estado.elemento(id);
     if (!e) return;
     const r = e.resultado;
+    const bloqueio = acoes.bloqueio?.(id) ?? [];
+    const bloqueia = bloqueio.length > 0 && !!acoes.bloqueia?.();
     limpar(barra).append(
-      ui.botao({ texto: 'Calcular', icone: 'calcular', tipo: 'primario', tecla: 'F5', desabilitado: calculando.has(id), aoClicar: () => acoes.calcular(id) }),
+      ui.botao({ texto: 'Calcular', icone: 'calcular', tipo: 'primario', tecla: 'F5', desabilitado: calculando.has(id) || bloqueia, aoClicar: () => acoes.calcular(id) }),
       chipEstado(e),
-      h('span', { class: 'barra-info' },
+      bloqueio.length ? h('span', { class: 'barra-info bloqueio' }, icone('alerta', { tamanho: 13, traco: 1.8 }), `${bloqueia ? 'Cálculo bloqueado' : 'Erro de montagem'}: ${bloqueio[0].texto} `,
+        h('button', { class: 'link', onClick: () => acoes.verProblemas?.() }, 'Ver problemas')) : h('span', { class: 'barra-info' },
         !r ? 'Preencha os dados e calcule o elemento.'
           : r.desatualizado ? 'Os dados mudaram — recalcule para atualizar.'
             : `Calculado em ${dataHora(r.calculadoEm)}`),
@@ -227,6 +232,36 @@ function renderizar(container, id, acoes) {
       console.error(err);
       entrada.append(ui.vazio({ icone: 'alerta', titulo: 'Erro ao montar o editor', texto: err.message }));
     }
+    const e = estado.elemento(id);
+    if (aceitaCriterios(e)) entrada.append(secaoCriterios(e));
+  }
+
+  /** Critérios do elemento (etapa L7): exceção de fck e de cobrimento sobre os parâmetros do projeto. */
+  function secaoCriterios(e) {
+    const par = estado.projeto.parametros;
+    const c = criteriosDoElemento(e);
+    const ef = criteriosEfetivos(par, e);
+    const tipo = tipoDeCobrimento(e);
+    const cobProjeto = tipo === 'solo' ? null : par.cobrimento?.[tipo];
+    const mudar = (campo, v) => ctx.alterar((x) => {
+      x.criterios = { ...(x.criterios ?? {}), [campo]: v };
+      if (x.criterios[campo] == null) delete x.criterios[campo];
+      if (!Object.keys(x.criterios).length) delete x.criterios;
+    }, { descricao: campo === 'fck' ? 'Concreto do elemento' : 'Cobrimento do elemento', estrutural: true });
+    const cm = (v) => `${String(v).replace('.', ',')} cm`;
+    const avisos = avisosDeCriterios(par, e);
+    return ui.secao({
+      numero: '', titulo: 'Critérios do elemento',
+      descricao: `Exceção aos parâmetros do projeto (C${par.concreto.fck}${cobProjeto ? `, cobrimento ${cm(cobProjeto)}` : ''}, CAA ${par.classeAgressividade})`,
+      filhos: [
+        ui.linhaCampos(
+          ui.selecao({ rotulo: 'Concreto', valor: c.fck ?? 0, largura: '190px', opcoes: [{ valor: 0, texto: `Do projeto (C${par.concreto.fck})` }, ...CLASSES_FCK.map((f) => ({ valor: f, texto: `C${f}` }))], aoMudar: (v) => mudar('fck', v || null) }),
+          tipo !== 'solo' ? ui.selecao({ rotulo: 'Cobrimento', valor: c.cobrimento ?? 0, largura: '190px', opcoes: [{ valor: 0, texto: `Do projeto (${cm(cobProjeto)})` }, ...[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5].map((v) => ({ valor: v, texto: cm(v) }))], aoMudar: (v) => mudar('cobrimento', v || null) }) : null,
+        ),
+        h('p', { class: 'combinacoes-nota' }, `Vale no cálculo deste elemento: C${ef.fck}${ef.cobrimento ? ` e cobrimento ${cm(ef.cobrimento)}` : ''}${ef.fckOrigem === 'elemento' || ef.cobrimentoOrigem === 'elemento' ? ' (exceção do elemento)' : ' (do projeto)'}.`),
+        avisos.length ? h('ul', { class: 'avisos' }, avisos.map((a) => h('li', null, icone('alerta', { tamanho: 14, traco: 1.8 }), a))) : null,
+      ],
+    });
   }
 
   function desenharResultados() {

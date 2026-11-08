@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Parâmetros globais do projeto: identificação, materiais, durabilidade e ações.
@@ -145,6 +145,27 @@ export function abaParametros() {
         }),
 
         secaoMadeira(par, mudar),
+
+        ui.secao({
+          numero: '08', titulo: 'Montagem', descricao: 'Tolerância geométrica do lançamento na planta',
+          filhos: [
+            ui.linhaCampos(ui.campo({
+              rotulo: 'Tolerância geométrica', valor: par.montagem?.tolerancia ?? 1, unidade: 'mm', casas: 1, min: 0, max: 50, largura: '190px',
+              dica: 'Um apoio de viga a menos disso da face de um pilar conta como apoiado nele, e Limpar geometria funde os nós mais próximos que isso. Folgas acima da tolerância (até 20 mm ou cinco vezes a tolerância) aparecem como aviso na montagem.',
+              aoMudar: (v) => estado.alterar((proj) => { proj.parametros.montagem = { ...(proj.parametros.montagem ?? {}), tolerancia: v }; }, { descricao: 'Tolerância geométrica', tipo: 'parametros', estrutural: true }),
+            })),
+            ui.linhaCampos(ui.segmentado({
+              rotulo: 'Calcular com erros de montagem', valor: par.montagem?.erros ?? 'perguntar',
+              opcoes: [
+                { valor: 'perguntar', texto: 'Perguntar', dica: 'Calcular todos mostra os erros e pergunta; o cálculo de um elemento roda e registra o aviso na Saída' },
+                { valor: 'calcular', texto: 'Calcular mesmo assim', dica: 'Calcula sem perguntar; os erros continuam no painel Problemas e na barra de status' },
+                { valor: 'bloquear', texto: 'Bloquear', dica: 'Como nos programas consolidados: nada é calculado enquanto houver erro de montagem' },
+              ],
+              aoMudar: (v) => estado.alterar((proj) => { proj.parametros.montagem = { ...(proj.parametros.montagem ?? {}), erros: v }; }, { descricao: 'Calcular com erros de montagem', tipo: 'parametros', estrutural: true }),
+            })),
+            h('p', { class: 'combinacoes-nota' }, 'Padrão de 1 mm, como nos programas de análise (um nó a menos de 1 mm de uma barra é considerado sobre ela). Use Estrutura › Limpar geometria para corrigir a planta com esta tolerância ou com uma maior.'),
+          ],
+        }),
       );
       container.append(pagina);
       return {

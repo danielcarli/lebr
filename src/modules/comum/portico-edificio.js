@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Pórtico espacial do edifício (NBR 6118, 14.6): vigas de concreto de todos os pavimentos e pilares de
@@ -26,6 +26,7 @@
  * Os resultados ficam por pilar (lance a lance) e por pavimento (resultante das cargas verticais), para
  * conferir com as reações na fundação.
  */
+import { expandirTipos } from '../../renderer/core/tipos.js';
 import { analisarPortico, esforcosNaSecao, propriedadesMaterial } from '../../engine/portico.js';
 import { pavimentosOrdenados, tipoDe, secaoPilar, centroPilar, cantosLaje, cantosPilar, eixoViga, TOLERANCIA } from '../../renderer/core/montagem.js';
 import { forcasDeVento, TOPOGRAFIAS } from '../../engine/vento.js';
@@ -226,7 +227,8 @@ export function ventoDoProjeto(projeto, registro) {
   const planta = plantaDoEdificio(projeto, registro);
   if (!planta) return { erro: 'Não há elementos posicionados na montagem.', parametros: pv };
   try {
-    const niveis = pavimentosOrdenados(projeto).map((p) => ({ id: p.id, nome: p.nome, z: p.cota }));
+    // pavimento tipo: um nível de vento por repetição
+    const niveis = pavimentosOrdenados(expandirTipos(projeto)).map((p) => ({ id: p.id, nome: p.nome, z: p.cota }));
     const r = forcasDeVento({ V0: pv.V0, S1: pv.S1, categoria: pv.categoria, classe: pv.classe, grupo: pv.grupo, Lx: planta.Lx, Ly: planta.Ly, niveis, Ca: pv.Ca });
     return { ...r, planta, parametros: pv };
   } catch (err) { return { erro: err.message, parametros: pv, planta }; }
@@ -237,7 +239,7 @@ export function porticoDoEdificio(projeto, registro) {
   const chave = chaveDe(projeto);
   if (cache.has(chave)) return cache.get(chave);
   let r;
-  try { r = montarEResolver(projeto, registro); } catch (err) { r = { erro: err.message, pilares: new Map(), pavimentos: [] }; }
+  try { r = montarEResolver(expandirTipos(projeto), registro); } catch (err) { r = { erro: err.message, pilares: new Map(), pavimentos: [] }; }
   cache.set(chave, r);
   if (cache.size > 6) cache.delete(cache.keys().next().value);
   return r;

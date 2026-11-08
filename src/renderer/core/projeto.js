@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Formato aberto do projeto (JSON) — documentado em docs/FORMATO.md.
@@ -44,6 +44,9 @@ export function parametrosPadrao() {
     // vento (NBR 6123): forças por pavimento nas quatro direções, aplicadas no pórtico espacial
     vento: { ativo: false, V0: 45, referencia: '', topografia: 'plano', S1: 1, categoria: 'IV', classe: 'auto', grupo: 2, Ca: { x: null, y: null } },
     estabilidade: { desaprumo: true, rigidez: 'separada', contraventamento: 'porticos', majorar: true },
+    // montagem: nós a menos da tolerância (mm) se fundem e os apoios encostados na face contam como apoiados
+    // erros: com erros de montagem, 'perguntar' antes de calcular tudo, 'calcular' direto ou 'bloquear' o cálculo
+    montagem: { tolerancia: 1, erros: 'perguntar' },
     // estruturas de madeira (NBR 7190-1:2022)
     madeira: { classe: 'C24', umidade: 2, carregamento: 'longa', tipo: 'serrada', gwc: 1.4, gwv: 1.8, gg: 1.4, gq: 1.5, flecha: 200 },
   };
@@ -55,7 +58,7 @@ export function criarProjeto({ nome = 'Projeto sem título', autor = '', descric
   return {
     formato: FORMATO,
     versao: VERSAO_FORMATO,
-    meta: { nome, autor, descricao, criadoEm: agora, modificadoEm: agora, aplicativo: 'LEBR 0.35.1' },
+    meta: { nome, autor, descricao, criadoEm: agora, modificadoEm: agora, aplicativo: 'LEBR 0.56.0' },
     parametros: { ...base, ...parametros, concreto: { ...base.concreto, ...parametros.concreto } },
     pavimentos: pavimentosPadrao(),
     elementos: [],
@@ -79,6 +82,7 @@ function migrar(obj) {
   obj.parametros.coeficientes = { ...base.coeficientes, ...obj.parametros.coeficientes };
   obj.parametros.cobrimento = { ...base.cobrimento, ...obj.parametros.cobrimento };
   obj.parametros.madeira = { ...base.madeira, ...obj.parametros.madeira };
+  obj.parametros.montagem = { ...base.montagem, ...obj.parametros.montagem };
   obj.elementos ??= [];
   // até a versão 0.6 não havia pavimentos: cria um nível e deixa os elementos sem posição
   if (!Array.isArray(obj.pavimentos) || !obj.pavimentos.length) obj.pavimentos = pavimentosPadrao();

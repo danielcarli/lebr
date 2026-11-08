@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 34 feitos, 26 parciais e 44 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 51 feitos, 21 parciais e 35 a fazer.
 
 ## O que existe hoje
 
@@ -135,21 +135,21 @@ Como o edifício entra no programa. TQS, Eberick e CYPECAD seguem a mesma filoso
 | ✅ | Encaixes, eixos e malha | Capturas no desenho, eixos de locação e malha; coordenadas digitadas | Encaixe nos cantos e pontas da planta, nos eixos e na malha; coordenadas digitadas a fazer |
 | ✅ | Ligações pela geometria | Apoios reconhecidos pelas faces de vigas e pilares | Conectar automaticamente e aviso de ligação com problema no explorador |
 | ✅ | 3D durante o lançamento | Pórtico 3D sempre à mão, atualizado a cada mudança | Visualização 3D fixa à direita enquanto se edita |
-| ◐ | Critérios iniciais pela CAA | CAA define fck mínimo e cobrimentos, com exceção por elemento | Parâmetros do projeto pela CAA (Tabelas 6.1, 7.1 e 7.2); exceção por elemento a fazer |
-| ◐ | Cópia e pavimento tipo | Andar tipo como um objeto que se repete; cópia total ou seletiva entre pavimentos | Duplicar pavimento (cópia total); tipo com repetição e cópia seletiva a fazer |
-| ◐ | Consistência que bloqueia o cálculo | Lista de erros e avisos por elemento e pavimento; erros impedem processar | Avisos de ligação; painel de problemas e bloqueio a fazer (etapa L2) |
-| ○ | Tolerância e fusão de nós | Nós a menos de 1 mm se fundem; nó sobre barra a parte e apoia | A fazer (etapa L1) |
-| ○ | Apoio explícito no cruzamento de vigas | Cada cruzamento diz quem apoia em quem; indefinido não processa | A fazer (etapa L3) |
-| ○ | Viga em cadeia | Clique de pilar em pilar; o programa quebra nos intermediários; eixo ou face | A fazer (etapa L4) |
-| ○ | Laje por clique no contorno | Contornos fechados reconhecidos; clicar dentro cria a laje com a direção principal | A fazer (etapa L5) |
-| ○ | Dados do próximo elemento | Seção, carga e próximo número escolhidos antes de inserir; conta-gotas e pincel | A fazer (etapa L6) |
-| ◐ | Pré-dimensionamento no lançamento | Regras práticas (viga L/10 a L/12, laje Lx/40, pilar pela área de influência) | Sugestão da menor seção depois do cálculo; sugestão no lançamento a fazer (etapa L8) |
-| ○ | Pilar com ponto fixo e lance | Ponto fixo (centro, canto, face) e pavimento inicial e final; pilar nascendo em viga | A fazer (etapa L10) |
-| ○ | Renumeração automática | P, V e L da esquerda para a direita e de cima para baixo | A fazer (etapa L11) |
-| ○ | Paredes da arquitetura como cargas | Paredes do DXF/IFC viram cargas lineares (peso por área × altura) | A fazer (etapa L12) |
-| ◐ | Carga padrão por pavimento | Uso do pavimento aplicado a toda laje nova | Catálogo NBR 6120 por laje; padrão por pavimento a fazer (etapa L13) |
+| ✅ | Critérios iniciais pela CAA | CAA define fck mínimo e cobrimentos, com exceção por elemento | Parâmetros do projeto pela CAA (Tabelas 6.1, 7.1 e 7.2); exceção de fck e cobrimento por elemento, com aviso abaixo do mínimo da CAA (etapa L7, 0.41.0) |
+| ✅ | Cópia e pavimento tipo | Andar tipo como um objeto que se repete; cópia total ou seletiva entre pavimentos | Repetições no cartão do pavimento (um modelo, n níveis no 3D, no pórtico, no vento, nos quantitativos e nas cargas dos pilares; os pavimentos de cima sobem junto); copiar pavimento total ou só pilares, vigas ou lajes, para um novo ou existente (etapa L9 (0.48.0) |
+| ✅ | Consistência que bloqueia o cálculo | Lista de erros e avisos por elemento e pavimento; erros impedem processar | Painel Problemas por pavimento com zoom na planta; 14 regras independentes (elemento solto, viga sem apoio, laje com contorno aberto, sobreposição, pilar sem continuidade, carga de elemento inexistente, ligação não aplicada…); erro desabilita Calcular (etapa L2, 0.37.0) |
+| ✅ | Tolerância e fusão de nós | Nós a menos de 1 mm se fundem; nó sobre barra a parte e apoia | Tolerância em mm (padrão 1 mm); apoio a menos dela da face do pilar fica apoiado; Limpar geometria funde nós e leva os apoios até faces e eixos; folgas até 20 mm viram aviso com Encostar (etapa L1, 0.36.0) |
+| ✅ | Apoio explícito no cruzamento de vigas | Cada cruzamento diz quem apoia em quem; indefinido não processa | Cruzamento na planta com "?" e menu (A apoia em B, B em A, sem transferência); Definir todos pela rigidez b·h³/L³; rótula na viga apoiada da grelha; indefinido é erro de montagem (etapa L3, 0.38.0) |
+| ✅ | Viga em cadeia | Clique de pilar em pilar; o programa quebra nos intermediários; eixo ou face | Modo Viga em cadeia (V) na montagem: vãos quebrados nos pilares atravessados, eixo ou face rente ao pilar, deslocamento, Shift ortogonal, ligações aplicadas (etapa L4, 0.39.0) |
+| ✅ | Laje por clique no contorno | Contornos fechados reconhecidos; clicar dentro cria a laje com a direção principal | Modo Laje no contorno (L): regiões fechadas pelos eixos das vigas destacadas na planta; clique cria a laje com as bordas ligadas; fechamento de bordo para balanço com borda livre; lajes em uma direção no menor vão (etapa L5 (0.40.0) |
+| ✅ | Dados do próximo elemento | Seção, carga e próximo número escolhidos antes de inserir; conta-gotas e pincel | Dados atuais gravados no projeto: seção, concreto, cargas e próximo código antes de lançar (Viga em cadeia, Laje no contorno e Adicionar); conta-gotas e pincel de propriedades na montagem (etapa L6 (0.41.0) |
+| ✅ | Pré-dimensionamento no lançamento | Regras práticas (viga L/10 a L/12, laje Lx/40, pilar pela área de influência) | Sugestão no elemento selecionado e para o pavimento inteiro: viga L/10, L/12 ou L/5 em múltiplos de 5 cm; laje máx(Lx/40, 8 cm); pilar pela área de influência (Nk = q·Ai·n, γ = 1,8/2,2/2,5); altura pelo vão na Viga em cadeia e na Laje no contorno (etapa L8 (0.42.0) |
+| ✅ | Pilar com ponto fixo e lance | Ponto fixo (centro, canto, face) e pavimento inicial e final; pilar nascendo em viga | Ponto fixo (centro, cantos, meios das faces) que fica no lugar quando a seção muda; prumada e lance de um pavimento até outro, criando e ligando os pilares que faltam; pilar nascendo em viga vira carga concentrada na viga e aviso de transição (etapa L10 (0.47.0) |
+| ✅ | Renumeração automática | P, V e L da esquerda para a direita e de cima para baixo | Estrutura › Renumerar (e no menu … da montagem, só o pavimento): de cima para baixo e da esquerda para a direita, vigas horizontais e depois verticais; por pavimento (P101…) ou sequencial; ligações, nomes e descrições acompanham (etapa L11 (0.46.0) |
+| ✅ | Paredes da arquitetura como cargas | Paredes do DXF/IFC viram cargas lineares (peso por área × altura) | Feito: camada escolhida, revisão em lista e cargas nas vigas e lajes (0.49.0) |
+| ✅ | Carga padrão por pavimento | Uso do pavimento aplicado a toda laje nova | Uso das lajes novas no cartão do pavimento (catálogo NBR 6120): toda laje nova do pavimento já sai com a acidental do uso; cada laje pode mudar; botão para aplicar às lajes existentes (etapa L13 (0.45.0) |
 | ○ | Versões do projeto | Versão gravada antes de processar e comparação entre versões | A fazer (etapa L14) |
-| ○ | Importar IFC | Pavimentos, pilares, lajes e paredes de um modelo BIM | A fazer (etapa L15) |
+| ✅ | Importar IFC | Pavimentos, pilares, lajes e paredes de um modelo BIM | Feito: pavimentos, pilares, lajes retangulares e paredes/vigas na planta de fundo (0.50.0) |
 
 ## 3. Concreto armado: completar vigas, pilares e lajes
 
@@ -190,6 +190,7 @@ Sem fundações o projeto para nos pilares do térreo; este grupo fecha o caminh
 | ✅ | Sapata isolada | Dimensões pela tensão admissível, flexão, cisalhamento e punção; sapata rígida ou flexível | NBR 6122, NBR 6118 22.6 |
 | ○ | Sapata associada e de divisa | Duas ou mais cargas, viga de equilíbrio (viga alavanca) para pilares na divisa | NBR 6122 |
 | ✅ | Bloco sobre estacas | 1 a n estacas, método das bielas e tirantes, armadura principal e de distribuição | NBR 6118 22.7 |
+| ✅ | Ferragem das fundações | Armadura das estacas moldadas in loco pela Tabela 4 (tensão-limite, armadura mínima, comprimento armado pelo atrito, gaiola e estribos) e lista de ferros editável das sapatas e dos blocos, com armaduras laterais e superior nos blocos em linha e suspensão — feito na 0.54.0 | NBR 6122:2019 8.6.3; NBR 6118 22.6 e 22.7 |
 | ✅ | Estacas | Capacidade de carga por Aoki-Velloso e Décourt-Quaresma, comprimento e quantidade; hélice contínua, escavada, pré-moldada, broca | NBR 6122 |
 | ○ | Radier | Laje sobre base elástica (coeficiente de reação vertical), recalques e esforços | NBR 6122 |
 | ✅ | Vigas baldrame | Vigas de fundação com carga de paredes e travamento dos blocos | NBR 6118 |
@@ -208,6 +209,8 @@ Quase toda edificação tem pelo menos uma escada e um reservatório, então est
 | ✅ | Reservatórios | Caixas d'água elevadas e enterradas: paredes como placas, empuxo hidrostático, fissuração mais rígida |
 | ◐ | Marquises e balanços | Verificação de equilíbrio, tombamento e engaste na viga, com γn |
 | ○ | Consolos e dentes | Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5) |
+| ✅ | Vigas T e L | Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0 |
+| ✅ | Laje nervurada em 3D | Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0 |
 | ○ | Vigas de transição | Vigas que recebem pilares (pilar nascendo em viga), com carga concentrada vinda do pavimento de cima |
 | ◐ | Piscinas e caixas enterradas | Empuxo de terra com e sem água, subpressão |
 | ○ | Paredes de concreto | Sistema de paredes de concreto moldadas no local (NBR 16055) |
@@ -282,19 +285,18 @@ Estas funcionalidades não mudam o cálculo, mas decidem se um escritório conse
 ## Plano de ação: lançamento da estrutura
 
 Pesquisa de 07/11/2026 nos manuais e materiais de TQS, Eberick, CYPECAD e ETABS (fontes em docs/LANCAMENTO.md). Cada etapa é pequena e entregável sozinha; L1 → L2 → L3 formam o núcleo, porque as outras regras usam o painel de problemas da L2.
-- L1 · Tolerância e fusão de nós — tolerância em mm (padrão 1 mm); nós próximos se fundem e o nó que cai sobre uma barra a parte e apoia; comando "limpar geometria". Verificar: viga terminando a 0,8 mm da face do pilar fica apoiada; com 5 mm o programa avisa.
-- L2 · Painel de problemas que bloqueia o cálculo — regras independentes (elemento solto, viga sem apoio, laje com contorno aberto, sobreposição, pilar sem continuidade, carga em elemento inexistente), lista por pavimento com zoom no elemento; erro desabilita Calcular. Verificar: um arquivo de teste por defeito gera exatamente um problema; o exemplo de 3 pavimentos gera zero.
-- L3 · Apoio explícito nos cruzamentos viga–viga — estado indefinido, A apoia em B, B apoia em A ou sem transferência; "Definir todos" sugere a viga mais rígida como apoio. Verificar: duas vigas em cruz começam indefinidas e bloqueiam; inverter o apoio troca a reação na grelha.
-- L4 · Viga em cadeia — lançar clicando de pilar em pilar, com quebra nos pilares atravessados, eixo ou face e deslocamento. Verificar: de P1 a P3 passando por P2 sai uma viga de dois vãos apoiada nos três pilares.
-- L5 · Laje por clique no contorno — regiões fechadas pelas faces de vigas e pilares; clicar dentro cria a laje com a direção principal; fechamento de bordo para balanço. Verificar: planta 2×2 mostra quatro regiões; abrir uma viga faz a região sumir e o painel acusar contorno aberto.
-- L6 · Dados do próximo elemento e conta-gotas — seção, fck, carga e próximo número antes de inserir; copiar propriedades de um elemento para outros. Verificar: cinco vigas seguidas 14×40 sem reabrir o diálogo.
-- L7 · Critérios por elemento — exceção de fck e cobrimento por elemento, com aviso quando fica abaixo do mínimo da CAA. Verificar: C20 numa viga com CAA II dispara aviso.
-- L8 · Pré-dimensionamento no lançamento — botão Sugerir: viga h = L/10 (isolada) ou L/12 (contínua) em múltiplos de 5 cm; laje h = máx(Lx/40, mínimo da norma); pilar pela área de influência (Nk = q·Ai·n, γ = 1,8/2,2/2,5). Verificar: viga contínua de 5 m sugere 45 cm; laje 4×5 m sugere 10 cm.
-- L9 · Pavimento tipo e cópia seletiva — pavimento com número de repetições (um modelo físico, vários níveis no pórtico) e cópia só de pilares, vigas ou lajes. Verificar: tipo × 4 aparece como quatro níveis no 3D e editar o tipo muda os quatro.
-- L10 · Pilar com ponto fixo e lance — ponto fixo (centro, cantos, faces), pavimento inicial e final; pilar nascendo em viga vira aviso de transição. Verificar: aumentar a seção com ponto fixo de canto mantém o canto no lugar.
-- L11 · Renumeração automática — P, V e L da esquerda para a direita e de cima para baixo, atualizando ligações e cargas. Verificar: planta embaralhada fica em ordem e as ligações continuam apontando para os mesmos elementos.
+- L1 · Tolerância e fusão de nós — tolerância em mm (padrão 1 mm); nós próximos se fundem e o nó que cai sobre uma barra a parte e apoia; comando "limpar geometria". Verificar: viga terminando a 0,8 mm da face do pilar fica apoiada; com 5 mm o programa avisa. ✅ Feita na 0.36.0.
+- L2 · Painel de problemas que bloqueia o cálculo — regras independentes (elemento solto, viga sem apoio, laje com contorno aberto, sobreposição, pilar sem continuidade, carga em elemento inexistente), lista por pavimento com zoom no elemento; erro desabilita Calcular. Verificar: um arquivo de teste por defeito gera exatamente um problema; o exemplo de 3 pavimentos gera zero. ✅ Feita na 0.37.0.
+- L3 · Apoio explícito nos cruzamentos viga–viga — estado indefinido, A apoia em B, B apoia em A ou sem transferência; "Definir todos" sugere a viga mais rígida como apoio. Verificar: duas vigas em cruz começam indefinidas e bloqueiam; inverter o apoio troca a reação na grelha. ✅ Feita na 0.38.0.
+- L4 · Viga em cadeia — lançar clicando de pilar em pilar, com quebra nos pilares atravessados, eixo ou face e deslocamento. Verificar: de P1 a P3 passando por P2 sai uma viga de dois vãos apoiada nos três pilares. ✅ Feita na 0.39.0.
+- L5 · Laje por clique no contorno — regiões fechadas pelas faces de vigas e pilares; clicar dentro cria a laje com a direção principal; fechamento de bordo para balanço. Verificar: planta 2×2 mostra quatro regiões; abrir uma viga faz a região sumir e o painel acusar contorno aberto. ✅ Feita na 0.40.0.
+- L6 · Dados do próximo elemento e conta-gotas — seção, fck, carga e próximo número antes de inserir; copiar propriedades de um elemento para outros. Verificar: cinco vigas seguidas 14×40 sem reabrir o diálogo. ✅ Feita na 0.41.0.
+- L7 · Critérios por elemento — exceção de fck e cobrimento por elemento, com aviso quando fica abaixo do mínimo da CAA. Verificar: C20 numa viga com CAA II dispara aviso. ✅ Feita na 0.41.0.
+- L8 · Pré-dimensionamento no lançamento — botão Sugerir: viga h = L/10 (isolada) ou L/12 (contínua) em múltiplos de 5 cm; laje h = máx(Lx/40, mínimo da norma); pilar pela área de influência (Nk = q·Ai·n, γ = 1,8/2,2/2,5). Verificar: viga contínua de 5 m sugere 45 cm; laje 4×5 m sugere 10 cm. ✅ Feita na 0.42.0.
+- L9 · Pavimento tipo e cópia seletiva — pavimento com número de repetições (um modelo físico, vários níveis no pórtico) e cópia só de pilares, vigas ou lajes. Verificar: tipo × 4 aparece como quatro níveis no 3D e editar o tipo muda os quatro. ✅ Feita na 0.48.0.
+- L10 · Pilar com ponto fixo e lance — ponto fixo (centro, cantos, faces), pavimento inicial e final; pilar nascendo em viga vira aviso de transição. Verificar: aumentar a seção com ponto fixo de canto mantém o canto no lugar. ✅ Feita na 0.47.0.
+- L11 · Renumeração automática — P, V e L da esquerda para a direita e de cima para baixo, atualizando ligações e cargas. Verificar: planta embaralhada fica em ordem e as ligações continuam apontando para os mesmos elementos. ✅ Feita na 0.46.0.
 - L12 · Paredes do DXF como cargas — camada de paredes escolhida, pares de linhas paralelas de 9 a 25 cm viram paredes; altura = pé-direito − viga (ou − laje); revisão em lista antes de aplicar. Verificar: três paredes de 14 cm geram três cargas com o valor da conta à mão.
-- L13 · Carga padrão por pavimento — uso do pavimento (NBR 6120) aplicado a toda laje nova, com sobrescrita por laje. Verificar: laje nova num pavimento residencial já traz a carga do catálogo.
+- L13 · Carga padrão por pavimento — uso do pavimento (NBR 6120) aplicado a toda laje nova, com sobrescrita por laje. Verificar: laje nova num pavimento residencial já traz a carga do catálogo. ✅ Feita na 0.45.0.
 - L14 · Versões do projeto — cópia gravada a cada cálculo e comparação por elemento entre duas versões. Verificar: depois de mudar uma viga, a comparação mostra só essa viga.
 - L15 · Importar IFC (mínimo) — pavimentos, pilares, contornos de laje e paredes como cargas (reaproveita a L12). Verificar: um IFC pequeno do Revit ou do Archicad entra com cotas e pilares no lugar.
-

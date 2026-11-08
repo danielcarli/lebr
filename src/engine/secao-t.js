@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Seção T — usada nas nervuras de lajes treliçadas e nervuradas.
@@ -123,3 +123,88 @@ export function escolherBarrasNervura({ As, bw, cob, dmax = 19, bitolas = [6.3, 
 }
 
 export { BITOLAS };
+
+/* ======================================================================== vigas T e L (14.6.2.2) */
+
+/**
+ * Distância a entre pontos de momento nulo de um tramo (14.6.2.2): simplesmente apoiado a = ℓ; momento numa só
+ * extremidade a = 0,75ℓ; momentos nas duas extremidades a = 0,60ℓ; balanço a = 2ℓ.
+ * @param {number} L  comprimento do tramo (m)
+ * @param {{esq:boolean, dir:boolean, balanco:boolean}} continuidade
+ */
+export function distanciaMomentoNulo(L, { esq = false, dir = false, balanco = false } = {}) {
+  if (balanco) return { a: 2 * L, fator: 2, caso: 'balanço' };
+  if (esq && dir) return { a: 0.6 * L, fator: 0.6, caso: 'momentos nas duas extremidades' };
+  if (esq || dir) return { a: 0.75 * L, fator: 0.75, caso: 'momento numa só extremidade' };
+  return { a: L, fator: 1, caso: 'simplesmente apoiado' };
+}
+
+/**
+ * Largura colaborante da mesa de uma viga T ou L (14.6.2.2), em cm.
+ *   T: bf = bw + b1 + b1', com b1 ≤ 0,5·b2 e b1 ≤ 0,10·a de cada lado;
+ *   L: bf = bw + b1 + b3, com b1 ≤ 0,5·b2 (lado da laje contínua) e b3 ≤ b4, b3 ≤ 0,10·a (aba em balanço).
+ * @param mesa { tipo: 'T'|'L', b2a, b2b (T, cm), b2 (L, cm), b4 (L, cm, 0 = sem aba do outro lado) }
+ * @param a    distância entre pontos de momento nulo (m)
+ */
+export function larguraColaboranteViga({ bw, mesa, a }) {
+  const lim = Math.round(0.1 * a * 100 * 1e6) / 1e6; // cm
+  if (mesa.tipo === 'T') {
+    const b1a = Math.max(0, Math.min(0.5 * (Number(mesa.b2a) || 0), lim));
+    const b1b = Math.max(0, Math.min(0.5 * (Number(mesa.b2b ?? mesa.b2a) || 0), lim));
+    return { bf: bw + b1a + b1b, b1a, b1b, lim, bMax: Math.max(b1a, b1b) };
+  }
+  const b1 = Math.max(0, Math.min(0.5 * (Number(mesa.b2) || 0), lim));
+  const b3 = Math.max(0, Math.min(Number(mesa.b4) || 0, lim));
+  return { bf: bw + b1 + b3, b1, b3, lim, bMax: Math.max(b1, b3) };
+}
+
+/**
+ * Flexão simples de viga T ou L com a mesa comprimida (17.2), com armadura dupla na alma quando preciso.
+ * Mesmo formato de `dimensionarFlexao`, mais { comoT, bf, Mf, Ff }:
+ *  - λx ≤ hf: seção retangular bf × h;
+ *  - λx > hf: as abas (bf − bw) × hf a σcd equilibram Ff = σcd·(bf − bw)·hf, com braço d − hf/2; a alma bw × h
+ *    resiste ao restante, Mw = Md − Ff·(d − hf/2).
+ * Armadura mínima com W0 da seção T bruta (17.3.5.2.1) e taxa de 0,15 % da área bruta.
+ */
+export function flexaoVigaT({ Md, bf, bw, hf, h, d, dl = 4, c, s }) {
+  const M = Math.abs(Md);
+  const scd = c.sigmaCd / 10, fyd = s.fyd / 10;
+  const p = propriedadesT({ bf, bw, hf, h });
+  const W0 = p.I / p.yBot;
+  const MdMin = (0.8 * W0 * (c.fctkSup / 10)) / 100;
+  const ret = dimensionarFlexao({ Md: M, b: bf, h, d, dl, c, s });
+  let r;
+  if (M === 0 || (c.lambda * ret.x <= hf && !ret.dupla)) {
+    r = { ...ret, comoT: false, bf, Mf: 0, Ff: 0, avisos: [...ret.avisos] };
+  } else {
+    const Ff = scd * (bf - bw) * hf;                 // kN
+    const Mf = (Ff * (d - hf / 2)) / 100;             // kN·m
+    const alma = dimensionarFlexao({ Md: Math.max(0, M - Mf), b: bw, h, d, dl, c, s });
+    r = { ...alma, Md: M, comoT: true, bf, Mf, Ff, As: Ff / fyd + alma.AsCalc, Asl: alma.Asl, avisos: [...alma.avisos] };
+    r.AsCalc = r.As;
+  }
+  const AsMd = MdMin > 0 ? dimensionarFlexao({ Md: MdMin, b: bf, h, d, c, s }).AsCalc : 0;
+  r.AsMin = Math.max(AsMd, 0.0015 * p.A);
+  r.AsMax = 0.04 * p.A;
+  r.AsCalc = r.comoT ? r.AsCalc : ret.AsCalc;
+  r.As = Math.max(r.AsCalc, r.AsMin);
+  r.ok = r.ok !== false;
+  if (r.As + (r.Asl ?? 0) > r.AsMax) { r.ok = false; if (!r.avisos.includes('Armadura total acima de 4% Ac — redimensione a seção.')) r.avisos.push('Armadura total acima de 4% Ac — redimensione a seção.'); }
+  r.W0 = W0; r.MdMin = MdMin; r.Ac = p.A;
+  return r;
+}
+
+/**
+ * Ligação mesa–alma (18.3.7): fluxo de cisalhamento na ligação de uma aba comprimida, por metro de viga.
+ * vSd = (Vd/z)·(b1/bf) com z = 0,9·d — a fração da força de compressão que fica na aba muda ao longo da viga.
+ * Biela: vRd2 = 0,5·αv2·fcd·hf (treliça a 45° no plano da mesa); armadura: Asf/s = vSd/fyd ≥ 1,5 cm²/m.
+ */
+export function ligacaoMesaAlma({ Vd, d, bf, b1, hf, c, s }) {
+  const z = 0.9 * d / 100;                             // m
+  const vSd = b1 > 0 ? (Math.abs(Vd) / z) * (b1 / bf) : 0; // kN/m
+  const av2 = 1 - c.fck / 250;
+  const vRd2 = 0.5 * av2 * (c.fcd / 10) * hf * 100;   // kN/m (fcd em kN/cm², hf em cm, 100 cm)
+  const AsfCalc = vSd / (s.fyd / 10);                  // cm²/m: vSd (kN/m) / fyd (kN/cm²)
+  const Asf = Math.max(1.5, AsfCalc);
+  return { vSd, vRd2, av2, AsfCalc, Asf, ok: vSd <= vRd2 + 1e-9 };
+}

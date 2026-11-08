@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Desenhos SVG da viga: esquema estático, diagramas de esforços e seção transversal.
@@ -165,17 +165,19 @@ export function criarDesenhos({ s }) {
    * @param {{n:number, phi:number, camadas:number}} inf  armadura inferior
    * @param {{n:number, phi:number}} sup  armadura superior
    */
-  function secao({ b, h }, { inf, sup, phiT = 5, cob = 3, titulo, laje = null }) {
+  function secao({ b, h }, { inf, sup, phiT = 5, cob = 3, titulo, laje = null, mesa = null }) {
     const H = 190, esc = Math.min((H - 40) / h, 150 / b);
-    const w = b * esc, hh = h * esc, x0 = 30, y0 = 18;
+    const w = b * esc, hh = h * esc, x0 = mesa ? 60 : 30, y0 = 18;
     const o = (cob + phiT / 10) * esc;
-    // trecho da laje junto à viga: em cima (viga normal) ou embaixo (viga invertida)
-    const hf = Math.min(hh * 0.3, 10 * esc), aba = 22;
+    // trecho da laje junto à viga: em cima (viga normal) ou embaixo (viga invertida); na viga T ou L, a mesa colaborante
+    const hf = mesa ? Math.min(hh * 0.45, mesa.hf * esc) : Math.min(hh * 0.3, 10 * esc), aba = mesa ? 46 : 22;
     const yLaje = laje === 'inferior' ? y0 + hh - hf : y0;
+    const cls = mesa ? 'sec-laje sec-mesa' : 'sec-laje';
     const filhos = laje ? [
-      s('rect', { x: x0 - aba, y: yLaje, width: aba, height: hf, class: 'sec-laje' }),
-      s('rect', { x: x0 + w, y: yLaje, width: aba, height: hf, class: 'sec-laje' }),
+      ...(!mesa || mesa.tipo === 'T' ? [s('rect', { x: x0 - aba, y: yLaje, width: aba, height: hf, class: cls })] : []),
+      s('rect', { x: x0 + w, y: yLaje, width: aba, height: hf, class: cls }),
       ...(laje === 'inferior' ? [s('text', { x: x0 + w + aba + 6, y: yLaje + hf - 1, class: 'dg-texto' }, 'laje')] : []),
+      ...(mesa ? [s('text', { x: x0 + w / 2 + (mesa.tipo === 'L' ? aba / 2 : 0), y: laje === 'inferior' ? y0 + hh + 30 : y0 - 5, class: 'dg-texto', 'text-anchor': 'middle' }, `bf = ${fmt(mesa.bf, 0)} cm · hf = ${fmt(mesa.hf, 0)} cm`)] : []),
     ] : [];
     filhos.push(
       s('rect', { x: x0, y: y0, width: w, height: hh, class: 'sec-concreto' }),
@@ -208,7 +210,7 @@ export function criarDesenhos({ s }) {
       s('text', { x: x0 - 8, y: y0 + hh / 2, class: 'dg-texto', 'text-anchor': 'middle', transform: `rotate(-90 ${x0 - 8} ${y0 + hh / 2})` }, `${fmt(h, 0)} cm`),
     );
     if (titulo) filhos.push(s('text', { x: x0 + w + 16, y: y0 + 12, class: 'dg-titulo' }, titulo));
-    const W = Math.max(x0 + w + 16, 0) + 150;
+    const W = Math.max(x0 + w + 16, 0) + 150 + (mesa ? 30 : 0);
     return s('svg', { class: 'desenho secao-viga', viewBox: `0 0 ${W} ${H + 10}`, width: W, height: H + 10 }, ...filhos);
   }
 

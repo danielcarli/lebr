@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Módulo: Laje nervurada moldada no local (NBR 6118:2023)
@@ -19,6 +19,10 @@ import { secaoArmadura } from '../comum/armadura.js';
 import { calcularLajeNervurada, cargasTransmitidas, ligacoes, criarLajeNervurada, cargasNervurada, ENCHIMENTOS_N } from './calculo.js';
 import { criarDesenhosLajes } from '../comum/desenho-lajes.js';
 import { criarPlantaLaje } from '../comum/planta-laje.js';
+import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { detalhamentoNervurada } from '../comum/detalhamento.js';
+import { modeloNervurada } from '../comum/armadura3d.js';
+import { criarDesenhoNervurada } from './desenho.js';
 
 export default function moduloLajeNervurada(api) {
   const { h } = api.dom;
@@ -26,6 +30,7 @@ export default function moduloLajeNervurada(api) {
   const { num } = api.formatar;
   const desenho = criarDesenhosLajes(api.dom);
   const pl = criarPlantaLaje(api);
+  const desenhoDet = criarDesenhoNervurada(api.dom);
 
   return {
     id: 'concreto.laje.nervurada',
@@ -122,7 +127,7 @@ export default function moduloLajeNervurada(api) {
       }));
     },
 
-    renderResultado(raiz, res) {
+    renderResultado(raiz, res, ctx) {
       const pos = res.armaduras.filter((a) => !a.negativa);
       const neg = res.armaduras.filter((a) => a.negativa);
       const maxPos = pos.length ? pos.reduce((a, b) => (b.Md > a.Md ? b : a), pos[0]) : null;
@@ -165,6 +170,18 @@ export default function moduloLajeNervurada(api) {
           linhas: res.reacoes.map((r) => [r.nome, r.tipo, ...(r.tipo === 'livre' ? ['—', '—', '—'] : [num(r.g), num(r.q), num(r.d)])]),
         })],
       }));
+      const det = ctx && detalhamentoNervurada(ctx.elemento, res, ctx.projeto);
+      if (det?.posicoes?.length) {
+        const g = det.geometria;
+        const volume = g.caixas.filter((c) => c.tipo === 'concreto').reduce((s, c) => s + (c.max[0] - c.min[0]) * (c.max[1] - c.min[1]) * (c.max[2] - c.min[2]), 0) / 1e6;
+        raiz.append(secaoListaDeFerros(api, ctx, det, {
+          descricao: 'Barras das nervuras, negativas e malha da capa (NBR 6118, 13.2.4.2 e 20.1) · lista de ferros editável · geometria e armadura em 3D',
+          volume,
+          desenho: (posicoes, destaque) => desenhoDet.planta(ctx.elemento, det, posicoes, { destaque }),
+          modelo3d: (posicoes) => modeloNervurada(ctx.elemento, det, posicoes, { cob: ctx.projeto?.parametros?.cobrimento?.laje ?? 2.5 }),
+          nota: `Nervuras: m vazios de (intereixo − bw) por direção, com nervura nas duas pontas; a sobra fica como faixa maciça junto às bordas (${num(g.faixasY.borda, 1)} cm com a nervura de borda). Barras de cada nervura até a face oposta das vigas menos o cobrimento. Negativas na capa com 0,25 do maior vão para cada lado (o balanço inteiro, na laje em balanço); entre duas nervuradas, detalhadas uma vez só, na de código menor; sem laje do outro lado, entram na viga até a face oposta menos o cobrimento. Malha da capa ${res.mesa ? 'calculada (flexão da mesa)' : 'construtiva ø 5 c/ 20 (prática usual)'}. ${g.travamento.length ? 'Travamentos com 2 barras no fundo (prática usual). ' : ''}O resumo soma as perdas adotadas no projeto.`,
+        }));
+      }
     },
   };
 }

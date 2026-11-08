@@ -4,12 +4,12 @@
  *
  * Feito com uso da inteligência artificial Claude Opus 5.5, sob a orientação de Daniel Michelon De Carli.
  *
- * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU General Public
- * License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas SEM
- * NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
- * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/gpl-3.0.html>.
+ * Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo nos termos da GNU Affero General
+ * Public License, versão 3, publicada pela Free Software Foundation. É distribuído na esperança de ser útil, mas
+ * SEM NENHUMA GARANTIA, nem mesmo a garantia implícita de COMERCIALIZAÇÃO ou de ADEQUAÇÃO A UMA FINALIDADE
+ * ESPECÍFICA. Veja o arquivo LICENSE ou <https://www.gnu.org/licenses/agpl-3.0.html>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 /**
  * Visualização 3D da estrutura montada (Three.js, embutido em assets/vendor/three).
@@ -18,6 +18,7 @@
  * Lajes e vigas têm a face superior na cota do pavimento; pilares descem da cota
  * do pavimento pelo seu comprimento. Só os elementos posicionados aparecem.
  */
+import { expandirTipos, idOriginal } from '../core/tipos.js';
 import * as THREE from '../assets/vendor/three/three.module.min.js';
 import { h, limpar } from '../ui/dom.js';
 import * as ui from '../ui/componentes.js';
@@ -32,6 +33,7 @@ import {
 import { porticoDoEdificio, ventoDoProjeto, plantaDoEdificio, ROTULO_ACAO } from '../../modules/comum/portico-edificio.js';
 import { CASOS_VENTO } from '../../engine/combinacoes.js';
 import { deformadaBarra } from '../../engine/portico.js';
+import { geometriaNervurada, COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 
 /** Estado da câmera e das opções (sobrevive aos redesenhos). */
 const vista = { projeto: null, alvo: null, raio: 18, teta: -0.9, fi: 0.95, cores: 'verificacao', lajesTransp: false, ocultos: new Set(), afastar: 0, deformada: false, casoDef: 'GQ', fatorDef: 1, vento: false, casoVento: 'V1' };
@@ -50,6 +52,13 @@ export function alternarPainel3D() {
 
 /** Ajusta opções da vista antes de abrir a aba (ex.: { vento: true } vindo da tela de vento). */
 export function opcoes3D(o) { Object.assign(vista, o); }
+
+/** Abrir o 3D já com um elemento selecionado e a câmera nele (vem da montagem). */
+let focoAtual = null;
+export function focarNo3D(id) {
+  vista.focar = id;
+  focoAtual?.();
+}
 
 const CORES = {
   concreto: '#c8c2b8', madeira: '#b58654', aco: '#8d97a3',
@@ -158,7 +167,8 @@ function renderizar(container, acoes) {
     grupo.clear();
     malhas = [];
     limites = new THREE.Box3();
-    const proj = estado.projeto;
+    // pavimento tipo (etapa L9): os n níveis aparecem, cada um com as cópias dos elementos
+    const proj = expandirTipos(estado.projeto);
     const pavs = pavimentosOrdenados(proj);
     const deslocamento = (pavId) => pavs.findIndex((x) => x.id === pavId) * vista.afastar;
     const corBorda = new THREE.Color(azul() ? CORES_AZUL.borda : corDoTema('--tinta', '#161514'));
@@ -176,6 +186,7 @@ function renderizar(container, acoes) {
       if (!pav || !t || vista.ocultos.has(pav.id)) continue;
       if (t === 'escada') { desenharEscada3D(el, pav); continue; }
       if (t === 'reservatorio') { desenharReservatorio3D(el, pav); continue; }
+      if (el.modulo === 'concreto.laje.nervurada') { desenharNervurada3D(el, pav); continue; }
       const cota = pav.cota + deslocamento(pav.id);
       const ang = ((pos.angulo ?? 0) * Math.PI) / 180;
       let geo, centro;
@@ -209,6 +220,38 @@ function renderizar(container, acoes) {
       grupo.add(mesh);
       malhas.push({ mesh, el, linhas, cor: mat.color.clone() });
       limites.expandByObject(mesh);
+    }
+
+    /**
+     * Laje nervurada: capa, nervuras, faixas de borda e travamentos numa malha só (nervurada-geometria.js), com a face
+     * superior da capa na cota do pavimento; os blocos de enchimento (EPS, cerâmico, concreto celular) em outra.
+     */
+    function desenharNervurada3D(el, pav) {
+      const geo = geometriaNervurada(el);
+      const cota = pav.cota + deslocamento(pav.id);
+      const { x = 0, y = 0, angulo = 0 } = el.posicao;
+      const ang = (angulo * Math.PI) / 180;
+      const transparente = vista.lajesTransp || vista.deformada;
+      const partes = [
+        [geo.caixas.filter((c) => c.tipo === 'concreto'), cor(el, 'laje')],
+        [geo.caixas.filter((c) => c.tipo === 'enchimento'), new THREE.Color(COR_ENCHIMENTO[geo.enchimento] ?? 0xcfc8bd)],
+      ];
+      for (const [caixas, c] of partes) {
+        if (!caixas.length) continue;
+        const geoM = juntarCaixas(caixas);
+        const mat = new THREE.MeshStandardMaterial({ color: c, roughness: 0.92, metalness: 0, transparent: transparente, opacity: transparente ? (vista.deformada ? 0.18 : 0.35) : 1, depthWrite: !transparente });
+        const mesh = new THREE.Mesh(geoM, mat);
+        mesh.position.set(x, cota - geo.h / 100, -y);
+        mesh.rotation.y = ang;
+        mesh.userData.id = el.id;
+        // arestas só do contorno da laje: as das nervuras atravessam a capa de longe (precisão do depth)
+        const contorno = caixas[0].tipo === 'concreto' ? new THREE.EdgesGeometry(juntarCaixas([{ min: [0, 0, 0], max: [geo.lx, geo.ly, geo.h] }])) : new THREE.BufferGeometry();
+        const linhas = new THREE.LineSegments(contorno, new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.42 }));
+        mesh.add(linhas);
+        grupo.add(mesh);
+        malhas.push({ mesh, el, linhas, cor: mat.color.clone() });
+        limites.expandByObject(mesh);
+      }
     }
 
     /** Reservatório: fundo, quatro paredes e tampa, do fundo na cota do pavimento para cima. */
@@ -368,7 +411,7 @@ function renderizar(container, acoes) {
       grade.material.transparent = true; grade.material.opacity = 0.7;
       grupo.add(grade);
     }
-    if (selecionado && !malhas.some((m) => m.el.id === selecionado)) selecionado = null;
+    if (selecionado && !malhas.some((m) => idOriginal(m.el.id) === selecionado)) selecionado = null;
     destacar();
     desenharPainel();
   }
@@ -542,7 +585,7 @@ function renderizar(container, acoes) {
   function destacar() {
     const acento = new THREE.Color(corDoTema('--acento', '#B85438'));
     for (const m of malhas) {
-      const sel = m.el.id === selecionado;
+      const sel = idOriginal(m.el.id) === selecionado;
       m.mesh.material.emissive = sel ? acento.clone().multiplyScalar(0.55) : new THREE.Color(0x000000);
       m.linhas.material.opacity = sel ? 1 : 0.42;
     }
@@ -625,7 +668,7 @@ function renderizar(container, acoes) {
     const t = infoDef.totais;
     const ok = Math.abs(t.somaPavG - t.reacoesG) <= 0.01 * Math.max(1, t.somaPavG) && Math.abs(t.somaPavQ - t.reacoesQ) <= 0.01 * Math.max(1, t.somaPavQ);
     return h('div', { class: 'v3d-def' },
-      h('p', { class: 'v3d-def-info' }, `Deslocamento máximo ${num(infoDef.umax * 1000, 2)} mm (${(() => { const [pv, no] = (infoDef.onde ?? '').split('/'); return `${pavimento(estado.projeto, pv)?.nome ?? pv} · ${no ?? ''}`; })()}) · desenho ampliado ${num(infoDef.escala, 0)}×`),
+      h('p', { class: 'v3d-def-info' }, `Deslocamento máximo ${num(infoDef.umax * 1000, 2)} mm (${(() => { const [pv, no] = (infoDef.onde ?? '').split('/'); return `${pavimento(expandirTipos(estado.projeto), pv)?.nome ?? pv} · ${no ?? ''}`; })()}) · desenho ampliado ${num(infoDef.escala, 0)}×`),
       h('table', { class: 'v3d-cargas' },
         h('thead', null, h('tr', null, h('th', null, 'Cargas verticais'), h('th', null, 'G (kN)'), h('th', null, 'Q (kN)'))),
         h('tbody', null,
@@ -695,19 +738,42 @@ function renderizar(container, acoes) {
     arrasto = null;
     if (a && Math.hypot(e.clientX - a.x0, e.clientY - a.y0) < 4 && e.button === 0) {
       const m = pegar(e);
-      selecionado = m?.el.id ?? null;
+      selecionado = m ? idOriginal(m.el.id) : null;
       destacar();
     }
   });
-  tela.addEventListener('dblclick', (e) => { const m = pegar(e); if (m) acoes.abrirElemento(m.el.id); });
+  tela.addEventListener('dblclick', (e) => { const m = pegar(e); if (m) acoes.abrirElemento(idOriginal(m.el.id)); });
   tela.addEventListener('wheel', (e) => {
     e.preventDefault();
     vista.raio = Math.max(1.5, Math.min(800, vista.raio * Math.exp(e.deltaY * 0.0012)));
     desenhar();
   }, { passive: false });
 
+  /** Seleciona o elemento e aproxima a câmera dele, de um ângulo oblíquo, com o pavimento dele visível. */
+  function focarElemento(id) {
+    const el = estado.elemento(id);
+    if (!el) return;
+    if (el.posicao?.pavimento && vista.ocultos.has(el.posicao.pavimento)) { vista.ocultos.delete(el.posicao.pavimento); construir(); }
+    const caixa = new THREE.Box3();
+    for (const m of malhas) if (idOriginal(m.el.id) === id && !m.el.nivel) caixa.expandByObject(m.mesh);
+    if (caixa.isEmpty()) for (const m of malhas) if (idOriginal(m.el.id) === id) caixa.expandByObject(m.mesh);
+    selecionado = id;
+    if (!caixa.isEmpty()) {
+      const c = caixa.getCenter(new THREE.Vector3());
+      const tam = caixa.getSize(new THREE.Vector3()).length();
+      vista.alvo = [c.x, c.y, c.z];
+      // perto o bastante para ver o elemento e o entorno (vizinhos, apoios)
+      vista.raio = Math.max(4, tam * 2.2 + 3);
+      vista.teta = -0.75; vista.fi = 1.0;
+    }
+    destacar();
+    desenhar();
+  }
+  focoAtual = () => { if (vista.focar && palco.isConnected) { const id = vista.focar; vista.focar = null; focarElemento(id); } };
+
   construir();
   if (!vista.alvo) enquadrar();
+  if (vista.focar) { const id = vista.focar; vista.focar = null; requestAnimationFrame(() => focarElemento(id)); }
   const obs = new ResizeObserver(() => desenhar());
   obs.observe(palco);
   // troca de tema claro/escuro: refaz as cores
@@ -718,6 +784,7 @@ function renderizar(container, acoes) {
   return {
     destruir() {
       if (alternarAtual) alternarAtual = null;
+      focoAtual = null;
       obs.disconnect();
       obsTema.disconnect();
       for (const m of malhas) { m.mesh.geometry.dispose(); m.mesh.material.dispose(); m.linhas.geometry.dispose(); m.linhas.material.dispose(); }
@@ -732,4 +799,29 @@ function renderizar(container, acoes) {
     /** Imagem PNG da vista atual (para relatórios). */
     imagem: () => renderer.domElement.toDataURL('image/png'),
   };
+}
+
+/**
+ * Junta caixas { min, max } (cm, z para cima, coordenadas locais da laje) numa BufferGeometry em m, no sistema do
+ * three usado aqui (x, z para cima → y, y → −z).
+ */
+export function juntarCaixas(caixas) {
+  const pos = [], nor = [], idx = [];
+  for (const c of caixas) {
+    const d = c.max.map((v, i) => (v - c.min[i]) / 100);
+    const m = c.min.map((v, i) => v / 100 + d[i] / 2);
+    const g = new THREE.BoxGeometry(d[0], d[2], d[1]);
+    g.translate(m[0], m[2], -m[1]);
+    const base = pos.length / 3;
+    pos.push(...g.attributes.position.array);
+    nor.push(...g.attributes.normal.array);
+    for (const i of g.index.array) idx.push(base + i);
+    g.dispose();
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  out.setIndex(idx);
+  out.computeBoundingBox(); out.computeBoundingSphere();
+  return out;
 }

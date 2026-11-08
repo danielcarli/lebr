@@ -169,7 +169,7 @@
 .link:hover { text-decoration: underline; }
 .dialogo-rolagem { max-height: 52vh; overflow: auto; }
 pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1px solid var(--filete); border-radius: var(--raio-p); font-family: var(--fonte-mono); font-size: 12px; line-height: 1.5; overflow: auto; user-select: text; }
-.falha-inicial { position: fixed; inset: 40px; background: var(--flutuante); color: var(--acento); padding: 20px; border-radius: 10px; overflow: auto; z-index: 999; white-space: pre-wrap; }
+.falha-inicial { position: fixed; inset: 40px; background: var(--flutuante); color: var(--erro); padding: 20px; border-radius: 10px; overflow: auto; z-index: 999; white-space: pre-wrap; }
 .tabela.problemas td:first-child { white-space: nowrap; width: 1%; }
 
 @media (max-width: 1280px) {
@@ -252,7 +252,7 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .ia-minima { fill: none; stroke: var(--tinta-2); stroke-width: 1.2; stroke-dasharray: 5 4; }
 .ia-ponto { fill: var(--tinta); stroke: var(--papel); stroke-width: 1.5; }
 .ia-ponto.extremidade { fill: var(--papel); stroke: var(--tinta); stroke-width: 2; }
-.ia-ponto.falha { fill: var(--acento); }
+.ia-ponto.falha { fill: var(--erro); }
 
 /* punção: planta dos contornos críticos */
 .puncao-res { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; align-items: start; }
@@ -265,12 +265,12 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .pc-livre { stroke: var(--tinta); stroke-width: 2.5; }
 .pc-rot-livre { font-size: 10.5px; fill: var(--suave); letter-spacing: 0.04em; }
 .pc-area { fill: var(--tinta-2); fill-opacity: 0.18; stroke: var(--tinta); stroke-width: 1.5; }
-.pc-area.falha { fill: var(--acento); fill-opacity: 0.35; }
+.pc-area.falha { fill: var(--erro); fill-opacity: 0.35; }
 .pc-contorno { fill: none; stroke-linejoin: round; }
 .pc-contorno.pc-c { stroke: var(--tinta); stroke-width: 2.2; }
 .pc-contorno.pc-c1 { stroke: var(--acento); stroke-width: 1.6; }
 .pc-contorno.pc-c2 { stroke: var(--tinta-2); stroke-width: 1.3; stroke-dasharray: 5 4; }
-.pc-contorno.falha { stroke: var(--acento-forte); stroke-width: 2.4; }
+.pc-contorno.falha { stroke: var(--erro-forte); stroke-width: 2.4; }
 .pc-conector { fill: var(--tinta); }
 .pc-rot { font-size: 12px; font-weight: 650; fill: var(--tinta); }
 .pc-rot.pc-c1 { fill: var(--acento); }
@@ -431,7 +431,7 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .det-local { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 .det-input { width: 68px; font: inherit; font-size: 12.5px; text-align: right; padding: 3px 6px; border: 1px solid var(--filete); border-radius: 0; background: var(--campo); color: var(--tinta); }
 .det-input:focus { outline: none; border-color: var(--tinta); }
-.det-input.erro { border-color: var(--acento); }
+.det-input.erro { border-color: var(--erro); }
 .det-input.det-phi { width: 76px; text-align: left; }
 .det-barra-acoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .det-info { font-size: 12.5px; color: var(--tinta-2); }
@@ -446,6 +446,10 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .det-cota-txt { font-size: 11px; }
 .det-laje-planta { fill: none; stroke: var(--tinta); stroke-width: 1.2; }
 .det-borda-livre { stroke: var(--tinta); stroke-width: 1.2; stroke-dasharray: 8 4; }
+.det-barra.fina { stroke-width: 1.3; }
+.det-pos.destaque .det-barra.fina { stroke-width: 2.6; }
+.det-rot-halo { paint-order: stroke; stroke: var(--cartao); stroke-width: 4px; }
+.det-vazio { fill: color-mix(in srgb, var(--tinta) 4%, transparent); stroke: var(--tenue); stroke-width: 0.8; stroke-dasharray: 3 3; }
 .det-faixa { stroke: var(--tinta-2); stroke-width: 0.9; stroke-dasharray: 2 3; }
 .det-faixa.negativa { stroke: var(--acento); }
 
@@ -465,7 +469,7 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .barra-calculo { margin: -18px -12px -10px; flex-wrap: wrap; row-gap: 8px; }
 .estado-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 14px; font-size: 12px; font-weight: 650; white-space: nowrap; border: 1px solid transparent; }
 .estado-chip.ok { background: #556b2f; color: #fff; }
-.estado-chip.falha { background: var(--acento); color: #fff; }
+.estado-chip.falha { background: var(--erro); color: #fff; }
 .estado-chip.pendente { background: transparent; color: var(--tinta-2); border-color: var(--filete); }
 .estado-chip.calculando { background: transparent; color: var(--tinta-2); border: 1px dashed var(--suave); }
 button.estado-chip { cursor: pointer; }
@@ -486,7 +490,7 @@ button.estado-chip:hover { filter: brightness(1.08); }
 .indice-item { display: flex; gap: 7px; align-items: baseline; text-align: left; padding: 3px 6px; margin-left: -6px; border-radius: 5px; font-size: 12px; color: var(--tinta-2); line-height: 1.3; }
 .indice-item:hover { background: var(--hover); color: var(--tinta); }
 .indice-item.atual { color: var(--tinta); font-weight: 650; background: var(--hover); }
-.indice-item.falha .indice-txt::after { content: ' ✕'; color: var(--acento); font-weight: 700; }
+.indice-item.falha .indice-txt::after { content: ' ✕'; color: var(--erro); font-weight: 700; }
 .indice-num { font-size: 10.5px; font-weight: 700; color: var(--acento); min-width: 16px; }
 
 /* sugestões quando o elemento não atende */
@@ -552,7 +556,7 @@ button.estado-chip:hover { filter: brightness(1.08); }
 .rel-aviso .icone { color: var(--acento); flex: none; margin-top: 1px; }
 .rel-situacao { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--raio-p); font-weight: 650; font-size: 14px; color: #fff; }
 .rel-situacao.ok { background: #556b2f; }
-.rel-situacao.falha { background: var(--acento); }
+.rel-situacao.falha { background: var(--erro); }
 .rel-situacao.pendente { background: #555151; }
 .rel-lista { margin: 10px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--tinta-2); line-height: 1.6; }
 .rel-cargas tr.rel-pendente td { color: var(--tenue); }
@@ -599,3 +603,5 @@ button.estado-chip:hover { filter: brightness(1.08); }
   .pilar-res, .puncao-res { grid-template-columns: minmax(0, 1fr); }
   .inicio-colunas { grid-template-columns: 1fr; }
 }
+.sec-mesa { fill: color-mix(in srgb, var(--acento) 14%, var(--campo)); stroke-dasharray: none; }
+.mesa-dica { margin: 4px 0 0; font-size: 12px; color: var(--tinta-2); }
