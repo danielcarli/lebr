@@ -19,13 +19,16 @@
  *     vigas baldrame no mesmo traçado das vigas do pavimento de cima.
  */
 import { novoId, proximoCodigo } from './projeto.js';
-import { pavimentosOrdenados, centroPilar, aplicarLigacoes, detectarLigacoes, novoIdPavimento, secaoViga } from './montagem.js';
+import { pavimentosOrdenados, centroPilar, aplicarLigacoes, detectarLigacoes, novoIdPavimento, secaoViga, radierDoPilar } from './montagem.js';
+import { criarRadier } from '../../modules/concreto-radier/calculo.js';
+import { criarSapataCorrida } from '../../modules/concreto-sapata-corrida/calculo.js';
 import { criarSapata, pilaresDeFundacao, COBRIMENTO_SOLO } from '../../modules/concreto-sapata/calculo.js';
 import { criarBloco } from '../../modules/concreto-bloco/calculo.js';
 
 /** Módulos que apoiam um pilar na fundação (um por pilar). */
 export const APOIOS_DE_FUNDACAO = ['concreto.sapata', 'concreto.bloco'];
-const temApoio = (projeto, pilarId) => projeto.elementos.some((e) => APOIOS_DE_FUNDACAO.includes(e.modulo) && e.pilarId === pilarId);
+const temApoio = (projeto, pilarId) => projeto.elementos.some((e) => APOIOS_DE_FUNDACAO.includes(e.modulo) && e.pilarId === pilarId)
+  || !!radierDoPilar(projeto, projeto.elementos.find((e) => e.id === pilarId));
 
 /** Código livre: o preferido, ou o próximo da série do prefixo. */
 const codigoLivre = (projeto, preferido, prefixo) => (projeto.elementos.some((e) => e.codigo === preferido) ? proximoCodigo(projeto, prefixo) : preferido);
@@ -128,3 +131,36 @@ export function criarNivelBaldrame(projeto, registro, { arranque = 1.0, secao = 
 }
 
 export { COBRIMENTO_SOLO };
+
+/**
+ * Cria um radier sob os pilares da fundação que ainda não têm sapata, bloco ou radier (contorno automático).
+ * @returns {string|null} id do radier criado, ou null se não houver pilar livre
+ */
+export function criarRadierNosPilares(projeto, registro) {
+  const livres = pilaresDeFundacao(projeto, registro).filter(({ pilar }) => !temApoio(projeto, pilar.id));
+  if (!livres.length) return null;
+  const outros = projeto.elementos.some((e) => e.modulo === 'concreto.radier');
+  const codigo = codigoLivre(projeto, 'R1', 'R');
+  const el = { id: novoId('r'), modulo: 'concreto.radier', codigo, nome: 'Radier', ...criarRadier(projeto), pilares: outros ? livres.map(({ pilar }) => pilar.id) : null, resultado: null };
+  projeto.elementos.push(el);
+  return el.id;
+}
+
+/**
+ * Cria uma sapata corrida sob cada viga do nível mais baixo (o baldrame, se houver) que ainda não tenha uma.
+ * @returns {string[]} ids criados
+ */
+export function criarSapatasCorridasNasVigas(projeto) {
+  const pavs = pavimentosOrdenados(projeto);
+  if (!pavs.length) return [];
+  const baixo = pavs[0].id;
+  const criadas = [];
+  for (const v of projeto.elementos.filter((e) => e.modulo === 'concreto.viga' && e.posicao?.pavimento === baixo)) {
+    if (projeto.elementos.some((e) => e.modulo === 'concreto.sapataCorrida' && e.vigaId === v.id)) continue;
+    const codigo = codigoLivre(projeto, `SC${v.codigo.replace(/^[A-Za-z]+/, '')}`, 'SC');
+    const el = { id: novoId('sc'), modulo: 'concreto.sapataCorrida', codigo, nome: `Sapata corrida de ${v.codigo}`, ...criarSapataCorrida(projeto), vigaId: v.id, resultado: null };
+    projeto.elementos.push(el);
+    criadas.push(el.id);
+  }
+  return criadas;
+}

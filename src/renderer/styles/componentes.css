@@ -440,3 +440,57 @@ button.obj-numero:hover { text-decoration: underline; text-decoration-thickness:
 .roteiro-fase li.roteiro-item .roteiro-estado { min-width: 54px; font-size: 9px; }
 .roteiro-plano p { margin: 6px 0; font-size: 13.5px; line-height: 1.55; max-width: 920px; }
 .roteiro-plano .roteiro-plano-item { padding-left: 14px; border-left: 2px solid var(--acento); }
+
+/* exercícios resolvidos: memorial recolhido com desenho (0.58) */
+.biblio-memorial { border-top: 1px dashed var(--filete); padding-top: 8px; margin-top: 4px; }
+.biblio-memorial > summary { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--acento); letter-spacing: 0.02em; }
+.biblio-memorial-corpo { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; margin-top: 10px; align-items: start; }
+@media (max-width: 1000px) { .biblio-memorial-corpo { grid-template-columns: 1fr; } }
+.biblio-memorial-desenho { margin: 0; padding: 10px; border: 1px solid var(--filete); border-radius: 8px; background: var(--campo); }
+.biblio-memorial-passos h4 { margin: 0 0 4px; font-size: 12px; font-weight: 750; }
+.biblio-memorial-passos section + section { margin-top: 10px; }
+.biblio-memorial-passos ul { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
+.bib-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.bib-svg text { fill: var(--tinta); font-size: 12px; }
+.bib-svg .bib-n { font-weight: 650; font-variant-numeric: tabular-nums; }
+.bib-svg .bib-tit { font-weight: 750; fill: var(--tinta-2); font-size: 11.5px; letter-spacing: 0.03em; }
+.bib-l { stroke: var(--tinta); stroke-width: 1.2; fill: none; }
+.bib-cota { stroke: var(--tinta-2); stroke-width: 1; }
+.bib-ref { stroke: var(--tinta-2); stroke-width: 1; stroke-dasharray: 4 3; }
+.bib-marca { stroke: var(--tinta); stroke-width: 2.4; }
+.bib-concreto { fill: color-mix(in srgb, var(--tinta) 9%, transparent); stroke: var(--tinta); stroke-width: 1.3; }
+.bib-laje { fill: color-mix(in srgb, var(--tinta) 6%, transparent); stroke: none; }
+.bib-comprimido { fill: color-mix(in srgb, var(--acento) 28%, transparent); }
+.bib-bloco { fill: color-mix(in srgb, var(--acento) 40%, transparent); stroke: var(--acento); }
+.bib-pilar { fill: color-mix(in srgb, var(--tinta) 45%, transparent); stroke: var(--tinta); }
+.bib-estaca { fill: color-mix(in srgb, #8a6a4a 35%, transparent); stroke: var(--tinta-2); }
+.bib-aco { fill: #4f86b8; stroke: var(--tinta); stroke-width: 0.8; }
+.bib-ln { stroke: var(--acento); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.bib-seta line { stroke: var(--tinta-2); stroke-width: 1.6; } .bib-seta path { fill: var(--tinta-2); }
+.bib-seta.carga line { stroke: var(--acento); } .bib-seta.carga path { fill: var(--acento); }
+.bib-seta.aco line { stroke: #4f86b8; } .bib-seta.aco path { fill: #4f86b8; }
+.bib-barra.sol { fill: color-mix(in srgb, var(--acento) 75%, transparent); }
+.bib-barra.res { fill: color-mix(in srgb, #7b9d62 80%, transparent); }
+.bib-barra.par { fill: color-mix(in srgb, #4f86b8 70%, transparent); }
+.bib-barra.ref { fill: color-mix(in srgb, var(--tinta) 30%, transparent); }
+.bib-barra.neg { fill: color-mix(in srgb, var(--acento) 55%, transparent); }
+.bib-faixa.ok { fill: color-mix(in srgb, #7b9d62 70%, transparent); }
+.bib-faixa.medio { fill: color-mix(in srgb, #d6a640 75%, transparent); }
+.bib-faixa.alto { fill: color-mix(in srgb, var(--erro) 65%, transparent); }
+.bib-biela { stroke: var(--acento); stroke-width: 3; stroke-dasharray: 8 4; }
+.bib-tirante { stroke: #4f86b8; stroke-width: 3.5; }
+.bib-engaste { stroke: var(--tinta); stroke-width: 4; }
+.bib-apoio { stroke: var(--tinta); stroke-width: 1.4; }
+.bib-livre { stroke: var(--tinta-2); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.bib-charneira { stroke: var(--acento); stroke-width: 1.4; stroke-dasharray: 5 3; }
+.bib-contorno { fill: none; stroke: #4f86b8; stroke-width: 1.4; stroke-dasharray: 5 3; }
+.bib-pressao { fill: color-mix(in srgb, var(--acento) 25%, transparent); stroke: var(--acento); stroke-width: 1.2; }
+.bib-curva { fill: none; stroke: var(--acento); stroke-width: 2; }
+.bib-curva.desl { stroke: #4f86b8; stroke-dasharray: 6 4; }
+.bib-ponto { fill: var(--acento); stroke: var(--tinta); }
+.bib-vazada { fill: none; stroke: color-mix(in srgb, var(--acento) 35%, transparent); }
+.bib-media { fill: none; stroke: var(--acento); stroke-width: 1.2; stroke-dasharray: 5 3; }
+.bib-acr { fill: color-mix(in srgb, #4f86b8 20%, transparent); stroke: #4f86b8; stroke-dasharray: 4 3; }
+.bib-carga { fill: color-mix(in srgb, var(--acento) 30%, transparent); stroke: var(--acento); }
+.bib-viga { stroke: var(--tinta); stroke-width: 4; }
+@media print { .biblio-memorial[open] { break-inside: avoid; } }

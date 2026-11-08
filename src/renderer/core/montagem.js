@@ -714,6 +714,32 @@ export const apoiosIntermediariosDaEscada = (projeto, esc) => new Set((escadaNaP
 /* ------------------------------------------------------------------ estado da montagem por elemento */
 
 export const FUNDACOES_PILAR = ['concreto.sapata', 'concreto.bloco'];
+
+/**
+ * Radier que recebe o pilar: o que o lista em `pilares`, ou — com a lista vazia — qualquer radier, desde que o pilar
+ * não tenha sapata nem bloco (e esteja dentro do contorno, quando o contorno é informado).
+ */
+export function radierDoPilar(projeto, pilar) {
+  const els = projeto?.elementos ?? [];
+  const radiers = els.filter((e) => e.modulo === 'concreto.radier');
+  if (!radiers.length || !pilar) return null;
+  if (els.some((e) => FUNDACOES_PILAR.includes(e.modulo) && e.pilarId === pilar.id)) return null;
+  for (const r of radiers) {
+    if (Array.isArray(r.pilares) && r.pilares.length) { if (r.pilares.includes(pilar.id)) return r; continue; }
+    if (r.geometria?.modo === 'manual' && pilar.posicao) {
+      const [cx, cy] = centroPilar(pilar), { x = 0, y = 0 } = r.local ?? {};
+      if (cx >= x - 1e-6 && cx <= x + (Number(r.geometria.lx) || 0) + 1e-6 && cy >= y - 1e-6 && cy <= y + (Number(r.geometria.ly) || 0) + 1e-6) return r;
+      continue;
+    }
+    return r;
+  }
+  return null;
+}
+
+/** Fundação sob o pilar: sapata ou bloco ligados a ele, ou o radier que o recebe. */
+export function fundacaoDoPilar(projeto, pilar) {
+  return (projeto?.elementos ?? []).find((e) => FUNDACOES_PILAR.includes(e.modulo) && e.pilarId === pilar?.id) ?? radierDoPilar(projeto, pilar);
+}
 export const NA_MONTAGEM = ['laje', 'viga', 'pilar', 'escada', 'reservatorio'];
 
 /**
@@ -740,7 +766,7 @@ export function estadoMontagem(projeto, registro) {
     if (!recebe.has(k)) recebe.set(k, []);
     recebe.get(k).push(r);
   }
-  const temFundacao = els.some((e) => FUNDACOES_PILAR.includes(e.modulo));
+  const temFundacao = els.some((e) => FUNDACOES_PILAR.includes(e.modulo) || e.modulo === 'concreto.radier');
   const avisos = new Map();
   for (const a of avisosMontagem(projeto, registro)) { if (!avisos.has(a.elemento.id)) avisos.set(a.elemento.id, []); avisos.get(a.elemento.id).push(a.texto); }
   const problemas = (id) => { if (!mapa.has(id)) mapa.set(id, { estado: 'ok', problemas: [] }); return mapa.get(id).problemas; };
@@ -768,7 +794,7 @@ export function estadoMontagem(projeto, registro) {
       const quem = recebe.get(`${el.id}|${l.id}`) ?? [];
       if (quem.length) continue;
       if (tipo === 'pilar' && l.id === 'base') {
-        const fund = els.find((e) => FUNDACOES_PILAR.includes(e.modulo) && e.pilarId === el.id);
+        const fund = fundacaoDoPilar(projeto, el);
         const abaixo = pavimentoAbaixo(projeto, el.posicao.pavimento);
         // o lance de baixo sem fundação no projeto (nenhuma criada) não é erro de montagem
         if (fund || (!abaixo && !temFundacao)) continue;

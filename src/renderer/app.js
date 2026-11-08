@@ -60,7 +60,7 @@ import { manterPontosFixos } from './core/pilares.js';
 
 // pilar com ponto fixo (etapa L10): depois de qualquer mudança de seção, o ponto fixo fica no lugar
 estado.normalizadores.push(manterPontosFixos);
-import { criarSapatasNosPilares, criarBlocosNosPilares, criarNivelBaldrame } from './core/fundacoes.js';
+import { criarSapatasNosPilares, criarBlocosNosPilares, criarNivelBaldrame, criarRadierNosPilares, criarSapatasCorridasNasVigas } from './core/fundacoes.js';
 import { limparGeometria, folgasGeometricas, toleranciaGeometrica, detectarLigacoes, aplicarLigacoes } from './core/montagem.js';
 import { proximoCodigo, novoId } from './core/projeto.js';
 import { lerIfc } from '../engine/ifc.js';
@@ -76,7 +76,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.57.1';
+const VERSAO = '0.58.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -307,6 +307,31 @@ async function criarBlocos() {
   const estacas = ids.reduce((s, id) => s + (estado.elemento(id)?.resultado?.n ?? 0), 0);
   notificar(`${ids.length} bloco(s) criado(s) e ligado(s) aos pilares, com ${estacas} estaca(s) no total${falhas ? ` — ${falhas} com pendências` : ''}. Eles estão em Fundações, no explorador.`, falhas ? 'erro' : 'ok', { duracao: 5000 });
   registrarSaida(`Fundações: ${ids.length} bloco(s) sobre estacas criado(s) sob os pilares.`);
+}
+
+/** Radier sob os pilares da fundação que ainda não têm sapata, bloco ou radier. */
+async function criarRadierFundacao() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  let id = null;
+  estado.alterar((p) => { id = criarRadierNosPilares(p, modulos); }, { descricao: 'Criar radier', estrutural: true });
+  if (!id) return notificar('Todos os pilares que chegam à fundação já têm sapata, bloco ou radier (ou não há pilares posicionados).', 'info');
+  await calcular(id);
+  const r = estado.elemento(id)?.resultado;
+  notificar(r && !r.erro ? `Radier ${estado.elemento(id).codigo} criado: ${String(r.lx).replace('.', ',')} × ${String(r.ly).replace('.', ',')} m, h = ${r.h} cm, sob ${r.pilares.length} pilar(es)${r.ok ? '' : ' — com pendências'}.` : `Radier criado — ${r?.erro ?? 'sem cálculo'}`, r?.ok ? 'ok' : 'erro', { duracao: 5000 });
+  registrarSaida('Fundações: radier criado sob os pilares.');
+  abrirElemento(id);
+}
+
+/** Sapatas corridas sob as vigas do nível mais baixo (o baldrame). */
+async function criarSapatasCorridas() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  let ids = [];
+  estado.alterar((p) => { ids = criarSapatasCorridasNasVigas(p); }, { descricao: 'Criar sapatas corridas', estrutural: true });
+  if (!ids.length) return notificar('Não há vigas no nível mais baixo sem sapata corrida.', 'info');
+  for (const id of ids) await calcular(id);
+  const falhas = ids.filter((id) => !estado.elemento(id)?.resultado?.ok).length;
+  notificar(`${ids.length} sapata(s) corrida(s) criada(s) sob as vigas do nível mais baixo${falhas ? ` — ${falhas} com pendências` : ''}.`, falhas ? 'erro' : 'ok', { duracao: 5000 });
+  registrarSaida(`Fundações: ${ids.length} sapata(s) corrida(s) criada(s).`);
 }
 
 /** Nível de baldrame com arranques e vigas baldrame no traçado do pavimento mais baixo. */
@@ -1073,6 +1098,8 @@ function registrarComandos() {
   C({ id: 'estrutura.baldrame', categoria: 'Estrutura', titulo: 'Criar nível de baldrame (arranques e vigas baldrame)…', icone: 'viga', habilitado: temProjeto, executar: criarBaldrame });
   C({ id: 'estrutura.sapatas', categoria: 'Estrutura', titulo: 'Criar sapatas nos pilares da fundação', icone: 'sapata', habilitado: temProjeto, executar: criarSapatas });
   C({ id: 'estrutura.blocos', categoria: 'Estrutura', titulo: 'Criar blocos sobre estacas nos pilares da fundação', icone: 'bloco', habilitado: temProjeto, executar: criarBlocos });
+  C({ id: 'estrutura.radier', categoria: 'Estrutura', titulo: 'Criar radier sob os pilares da fundação', icone: 'laje', habilitado: temProjeto, executar: criarRadierFundacao });
+  C({ id: 'estrutura.sapatasCorridas', categoria: 'Estrutura', titulo: 'Criar sapatas corridas sob as vigas do baldrame', icone: 'sapata', habilitado: temProjeto, executar: criarSapatasCorridas });
   C({ id: 'projeto.memorial', categoria: 'Estrutura', titulo: 'Memorial do edifício (PDF)', icone: 'documento', habilitado: temProjeto, executar: abrirMemorialProjeto });
   C({ id: 'projeto.cargasFundacao', categoria: 'Estrutura', titulo: 'Cargas na fundação (PDF)', icone: 'sapata', habilitado: temProjeto, executar: abrirCargasFundacao });
   C({ id: 'estrutura.quantitativos', categoria: 'Estrutura', titulo: 'Quantitativos de materiais (concreto, fôrma e aço)', icone: 'quantitativos', habilitado: temProjeto, executar: abrirQuantitativos });
@@ -1205,7 +1232,7 @@ function definirMenus() {
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
       { comando: 'exibir.tema' }, { comando: 'exibir.tema.claro' }, { comando: 'exibir.tema.escuro' }, { comando: 'exibir.tema.blueprint' }, '-', { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
-    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.radier' }, { comando: 'estrutura.sapatasCorridas' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
     { rotulo: 'Módulos', itens: () => [
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),

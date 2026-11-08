@@ -24,12 +24,12 @@
  */
 import { detalharPilar, detalharLaje, aplicarEdicoes, areaBarra } from '../../engine/detalhamento.js';
 import { contextoConcreto } from '../../engine/materiais.js';
-import { bordasLaje } from '../../renderer/core/montagem.js';
+import { bordasLaje, radierDoPilar } from '../../renderer/core/montagem.js';
 import { geometriaNervurada } from './nervurada-geometria.js';
 
 const PILAR = 'concreto.pilar', VIGA = 'concreto.viga', LAJE = 'concreto.laje.macica', NERVURADA = 'concreto.laje.nervurada';
 const FUNDACOES = ['concreto.sapata', 'concreto.bloco'];
-const FERRAGEM_FUNDACAO = ['concreto.sapata', 'concreto.bloco', 'geotecnia.estaca'];
+const FERRAGEM_FUNDACAO = ['concreto.sapata', 'concreto.bloco', 'geotecnia.estaca', 'concreto.sapataCorrida', 'concreto.radier'];
 const recebe = (e, id, ligacao) => (e.cargas ?? []).some?.((c) => c.tipo === 'elemento' && c.elementoId === id && (ligacao == null || c.ligacao === ligacao));
 const comparar = (a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true });
 
@@ -38,6 +38,8 @@ export function baseDoPilar(el, projeto) {
   const els = projeto?.elementos ?? [];
   const fund = els.find((e) => FUNDACOES.includes(e.modulo) && e.pilarId === el.id);
   if (fund) return { tipo: 'fundacao', codigo: fund.codigo, id: fund.id, h: fund.resultado?.h ?? fund.geometria?.h ?? 50, cob: fund.resultado?.cobrimento ?? fund.cobrimento ?? 5 };
+  const rad = radierDoPilar(projeto, el);
+  if (rad) return { tipo: 'fundacao', codigo: rad.codigo, id: rad.id, h: rad.resultado?.h ?? rad.geometria?.h ?? 30, cob: rad.resultado?.cobrimento ?? rad.cobrimento ?? 5 };
   const pilar = els.find((e) => e.modulo === PILAR && e.id !== el.id && recebe(e, el.id, 'base'));
   if (pilar) return { tipo: 'pilar', codigo: pilar.codigo, id: pilar.id };
   const viga = els.find((e) => e.modulo === VIGA && recebe(e, el.id, 'base'));

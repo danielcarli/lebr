@@ -34,6 +34,7 @@ import { porticoDoEdificio, ventoDoProjeto, plantaDoEdificio, ROTULO_ACAO } from
 import { CASOS_VENTO } from '../../engine/combinacoes.js';
 import { deformadaBarra } from '../../engine/portico.js';
 import { geometriaNervurada, COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
+import { eixoSapataCorrida } from '../../modules/concreto-sapata-corrida/calculo.js';
 
 /** Estado da câmera e das opções (sobrevive aos redesenhos). */
 const vista = { projeto: null, alvo: null, raio: 18, teta: -0.9, fi: 0.95, cores: 'verificacao', lajesTransp: false, ocultos: new Set(), afastar: 0, deformada: false, casoDef: 'GQ', fatorDef: 1, vento: false, casoVento: 'V1' };
@@ -333,12 +334,16 @@ function renderizar(container, acoes) {
       if (!pav || vista.ocultos.has(pav.id)) continue;
       const r = sp.resultado && !sp.resultado.erro ? sp.resultado : null;
       const A = (r?.A ?? sp.geometria?.A ?? 150) / 100, B = (r?.B ?? sp.geometria?.B ?? 150) / 100, hs = (r?.h ?? sp.geometria?.h ?? 50) / 100;
+      const h0 = Math.min(hs, (r?.h0 ?? sp.geometria?.h0 ?? r?.h ?? 50) / 100);
       const topo = pav.cota + deslocamento(pav.id) - (pl.comprimento ?? 2.8);
-      const geo = new THREE.BoxGeometry(A, hs, B);
+      // a geometria do cálculo: base A × B com h0 e faces inclinadas até o topo (pilar + 2,5 cm de cada lado)
+      const a0 = Math.min(A, (r?.ap ?? pl.bx ?? 20) / 100 + 0.05), b0 = Math.min(B, (r?.bp ?? pl.by ?? 20) / 100 + 0.05);
+      const geo = solidoSapata(A, B, h0, hs, a0, b0);
       const transparente = vista.deformada;
       const mat = new THREE.MeshStandardMaterial({ color: cor(sp, 'sapata'), roughness: 0.92, metalness: 0, transparent: transparente, opacity: transparente ? 0.18 : 1, depthWrite: !transparente });
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(pl.posicao.x, topo - hs / 2, -pl.posicao.y);
+      const [cxs, cys] = [pl.posicao.x, pl.posicao.y];
+      mesh.position.set(cxs, topo - hs, -cys);
       mesh.rotation.y = ((pl.posicao.angulo ?? 0) * Math.PI) / 180;
       mesh.userData.id = sp.id;
       const linhas = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.42 }));
@@ -371,7 +376,7 @@ function renderizar(container, acoes) {
         limites.expandByObject(mesh);
       };
       peca(new THREE.BoxGeometry(A, hb, B), pl.posicao.x, pl.posicao.y, topo - hb / 2, 'sapata');
-      const L = b.estaca?.L ?? 8, rr = (r?.estaca?.D ?? b.estaca?.D ?? 30) / 200;
+      const L = r?.estaca?.L ?? b.estaca?.L ?? 8, rr = (r?.estaca?.D ?? b.estaca?.D ?? 30) / 200;
       for (const p of r?.pos ?? []) {
         const u = p.x / 100, v = p.y / 100;
         const x = pl.posicao.x + u * Math.cos(ang) - v * Math.sin(ang), y = pl.posicao.y + u * Math.sin(ang) + v * Math.cos(ang);
@@ -395,6 +400,52 @@ function renderizar(container, acoes) {
       mesh.add(linhas);
       grupo.add(mesh);
       malhas.push({ mesh, el: ea, linhas, cor: mat.color.clone() });
+      limites.expandByObject(mesh);
+    }
+
+    // sapatas corridas: o perfil do cálculo (B, h0, h) ao longo do eixo da viga, com a base na profundidade de apoio
+    for (const sc of proj.elementos.filter((e) => e.modulo === 'concreto.sapataCorrida')) {
+      const r = sc.resultado && !sc.resultado.erro ? sc.resultado : null;
+      const eixo = eixoSapataCorrida(sc, proj);
+      if (eixo.pavimento && vista.ocultos.has(eixo.pavimento)) continue;
+      if (!(eixo.L > 0)) continue;
+      const B = (r?.B ?? sc.geometria?.B ?? 80) / 100, hs = (r?.h ?? sc.geometria?.h ?? 30) / 100, h0 = Math.min(hs, (r?.h0 ?? sc.geometria?.h0 ?? 20) / 100);
+      const bw = (r?.bw ?? sc.bw ?? 20) / 100, b0 = Math.min(B, bw + 0.05);
+      const base = -(r?.profundidade ?? sc.profundidade ?? 1);
+      const perfil = [[-B / 2, 0], [B / 2, 0], [B / 2, h0], [b0 / 2, hs], [-b0 / 2, hs], [-B / 2, h0]];
+      const geo = prismaConvexo(perfil, eixo.L);
+      const transparente = vista.deformada;
+      const mat = new THREE.MeshStandardMaterial({ color: cor(sc, 'sapata'), roughness: 0.92, metalness: 0, transparent: transparente, opacity: transparente ? 0.18 : 1, depthWrite: !transparente, side: THREE.DoubleSide });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(eixo.x, base, -eixo.y);
+      mesh.rotation.y = (eixo.angulo * Math.PI) / 180;
+      mesh.userData.id = sc.id;
+      const linhas = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 1), new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.42 }));
+      mesh.add(linhas);
+      grupo.add(mesh);
+      malhas.push({ mesh, el: sc, linhas, cor: mat.color.clone() });
+      limites.expandByObject(mesh);
+    }
+
+    // radier: a placa do cálculo (contorno e espessura), com o topo na base dos pilares que recebe
+    for (const ra of proj.elementos.filter((e) => e.modulo === 'concreto.radier')) {
+      const r = ra.resultado && !ra.resultado.erro ? ra.resultado : null;
+      if (!r) continue;
+      const pl = proj.elementos.find((e) => e.id === r.pilares?.[0]?.id);
+      const pav = pl?.posicao && pavimento(proj, pl.posicao.pavimento);
+      if (pav && vista.ocultos.has(pav.id)) continue;
+      const hr = r.h / 100;
+      const topo = pav ? pav.cota + deslocamento(pav.id) - (pl.comprimento ?? 2.8) : -(r.profundidade ?? 0.5) + hr;
+      const geo = new THREE.BoxGeometry(r.lx, hr, r.ly);
+      const transparente = vista.deformada;
+      const mat = new THREE.MeshStandardMaterial({ color: cor(ra, 'sapata'), roughness: 0.92, metalness: 0, transparent: transparente, opacity: transparente ? 0.18 : 1, depthWrite: !transparente });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(r.local.x + r.lx / 2, topo - hr / 2, -(r.local.y + r.ly / 2));
+      mesh.userData.id = ra.id;
+      const linhas = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: corBorda, transparent: true, opacity: 0.42 }));
+      mesh.add(linhas);
+      grupo.add(mesh);
+      malhas.push({ mesh, el: ra, linhas, cor: mat.color.clone() });
       limites.expandByObject(mesh);
     }
 
@@ -824,4 +875,42 @@ export function juntarCaixas(caixas) {
   out.setIndex(idx);
   out.computeBoundingBox(); out.computeBoundingSphere();
   return out;
+}
+
+/** Triângulos (posições soltas) de faces planas convexas dadas pelos vértices em ordem. */
+function triangularFaces(faces) {
+  const pos = [];
+  for (const f of faces) for (let i = 1; i < f.length - 1; i++) pos.push(...f[0], ...f[i], ...f[i + 1]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  g.computeBoundingBox(); g.computeBoundingSphere();
+  return g;
+}
+
+/**
+ * Sapata isolada (m): base A × B com altura h0 e tronco de pirâmide até o topo a0 × b0 na altura h; origem no centro
+ * da base, y para cima (eixos do three: x, y para cima, z = −y da planta).
+ */
+export function solidoSapata(A, B, h0, h, a0, b0) {
+  const P = (x, y, z) => [x, z, -y];
+  const b = [P(-A / 2, -B / 2, 0), P(A / 2, -B / 2, 0), P(A / 2, B / 2, 0), P(-A / 2, B / 2, 0)];
+  const m = [P(-A / 2, -B / 2, h0), P(A / 2, -B / 2, h0), P(A / 2, B / 2, h0), P(-A / 2, B / 2, h0)];
+  const t = [P(-a0 / 2, -b0 / 2, h), P(a0 / 2, -b0 / 2, h), P(a0 / 2, b0 / 2, h), P(-a0 / 2, b0 / 2, h)];
+  const faces = [[b[0], b[3], b[2], b[1]], [t[0], t[1], t[2], t[3]]];
+  for (let i = 0; i < 4; i++) {
+    const j = (i + 1) % 4;
+    faces.push([b[i], b[j], m[j], m[i]]);
+    if (h > h0 + 1e-6) faces.push([m[i], m[j], t[j], t[i]]);
+  }
+  return triangularFaces(faces);
+}
+
+/** Prisma de perfil convexo [[w, z]] (largura × altura, m) ao longo de u de 0 a L; origem no início do eixo. */
+export function prismaConvexo(perfil, L) {
+  const P = (u, w, z) => [u, z, -w];
+  const a = perfil.map(([w, z]) => P(0, w, z)), b = perfil.map(([w, z]) => P(L, w, z));
+  const faces = [[...a].reverse(), b];
+  for (let i = 0; i < perfil.length; i++) { const j = (i + 1) % perfil.length; faces.push([a[i], a[j], b[j], b[i]]); }
+  return triangularFaces(faces);
 }

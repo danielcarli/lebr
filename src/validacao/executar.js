@@ -234,6 +234,14 @@ export function comparar(e, obtido) {
   return { ok, diferenca: rel, diferencaAbs: dif };
 }
 
+/** Resultado completo de um caso (o objeto devolvido pelo motor ou pelo módulo), para o memorial dos exercícios. */
+export function resultadoBruto(caso) {
+  return caso.alvo === 'elemento' ? rodarElemento(caso) : rodarMotor(caso);
+}
+
+/** Argumentos do motor com os materiais já montados (concreto, aço, madeira). */
+export const argumentosDoCaso = (caso) => materializar(caso.args ?? []);
+
 /** Roda um caso e devolve o relatório dele. */
 export function executarCaso(caso) {
   const base = { id: caso.id, titulo: caso.titulo, fonte: caso.fonte, descricao: caso.descricao ?? '', url: caso.url ?? '', nota: caso.nota ?? '', referencia: caso.referencia ?? '', local: caso.local ?? '', alvo: caso.alvo, onde: caso.alvo === 'motor' ? caso.funcao : caso.modulo };

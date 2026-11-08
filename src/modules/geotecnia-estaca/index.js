@@ -19,6 +19,7 @@ import { calcularEstaca, criarEstaca } from './calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
 import { pilaresDeFundacao } from '../concreto-sapata/calculo.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloEstaca } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
@@ -186,6 +187,7 @@ export default function moduloEstaca(api) {
       }));
       if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
         titulo: 'Ferragem da estaca', descricao: 'Gaiola: barras longitudinais e estribo circular (NBR 6118, 18.4) · lista de ferros editável',
+        modelo3d: (posicoes) => modeloEstaca(ctx.elemento, r, posicoes),
         nota: 'A espera entra no bloco com o comprimento de ancoragem básico (boa aderência). Estribos no trecho armado.',
       }));
     },

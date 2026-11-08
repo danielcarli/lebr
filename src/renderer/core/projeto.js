@@ -58,7 +58,7 @@ export function criarProjeto({ nome = 'Projeto sem título', autor = '', descric
   return {
     formato: FORMATO,
     versao: VERSAO_FORMATO,
-    meta: { nome, autor, descricao, criadoEm: agora, modificadoEm: agora, aplicativo: 'LEBR 0.57.1' },
+    meta: { nome, autor, descricao, criadoEm: agora, modificadoEm: agora, aplicativo: 'LEBR 0.58.0' },
     parametros: { ...base, ...parametros, concreto: { ...base.concreto, ...parametros.concreto } },
     pavimentos: pavimentosPadrao(),
     elementos: [],

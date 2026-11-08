@@ -566,6 +566,38 @@ function renderizar(container, acoes) {
     return camada;
   }
 
+  /** Radier (contorno do cálculo) sob os pilares deste pavimento e sapatas corridas sob as vigas dele. */
+  function desenharFundacoesContinuas() {
+    const camada = s('g', { class: 'mont-sapatas' });
+    const proj = estado.projeto;
+    const grupo = (el, pts, rotulo, ponto) => {
+      const r = el.resultado && !el.resultado.erro ? el.resultado : null;
+      const g = s('g', { class: ['mont-sapata', r ? (r.ok ? 'atende' : 'falha') : 'sem'].join(' '), style: { cursor: 'pointer' } }, s('polygon', { points: pontos(pts) }));
+      const [tx, ty] = tela(ponto);
+      g.append(s('text', { x: tx + 4, y: ty + 12 }, rotulo));
+      g.addEventListener('dblclick', (ev) => { ev.stopPropagation(); acoes.abrirElemento?.(el.id); });
+      camada.append(g);
+    };
+    for (const ra of proj.elementos.filter((e) => e.modulo === 'concreto.radier')) {
+      const r = ra.resultado && !ra.resultado.erro ? ra.resultado : null;
+      if (!r) continue;
+      const pl = proj.elementos.find((e) => e.id === r.pilares?.[0]?.id);
+      if (!pl?.posicao || pl.posicao.pavimento !== vista.pav) continue;
+      const { x, y } = r.local;
+      grupo(ra, [[x, y], [x + r.lx, y], [x + r.lx, y + r.ly], [x, y + r.ly]], `${ra.codigo} · h ${r.h}`, [x, y + r.ly]);
+    }
+    for (const sc of proj.elementos.filter((e) => e.modulo === 'concreto.sapataCorrida' && e.vigaId)) {
+      const v = proj.elementos.find((e) => e.id === sc.vigaId);
+      if (!v?.posicao || v.posicao.pavimento !== vista.pav) continue;
+      const r = sc.resultado && !sc.resultado.erro ? sc.resultado : null;
+      const B = (r?.B ?? sc.geometria?.B ?? 80) / 100, L = (v.vaos ?? []).reduce((t, x) => t + (x.L || 0), 0);
+      const a = ((v.posicao.angulo ?? 0) * Math.PI) / 180, c = Math.cos(a), sn = Math.sin(a);
+      const P = (u, w) => [v.posicao.x + u * c - w * sn, v.posicao.y + u * sn + w * c];
+      grupo(sc, [P(0, -B / 2), P(L, -B / 2), P(L, B / 2), P(0, B / 2)], sc.codigo, P(L * 0.1, -B / 2));
+    }
+    return camada;
+  }
+
   /** Blocos sobre estacas sob os pilares deste pavimento: contorno do bloco e as estacas do arranjo calculado. */
   function desenharBlocos() {
     const camada = s('g', { class: 'mont-blocos' });
@@ -664,6 +696,7 @@ function renderizar(container, acoes) {
     svg.append(desenharCruzamentos());
     svg.append(desenharSapatas());
     svg.append(desenharBlocos());
+    svg.append(desenharFundacoesContinuas());
     svg.append(desenharEstacas());
     svg.append(desenharFuros());
     camadaModo = s('g', { class: 'mont-modo-previa' });

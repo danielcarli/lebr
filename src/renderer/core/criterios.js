@@ -23,7 +23,7 @@ const TIPO_COBRIMENTO = {
   'concreto.viga': 'viga', 'concreto.pilar': 'pilar',
   'concreto.laje.macica': 'laje', 'concreto.laje.trelicada': 'laje', 'concreto.laje.nervurada': 'laje',
   'concreto.escada': 'laje', 'concreto.reservatorio': 'laje',
-  'concreto.sapata': 'solo', 'concreto.bloco': 'solo',
+  'concreto.sapata': 'solo', 'concreto.bloco': 'solo', 'concreto.sapataCorrida': 'solo', 'concreto.radier': 'solo',
 };
 export const aceitaCriterios = (el) => !!TIPO_COBRIMENTO[el?.modulo];
 export const tipoDeCobrimento = (el) => TIPO_COBRIMENTO[el?.modulo] ?? null;

@@ -22,6 +22,8 @@ import * as ui from '../ui/componentes.js';
 import { executarTodos, problemasDoArquivo } from '../../validacao/executar.js';
 import { numeroBr, percentual } from '../../validacao/relatorio-html.js';
 import { ehArquivoBibliografia, DIVERGENCIAS, EXCLUIDOS, SEM_EXERCICIOS } from '../../validacao/bibliografia-notas.js';
+import { memorialDoCaso } from '../../validacao/memorial-exercicios.js';
+import { desenhoExercicio } from './bibliografia-desenhos.js';
 
 const dois = (n) => String(n).padStart(2, '0');
 const abrirLink = (url) => (ev) => { ev.preventDefault(); window.lebr?.sistema?.abrirExterno?.(url); };
@@ -60,7 +62,8 @@ export function abaBibliografia({ versao, lerCasos, exportarPdf }) {
           problemas.push(`Não foi possível ler os casos: ${err.message}`);
         }
         await new Promise((r) => setTimeout(r, 20));
-        ultimo = { r: executarTodos(arquivos), problemas };
+        const casos = new Map(arquivos.flatMap((a) => (a.casos ?? []).map((c) => [c.id, c])));
+        ultimo = { r: executarTodos(arquivos), problemas, casos };
         desenhar();
       };
 
@@ -126,7 +129,7 @@ export function abaBibliografia({ versao, lerCasos, exportarPdf }) {
           termo && h('p', { class: 'validacao-desc' }, `${nVis} ${nVis === 1 ? 'exercício encontrado' : 'exercícios encontrados'} para "${busca.trim()}".`),
           grupos.map((g) => ui.secao({
             numero: dois(++n), titulo: curto(g.grupo), descricao: `${g.visiveis.length} ${g.visiveis.length === 1 ? 'exercício' : 'exercícios'}`,
-            filhos: [h('p', { class: 'validacao-desc' }, g.descricao), h('div', { class: 'biblio-lista' }, g.visiveis.map(cartaoExercicio))],
+            filhos: [h('p', { class: 'validacao-desc' }, g.descricao), h('div', { class: 'biblio-lista' }, g.visiveis.map((c) => cartaoExercicio(c, ultimo.casos?.get(c.id))))],
           })),
           !nVis && ui.vazio({ icone: 'busca', titulo: 'Nenhum exercício', texto: 'Mude o tema ou o texto procurado.' }),
           ui.secao({
@@ -159,7 +162,35 @@ export function abaBibliografia({ versao, lerCasos, exportarPdf }) {
   };
 }
 
-function cartaoExercicio(c) {
+/**
+ * Memorial de cálculo do exercício, recolhido: ao abrir, roda o caso de novo e mostra os passos da solução do LEBR
+ * com o desenho que ajuda a entendê-la.
+ */
+function memorialRecolhido(caso) {
+  if (!caso) return null;
+  const corpo = h('div', { class: 'biblio-memorial-corpo' });
+  const det = h('details', { class: 'biblio-memorial' },
+    h('summary', null, icone('documento', { tamanho: 13, traco: 1.8 }), 'Memorial de cálculo do LEBR'),
+    corpo);
+  det.addEventListener('toggle', () => {
+    if (!det.open || corpo.childElementCount) return;
+    try {
+      const m = memorialDoCaso(caso);
+      const desenho = desenhoExercicio(m.desenho);
+      corpo.append(
+        desenho ? h('figure', { class: 'biblio-memorial-desenho' }, desenho) : null,
+        h('div', { class: 'biblio-memorial-passos' }, m.secoes.map((s, i) => h('section', null,
+          h('h4', null, `${i + 1}. ${s.titulo}`),
+          h('ul', null, s.linhas.map((l) => h('li', null, l)))))),
+      );
+    } catch (err) {
+      corpo.append(h('p', { class: 'validacao-erro' }, `Não foi possível montar o memorial: ${err.message}`));
+    }
+  });
+  return det;
+}
+
+function cartaoExercicio(c, caso) {
   return h('article', { class: ['biblio-ex', c.ok ? 'ok' : 'falha'] },
     h('header', { class: 'biblio-ex-cab' },
       ui.selo(c.ok, c.ok ? 'Confere' : 'Diverge'),
@@ -182,5 +213,6 @@ function cartaoExercicio(c) {
         h('td', { class: 'dir num tenue' }, percentual(i.tolerancia)),
         h('td', { class: 'st' }, i.ok ? icone('check', { tamanho: 14, traco: 2 }) : icone('alerta', { tamanho: 14, traco: 2 })))))),
     c.nota && h('div', { class: 'biblio-bloco' }, h('span', { class: 'biblio-rot' }, 'Diferenças de hipótese'), h('p', { class: 'biblio-nota' }, c.nota)),
-    c.erro && h('div', { class: 'validacao-erro' }, `Erro ao rodar o exercício: ${c.erro}`));
+    c.erro && h('div', { class: 'validacao-erro' }, `Erro ao rodar o exercício: ${c.erro}`),
+    memorialRecolhido(caso));
 }

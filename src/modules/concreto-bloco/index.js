@@ -20,6 +20,7 @@ import { calcularBloco, criarBloco } from './calculo.js';
 import { pilaresDeFundacao, COBRIMENTO_SOLO } from '../concreto-sapata/calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloBloco } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
@@ -196,6 +197,7 @@ export default function moduloBloco(api) {
         ] })],
       }));
       if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
+        modelo3d: (posicoes) => modeloBloco(r, posicoes),
         titulo: 'Ferragem do bloco e das estacas', descricao: 'Tirantes, malha de distribuição, armaduras laterais e superior (estacas em linha), suspensão e a gaiola das estacas · lista de ferros editável',
         volume: (r.A * r.B * r.h) / 1e6,
         nota: 'Tirantes e armadura superior com ganchos subindo (ou descendo) pelas faces; malhas e pele com ganchos a 90° (+10ø). A gaiola das estacas conta todas as estacas do bloco. Os arranques do pilar estão no detalhamento do pilar.',

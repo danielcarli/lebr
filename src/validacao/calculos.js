@@ -30,6 +30,8 @@ import * as estaca from '../modules/geotecnia-estaca/calculo.js';
 import * as bloco from '../modules/concreto-bloco/calculo.js';
 import * as escada from '../modules/concreto-escada/calculo.js';
 import * as reservatorio from '../modules/concreto-reservatorio/calculo.js';
+import * as sapataCorrida from '../modules/concreto-sapata-corrida/calculo.js';
+import * as radier from '../modules/concreto-radier/calculo.js';
 
 const mod = (criar, calcular, m, categoria) => ({ criar, calcular, cargasTransmitidas: m.cargasTransmitidas, ligacoes: m.ligacoes, categoria });
 
@@ -49,4 +51,6 @@ export const MODULOS_CALCULO = {
   'concreto.bloco': mod(bloco.criarBloco, bloco.calcularBloco, bloco, 'fundacoes'),
   'concreto.escada': mod(escada.criarEscada, escada.calcularEscada, escada, 'escadas'),
   'concreto.reservatorio': mod(reservatorio.criarReservatorio, reservatorio.calcularReservatorio, reservatorio, 'reservatorios'),
+  'concreto.sapataCorrida': mod(sapataCorrida.criarSapataCorrida, sapataCorrida.calcularSapataCorrida, sapataCorrida, 'fundacoes'),
+  'concreto.radier': mod(radier.criarRadier, radier.calcularRadier, radier, 'fundacoes'),
 };

@@ -31,11 +31,14 @@ import moduloEstaca from './geotecnia-estaca/index.js';
 import moduloBloco from './concreto-bloco/index.js';
 import moduloEscada from './concreto-escada/index.js';
 import moduloReservatorio from './concreto-reservatorio/index.js';
+import moduloSapataCorrida from './concreto-sapata-corrida/index.js';
+import moduloRadier from './concreto-radier/index.js';
 
 // A ordem define os atalhos Ctrl+Shift+1…9 de "novo elemento".
 export const MODULOS_INTERNOS = [
   moduloViga, moduloLajeMacica, moduloPilar, moduloLajeTrelicada, moduloLajeNervurada, moduloLajeAlveolar,
   moduloVigaMadeira, moduloPilarMadeira, moduloEntrepiso, moduloSondagem, moduloSapata, moduloEstaca, moduloBloco, moduloEscada, moduloReservatorio,
+  moduloSapataCorrida, moduloRadier,
 ];
 
 /** Módulos previstos no roteiro do projeto (exibidos como "planejados"). */

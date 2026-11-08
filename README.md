@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.57.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.58.0 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -521,6 +521,16 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.58.0 (fundações completas e memorial dos exercícios):** novas fundações **sapata corrida**
+  (sob paredes ou vigas do baldrame; carga por metro tirada das reações da viga, largura pela tensão admissível,
+  flexão pelo CEB-70, compressão diagonal e armaduras transversal e de distribuição) e **radier** (método rígido:
+  pressão no solo, faixas pelas linhas de pilares, malhas inferior e superior, punção em C e C′ e espessura
+  automática). Comandos em **Estrutura → Criar radier sob os pilares da fundação** e **Criar sapatas corridas sob as
+  vigas do baldrame**. Toda fundação (sapata, bloco, estaca, sapata corrida e radier) tem a lista de ferros editável e a
+  **armadura em 3D** na página do elemento; a visualização 3D do projeto e a montagem mostram a geometria calculada
+  (sapata em tronco de pirâmide, estacas com o comprimento calculado, sapata corrida ao longo da viga, radier). Nos
+  **exercícios resolvidos**, cada caso ganhou o **memorial de cálculo** recolhido, com os passos numéricos e um desenho
+  da solução.
 - **Novidades da 0.57.1:** menu **Aprender** na barra de menus (todas as lições, cada lição direto, tutoriais, exemplos,
   exercícios resolvidos e catálogo de cargas), botão Aprender na barra de atividades e as lições na paleta de comandos.
 - **Novidades da 0.57.0 (módulo educacional):** **Ajuda → Aprender cálculo estrutural** (também na tela inicial), com

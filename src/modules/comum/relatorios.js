@@ -13,11 +13,12 @@
  */
 /** Dados dos relatórios do projeto (0.32): cargas na fundação. Sem interface, para os testes e o PDF. */
 import { pilaresNaFundacao } from './pranchas.js';
+import { radierDoPilar } from '../../renderer/core/montagem.js';
 
 const FUNDACOES = ['concreto.sapata', 'concreto.bloco'];
 /** Linhas da tabela de cargas na fundação: pilares que chegam à fundação, normais e a fundação ligada. */
 export function cargasNaFundacao(projeto) {
-  const fundacao = (p) => projeto.elementos.find((e) => FUNDACOES.includes(e.modulo) && (e.pilarId === p.id || (Array.isArray(e.cargas) && e.cargas.some((c) => c.tipo === 'elemento' && c.elementoId === p.id))));
+  const fundacao = (p) => projeto.elementos.find((e) => FUNDACOES.includes(e.modulo) && (e.pilarId === p.id || (Array.isArray(e.cargas) && e.cargas.some((c) => c.tipo === 'elemento' && c.elementoId === p.id)))) ?? radierDoPilar(projeto, p);
   const linhas = pilaresNaFundacao(projeto).map((p) => {
     const r = p.resultado && !p.resultado.erro ? p.resultado : null;
     const F = fundacao(p);

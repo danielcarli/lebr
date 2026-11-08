@@ -232,6 +232,22 @@ function estaca(el, r, projeto) {
   return { concreto: 0, forma: 0, aco: {}, estacas: { n: 1, metros: L, volume: A * L }, notas: ['Estaca: concreto em Estacas; armadura não calculada.'] };
 }
 
+function sapataCorrida(el, r, projeto) {
+  if (!r || r.erro) return { concreto: 0, forma: 0, aco: {}, notas: ['Sapata corrida sem cálculo.'] };
+  const a = aco();
+  const forma = 2 * r.L * (r.h0 / 100);
+  if (pelaLista(el, r, projeto, a)) return { concreto: r.volume ?? 0, forma, aco: a.kg, pecas: a.pecas, notas: ['Aço pela lista de ferros do detalhamento.'], detalhado: true };
+  return { concreto: r.volume ?? 0, forma, aco: {}, notas: [] };
+}
+
+function radier(el, r, projeto) {
+  if (!r || r.erro) return { concreto: 0, forma: 0, aco: {}, notas: ['Radier sem cálculo.'] };
+  const a = aco();
+  const forma = 2 * (r.lx + r.ly) * (r.h / 100);
+  if (pelaLista(el, r, projeto, a)) return { concreto: r.volume ?? 0, forma, aco: a.kg, pecas: a.pecas, notas: ['Aço pela lista de ferros do detalhamento.'], detalhado: true };
+  return { concreto: r.volume ?? 0, forma, aco: {}, notas: [] };
+}
+
 function escada(el, r) {
   if (!r || r.erro) return { concreto: 0, forma: 0, aco: {}, notas: ['Escada sem cálculo.'] };
   const b = r.largura, h = r.h / 100, e = r.degraus.e / 100, p = r.degraus.p / 100;
@@ -281,14 +297,14 @@ const POR_MODULO = {
   'concreto.viga': viga, 'concreto.laje.macica': lajeMacica, 'concreto.laje.nervurada': lajeNervurada,
   'concreto.laje.trelicada': lajeTrelicada, 'concreto.laje.alveolar': lajeAlveolar, 'concreto.pilar': pilar,
   'concreto.sapata': sapata, 'concreto.bloco': bloco, 'geotecnia.estaca': estaca, 'concreto.escada': escada,
-  'concreto.reservatorio': reservatorio,
+  'concreto.reservatorio': reservatorio, 'concreto.sapataCorrida': sapataCorrida, 'concreto.radier': radier,
 };
 
 const NOMES = {
   'concreto.viga': 'Viga', 'concreto.laje.macica': 'Laje maciça', 'concreto.laje.nervurada': 'Laje nervurada',
   'concreto.laje.trelicada': 'Laje treliçada', 'concreto.laje.alveolar': 'Laje alveolar', 'concreto.pilar': 'Pilar',
   'concreto.sapata': 'Sapata', 'concreto.bloco': 'Bloco sobre estacas', 'geotecnia.estaca': 'Estaca', 'concreto.escada': 'Escada',
-  'concreto.reservatorio': 'Reservatório',
+  'concreto.reservatorio': 'Reservatório', 'concreto.sapataCorrida': 'Sapata corrida', 'concreto.radier': 'Radier',
 };
 
 /** Quantitativo de um elemento dos módulos internos (sem o registro), ou null se o módulo não estima. */

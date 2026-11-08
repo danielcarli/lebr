@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 52 feitos, 21 parciais e 35 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 55 feitos, 22 parciais e 34 a fazer.
 
 ## O que existe hoje
 
@@ -82,7 +82,7 @@ O edifício é analisado no pórtico espacial e na grelha de cada pavimento; cad
 - ○ Pilares com λ até 140
 - ◐ Pilares-parede e seção L
 - ○ Lajes lisas e cogumelo
-- ○ Radier, arrimo e cortinas
+- ◐ Radier, arrimo e cortinas
 - ✅ Plantas de fôrmas e armação
 - ✅ Memorial do projeto inteiro
 - ◐ Importar DXF; IFC (BIM)
@@ -192,7 +192,9 @@ Sem fundações o projeto para nos pilares do térreo; este grupo fecha o caminh
 | ✅ | Bloco sobre estacas | 1 a n estacas, método das bielas e tirantes, armadura principal e de distribuição | NBR 6118 22.7 |
 | ✅ | Ferragem das fundações | Armadura das estacas moldadas in loco pela Tabela 4 (tensão-limite, armadura mínima, comprimento armado pelo atrito, gaiola e estribos) e lista de ferros editável das sapatas e dos blocos, com armaduras laterais e superior nos blocos em linha e suspensão — feito na 0.54.0 | NBR 6122:2019 8.6.3; NBR 6118 22.6 e 22.7 |
 | ✅ | Estacas | Capacidade de carga por Aoki-Velloso e Décourt-Quaresma, comprimento e quantidade; hélice contínua, escavada, pré-moldada, broca | NBR 6122 |
-| ○ | Radier | Laje sobre base elástica (coeficiente de reação vertical), recalques e esforços | NBR 6122 |
+| ✅ | Sapata corrida | Sob paredes e vigas do baldrame: largura pela tensão admissível, sapata rígida, flexão pelo CEB-70, compressão diagonal, armadura transversal e de distribuição, carga por metro tirada das reações da viga — feito na 0.58.0 | NBR 6122, NBR 6118 22.6 |
+| ◐ | Radier | Método rígido feito na 0.58.0 (pressão N/A ± M/W, faixas pelas linhas de pilares, malhas inferior e superior, punção em C e C′, espessura automática); falta a laje sobre base elástica (coeficiente de reação vertical) e os recalques | NBR 6122, NBR 6118 19.5 |
+| ✅ | Armadura 3D das fundações | Sapata (tronco de pirâmide), bloco com as estacas, estaca com a gaiola, sapata corrida e radier com as barras da lista de ferros em 3D; na visualização do projeto, a geometria calculada de cada fundação — feito na 0.58.0 | NBR 6118 22.6 e 22.7 |
 | ✅ | Vigas baldrame | Vigas de fundação com carga de paredes e travamento dos blocos | NBR 6118 |
 | ○ | Recalques | Estimativa de recalques e recalques diferenciais entre apoios | NBR 6122 |
 | ○ | Muro de arrimo | Muro de flexão e de gravidade: empuxo (Rankine ou Coulomb), tombamento, deslizamento e tensão no solo | NBR 11682 |
@@ -210,6 +212,7 @@ Quase toda edificação tem pelo menos uma escada e um reservatório, então est
 | ◐ | Marquises e balanços | Verificação de equilíbrio, tombamento e engaste na viga, com γn |
 | ○ | Consolos e dentes | Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5) |
 | ✅ | Vigas T e L | Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0 |
+| ✅ | Memorial dos exercícios resolvidos | Em cada exercício da bibliografia, o memorial de cálculo do LEBR recolhido, com os passos, as fórmulas com os números e um desenho que explica a solução (seção, bielas, tensões no solo, contornos de punção, diagramas, curvas) — feito na 0.58.0 |
 | ✅ | Módulo educacional (Aprender) | Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0 |
 | ✅ | Laje nervurada em 3D | Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0 |
 | ○ | Vigas de transição | Vigas que recebem pilares (pilar nascendo em viga), com carga concentrada vinda do pavimento de cima |

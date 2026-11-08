@@ -35,7 +35,8 @@ test('roteiro: docs/ROTEIRO.md está em dia com os dados', () => {
 test('roteiro: estados dos itens (0.35)', async () => {
   const { estadoDe, contarEstados } = await import('../src/renderer/views/roteiro-dados.js');
   for (const x of ROTEIRO.fases[0].itens) assert.equal(estadoDe(x), 'feito', x);
-  assert.equal(estadoDe('Radier'), 'falta');
+  assert.equal(estadoDe('Radier'), 'parcial');
+  assert.equal(estadoDe('Recalques'), 'falta');
   assert.equal(estadoDe('Torção de equilíbrio e de compatibilidade, combinada com cortante (NBR 6118, 17.5)'), 'parcial');
   const c = contarEstados();
   assert.ok(c.feito > 0 && c.parcial > 0 && c.falta > 0);

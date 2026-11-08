@@ -22,7 +22,7 @@
 import {
   tipoDe, pavimento, pavimentoAbaixo, peDireito, eixoViga, bordasLaje, bordaDaLigacao, cantosLaje, contornoPilar,
   centroPilar, secaoViga, detectarLigacoes, ligacoesExistentes, ligacaoExiste, folgasGeometricas, vigaSobApoio,
-  apoiosIntermediariosDaEscada, distanciaAoPilar, FUNDACOES_PILAR, NA_MONTAGEM,
+  apoiosIntermediariosDaEscada, distanciaAoPilar, FUNDACOES_PILAR, NA_MONTAGEM, radierDoPilar,
 } from './montagem.js';
 import { cruzamentosDoProjeto, textoCruzamento, definirCruzamento, sugerirCruzamento } from './cruzamentos.js';
 import { aplicarLigacoes, limparGeometria } from './montagem.js';
@@ -123,6 +123,7 @@ export function verificarConsistencia(projeto, registro) {
   }
   const fundacaoDe = new Map();
   for (const f of els) if (FUNDACOES_PILAR.includes(f.modulo) && porId.has(f.pilarId)) { fundacaoDe.set(f.pilarId, f); ligado.add(f.pilarId); }
+  for (const p of els.filter((e) => e.modulo === 'concreto.pilar')) { const r = radierDoPilar(projeto, p); if (r) { fundacaoDe.set(p.id, r); ligado.add(p.id); } }
   // viga apoiada em viga: a grelha liga as duas pela geometria
   const sobViga = new Map(); // `${viga.id}|${k}` → viga de baixo
   for (const v of validos.filter((e) => tipo(e) === 'viga')) {
@@ -136,7 +137,7 @@ export function verificarConsistencia(projeto, registro) {
   const indicada = new Set();
   for (const d of detectadas) { indicada.add(`${d.fonte.id}|${d.ligacao}`); ligado.add(d.fonte.id); ligado.add(d.receptor.id); }
   const recebida = (e, lig) => (recebe.get(`${e.id}|${lig}`) ?? []).length > 0 || indicada.has(`${e.id}|${lig}`);
-  const temFundacao = els.some((e) => FUNDACOES_PILAR.includes(e.modulo));
+  const temFundacao = els.some((e) => FUNDACOES_PILAR.includes(e.modulo) || e.modulo === 'concreto.radier');
 
   for (const e of validos) {
     const t = tipo(e);

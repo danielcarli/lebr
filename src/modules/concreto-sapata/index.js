@@ -19,6 +19,7 @@
 import { calcularSapata, criarSapata, pilaresDeFundacao, COBRIMENTO_SOLO } from './calculo.js';
 import { criarDesenhoSapata } from './desenho.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { modeloSapata } from '../comum/armadura3d-fundacoes.js';
 
 export default function moduloSapata(api) {
   const { h } = api.dom;
@@ -156,6 +157,7 @@ export default function moduloSapata(api) {
         ],
       }));
       if (ctx && r.detalhamento?.posicoes?.length) raiz.append(secaoListaDeFerros(api, ctx, r.detalhamento, {
+        modelo3d: (posicoes) => modeloSapata(r, posicoes),
         titulo: 'Ferragem da sapata', descricao: 'Malhas de flexão de face a face, com gancho nas duas pontas (NBR 6118, 22.6.4.1.1) · lista de ferros editável',
         volume: r.volume,
         nota: 'Ganchos a 90° (+10ø em cada ponta). Os arranques (esperas) do pilar estão no detalhamento do pilar; a ancoragem deles na sapata é verificada acima.',

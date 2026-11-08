@@ -54,6 +54,19 @@ function obterRenderer() {
  * @param {{caixas, barras}} modelo   ver modules/comum/armadura3d.js
  * @param {{altura?:number, aoDestacar?:(id:string|null)=>void, legenda?:string}} [op]
  */
+/** Geometria de um tronco de pirâmide em coordenadas absolutas (cm). */
+function troncoGeometria(c) {
+  const [x0, y0, z0] = c.min, [x1, y1, z1] = c.max, [a0, b0, a1, b1] = c.topo;
+  const v = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [a0, b0, z1], [a1, b0, z1], [a1, b1, z1], [a0, b1, z1]];
+  const faces = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
+  const pos = [];
+  for (const [a, b, cc, dd] of faces) pos.push(...v[a], ...v[b], ...v[cc], ...v[a], ...v[cc], ...v[dd]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
 export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
   const palco = h('div', { class: 'v3a-palco', style: { height: `${altura}px` } });
   const dica = h('div', { class: 'v3a-dica' });
@@ -75,12 +88,15 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
       // cilindro de eixo z (o CylinderGeometry do three é em y): gira para ficar de pé no z
       g = new THREE.CylinderGeometry(d[0] / 2, d[0] / 2, d[2], 40, 1);
       g.rotateX(Math.PI / 2);
+    } else if (c.forma === 'tronco') {
+      // tronco de pirâmide (sapata): base min/max em z = min[2], topo [x0, y0, x1, y1] em z = max[2]
+      g = troncoGeometria(c);
     } else g = new THREE.BoxGeometry(...d);
     const apoio = c.tipo !== 'concreto';
     const enchimento = c.tipo === 'enchimento';                          // blocos da laje nervurada
     const azul = document.documentElement.dataset.tema === 'blueprint';   // tema blueprint: arestas brancas no papel azul
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: azul ? 0xe8f0fb : enchimento ? (COR_ENCHIMENTO[c.material] ?? 0xcfc8bd) : apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: enchimento ? 0.22 : apoio ? 0.07 : 0.14, depthWrite: false }));
-    m.position.set(...c.min.map((v, i) => v + d[i] / 2));
+    if (c.forma !== 'tronco') m.position.set(...c.min.map((v, i) => v + d[i] / 2));
     const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: azul ? 0xffffff : apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
     arestas.position.copy(m.position);
     grupoConcreto.add(m, arestas);
