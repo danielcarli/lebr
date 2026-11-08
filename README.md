@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.56.2 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
+> **Protótipo 0.57.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
 > desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
 
 > [!IMPORTANT]
@@ -521,6 +521,15 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.57.1:** menu **Aprender** na barra de menus (todas as lições, cada lição direto, tutoriais, exemplos,
+  exercícios resolvidos e catálogo de cargas), botão Aprender na barra de atividades e as lições na paleta de comandos.
+- **Novidades da 0.57.0 (módulo educacional):** **Ajuda → Aprender cálculo estrutural** (também na tela inicial), com
+  seis lições: o caminho das cargas (animação da laje ao solo), esforços na viga (DEC, DMF e deformada da biapoiada,
+  do balanço e da biengastada, com leitura de V e M pelo mouse), flexão na seção (deformações, tensões, linha neutra e
+  domínios animados com o momento), a viga completa, a laje maciça e o pilar (esbeltez, flambagem animada e
+  envoltória de momentos resistentes). Cada gráfico tem as caixas "Para que serve" e "Como ler". Nas lições de viga,
+  laje e pilar, o cálculo é feito pelos mesmos módulos da página de edição, com a lista de ferros e a armadura em 3D.
+  Os controles deslizantes refazem tudo na hora.
 - **Novidades da 0.56.2:** no calendário da tela inicial, os quadrados dos dias que não existem (antes do dia 1 e
   depois do último dia do mês) ficam cheios, na cor da malha.
 - **Novidades da 0.56.1:** no tema escuro, o calendário da tela inicial fica em cinza chumbo escuro; o workflow de

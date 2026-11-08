@@ -127,6 +127,15 @@ function configurarMenuNativo() {
       { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' },
       { type: 'separator' }, { role: 'togglefullscreen' },
     ] },
+    { label: 'Aprender', submenu: [
+      { label: 'Todas as lições', click: cmd('ajuda.aprender') },
+      { type: 'separator' },
+      ...['caminho', 'esforcos', 'flexao', 'viga', 'laje', 'pilar'].map((id, k) => ({
+        label: ['01 · O caminho das cargas', '02 · Esforços na viga', '03 · Flexão na seção', '04 · A viga completa', '05 · Laje maciça', '06 · Pilar'][k], click: cmd(`aprender.${id}`),
+      })),
+      { type: 'separator' },
+      { label: 'Tutorial: casa térrea (PDF)', click: cmd('ajuda.tutorialCasa') },
+    ] },
     { role: 'windowMenu' },
   ]));
 }

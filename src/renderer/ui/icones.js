@@ -69,6 +69,7 @@ const P = {
   escada: '<path d="M3 20h4v-4h4v-4h4V8h4V4h2"/><path d="M3 20h18"/>',
   bloco: '<path d="M10 2h4v5h-4z"/><path d="M4 7h16v6H4z"/><path d="M6 13v8M18 13v8M12 13v8"/>',
   estaca: '<path d="M9 3h6v15l-3 3-3-3z"/><path d="M4 7h16"/><path d="M9 11h6M9 15h6"/>',
+  aprender: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>',
   roteiro: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
   dividir: '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M12 4v16"/>',
   pino: '<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/>',

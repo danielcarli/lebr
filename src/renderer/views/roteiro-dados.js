@@ -171,6 +171,7 @@ export const ROTEIRO = {
         ['Marquises e balanços', 'Verificação de equilíbrio, tombamento e engaste na viga, com γn'],
         ['Consolos e dentes', 'Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5)'],
         ['Vigas T e L', 'Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0'],
+        ['Módulo educacional (Aprender)', 'Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0'],
         ['Laje nervurada em 3D', 'Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0'],
         ['Vigas de transição', 'Vigas que recebem pilares (pilar nascendo em viga), com carga concentrada vinda do pavimento de cima'],
         ['Piscinas e caixas enterradas', 'Empuxo de terra com e sem água, subpressão'],
@@ -256,6 +257,7 @@ export const ROTEIRO = {
  * (primeira coluna nas tabelas, o título nas listas, o texto nas fases e nos grupos).
  */
 export const ESTADOS = {
+  'Módulo educacional (Aprender)': 'feito',
   'Laje nervurada em 3D': 'feito',
   'Ferragem das fundações': 'feito',
   'Vigas T e L': 'feito',

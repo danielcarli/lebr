@@ -82,6 +82,7 @@ function colunaPrincipal(lista, { abrirCaminho, removerRecente, redesenhar }) {
         h('div', { class: 'inicio-acoes' },
           acao('projeto.novo', 'Novo projeto', 'novo', 'Começar com parâmetros da norma'),
           acao('projeto.abrir', 'Abrir projeto…', 'pasta', 'Arquivo .lebr.json do computador'),
+          acao('ajuda.aprender', 'Aprender cálculo estrutural', 'aprender', 'Lições animadas: esforços, flexão, viga, laje e pilar em 3D'),
           acao('ajuda.tutorialCasa', 'Tutorial: casa térrea', 'pdf', 'Passo a passo em PDF, do projeto em branco às sapatas'),
           acao('projeto.abrirExemplo', 'Abrir exemplo', 'documento', 'Pavimento com lajes, vigas e pilares'),
           acao('projeto.abrirExemploTerreo', 'Exemplo térreo com baldrame', 'sapata', 'Casa de um pavimento, vigas baldrame e sapatas'),

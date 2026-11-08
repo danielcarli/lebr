@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 51 feitos, 21 parciais e 35 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 52 feitos, 21 parciais e 35 a fazer.
 
 ## O que existe hoje
 
@@ -210,6 +210,7 @@ Quase toda edificação tem pelo menos uma escada e um reservatório, então est
 | ◐ | Marquises e balanços | Verificação de equilíbrio, tombamento e engaste na viga, com γn |
 | ○ | Consolos e dentes | Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5) |
 | ✅ | Vigas T e L | Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0 |
+| ✅ | Módulo educacional (Aprender) | Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0 |
 | ✅ | Laje nervurada em 3D | Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0 |
 | ○ | Vigas de transição | Vigas que recebem pilares (pilar nascendo em viga), com carga concentrada vinda do pavimento de cima |
 | ◐ | Piscinas e caixas enterradas | Empuxo de terra com e sem água, subpressão |

@@ -40,6 +40,8 @@ import { abaElemento, estadoDoResultado, marcarCalculo } from './views/elemento.
 import { abaMemorialProjeto, abaCargasFundacao } from './views/relatorios.js';
 import { abaParametros } from './views/parametros.js';
 import { abaRoteiro } from './views/roteiro.js';
+import { abaAprender, pedirLicao } from './views/aprender.js';
+import { LICOES } from './views/aprender-licoes.js';
 import { abaValidacao } from './views/validacao.js';
 import { abaBibliografia } from './views/bibliografia.js';
 import { abaCatalogoCargas } from './views/catalogo-cargas.js';
@@ -74,7 +76,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.56.2';
+const VERSAO = '0.57.1';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -1019,6 +1021,13 @@ const temProjeto = () => !!estado.projeto;
 /** Há um elemento para o comando: o indicado (menu do explorador, montagem) ou o da aba ativa. */
 const temElemento = (id) => !!estado.elemento(typeof id === 'string' ? id : elementoAtivo());
 
+/** Abre a aba Aprender (ou volta a ela) já na lição pedida. */
+function abrirLicao(id) {
+  if (id) pedirLicao(id);
+  if (wb.grupoDaAba('aprender') >= 0) { wb.ativarAba('aprender'); if (id) wb.redesenharAba('aprender'); }
+  else wb.abrirAba(abaAprender());
+}
+
 function registrarComandos() {
   const C = (c) => comandos.registrar(c);
   // Arquivo
@@ -1149,6 +1158,10 @@ function registrarComandos() {
   })) });
   C({ id: 'ajuda.bibliografia', categoria: 'Ajuda', titulo: 'Exercícios resolvidos (LEBR × fontes)', icone: 'documento', executar: abrirBibliografia });
   C({ id: 'ajuda.cargas', categoria: 'Ajuda', titulo: 'Catálogo de cargas (NBR 6120)', icone: 'carga', executar: () => wb.abrirAba(abaCatalogoCargas()) });
+  C({ id: 'ajuda.aprender', categoria: 'Aprender', titulo: 'Aprender cálculo estrutural', icone: 'aprender', executar: () => abrirLicao(null) });
+  // uma entrada por lição (menu Aprender e paleta de comandos)
+  const ICONE_LICAO = { caminho: 'carga', esforcos: 'viga', flexao: 'camadas', viga: 'viga', laje: 'laje', pilar: 'pilar' };
+  for (const l of LICOES) C({ id: `aprender.${l.id}`, categoria: 'Aprender', titulo: `${l.numero} · ${l.titulo}`, icone: ICONE_LICAO[l.id] ?? 'aprender', executar: () => abrirLicao(l.id) });
   C({ id: 'ajuda.roteiro', categoria: 'Ajuda', titulo: 'Roteiro (road map)', icone: 'roteiro', executar: () => wb.abrirAba(abaRoteiro({ versao: VERSAO })) });
   C({ id: 'ajuda.sobre', categoria: 'Ajuda', titulo: 'Sobre o LEBR', icone: 'info', executar: mostrarSobre });
   C({ id: 'ajuda.atualizar', categoria: 'Ajuda', titulo: 'Verificar atualizações', icone: 'atualizar', executar: () => lebr?.atualizacao?.verificar() });
@@ -1198,7 +1211,14 @@ function definirMenus() {
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
       '-', { comando: 'exibir.modulos' }, { comando: 'modulos.abrirPasta' }, { comando: 'ajuda.modulos' },
     ] },
-    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
+    { rotulo: 'Aprender', itens: () => [
+      { comando: 'ajuda.aprender', rotulo: 'Todas as lições' }, '-',
+      ...LICOES.map((l) => ({ comando: `aprender.${l.id}` })), '-',
+      { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-',
+      { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemplo3' }, '-',
+      { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.cargas' },
+    ] },
+    { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.aprender' }, { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
   ]);
 }
 
@@ -1521,13 +1541,14 @@ function configurarAtividade() {
   wb.registrarVisao(visaoExplorador({ abrirElemento, elementoAtivo, criar: criarElemento }));
   wb.registrarVisao(visaoModulos({ planejados: MODULOS_PLANEJADOS }));
   wb.visoes.get('explorador').contador = () => problemas().length;
+  wb.adicionarBotaoAtividade({ icone: 'aprender', titulo: 'Aprender cálculo estrutural', aoClicar: () => comandos.executar('ajuda.aprender') });
   wb.adicionarBotaoAtividade({ icone: 'busca', titulo: 'Paleta de comandos (Ctrl+Shift+P)', aoClicar: () => comandos.executar('paleta.abrir') });
   wb.adicionarBotaoAtividade({
     icone: 'engrenagem', titulo: 'Gerenciar',
     aoClicar: (e, b) => {
       const r = b.getBoundingClientRect();
       menuContexto({ preventDefault() {}, stopPropagation() {}, clientX: r.right + 4, clientY: r.top - 150 }, [
-        { comando: 'paleta.abrir' }, { comando: 'projeto.parametros' }, { comando: 'exibir.tema' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.sobre' },
+        { comando: 'paleta.abrir' }, { comando: 'projeto.parametros' }, { comando: 'exibir.tema' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.aprender' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.sobre' },
       ]);
     },
   });
