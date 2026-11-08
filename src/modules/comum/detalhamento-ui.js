@@ -140,7 +140,7 @@ export function secaoListaDeFerros(api, ctx, det, op = {}) {
       h('div', { class: 'det-barra-acoes' },
         h('span', { class: 'det-info' }, `${posicoes.length} posições · ${num(resumo.total, 1)} kg de aço${taxa ? ` · ${num(taxa, 0)} kg/m³` : ''}${nEd ? ` · ${nEd} ${nEd > 1 ? 'posições editadas' : 'posição editada'}` : ''}`),
         nEd ? ui.botao({ texto: 'Restaurar o detalhamento calculado', icone: 'atualizar', tipo: 'fantasma', aoClicar: restaurarTudo }) : ''),
-      tabelaPos,
+      h('div', { class: 'det-rolagem' }, tabelaPos),
       h('div', { class: 'det-rodape' },
         h('div', { class: 'det-rodape-resumo' }, h('h4', { class: 'det-sub' }, 'Resumo do aço'), tabelaResumo),
         verifs && h('div', { class: 'det-rodape-verif' }, h('h4', { class: 'det-sub' }, op.tituloVerificacoes ?? 'Verificações do detalhamento'), verifs)),

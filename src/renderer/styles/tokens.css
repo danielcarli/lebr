@@ -211,3 +211,9 @@
   color: var(--tinta);
   color-scheme: light;
 }
+
+/* blueprint: legendas, títulos, unidades e valores dos diagramas legíveis sobre o papel azul e o quadriculado */
+:root[data-tema='blueprint'] :is(.esquema-slot, .planta-slot, .previa-secao, .desenho-caixa, .figura-secao, .mont-planta) :is(.dg-leg, .dg-unid, .dg-titulo, .dg-valor, .dg-texto, .dg-rot) {
+  paint-order: stroke; stroke: #1A57A3; stroke-width: 4px; stroke-linejoin: round;
+}
+:root[data-tema='blueprint'] :is(.esquema-slot, .planta-slot, .previa-secao, .desenho-caixa, .figura-secao, .mont-planta) :is(.dg-leg, .dg-unid) { fill: #FFFFFF; font-weight: 600; }

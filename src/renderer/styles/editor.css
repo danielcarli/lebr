@@ -52,7 +52,7 @@
 /* ------------------------------------------------------------ laje / pilar */
 .laje-geo, .pilar-geo { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(280px, 520px); gap: 24px; align-items: start; }
 .laje-campos { display: flex; flex-direction: column; gap: 16px; }
-.bordas { display: grid; grid-template-columns: repeat(2, max-content); gap: 12px 18px; }
+.bordas { display: flex; flex-wrap: wrap; gap: 12px 18px; }
 .planta-slot, .previa-secao { border: 1px solid var(--filete); border-radius: var(--raio); background: var(--campo); padding: 6px; display: grid; place-items: center; }
 .laje-mapas { display: grid; grid-template-columns: minmax(300px, 1fr) minmax(260px, 420px); gap: 24px; align-items: center; }
 .mapa-pontos { display: flex; flex-direction: column; gap: 10px; }
@@ -232,7 +232,7 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 
 /* combinações de ações */
 .dg-area.envolvente-min { stroke-dasharray: 5 3; fill-opacity: 0.55; }
-.dg-leg { font-size: 10.5px; fill: var(--tinta2); }
+.dg-leg { font-size: 10.5px; fill: var(--tinta-2); }
 .dg-leg-amostra { fill: none; stroke-width: 2; }
 .combinacoes-tabela .mono { font-family: var(--fonte-mono); font-size: 12px; }
 .combinacoes-tabela tr.governa td { background: var(--acento-suave); }
@@ -405,6 +405,8 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 
 /* ------------------------------------------------------------ detalhamento de vigas (0.27) */
 .det-corpo { display: flex; flex-direction: column; gap: 14px; }
+.det-corpo > * { min-width: 0; }
+.det-rolagem { overflow-x: auto; }  /* a lista de ferros rola na horizontal em editores estreitos */
 .det-elevacao { overflow-x: auto; }
 .desenho.elevacao-viga { min-width: 720px; }
 .det-viga { fill: var(--cartao); stroke: var(--tinta); stroke-width: 1.4; }
@@ -433,7 +435,8 @@ pre.codigo { margin: 0; padding: 12px 14px; background: var(--campo); border: 1p
 .det-input.det-phi { width: 76px; text-align: left; }
 .det-barra-acoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .det-info { font-size: 12.5px; color: var(--tinta-2); }
-.det-rodape { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 20px; align-items: start; }
+.det-rodape { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 20px 28px; align-items: start; }
+.det-rodape > * { min-width: 0; overflow-x: auto; }
 @media (max-width: 900px) { .det-rodape { grid-template-columns: 1fr; } }
 .det-sub { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tinta-2); }
 .det-resumo tr.total td { border-top: 1px solid var(--filete-forte); }
@@ -582,3 +585,17 @@ button.estado-chip:hover { filter: brightness(1.08); }
 .esquema .dg-rot { font-size: 22px; }
 .interacao .ia-rot, .interacao .ia-legenda, .interacao .ia-valor { font-size: 22px; }
 .estaca-curva .sd-escala, .estaca-curva .est-nk-rot, .estaca-curva .est-leg { font-size: 21px; }
+
+/* ------------------------------------------------------------ larguras do editor (0.35.1)
+   As colunas lado a lado passam a uma coluna pela largura do editor (abas lado a lado, 3D fixo à direita), e não
+   só pela largura da janela; nenhum bloco encolhe abaixo do conteúdo a ponto de passar por cima do vizinho. */
+.laje-geo > *, .pilar-geo > *, .laje-mapas > *, .pilar-res > *, .puncao-res > *, .carga-linha > * { min-width: 0; }
+@container editor (max-width: 1100px) {
+  .laje-geo, .pilar-geo, .laje-mapas { grid-template-columns: minmax(0, 1fr); }
+  .laje-geo .planta-slot, .pilar-geo .previa-secao, .laje-mapas > :last-child { max-width: 560px; }
+}
+@container editor (max-width: 1020px) {
+  .det-rodape { grid-template-columns: minmax(0, 1fr); }
+  .pilar-res, .puncao-res { grid-template-columns: minmax(0, 1fr); }
+  .inicio-colunas { grid-template-columns: 1fr; }
+}
