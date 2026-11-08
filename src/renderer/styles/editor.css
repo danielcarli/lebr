@@ -163,6 +163,8 @@
 .cal .pontos-rot { color: var(--cartao-tinta); }
 .cal .leg-ponto { background: var(--cartao-tinta); }
 .cal-leg { color: color-mix(in srgb, var(--cartao-tinta) 70%, transparent); margin-top: 4px; }
+/* tema escuro: o calendário em cinza chumbo (os outros cartões continuam claros) */
+:root[data-tema='escuro'] .cal { --cartao: #2B2D30; --cartao-tinta: #E6E6E6; }
 
 /* ------------------------------------------------------------ outros */
 .link { color: var(--acento); font-weight: 600; }
