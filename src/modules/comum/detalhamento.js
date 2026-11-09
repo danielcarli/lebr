@@ -25,6 +25,7 @@
 import { detalharPilar, detalharLaje, aplicarEdicoes, areaBarra } from '../../engine/detalhamento.js';
 import { contextoConcreto } from '../../engine/materiais.js';
 import { bordasLaje, radierDoPilar } from '../../renderer/core/montagem.js';
+import { secaoDoVao, secaoEnvolvente } from '../../engine/viga-secoes.js';
 import { geometriaNervurada } from './nervurada-geometria.js';
 
 const PILAR = 'concreto.pilar', VIGA = 'concreto.viga', LAJE = 'concreto.laje.macica', NERVURADA = 'concreto.laje.nervurada';
@@ -43,7 +44,12 @@ export function baseDoPilar(el, projeto) {
   const pilar = els.find((e) => e.modulo === PILAR && e.id !== el.id && recebe(e, el.id, 'base'));
   if (pilar) return { tipo: 'pilar', codigo: pilar.codigo, id: pilar.id };
   const viga = els.find((e) => e.modulo === VIGA && recebe(e, el.id, 'base'));
-  if (viga) return { tipo: 'viga', codigo: viga.codigo, id: viga.id, h: viga.secao?.h ?? 40, cob: projeto.parametros?.cobrimento?.viga ?? 3 };
+  if (viga) {
+    // a altura do vão em que o pilar nasce
+    const lig = (viga.cargas ?? []).find((c) => c.tipo === 'elemento' && c.elementoId === el.id && c.ligacao === 'base');
+    const vao = lig && lig.vao !== 'todos' && lig.vao != null ? Number(lig.vao) : 0;
+    return { tipo: 'viga', codigo: viga.codigo, id: viga.id, h: secaoDoVao(viga, vao).h, cob: projeto.parametros?.cobrimento?.viga ?? 3 };
+  }
   return { tipo: null };
 }
 
@@ -72,7 +78,10 @@ const OPOSTA = { x0: 'x1', x1: 'x0', y0: 'y1', y1: 'y0' };
 function apoioDaBorda(laje, borda, projeto) {
   if (laje.bordas?.[borda] === 'livre') return 0;
   const v = (projeto?.elementos ?? []).find((e) => e.modulo === VIGA && recebe(e, laje.id, borda));
-  return v?.secao?.b ?? 15;
+  if (!v) return 15;
+  // a largura do vão em que a borda apoia (se a ligação diz qual); senão, a maior da viga
+  const lig = (v.cargas ?? []).find((c) => c.tipo === 'elemento' && c.elementoId === laje.id && c.ligacao === borda);
+  return lig && lig.vao !== 'todos' && lig.vao != null ? secaoDoVao(v, Number(lig.vao)).b : secaoEnvolvente(v).b;
 }
 
 /** Barras de uma direção no resultado da laje: positiva ou negativa x/y. */

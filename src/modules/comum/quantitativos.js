@@ -28,6 +28,7 @@ import { expandirTipos } from '../../renderer/core/tipos.js';
 import { aplicarEdicoes } from '../../engine/detalhamento.js';
 import { posicoesDe } from './detalhamento.js';
 import { geometriaNervurada } from './nervurada-geometria.js';
+import { secaoDoVao } from '../../engine/viga-secoes.js';
 
 export const BITOLAS_QUANT = [5, 6.3, 8, 10, 12.5, 16, 20, 25, 32];
 /** Massa linear nominal (kg/m) — NBR 7480: 0,00617·ø² (ρ = 7850 kg/m³). */
@@ -72,9 +73,14 @@ const asDeRotulo = (b) => (b?.phi && b?.s ? (Math.PI * (b.phi / 10) ** 2 / 4) * 
 /* ------------------------------------------------------------------ por módulo */
 
 function viga(el, r) {
-  const b = el.secao?.b ?? 15, h = el.secao?.h ?? 40;
-  const Ls = (el.vaos ?? []).map((v) => v.L ?? 0), L = Ls.reduce((s, x) => s + x, 0);
-  const out = { concreto: (b * h * L) / 1e4, forma: ((el.baldrame ? 2 * h : b + 2 * h) * L) / 100, notas: [] };
+  // cada vão com a própria seção (fôrma: fundo e duas laterais; no baldrame, só as laterais)
+  const Ls = (el.vaos ?? []).map((v) => v.L ?? 0);
+  const ss = Ls.map((_, k) => secaoDoVao(el, k));
+  const out = {
+    concreto: ss.reduce((s, x, k) => s + (x.b * x.h * Ls[k]) / 1e4, 0),
+    forma: ss.reduce((s, x, k) => s + ((el.baldrame ? 2 * x.h : x.b + 2 * x.h) * Ls[k]) / 100, 0),
+    notas: [],
+  };
   if (el.baldrame) out.notas.push('Baldrame: fôrma só nas laterais.');
   const a = aco();
   // com o detalhamento (0.27): a lista de ferros, já com as edições do usuário
@@ -91,7 +97,7 @@ function viga(el, r) {
       const e = v.estribos;
       if (e?.phi && e?.s) {
         const n = Math.ceil((Ls[k] * 100) / e.s) + 1;
-        a.barras(e.phi, n, (2 * (b - 2 * cob) + 2 * (h - 2 * cob)) / 100 + 2 * 10 * e.phi / 1000);
+        a.barras(e.phi, n, (2 * (ss[k].b - 2 * cob) + 2 * (ss[k].h - 2 * cob)) / 100 + 2 * 10 * e.phi / 1000);
       }
       // porta-estribos no trecho sem negativa
       const negEsq = r.apoios?.[k]?.negativa?.barras, negDir = r.apoios?.[k + 1]?.negativa?.barras;

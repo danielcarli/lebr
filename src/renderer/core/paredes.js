@@ -29,6 +29,7 @@
  */
 import { alvenaria, cargaParede, ALVENARIAS } from '../../engine/cargas.js';
 import { pavimentosOrdenados, peDireito, tipoDe, eixoViga, secaoViga, cantosLaje, dimensoesLaje, espessuraLaje } from './montagem.js';
+import { secaoDoVao } from '../../engine/viga-secoes.js';
 
 export const ESPESSURA_MIN = 0.09; // m
 export const ESPESSURA_MAX = 0.25; // m
@@ -223,12 +224,13 @@ export function planoDeParedes(projeto, registro, pavId, paredes, opcoes = {}) {
       v.eixo.vaos.forEach(([s0, s1], k) => {
         const t0 = Math.max(i0, s0), t1 = Math.min(i1, s1);
         if (t1 - t0 < 0.05) return;
-        trechos.push({ destino: 'viga', id: v.el.id, codigo: v.el.codigo, vao: k, Lvao: r3(s1 - s0), inicio: r3(t0 - s0), comprimento: r3(t1 - t0), hViga: v.h });
+        const hVao = secaoDoVao(v.el, k).h / 100;
+        trechos.push({ destino: 'viga', id: v.el.id, codigo: v.el.codigo, vao: k, Lvao: r3(s1 - s0), inicio: r3(t0 - s0), comprimento: r3(t1 - t0), hViga: hVao });
+        hViga = Math.max(hViga ?? 0, hVao);
         // em coordenadas da parede
         const sp = (t) => ((a[0] + u[0] * t) - par.a[0]) * dir[0] + ((a[1] + u[1] * t) - par.a[1]) * dir[1];
         cobertos.push([Math.min(sp(t0), sp(t1)), Math.max(sp(t0), sp(t1))]);
       });
-      hViga = Math.max(hViga ?? 0, v.h);
     }
     // o que sobrou da parede: na laje que contém o meio do trecho
     cobertos = cobertos.sort((x, y) => x[0] - y[0]);

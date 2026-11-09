@@ -37,6 +37,7 @@ import { propriedadesT, inerciaEstadioIIT, distanciaMomentoNulo, larguraColabora
 import { detalharViga } from '../../engine/detalhamento.js';
 import { FCK_MIN, COBRIMENTO_MM } from '../../engine/materiais.js';
 import { grelhaDaViga, textoInteracao, FATOR_TORCAO_GRELHA } from '../comum/grelha.js';
+import { secaoDoVao, secoesDaViga, secaoVariavel, secaoNoApoio, facesContinuas, espessuraApoiada, vaosInvertidos } from '../../engine/viga-secoes.js';
 
 const f = (v, c = 2) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
@@ -56,9 +57,10 @@ export function montarCasos(el, ctx) {
 
   const PP = new Array(nv).fill(0); // peso próprio por vão (parte de G), mostrado como caso G1
   if (el.pesoProprio) {
-    const pp = (ctx.materiais.gama * el.secao.b * el.secao.h) / 1e4;
-    G.q.forEach((_, i) => { G.q[i] += pp; PP[i] = pp; });
-    origem.push({ texto: 'Peso próprio', g: pp, q: 0, vaos: 'todos' });
+    // cada vão com a própria seção
+    G.q.forEach((_, i) => { const s = secaoDoVao(el, i); const pp = (ctx.materiais.gama * s.b * s.h) / 1e4; G.q[i] += pp; PP[i] = pp; });
+    if (PP.every((v) => Math.abs(v - PP[0]) < 1e-9)) origem.push({ texto: 'Peso próprio', g: PP[0], q: 0, vaos: 'todos' });
+    else PP.forEach((pp, i) => { const s = secaoDoVao(el, i); origem.push({ texto: `Peso próprio (${s.b} × ${s.h} cm)`, g: pp, q: 0, vaos: i }); });
   }
 
   for (const c of el.cargas ?? []) {
@@ -128,18 +130,20 @@ export function montarCasos(el, ctx) {
   return { G, Q, PP, origem, torcoes, suspensas };
 }
 
+/** EI bruta de cada vão (kN·m²), com a seção do vão. */
 function rigidezBruta(el, ctx) {
-  const { b, h } = el.secao;
-  const Ic = (b * h ** 3) / 12; // cm⁴
-  return { Ic, EI: ctx.materiais.concreto.Ecs * 1000 * Ic * 1e-8 }; // kN·m²
+  return el.vaos.map((_, v) => {
+    const { b, h } = secaoDoVao(el, v);
+    const Ic = (b * h ** 3) / 12; // cm⁴
+    return ctx.materiais.concreto.Ecs * 1000 * Ic * 1e-8;
+  });
 }
 
 /** Análise dos casos G e Q (esforços característicos). */
 export function analisarCasos(el, ctx) {
   const { G, Q, PP, origem, suspensas } = montarCasos(el, ctx);
   const L = el.vaos.map((v) => v.L);
-  const { EI } = rigidezBruta(el, ctx);
-  const EIs = L.map(() => EI);
+  const EIs = rigidezBruta(el, ctx);
   const rG = analisarViga({ vaos: L, apoios: el.apoios, q: G.q, P: G.P, EI: EIs });
   const rQ = analisarViga({ vaos: L, apoios: el.apoios, q: Q.q, P: Q.P, EI: EIs });
   const rPP = PP.some((v) => v > 0) ? analisarViga({ vaos: L, apoios: el.apoios, q: PP, P: G.P.map((p) => ({ ...p, P: 0 })), EI: EIs }) : null;
@@ -171,7 +175,12 @@ export function ligacoes(el) {
 
 export function calcularViga(el, ctx) {
   const { concreto: c, aco: s, gg, gq, psi2, dmax, caa } = ctx.materiais;
-  const { b, h } = el.secao;
+  // seção de cada vão (b, h, invertida) e os níveis das faces, com a base dos vãos invertidos na face inferior da laje
+  const hLaje = typeof ctx.elemento === 'function' ? espessuraApoiada(el, ctx.elemento) : 10;
+  const secs = secoesDaViga(el, { hLaje });
+  const variavel = secaoVariavel(el);
+  if (secs.some((x) => !(x.b > 0) || !(x.h > 0))) throw new Error('Informe largura e altura maiores que zero em todos os vãos.');
+  const bMin = Math.min(...secs.map((x) => x.b)), hMin = Math.min(...secs.map((x) => x.h));
   // viga baldrame: em contato com o solo, cobrimento da Tabela 7.2 para elementos em contato com o solo
   const cobSolo = (COBRIMENTO_MM.solo[caa] ?? 30) / 10;
   const cob = el.baldrame ? Math.max(ctx.parametros.cobrimento.viga, cobSolo) : ctx.parametros.cobrimento.viga;
@@ -189,7 +198,8 @@ export function calcularViga(el, ctx) {
   if (el.vaos.some((v) => !(v.L > 0))) throw new Error('Todos os vãos precisam ter comprimento maior que zero.');
   const { G, Q, rG, rQ, rPP, origem, L, grelha, iso, suspensas } = analisarCasos(el, ctx);
   // viga invertida: a laje fica na face inferior e as cargas dela (e de escadas) sobem por estribos de suspensão (18.3.6)
-  const invertida = !!el.invertida;
+  const inv = vaosInvertidos(el);
+  const invertida = inv.algum;
   const fywd = s.fyd / 10; // kN/cm² (CA-50: 43,5)
   const combinacoes = ctx.materiais.combinacoes;
   const elu = doTipo(combinacoes, 'ELU');
@@ -202,7 +212,7 @@ export function calcularViga(el, ctx) {
   const mesa = el.mesa && (el.mesa.tipo === 'T' || el.mesa.tipo === 'L') ? el.mesa : null;
   const hf = mesa ? Number(mesa.hf) || 0 : 0;
   if (mesa && !(hf > 0)) throw new Error('Informe a espessura da mesa hf da viga T ou L.');
-  if (mesa && hf >= h) throw new Error('A mesa (hf) deve ser mais fina que a altura total da viga.');
+  if (mesa && hf >= hMin) throw new Error('A mesa (hf) deve ser mais fina que a altura total da viga (em todos os vãos).');
   /** mesa por vão: a, bf e as abas; a mesa só colabora onde está comprimida — no vão (laje em cima) ou no apoio (invertida) */
   const mesaVao = L.map((Lv, v) => {
     if (!mesa) return null;
@@ -210,12 +220,12 @@ export function calcularViga(el, ctx) {
     const esq = !balanco && (v > 0 || el.apoios[v] === 'engaste');
     const dir = !balanco && (v < L.length - 1 || el.apoios[v + 1] === 'engaste');
     const dist = distanciaMomentoNulo(Lv, { esq, dir, balanco });
-    return { ...dist, ...larguraColaboranteViga({ bw: b, mesa, a: dist.a }), balanco };
+    return { ...dist, ...larguraColaboranteViga({ bw: secs[v].b, mesa, a: dist.a }), balanco };
   });
   /** mesa no apoio k (só na viga invertida): a menor bf dos tramos vizinhos */
   const mesaApoio = (k) => {
-    if (!mesa || !invertida) return null;
-    const viz = [mesaVao[k - 1], mesaVao[k]].filter(Boolean);
+    if (!mesa) return null;
+    const viz = [k - 1, k].filter((v) => secs[v]?.invertida).map((v) => mesaVao[v]).filter(Boolean);
     return viz.length ? viz.reduce((m, x) => (x.bf < m.bf ? x : m)) : null;
   };
 
@@ -235,7 +245,7 @@ export function calcularViga(el, ctx) {
 
   // altura útil a partir do arranjo de barras escolhido (iterativo)
   const dl = cob + phiT / 10 + 0.5;
-  const alturaUtil = (arr) => {
+  const alturaUtil = (arr, h) => {
     if (!arr) return h - cob - phiT / 10 - 0.625;
     const phi = arr.phi / 10;
     if (arr.camadas === 1) return h - cob - phiT / 10 - phi / 2;
@@ -243,10 +253,10 @@ export function calcularViga(el, ctx) {
     return h - cob - phiT / 10 - phi - av / 2;
   };
   /** @param phi bitola da face tracionada; @param phiC bitola da face comprimida (armadura dupla) */
-  const dimensionar = (Md, phi, phiC, mT = null) => {
+  const dimensionar = (Md, phi, phiC, mT, { b, h }) => {
     let arr = null, flex = null;
     for (let it = 0; it < 3; it++) {
-      const d = alturaUtil(arr ?? (phi ? { phi, camadas: 1 } : null));
+      const d = alturaUtil(arr ?? (phi ? { phi, camadas: 1 } : null), h);
       flex = mT ? flexaoVigaT({ Md, bf: mT.bf, bw: b, hf, h, d, dl, c, s }) : dimensionarFlexao({ Md, b, h, d, dl, c, s });
       flex.d = d;
       const novo = escolherBarrasViga({ As: flex.As, bw: b, cob, phiT, dmax, phi });
@@ -254,7 +264,7 @@ export function calcularViga(el, ctx) {
       arr = novo;
     }
     const comp = flex.Asl > 0 ? escolherBarrasViga({ As: flex.Asl, bw: b, cob, phiT, dmax, phi: phiC }) : null;
-    return { flex, barras: arr, barrasComp: comp, phiFixo: phi, mesa: mT };
+    return { flex, barras: arr, barrasComp: comp, phiFixo: phi, mesa: mT, b, h };
   };
 
   // ---------------------------------------------------------------- torção (17.5): envoltória do momento torçor
@@ -270,14 +280,15 @@ export function calcularViga(el, ctx) {
   }
 
   const vaos = L.map((Lv, v) => {
+    const sec = secs[v], { b, h } = sec;
     const p = pts.filter((q) => q.vao === v);
     const pM = pico(p, (q) => q.Md);
     const pV = pico(p, (q) => Math.abs(q.Vd));
     const Mdpos = Math.max(0, pM.Md);
     const Vd = Math.abs(pV.Vd);
-    const mT = mesaVao[v] && !invertida && !mesaVao[v].balanco ? mesaVao[v] : null; // laje em cima: comprimida no vão
-    const pos = Mdpos > 0.05 ? dimensionar(Mdpos, phiInf, phiSup, mT) : null;
-    const dCort = pos?.flex.d ?? alturaUtil(null);
+    const mT = mesaVao[v] && !sec.invertida && !mesaVao[v].balanco ? mesaVao[v] : null; // laje em cima: comprimida no vão
+    const pos = Mdpos > 0.05 ? dimensionar(Mdpos, phiInf, phiSup, mT, sec) : null;
+    const dCort = pos?.flex.d ?? alturaUtil(null, h);
     let est = dimensionarEstribos({ Vd, bw: b, d: dCort, c, s, phi: phiEst });
     let tor = null;
     if (temTorcao && (G.t[v] || Q.t[v])) {
@@ -295,7 +306,7 @@ export function calcularViga(el, ctx) {
       }
     }
     let susp = null;
-    if (invertida && (suspensas.g[v] || suspensas.q[v])) {
+    if (sec.invertida && (suspensas.g[v] || suspensas.q[v])) {
       const pd = gg * suspensas.g[v] + gq * suspensas.q[v];   // kN/m pendurados na face inferior
       const aswS = pd / fywd;                                  // cm²/m, nos dois ramos
       const aswTot = est.asw + aswS;
@@ -306,31 +317,33 @@ export function calcularViga(el, ctx) {
     }
     // ligação mesa–alma (18.3.7) onde a mesa está comprimida
     const lig = mT ? ligacaoMesaAlma({ Vd, d: dCort, bf: mT.bf, b1: mT.bMax, hf, c, s }) : null;
-    return { L: Lv, x0: x0[v], gk: G.q[v], qk: Q.q[v], Mdpos, Vd, pos, est, tor, susp, lig, mesa: mT, comb: { Mdpos: Mdpos > 0.05 ? pM.cMax : null, Vd: pV.cV } };
+    return { L: Lv, x0: x0[v], sec, gk: G.q[v], qk: Q.q[v], Mdpos, Vd, pos, est, tor, susp, lig, mesa: mT, comb: { Mdpos: Mdpos > 0.05 ? pM.cMax : null, Vd: pV.cV } };
   });
 
   const apoios = el.apoios.map((tipo, k) => {
     const prox = pts.filter((q) => Math.abs(q.x - xApoio[k]) < 1e-6);
     const pN = pico(prox, (q) => -q.MdMin);
     const Mdneg = Math.min(0, pN.MdMin);
-    const neg = Mdneg < -0.05 ? dimensionar(-Mdneg, phiSup, phiInf, mesaApoio(k)) : null;
+    const sec = secaoNoApoio(secs, k);   // a menor das seções vizinhas
+    const neg = Mdneg < -0.05 ? dimensionar(-Mdneg, phiSup, phiInf, mesaApoio(k), sec) : null;
     const Rg = rG.reacoes[k].V, Rq = rQ.reacoes[k].V;
     const rMax = extremo(elu, { G: Rg, Q: Rq });
     const rMin = extremo(elu, { G: Rg, Q: Rq }, { menor: true });
-    return { tipo, x: xApoio[k], Mdneg, neg, Rg, Rq, Rd: rMax.valor, RdMin: rMin.valor, comb: { Mdneg: Mdneg < -0.05 ? pN.cMin : null, Rd: rMax.id, RdMin: rMin.id } };
+    return { tipo, x: xApoio[k], sec, Mdneg, neg, Rg, Rq, Rd: rMax.valor, RdMin: rMin.valor, comb: { Mdneg: Mdneg < -0.05 ? pN.cMin : null, Rd: rMax.id, RdMin: rMin.id } };
   });
 
   // ---------------------------------------------------------------- ELS: flechas
-  const Ic = (b * h ** 3) / 12;
-  const Mr = (1.5 * (c.fctm / 10) * Ic) / (h / 2) / 100; // kN·m
   const ae = s.Es / c.Ecs;
   const Ieq = vaos.map((vv, v) => {
+    const { b, h } = vv.sec;
+    const Ic = (b * h ** 3) / 12;
+    const Mr = (1.5 * (c.fctm / 10) * Ic) / (h / 2) / 100; // kN·m
     const balanco = el.apoios[v] === 'livre' || el.apoios[v + 1] === 'livre';
     const p = pts.filter((q) => q.vao === v);
     const Ma = balanco ? Math.max(...p.map((q) => Math.abs(q.Ms))) : Math.max(0, ...p.map((q) => q.Ms));
     const arm = balanco ? apoios[el.apoios[v] === 'livre' ? v + 1 : v].neg : vv.pos;
     const As = arm?.barras?.AsEf ?? arm?.flex.As ?? 0.0015 * b * h;
-    const d = arm?.flex.d ?? alturaUtil(null);
+    const d = arm?.flex.d ?? alturaUtil(null, h);
     // viga T ou L com a mesa comprimida no vão: Ic e estádio II da seção T, Mr com α = 1,2 (17.3.1)
     if (vv.mesa) {
       const pT = propriedadesT({ bf: vv.mesa.bf, bw: b, hf, h });
@@ -356,7 +369,7 @@ export function calcularViga(el, ctx) {
   const t0 = ctx.parametros.els?.t0 ?? 1;
 
   vaos.forEach((vv, v) => {
-    const comp = (vv.pos?.flex.Asl ?? 0) / (b * (vv.pos?.flex.d ?? h));
+    const comp = (vv.pos?.flex.Asl ?? 0) / (vv.sec.b * (vv.pos?.flex.d ?? vv.sec.h));
     const { alfaF, dXi } = alfaFluencia(t0, comp);
     const f0 = Math.abs(rEls.vaos[v].flecha) * 1000; // mm
     const fdif = f0 * alfaF;
@@ -377,11 +390,12 @@ export function calcularViga(el, ctx) {
   };
   const wLim = WK_LIMITE[caa] ?? 0.3;
   const eta1 = ETA1[s.fyk] ?? 2.25;
-  const MrForm = (1.5 * (c.fctkInf / 10) * Ic) / (h / 2) / 100; // formação de fissuras (17.3.1), kN·m
-  const MrFormT = (mT) => { const pT = propriedadesT({ bf: mT.bf, bw: b, hf, h }); return (1.2 * (c.fctkInf / 10) * pT.I) / pT.yBot / 100; };
+  const MrForm = (b, h) => (1.5 * (c.fctkInf / 10) * ((b * h ** 3) / 12)) / (h / 2) / 100; // formação de fissuras (17.3.1), kN·m
+  const MrFormT = (mT, b, h) => { const pT = propriedadesT({ bf: mT.bf, bw: b, hf, h }); return (1.2 * (c.fctkInf / 10) * pT.I) / pT.yBot / 100; };
   const fissuras = (arr, Ms, comb) => {
     if (!arr?.barras || !(Ms > 0.01)) return null;
-    const MrF = arr.mesa ? MrFormT(arr.mesa) : MrForm;
+    const { b, h } = arr;
+    const MrF = arr.mesa ? MrFormT(arr.mesa, b, h) : MrForm(b, h);
     const w = aberturaFissuras({
       Ms, b, h, d: arr.flex.d, phi: arr.barras.phi, n: arr.barras.n, porCamada: arr.barras.porCamada,
       cob, phiT, fctm: c.fctm, eta1, Es: s.Es,
@@ -401,7 +415,7 @@ export function calcularViga(el, ctx) {
   });
 
   // ---------------------------------------------------------------- verificações
-  verificacoes.push({ nome: 'Largura mínima da seção', item: '13.2.2', valor: `b = ${f(b, 0)} cm`, limite: '≥ 12 cm', ok: b >= 12 });
+  verificacoes.push({ nome: 'Largura mínima da seção', item: '13.2.2', valor: `b = ${f(bMin, 0)} cm${variavel && secs.some((x) => x.b !== bMin) ? ' (o vão mais estreito)' : ''}`, limite: '≥ 12 cm', ok: bMin >= 12 });
   verificacoes.push({ nome: `Concreto mínimo (CAA ${caa})`, item: '7.4.2', valor: `C${c.fck}`, limite: `≥ C${FCK_MIN[caa]}`, ok: c.fck >= FCK_MIN[caa] });
   vaos.forEach((vv, v) => {
     if (vv.pos) verificacoes.push({
@@ -448,6 +462,18 @@ export function calcularViga(el, ctx) {
     `Bitolas: inferior ${phiInf ? `ø ${fmtPhi(phiInf)}` : 'automática'} · superior ${phiSup ? `ø ${fmtPhi(phiSup)}` : 'automática'} · estribo ${phiEst ? `ø ${fmtPhi(phiEst)}` : 'automático'}`,
     `${el.baldrame ? 'Viga baldrame (em contato com o solo): ' : ''}Cobrimento ${f(cob, 1)} cm · estribo ø${f(phiT, 1)} mm · γg = ${f(gg)} · γq = ${f(gq)} · ψ2 = ${f(psi2)}`,
   ] });
+  if (variavel) {
+    memorial.push({ titulo: 'Seções por vão', linhas: [
+      ...secs.map((x, v) => `Vão ${v + 1} (L = ${f(L[v])} m): ${f(x.b, 0)} × ${f(x.h, 0)} cm${x.invertida ? ` · invertida (base na face inferior da laje, ${f(hLaje, 0)} cm abaixo do piso; topo ${f(x.topo, 0)} cm acima)` : ' · normal (topo no piso)'} · EI = ${f(rigidezBruta(el, ctx)[v], 0)} kN·m²`),
+      'A análise usa a rigidez de cada vão; o peso próprio, a flexão, a cortante, a torção, as flechas e as fissuras usam a seção do vão. Nos apoios internos, o momento negativo é dimensionado com a menor das seções vizinhas (menor altura útil e menor largura).',
+      ...el.apoios.map((_, k) => {
+        if (k === 0 || k === el.apoios.length - 1) return null;
+        const fc = facesContinuas(secs, k);
+        if (fc.superior && fc.inferior) return null;
+        return `Apoio ${k + 1}: ${[!fc.superior && 'a face superior', !fc.inferior && 'a face inferior'].filter(Boolean).join(' e ')} muda${!fc.superior && !fc.inferior ? 'm' : ''} de nível ou de largura — as barras dessa face não passam de um vão ao outro e são ancoradas dentro do apoio, com gancho.`;
+      }).filter(Boolean),
+    ] });
+  }
   memorial.push({ titulo: 'Cargas características', linhas: [
     ...origem.map((o) => `${o.texto}: g = ${f(o.g)} · q = ${f(o.q)} ${o.torcao ? 'kN·m/m' : o.pontual ? 'kN' : 'kN/m'}${o.vaos === 'todos' || o.vaos == null || o.pontual ? '' : ` (vão ${Number(o.vaos) + 1})`}`),
     ...vaos.map((vv, v) => `Vão ${v + 1} (L = ${f(vv.L)} m): g = ${f(vv.gk)} kN/m · q = ${f(vv.qk)} kN/m`),
@@ -465,12 +491,12 @@ export function calcularViga(el, ctx) {
   if (mesa) {
     const nomeM = mesa.tipo === 'T' ? 'Viga T' : 'Viga L';
     memorial.push({ titulo: `${nomeM} — mesa colaborante (NBR 6118, 14.6.2.2)`, linhas: [
-      `Mesa hf = ${f(hf, 1)} cm · alma bw = ${f(b, 1)} cm · ${mesa.tipo === 'T' ? `distância livre entre as faces das nervuras: b2 = ${f(Number(mesa.b2a) || 0, 0)} cm de um lado e ${f(Number(mesa.b2b ?? mesa.b2a) || 0, 0)} cm do outro · b1 ≤ 0,5·b2 e b1 ≤ 0,10·a` : `laje de um lado, b2 = ${f(Number(mesa.b2) || 0, 0)} cm (b1 ≤ 0,5·b2 e ≤ 0,10·a)${Number(mesa.b4) > 0 ? ` · aba em balanço do outro lado, b4 = ${f(Number(mesa.b4), 0)} cm (b3 ≤ b4 e ≤ 0,10·a)` : ' · sem aba do outro lado'}`}`,
-      invertida ? 'Viga invertida: a laje fica embaixo e a mesa só é comprimida nos apoios (momento negativo); nos vãos, seção retangular bw × h.' : 'A laje fica em cima: a mesa é comprimida nos vãos (momento positivo); nos apoios, a mesa fica tracionada e vale a seção retangular bw × h.',
+      `Mesa hf = ${f(hf, 1)} cm · alma bw = ${variavel ? secs.map((x) => f(x.b, 1)).join(' / ') : f(secs[0].b, 1)} cm · ${mesa.tipo === 'T' ? `distância livre entre as faces das nervuras: b2 = ${f(Number(mesa.b2a) || 0, 0)} cm de um lado e ${f(Number(mesa.b2b ?? mesa.b2a) || 0, 0)} cm do outro · b1 ≤ 0,5·b2 e b1 ≤ 0,10·a` : `laje de um lado, b2 = ${f(Number(mesa.b2) || 0, 0)} cm (b1 ≤ 0,5·b2 e ≤ 0,10·a)${Number(mesa.b4) > 0 ? ` · aba em balanço do outro lado, b4 = ${f(Number(mesa.b4), 0)} cm (b3 ≤ b4 e ≤ 0,10·a)` : ' · sem aba do outro lado'}`}`,
+      inv.todos ? 'Viga invertida: a laje fica embaixo e a mesa só é comprimida nos apoios (momento negativo); nos vãos, seção retangular bw × h.' : invertida ? 'Vãos normais: a mesa é comprimida no vão; vãos invertidos: a mesa (embaixo) só é comprimida nos apoios vizinhos a eles.' : 'A laje fica em cima: a mesa é comprimida nos vãos (momento positivo); nos apoios, a mesa fica tracionada e vale a seção retangular bw × h.',
       ...mesaVao.map((m, v) => `Vão ${v + 1} (ℓ = ${f(L[v])} m, ${m.caso}): a = ${f(m.fator)}·ℓ = ${f(m.a)} m · 0,10·a = ${f(m.lim, 1)} cm · ${mesa.tipo === 'T' ? `b1 = ${f(m.b1a, 1)} + ${f(m.b1b, 1)} cm` : `b1 = ${f(m.b1, 1)} cm${m.b3 ? ` · b3 = ${f(m.b3, 1)} cm` : ''}`} → bf = ${f(m.bf, 1)} cm${m.balanco ? ' (balanço: mesa tracionada, seção retangular)' : ''}`),
       'Os esforços são da análise com a seção retangular bw × h; a mesa entra no dimensionamento à flexão, na armadura mínima (W0 da seção T) e nas flechas e fissuras (Ic e estádio II da seção T, Mr com α = 1,2). Cortante e torção usam a alma bw.',
     ] });
-    const ligs = vaos.map((vv, v) => vv.lig && `Vão ${v + 1}: vSd = (Vd/z)·(b1/bf) = (${f(vv.Vd)}/${f(0.9 * (vv.pos?.flex.d ?? alturaUtil(null)) / 100, 3)})·(${f(vv.mesa.bMax, 1)}/${f(vv.mesa.bf, 1)}) = ${f(vv.lig.vSd)} kN/m · vRd2 = 0,5·αv2·fcd·hf = ${f(vv.lig.vRd2)} kN/m · Asf/s = vSd/fyd = ${f(vv.lig.AsfCalc)} cm²/m → ${f(vv.lig.Asf)} cm²/m (mín. 1,5 cm²/m), atravessando a ligação na laje`).filter(Boolean);
+    const ligs = vaos.map((vv, v) => vv.lig && `Vão ${v + 1}: vSd = (Vd/z)·(b1/bf) = (${f(vv.Vd)}/${f(0.9 * (vv.pos?.flex.d ?? alturaUtil(null, vv.sec.h)) / 100, 3)})·(${f(vv.mesa.bMax, 1)}/${f(vv.mesa.bf, 1)}) = ${f(vv.lig.vSd)} kN/m · vRd2 = 0,5·αv2·fcd·hf = ${f(vv.lig.vRd2)} kN/m · Asf/s = vSd/fyd = ${f(vv.lig.AsfCalc)} cm²/m → ${f(vv.lig.Asf)} cm²/m (mín. 1,5 cm²/m), atravessando a ligação na laje`).filter(Boolean);
     if (ligs.length) memorial.push({ titulo: 'Ligação mesa–alma (18.3.7)', linhas: [
       'A força de compressão nas abas varia ao longo da viga e passa para a alma por cisalhamento no plano da ligação: biela a 45° no plano da mesa e armadura transversal à viga, que pode ser a própria armadura da laje que atravessa a ligação.',
       ...ligs,
@@ -484,10 +510,10 @@ export function calcularViga(el, ctx) {
   memorial.push({ titulo: 'Força cortante — modelo I', linhas: vaos.map((vv, v) =>
     `Vão ${v + 1}: VRd2 = ${f(vv.est.VRd2)} kN · Vc = ${f(vv.est.Vc)} kN · Asw/s = ${f(vv.est.aswCalc)} cm²/m (mín. ${f(vv.est.aswMin)})${vv.tor ? ` + torção 2·A90/s = ${f(2 * vv.tor.A90)} cm²/m` : ''}${vv.susp ? ` + suspensão ${f(vv.susp.asw)} cm²/m` : ''}${vv.tor || vv.susp ? ` → total ${f(vv.est.asw)} cm²/m` : ''} → ø${f(vv.est.estribo.phi, 1)} c/ ${f(vv.est.estribo.s, 1)} cm`) });
   if (invertida) {
-    const pont = suspensas.P.map((pp) => ({ ...pp, Pd: gg * pp.g + gq * pp.q })).filter((pp) => pp.Pd > 0.01);
+    const pont = suspensas.P.filter((pp) => secs[pp.vao]?.invertida).map((pp) => ({ ...pp, Pd: gg * pp.g + gq * pp.q })).filter((pp) => pp.Pd > 0.01);
     memorial.push({ titulo: 'Viga invertida — armadura de suspensão (18.3.6)', linhas: [
       'A laje se apoia na face inferior da viga: as reações das lajes e das escadas sobem até o banzo comprimido por estribos de suspensão, somados aos da cortante.',
-      ...vaos.map((vv, v) => (vv.susp ? `Vão ${v + 1}: pd = γg·g + γq·q = ${f(vv.susp.pd)} kN/m pendurados → Asw,susp/s = pd/fywd = ${f(vv.susp.asw)} cm²/m (nos dois ramos)` : `Vão ${v + 1}: sem cargas penduradas`)),
+      ...vaos.map((vv, v) => (vv.susp ? `Vão ${v + 1}: pd = γg·g + γq·q = ${f(vv.susp.pd)} kN/m pendurados → Asw,susp/s = pd/fywd = ${f(vv.susp.asw)} cm²/m (nos dois ramos)` : vv.sec.invertida ? `Vão ${v + 1}: sem cargas penduradas` : `Vão ${v + 1}: normal (laje em cima), sem suspensão`)),
       ...pont.map((pp) => `Reação de ${pp.codigo} no vão ${pp.vao + 1}, x = ${f(pp.x)} m: Pd = ${f(pp.Pd)} kN → As,susp = Pd/fywd = ${f(pp.Pd / fywd)} cm² em estribos junto à carga, além dos da cortante`),
     ] });
     for (const pp of pont) avisos.push(`Viga invertida: concentrar ${f(pp.Pd / fywd)} cm² de estribos de suspensão junto à reação de ${pp.codigo} (vão ${pp.vao + 1}, x = ${f(pp.x)} m).`);
@@ -555,11 +581,11 @@ export function calcularViga(el, ctx) {
   let detalhamento = null;
   try {
     detalhamento = detalharViga({
-      L, apoios: el.apoios, b, h, cob, fctd: c.fctd, fyd: s.fyd,
+      L, apoios: el.apoios, b: secs[0].b, h: secs[0].h, secoes: secs, cob, fctd: c.fctd, fyd: s.fyd,
       largura: largurasDosApoios(el, ctx),
       pts: pts.map((q) => ({ x: q.x, Md: q.Md, MdMin: q.MdMin })),
       vaos: vaos.map((vv) => ({
-        barras: vv.pos?.barras, d: vv.pos?.flex.d ?? alturaUtil(null), Vd: vv.Vd, Vc: vv.est.Vc,
+        barras: vv.pos?.barras, d: vv.pos?.flex.d ?? alturaUtil(null, vv.sec.h), Vd: vv.Vd, Vc: vv.est.Vc,
         estribo: vv.est.estribo, torcao: vv.tor && { Asl: vv.tor.Asl, ue: vv.tor.ue, c1: vv.tor.c1 },
       })),
       negs: apoios.map((a) => a.neg && { barras: a.neg.barras, d: a.neg.flex.d }),
@@ -585,6 +611,8 @@ export function calcularViga(el, ctx) {
   return {
     ok: verificacoes.every((v) => v.ok) && !avisos.some((a) => a.includes('aumente')),
     invertida,
+    secoes: secs.map((x) => ({ b: x.b, h: x.h, invertida: x.invertida, topo: r2(x.topo), base: r2(x.base) })),
+    secaoVariavel: variavel,
     mesa: mesa ? { tipo: mesa.tipo, hf } : null,
     avisos, verificacoes, memorial,
     detalhamento,
@@ -615,7 +643,7 @@ export function calcularViga(el, ctx) {
       VdMax: r2(Math.max(...pts.map((p) => Math.abs(p.Vd)))),
       utilBiela: Math.max(...vaos.map((vv) => (vv.tor ? vv.tor.interacao : vv.Vd / vv.est.VRd2))),
       flechaRazao: Math.max(...vaos.map((vv) => vv.flecha.ft / vv.flecha.lim)),
-      taxaMax: Math.max(0, ...[...vaos.map((v) => v.pos), ...apoios.map((a) => a.neg)].filter(Boolean).map((x) => (x.barras?.AsEf ?? x.flex.As) / (b * h))),
+      taxaMax: Math.max(0, ...[...vaos.map((v) => v.pos), ...apoios.map((a) => a.neg)].filter(Boolean).map((x) => (x.barras?.AsEf ?? x.flex.As) / (x.b * x.h))),
     },
   };
 }

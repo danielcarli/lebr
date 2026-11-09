@@ -1,23 +1,23 @@
-# Relatório de confiabilidade — LEBR 0.61.0
+# Relatório de confiabilidade — LEBR 0.62.0
 
-Gerado em 2026-11-08 · semente 20261108 · 1000 sorteios por família.
+Gerado em 2026-11-09 · semente 20261108 · 1000 sorteios por família.
 
 ## Resumo
 
 | Camada | Resultado |
 |---|---|
-| 1. Banco de casos (norma, tabelas, soluções fechadas, exercícios publicados) | 322 de 322 casos · 913 grandezas · maior desvio 9,80 % |
-| 2. Varreduras aleatórias de invariantes | 19000 sorteios · 128259 verificações · 0 falhas · taxa de falha < 0,016 % (95 %) |
+| 1. Banco de casos (norma, tabelas, soluções fechadas, exercícios publicados) | 323 de 323 casos · 917 grandezas · maior desvio 9,80 % |
+| 2. Varreduras aleatórias de invariantes | 20000 sorteios · 138269 verificações · 0 falhas · taxa de falha < 0,015 % (95 %) |
 | 3. Fechamento do caminho das cargas nos exemplos | 7 de 7 projetos com desvio ≤ 1 % e tudo atendendo |
 
-**129179 verificações independentes** no total. Nenhuma falha.
+**139193 verificações independentes** no total. Nenhuma falha.
 
 ## 1. Desvios em relação às fontes
 
 | | Todas as grandezas | Só exercícios publicados |
 |---|---|---|
-| Grandezas comparadas | 870 | 368 |
-| Coincidência exata (≤ 0,01 %) | 530 (61 %) | 126 (34 %) |
+| Grandezas comparadas | 874 | 368 |
+| Coincidência exata (≤ 0,01 %) | 531 (61 %) | 126 (34 %) |
 | Desvio médio | 0,16 % | 0,31 % |
 | Mediana | 0,00 % | 0,04 % |
 | Percentil 90 | 0,39 % | 0,80 % |
@@ -47,6 +47,7 @@ Os desvios acima de 2 % têm hipótese diferente documentada no caso (`nota`): a
 | Vento (NBR 6123) e combinações (NBR 8681) | `concreto.pilar` | 1000 | 7000 | 0 | < 0,30 % |
 | Estádio II e abertura de fissuras | `concreto.viga` | 1000 | 5000 | 0 | < 0,30 % |
 | Viga de concreto (módulo completo) | `concreto.viga` | 1000 | 6000 | 0 | < 0,30 % |
+| Viga com seção própria em cada vão (módulo completo) | `concreto.viga` | 1000 | 10010 | 0 | < 0,30 % |
 | Lajes maciça, treliçada e nervurada (módulos completos) | `concreto.laje.macica` | 1000 | 5000 | 0 | < 0,30 % |
 | Pilar de concreto (módulo completo) | `concreto.pilar` | 1000 | 5824 | 0 | < 0,30 % |
 | Bloco, estaca, sapata corrida e radier (módulos completos) | `concreto.bloco` | 1000 | 5613 | 0 | < 0,30 % |
@@ -173,6 +174,16 @@ Invariantes conferidos por família:
   - viga: memorial sem NaN: 1000 verificações
   - viga: Σ Rg = pp + g: 1000 verificações
   - viga: Σ Rq = q·L: 1000 verificações
+- **Viga com seção própria em cada vão (módulo completo)** — Equilíbrio com o peso próprio vão a vão; reações iguais às do motor com EI de cada vão (método dos deslocamentos refeito por fora); nenhuma barra atravessa um apoio onde a sua face muda de nível; vãos iguais à seção da viga dão o mesmo resultado da seção constante.
+  - viga por vão: sem erro: 1000 verificações
+  - viga por vão: verificações sem NaN/undefined: 1000 verificações
+  - viga por vão: ok ⇔ todas as verificações ok: 1000 verificações
+  - viga por vão: memorial sem NaN: 1000 verificações
+  - viga por vão: Σ Rg = Σ (pp do vão + g)·L: 1000 verificações
+  - viga por vão: Σ Rq = q·ΣL: 1000 verificações
+  - viga por vão: reações = motor com EI por vão: 1000 verificações
+  - viga por vão: nenhuma barra atravessa apoio onde a face muda: 2010 verificações
+  - viga por vão: vãos iguais ≡ seção constante: 1000 verificações
 - **Lajes maciça, treliçada e nervurada (módulos completos)** — Equilíbrio: Σ reações nas bordas = (g + q)·área; As ≥ As,mín; nenhum NaN.
   - nervurada: sem erro: 329 verificações
   - nervurada: verificações sem NaN/undefined: 329 verificações
@@ -264,7 +275,7 @@ O peso que entra é somado elemento a elemento (área das lajes × carga, peso p
 
 | Módulo | Casos do banco | dos quais exercícios publicados | Grandezas | Famílias de invariantes | Sorteios |
 |---|---|---|---|---|---|
-| `concreto.viga` | 114 | 46 | 296 | viga-continua, flexao-secao, cisalhamento, fissuracao, elemento-viga | 5000 |
+| `concreto.viga` | 115 | 46 | 300 | viga-continua, flexao-secao, cisalhamento, fissuracao, elemento-viga, elemento-viga-secoes | 6000 |
 | `concreto.laje.macica` | 49 | 31 | 114 | placa, puncao, elemento-laje | 3000 |
 | `concreto.pilar` | 72 | 41 | 228 | pilar, vento-combinacoes, elemento-pilar | 3000 |
 | `concreto.laje.trelicada` | 0 | 0 | 0 | elemento-laje | 1000 |
@@ -286,6 +297,6 @@ O peso que entra é somado elemento a elemento (área das lajes × carga, peso p
 
 ## O que esta estatística garante — e o que não garante
 
-- Com 19000 sorteios sem falha, a probabilidade de uma entrada sorteada nesses domínios violar um invariante é menor que 0,016 %, com 95 % de confiança (regra dos três). Isso vale para o domínio sorteado (seções, vãos, cargas e materiais usuais) e para os invariantes listados; não cobre entradas fora dele nem erros que preservem equilíbrio, simetria e limites (por exemplo um coeficiente de norma trocado por outro plausível).
+- Com 20000 sorteios sem falha, a probabilidade de uma entrada sorteada nesses domínios violar um invariante é menor que 0,015 %, com 95 % de confiança (regra dos três). Isso vale para o domínio sorteado (seções, vãos, cargas e materiais usuais) e para os invariantes listados; não cobre entradas fora dele nem erros que preservem equilíbrio, simetria e limites (por exemplo um coeficiente de norma trocado por outro plausível).
 - Os exercícios publicados conferem os coeficientes e as expressões da norma item a item; os desvios acima de 2 % estão explicados caso a caso.
 - Nenhum conjunto de testes torna um programa "seguro para uso real" por si só: a NBR 6118 e a NBR 7190 exigem que o projeto seja de responsabilidade de um engenheiro habilitado, que confere as hipóteses, os dados de entrada e os resultados. O LEBR continua um protótipo; estes números medem a consistência interna e a aderência às fontes, não substituem a verificação independente.

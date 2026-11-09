@@ -24,6 +24,10 @@ import { editorVaos } from '../comum/vaos.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
 import { modeloViga } from '../comum/armadura3d.js';
 import { mesaDasLajes } from '../comum/mesa-colaborante.js';
+import { secaoDoVao, secaoVariavel, rotuloSecao, volumeViga, vaosInvertidos } from '../../engine/viga-secoes.js';
+
+/** A viga tem seção própria em cada vão (algum vão com b, h ou invertida gravados)? */
+const porVao = (el) => (el.vaos ?? []).some((v) => v.b != null || v.h != null || v.invertida != null);
 
 export default function moduloViga(api) {
   const { h } = api.dom;
@@ -87,7 +91,7 @@ export default function moduloViga(api) {
     const det = res.detalhamento;
     const el = ctx.elemento;
     const largAuto = det.larguras.map((l, k) => (el.apoios[k] === 'livre' ? null : `A${k + 1} ${num(l, 0)}`)).filter(Boolean).join(' · ');
-    const volume = (el.secao.b * el.secao.h * el.vaos.reduce((a, v) => a + v.L, 0)) / 1e4;
+    const volume = volumeViga(el);
     return secaoListaDeFerros(api, ctx, det, {
       descricao: 'Ancoragens, cortes, ganchos e emendas (NBR 6118, 9.4, 9.5 e 18.3) · lista de ferros editável',
       tituloVerificacoes: 'Ancoragem nos apoios extremos',
@@ -126,8 +130,9 @@ export default function moduloViga(api) {
 
     resumo: (el) => {
       const total = el.vaos.reduce((a, v) => a + v.L, 0);
-      const sec = el.mesa?.tipo === 'T' || el.mesa?.tipo === 'L' ? `Viga ${el.mesa.tipo} ${num(el.secao.b, 0)} × ${num(el.secao.h, 0)} cm (hf ${num(el.mesa.hf, 0)})` : `Seção ${num(el.secao.b, 0)} × ${num(el.secao.h, 0)} cm`;
-      return `${el.baldrame ? 'Baldrame · ' : ''}${el.invertida ? 'Invertida · ' : ''}${sec} · ${el.vaos.length} ${el.vaos.length > 1 ? 'vãos' : 'vão'} · ${num(total)} m`;
+      const inv = vaosInvertidos(el);
+      const sec = el.mesa?.tipo === 'T' || el.mesa?.tipo === 'L' ? `Viga ${el.mesa.tipo} ${rotuloSecao(el)} (hf ${num(el.mesa.hf, 0)})` : `${secaoVariavel(el) ? 'Seções' : 'Seção'} ${rotuloSecao(el)}`;
+      return `${el.baldrame ? 'Baldrame · ' : ''}${inv.todos ? 'Invertida · ' : inv.algum ? 'Parte invertida · ' : ''}${sec} · ${el.vaos.length} ${el.vaos.length > 1 ? 'vãos' : 'vão'} · ${num(total)} m`;
     },
 
     /* ------------------------------------------------------------------ entrada */
@@ -138,7 +143,17 @@ export default function moduloViga(api) {
       desenharEsquema();
       const mudar = (fn, op = {}) => { ctx.alterar(fn, op); if (!op.estrutural) desenharEsquema(); };
 
-      const { sequencia, acoes } = editorVaos(api, ctx, mudar);
+      const cadaVao = porVao(el);
+      const { sequencia, acoes } = editorVaos(api, ctx, mudar, { secaoPorVao: cadaVao });
+      /** liga e desliga a seção própria em cada vão: ao ligar, cada vão recebe a seção e a situação da viga; ao
+       *  desligar, a viga volta à seção constante (a do primeiro vão) */
+      const alternarPorVao = (v) => ctx.alterar((e) => {
+        if (v) { for (const vao of e.vaos) { vao.b = e.secao.b; vao.h = e.secao.h; vao.invertida = !!e.invertida; } return; }
+        const s0 = secaoDoVao(e, 0);
+        e.secao = { ...e.secao, b: s0.b, h: s0.h };
+        e.invertida = s0.invertida;
+        for (const vao of e.vaos) { delete vao.b; delete vao.h; delete vao.invertida; }
+      }, { estrutural: true, descricao: v ? `Seção por vão em ${el.codigo}` : `Seção constante em ${el.codigo}` });
 
       /** Viga T ou L (NBR 6118, 14.6.2.2): a laje moldada junto com a viga trabalha como mesa colaborante. */
       const camposMesa = () => {
@@ -181,14 +196,16 @@ export default function moduloViga(api) {
 
       raiz.append(
         ui.secao({
-          numero: '01', titulo: 'Seção e vãos', descricao: el.mesa?.tipo === 'T' ? 'Viga T: alma retangular com a laje como mesa colaborante' : el.mesa?.tipo === 'L' ? 'Viga L: alma retangular com a laje de um lado como mesa colaborante' : 'Seção retangular constante',
+          numero: '01', titulo: 'Seção e vãos', descricao: el.mesa?.tipo === 'T' ? 'Viga T: alma retangular com a laje como mesa colaborante' : el.mesa?.tipo === 'L' ? 'Viga L: alma retangular com a laje de um lado como mesa colaborante' : cadaVao ? 'Seção retangular própria em cada vão' : 'Seção retangular constante',
           filhos: [
-            ui.linhaCampos(
+            cadaVao ? null : ui.linhaCampos(
               ui.campo({ rotulo: 'Largura b', valor: el.secao.b, unidade: 'cm', casas: 1, min: 10, max: 200, aoMudar: (v) => mudar((e) => { e.secao.b = v; }) }),
               ui.campo({ rotulo: 'Altura h', valor: el.secao.h, unidade: 'cm', casas: 1, min: 15, max: 300, aoMudar: (v) => mudar((e) => { e.secao.h = v; }) }),
             ),
             ui.alternar({ rotulo: 'Viga baldrame (no nível da fundação, em contato com o solo)', valor: !!el.baldrame, dica: 'Usa o cobrimento de elementos em contato com o solo (NBR 6118, Tabela 7.2) e recebe as paredes do térreo', aoMudar: (v) => ctx.alterar((e) => { e.baldrame = v; }, { estrutural: true }) }),
-            ui.alternar({ rotulo: 'Viga invertida (laje apoiada na face inferior)', valor: !!el.invertida, dica: 'A viga sobe acima da laje; as reações das lajes e escadas ficam penduradas e pedem estribos de suspensão (NBR 6118, 18.3.6)', aoMudar: (v) => ctx.alterar((e) => { e.invertida = v; }, { estrutural: true }) }),
+            cadaVao ? null : ui.alternar({ rotulo: 'Viga invertida (laje apoiada na face inferior)', valor: !!el.invertida, dica: 'A viga sobe acima da laje; as reações das lajes e escadas ficam penduradas e pedem estribos de suspensão (NBR 6118, 18.3.6)', aoMudar: (v) => ctx.alterar((e) => { e.invertida = v; }, { estrutural: true }) }),
+            ui.alternar({ rotulo: 'Seção própria em cada vão (largura, altura e normal ou invertida)', valor: cadaVao, dica: 'Cada vão com b e h próprios e, se quiser, só parte da viga invertida — a análise usa a rigidez de cada vão e o dimensionamento, a seção de cada um', aoMudar: alternarPorVao }),
+            cadaVao ? h('p', { class: 'mesa-dica' }, 'Cada vão abaixo tem b, h e a situação (normal ou invertida). Onde a face de cima ou de baixo muda de nível de um vão para o outro — altura diferente, ou um vão normal ao lado de um invertido —, as barras daquela face não passam direto: são ancoradas dentro do apoio, com gancho. Para mudar a seção no meio de um vão, crie um apoio nesse ponto.') : null,
             ...camposMesa(),
             esquemaSlot,
             sequencia,
@@ -204,7 +221,8 @@ export default function moduloViga(api) {
 
       // cargas
       const { lista, botaoAdd } = editorCargas(api, ctx, { tipos: ['distribuida', 'concentrada', 'alvenaria', 'torcao', 'elemento'], ligacao: 'linear' });
-      const pp = (ctx.materiais.gama * el.secao.b * el.secao.h) / 1e4;
+      const pps = el.vaos.map((_, i) => { const s = secaoDoVao(el, i); return (ctx.materiais.gama * s.b * s.h) / 1e4; });
+      const pp = pps[0];
       let resumo = null;
       try {
         const { G, Q } = montarCasos(el, ctx.contextoCalculo());
@@ -216,7 +234,7 @@ export default function moduloViga(api) {
         acoes: [botaoAdd],
         filhos: [
           h('div', { class: 'linha-campos' },
-            ui.alternar({ rotulo: `Peso próprio (${num(pp)} kN/m)`, valor: el.pesoProprio, aoMudar: (v) => ctx.alterar((e) => { e.pesoProprio = v; }) })),
+            ui.alternar({ rotulo: `Peso próprio (${pps.every((x) => Math.abs(x - pp) < 1e-9) ? num(pp) : pps.map((x) => num(x)).join(' · ')} kN/m)`, valor: el.pesoProprio, aoMudar: (v) => ctx.alterar((e) => { e.pesoProprio = v; }) })),
           lista,
           resumo && h('div', { class: 'cargas-resumo' }, h('span', { class: 'rot' }, 'Distribuídas por vão (kN/m)'), resumo),
         ],
@@ -262,7 +280,7 @@ export default function moduloViga(api) {
       const secoes = res.vaos.map((v, i) => {
         const negs = [res.apoios[i]?.negativa, res.apoios[i + 1]?.negativa].filter(Boolean).sort((a, b) => b.As - a.As)[0];
         return h('figure', { class: 'figura-secao' },
-          desenho.secao(el.secao, { inf: v.positiva?.barras, sup: negs?.barras, phiT: v.estribos.phi ?? 5, cob, titulo: `VÃO ${i + 1}`, laje: el.invertida ? 'inferior' : el.baldrame ? null : 'superior', mesa: v.mesa ? { tipo: el.mesa?.tipo, hf: el.mesa?.hf, bf: v.mesa.bf } : null }),
+          desenho.secao(secaoDoVao(el, i), { inf: v.positiva?.barras, sup: negs?.barras, phiT: v.estribos.phi ?? 5, cob, titulo: `VÃO ${i + 1}`, laje: secaoDoVao(el, i).invertida ? 'inferior' : el.baldrame ? null : 'superior', mesa: v.mesa ? { tipo: el.mesa?.tipo, hf: el.mesa?.hf, bf: v.mesa.bf } : null }),
           h('figcaption', null,
             h('span', null, h('i', { class: 'leg-barra' }), `Inferior: ${v.positiva?.barras?.rotulo ?? '—'}`),
             h('span', null, h('i', { class: `leg-barra ${negs ? 'negativa' : 'porta'}` }), `Superior: ${negs?.barras?.rotulo ?? '2 ø 8 (porta-estribo)'}`),

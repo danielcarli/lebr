@@ -16,6 +16,7 @@
  * de cada lado, a distância livre até a nervura vizinha (b2 ≈ vão da laje perpendicular à viga − bw).
  * Lajes de um lado só → viga L; dos dois lados → viga T. Lajes pré-moldadas (alveolares) e de madeira não contam.
  */
+import { secaoEnvolvente } from '../../engine/viga-secoes.js';
 import { eixoViga, cantosLaje, espessuraLaje } from '../../renderer/core/montagem.js';
 
 const MOLDADAS = ['concreto.laje.macica', 'concreto.laje.nervurada', 'concreto.laje.trelicada'];
@@ -31,7 +32,7 @@ export function mesaDasLajes(projeto, viga) {
   if (!viga?.posicao) return null;
   const { a, u } = eixoViga(viga);
   const n = [-u[1], u[0]];
-  const bw = (viga.secao?.b ?? 20) / 100;
+  const bw = secaoEnvolvente(viga).b / 100;
   const ligadas = (projeto.elementos ?? []).filter((l) => MOLDADAS.includes(l.modulo) && l.posicao
     && (Array.isArray(viga.cargas) ? viga.cargas : []).some((c) => c?.tipo === 'elemento' && c.elementoId === l.id));
   const lados = { '1': [], '-1': [] };

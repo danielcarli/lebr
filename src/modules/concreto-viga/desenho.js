@@ -16,6 +16,8 @@
  * Recebe `s` (criador de SVG) da API para funcionar também em módulos externos.
  */
 
+import { secoesDaViga, secaoVariavel, rotuloSecao } from '../../engine/viga-secoes.js';
+
 const fmt = (v, c = 2) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
 
 export function criarDesenhos({ s }) {
@@ -39,7 +41,8 @@ export function criarDesenhos({ s }) {
   /** Esquema estático com vãos cotados — usado no editor (atualiza ao vivo). */
   function esquema(el, { largura = 1000 } = {}) {
     const total = el.vaos.reduce((a, v) => a + (v.L > 0 ? v.L : 0), 0) || 1;
-    const m = 60, W = largura, H = 168, y = 46;
+    const variavel = secaoVariavel(el);
+    const m = 60, W = largura, H = variavel ? 244 : 168, y = 46;
     const esc = (W - 2 * m) / total;
     const xs = [m];
     el.vaos.forEach((v) => xs.push(xs[xs.length - 1] + Math.max(0, v.L) * esc));
@@ -55,6 +58,19 @@ export function criarDesenhos({ s }) {
       if (a) filhos.push(a);
       filhos.push(s('text', { x: xs[k], y: H - 4, class: 'dg-rot', 'text-anchor': 'middle' }, `A${k + 1}`));
     });
+    // seção de cada vão (quando muda de um vão para outro): b × h e a situação, com o perfil em escala abaixo da viga
+    if (secaoVariavel(el)) {
+      const ss = secoesDaViga(el);
+      const zMax = Math.max(...ss.map((x) => x.topo)), zMin = Math.min(...ss.map((x) => x.base));
+      const kz = 34 / Math.max(1, zMax - zMin);
+      ss.forEach((x, i) => {
+        const xa = xs[i], xb = xs[i + 1];
+        filhos.push(
+          s('rect', { x: xa + 3, y: y + 40 + (zMax - x.topo) * kz, width: Math.max(1, xb - xa - 6), height: Math.max(2, x.h * kz), class: `dg-perfil${x.invertida ? ' invertida' : ''}` }),
+          s('text', { x: (xa + xb) / 2, y: y + 40 + 34 + 26, class: 'dg-texto', 'text-anchor': 'middle' }, `${fmt(x.b, 0)} × ${fmt(x.h, 0)}${x.invertida ? ' inv.' : ''}`),
+        );
+      });
+    }
     el.vaos.forEach((v, i) => {
       const xa = xs[i], xb = xs[i + 1];
       filhos.push(
@@ -258,32 +274,50 @@ export function criarDesenhos({ s }) {
     const filhos = [];
     const topoSup = 26;
     const yViga = topoSup + nSup * linhaH + 18;
-    const yBase = yViga + hViga;
+    // seções por vão: a altura desenhada é proporcional (a maior = hViga) e cada vão fica no seu nível (vãos
+    // invertidos sobem acima do piso); com a seção constante, um retângulo só, como antes
+    const ss = det.secoes?.length === L.length ? det.secoes : secoesDaViga(el);
+    const zMax = Math.max(...ss.map((x) => x.topo)), zMin = Math.min(...ss.map((x) => x.base));
+    const kz = hViga / Math.max(...ss.map((x) => x.h));
+    const Y = (z) => yViga + (zMax - z) * kz;
+    const yBase = Y(zMin);
+    const vaoEm = (x) => { const i = X.findIndex((xx) => xx > x); return i < 0 ? L.length - 1 : Math.max(0, Math.min(L.length - 1, i - 1)); };
+    const secDe = (q) => (q.sec?.topo != null ? q.sec : ss[vaoEm((q.x0 + q.x1) / 2)]);
+    const variavel = ss.some((x) => x.topo !== ss[0].topo || x.base !== ss[0].base);
     // apoios (pilares) cortados acima e abaixo da viga
     el.apoios.forEach((t, k) => {
       if (t === 'livre') return;
       const w = Math.max(6, (larg[k] / 100) * esc), x = PX(X[k]) - w / 2;
-      filhos.push(s('rect', { x, y: yBase, width: w, height: 22, class: 'det-apoio' }));
-      filhos.push(s('rect', { x, y: yViga - 14, width: w, height: 14, class: 'det-apoio' }));
+      const viz = [ss[k - 1], ss[k]].filter(Boolean);
+      const yA = Y(Math.max(...viz.map((v) => v.topo))), yB = Y(Math.min(...viz.map((v) => v.base)));
+      filhos.push(s('rect', { x, y: yB, width: w, height: 22, class: 'det-apoio' }));
+      filhos.push(s('rect', { x, y: yA - 14, width: w, height: 14, class: 'det-apoio' }));
+      if (yB - yA > hViga + 0.5) filhos.push(s('rect', { x, y: yA, width: w, height: yB - yA, class: 'det-viga' }));
       filhos.push(s('text', { x: PX(X[k]), y: yBase + 34, class: 'dg-rot', 'text-anchor': 'middle' }, `A${k + 1}`));
     });
-    filhos.push(s('rect', { x: PX(ini), y: yViga, width: (fim - ini) * esc, height: hViga, class: 'det-viga' }));
+    if (!variavel) filhos.push(s('rect', { x: PX(ini), y: yViga, width: (fim - ini) * esc, height: hViga, class: 'det-viga' }));
+    else ss.forEach((x, v) => {
+      const xa = v === 0 ? ini : X[v], xb = v === L.length - 1 ? fim : X[v + 1];
+      filhos.push(s('rect', { x: PX(xa), y: Y(x.topo), width: (xb - xa) * esc, height: x.h * kz, class: 'det-viga' }));
+      filhos.push(s('text', { x: PX((X[v] + X[v + 1]) / 2), y: Y(x.topo) - 4, class: 'dg-rot', 'text-anchor': 'middle' }, `${fmt(x.b, 0)} × ${fmt(x.h, 0)}${x.invertida ? ' inv.' : ''}`));
+    });
     // estribos dentro da viga
     for (const e of est) {
       for (const t of e.trechos ?? []) {
         const n = Math.max(1, t.qtd);
+        const sv = ss[t.vao] ?? ss[0], y0 = Y(sv.topo), y1 = Y(sv.base);
         for (let i = 0; i < n; i++) {
           const x = PX(t.x0 + ((t.x1 - t.x0) * (n === 1 ? 0.5 : i / (n - 1))));
-          filhos.push(s('line', { x1: x, y1: yViga + 5, x2: x, y2: yBase - 5, class: `det-estribo${destaque === e.id ? ' destaque' : ''}` }));
+          filhos.push(s('line', { x1: x, y1: y0 + 5, x2: x, y2: y1 - 5, class: `det-estribo${destaque === e.id ? ' destaque' : ''}` }));
         }
         const xm = PX((t.x0 + t.x1) / 2);
-        filhos.push(s('text', { x: xm, y: yViga + hViga / 2 + 4, class: 'det-rot-estribo', 'text-anchor': 'middle' }, `${e.N} · ${t.qtd} ø${fmt(e.phi, 1).replace(',0', '')} c/ ${fmt(t.s, 1).replace(',0', '')}`));
+        filhos.push(s('text', { x: xm, y: (y0 + y1) / 2 + 4, class: 'det-rot-estribo', 'text-anchor': 'middle' }, `${e.N} · ${t.qtd} ø${fmt(e.phi, 1).replace(',0', '')} c/ ${fmt(t.s, 1).replace(',0', '')}`));
       }
     }
     // barras dentro da viga
     const dentro = (q, y) => s('line', { x1: PX(q.x0), y1: y, x2: PX(q.x1), y2: y, class: `det-barra ${q.tipo === 'porta-estribo' || q.tipo === 'construtiva' ? 'porta' : q.face === 'superior' ? 'negativa' : ''}${destaque === q.id ? ' destaque' : ''}` });
-    for (const q of sup) filhos.push(dentro(q, yViga + 5 + Math.min(q._linha, 2) * 2));
-    for (const q of inf) filhos.push(dentro(q, yBase - 5 - Math.min(q._linha, 2) * 2));
+    for (const q of sup) filhos.push(dentro(q, Y(secDe(q).topo) + 5 + Math.min(q._linha, 2) * 2));
+    for (const q of inf) filhos.push(dentro(q, Y(secDe(q).base) - 5 - Math.min(q._linha, 2) * 2));
     // barras extraídas
     const barra = (q, y, para) => {
       const a = PX(q.x0), z = PX(q.x1);
@@ -311,7 +345,7 @@ export function criarDesenhos({ s }) {
         s('text', { x: (a + z) / 2, y: yCota - 5, class: 'dg-texto', 'text-anchor': 'middle' }, `${fmt(l)} m`),
       );
     });
-    filhos.unshift(s('text', { x: 0, y: 12, class: 'dg-titulo' }, `ELEVAÇÃO E ARMAÇÃO — ${el.codigo ?? ''} (${fmt(el.secao.b, 0)} × ${fmt(el.secao.h, 0)} cm)`));
+    filhos.unshift(s('text', { x: 0, y: 12, class: 'dg-titulo' }, `ELEVAÇÃO E ARMAÇÃO — ${el.codigo ?? ''} (${rotuloSecao(el)})`));
     const H = yCota + 14;
     return s('svg', { class: 'desenho elevacao-viga', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMidYMin meet' }, ...filhos);
   }

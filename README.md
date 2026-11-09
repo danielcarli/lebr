@@ -16,25 +16,24 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.62.0.** O LEBR está em fase inicial de desenvolvimento e **não deve ser utilizado para cálculos
-> reais de estruturas.** Ainda falta a **validação independente** de cada função, com dados e cálculos feitos **à mão
-> ou em planilha** por engenheiros, caso a caso. O que já existe é um conjunto grande de **testes automatizados que
-> validam o software** a cada versão — a metodologia está logo abaixo.
+> **Versão alpha 0.63.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
+> em casos reais**.
 
 ### Como o software é testado
 
 Três camadas de validação rodam em `npm test` (amostra) e em `npm run confiabilidade` (campanha completa, que gera
 [docs/CONFIABILIDADE-RELATORIO.md](docs/CONFIABILIDADE-RELATORIO.md)):
 
-1. **Banco de casos — 322 casos e 913 grandezas.** Cada resultado é comparado com um valor que não vem do programa:
+1. **Banco de casos — 323 casos e 917 grandezas.** Cada resultado é comparado com um valor que não vem do programa:
    expressão da norma, tabela clássica (Timoshenko, Bares, Czerny), solução fechada (Clapeyron, Navier, equilíbrio
    dos nós) ou **exercício resolvido publicado** — 158 casos de apostilas, livros, TCCs e dissertações, cada um com a
    fonte, a página, o enunciado e a tolerância. Nos exercícios publicados, a mediana do desvio é 0,04 % e 93 % das
    grandezas ficam dentro de 1 %; os desvios acima de 2 % têm a hipótese diferente explicada no próprio caso.
-2. **Varreduras aleatórias de invariantes — 19 famílias, 1000 sorteios cada.** Um gerador com semente sorteia
+2. **Varreduras aleatórias de invariantes — 20 famílias, 1000 sorteios cada.** Um gerador com semente sorteia
    entradas em domínios de projeto usuais e confere propriedades que valem para qualquer método: equilíbrio (soma das
    reações = cargas, nó a nó na treliça), simetria, linearidade, monotonicidade, limites da norma e a coincidência
-   entre dois caminhos de cálculo do próprio programa e com soluções exatas. São 128 mil verificações sem falha, o
+   entre dois caminhos de cálculo do próprio programa e com soluções exatas. São 138 mil verificações sem falha, o
    que limita a taxa de falha a menos de 0,02 % com 95 % de confiança — **dentro do domínio sorteado**.
 3. **Caminho das cargas em projetos inteiros.** Nos sete projetos de exemplo, o peso somado elemento a elemento
    (lajes, vigas, paredes, pilares, escadas, reservatórios e telhado) tem de chegar às fundações pela cadeia laje →
@@ -405,6 +404,18 @@ soma aos estribos da cortante a **armadura de suspensão** Asw,susp/s = pd/fywd 
 (escadas), a área de estribos a concentrar junto à carga. A seção desenhada mostra a laje embaixo, a planta da montagem
 desenha a viga tracejada (fica acima da laje, como na planta de fôrmas) e o 3D a coloca com a face inferior na da laje.
 
+### Seção própria em cada vão (0.63)
+
+Com **Seção própria em cada vão** ligado no editor da viga, cada vão tem a sua largura b, a sua altura h e a sua
+situação — **normal** (topo no piso) ou **invertida** (base na face inferior da laje) —, de modo que só parte da viga
+pode ser invertida. A análise usa a rigidez EI de cada vão (o vão mais rígido muda a distribuição dos momentos); o peso
+próprio, a flexão, a cortante, a torção, a suspensão, as flechas e as fissuras usam a seção do vão; nos apoios internos
+o momento negativo é dimensionado com a menor das seções vizinhas. Onde a face de cima ou de baixo muda de nível de um
+vão para o outro (altura diferente, ou vão normal ao lado de um invertido), as barras daquela face não passam direto:
+são ancoradas dentro do apoio, com gancho, e o memorial e os avisos dizem em quais apoios isso acontece. A elevação, o
+3D da armadura, o 3D do edifício, a planta da montagem, as pranchas DXF, os quantitativos e a grelha do pavimento
+acompanham a seção de cada vão. Para mudar a seção no meio de um vão, crie um apoio nesse ponto.
+
 ### Sapata isolada e viga baldrame (NBR 6122:2019 · NBR 6118:2023, 22.6)
 
 **Sapata isolada** (categoria *Fundações*): ligada a um pilar que chega à fundação, recebe a carga característica dele
@@ -574,7 +585,7 @@ abrem no LibreCAD, QCAD e AutoCAD. Detalhes em [docs/DXF.md](docs/DXF.md).
 Os resultados do LEBR são conferidos com valores que não vêm do próprio programa: tabelas e
 expressões da NBR 6118:2023, tabelas clássicas (Timoshenko e Woinowsky-Krieger, vigas contínuas)
 e cálculo manual, e também com **158 exercícios resolvidos publicados** (apostilas da UNESP, EESC-USP, UFPR e PUC Goiás,
-livros e TCCs), cada um com a fonte, o link e o enunciado. São 322 casos e 913 grandezas na versão 0.61.0, cada um
+livros e TCCs), cada um com a fonte, o link e o enunciado. São 323 casos e 917 grandezas na versão 0.63.0, cada um
 com a fonte e a tolerância.
 `npm run validar` mostra o resumo no terminal e grava `validacao/relatorio.html`; no programa,
 **Ajuda › Relatório de validação** roda os mesmos casos. Os casos também entram no `npm test`.
@@ -582,10 +593,10 @@ Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md
 nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBLIOGRAFIA.md).
 
 **Confiabilidade estatística (0.61).** Além do banco, `npm run confiabilidade` sorteia 1000 entradas por família
-(19 famílias: viga contínua, treliça, flexão da seção, cortante, pilar, placa, punção, sapata, bloco, estacas, madeira,
-vento e combinações, fissuração e os módulos inteiros) e confere invariantes que valem para qualquer método —
+(20 famílias: viga contínua, treliça, flexão da seção, cortante, pilar, placa, punção, sapata, bloco, estacas, madeira,
+vento e combinações, fissuração, viga com seção por vão e os módulos inteiros) e confere invariantes que valem para qualquer método —
 equilíbrio, simetria, linearidade, limites da norma, coincidência entre dois caminhos de cálculo e com soluções exatas
-(Navier, Clapeyron, equilíbrio dos nós, Euler, Hankinson). Com 19 000 sorteios e 128 mil verificações sem falha, a taxa
+(Navier, Clapeyron, equilíbrio dos nós, Euler, Hankinson). Com 20 000 sorteios e 138 mil verificações sem falha, a taxa
 de falha fica abaixo de 0,02 % a 95 % de confiança (regra dos três). Em projetos inteiros, o peso somado elemento a
 elemento chega às fundações com desvio ≤ 0,22 % nos sete exemplos. Método, limites e o que a estatística **não**
 garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado em
@@ -600,6 +611,15 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.63.0 (seção própria em cada vão da viga):** cada vão da viga de concreto pode ter **largura e
+  altura próprias** e ser **normal ou invertido** — só parte da viga invertida, ou a viga toda. A análise usa a rigidez
+  de cada vão; peso próprio, flexão, cortante, torção, suspensão (só nos vãos invertidos), flechas e fissuras usam a
+  seção do vão, e o negativo de cada apoio interno, a menor seção vizinha. No detalhamento, as barras de uma face que
+  muda de nível ou de largura num apoio são ancoradas dentro dele com gancho, em vez de passar ao outro vão. Elevação e
+  esquema em degraus, cortes por vão, armadura 3D e 3D do edifício com cada vão no seu nível, planta da montagem com a
+  largura de cada vão, pranchas DXF, quantitativos, grelha e sugestões de seção (primeiro só nos vãos que
+  não atendem) seguem vão a vão. Validação: caso analítico novo (dois vãos com seções diferentes pela equação dos três momentos) e uma 20ª família
+  de invariantes — 20 000 sorteios e 138 mil verificações sem falha. O aviso de versão alpha do README foi reescrito.
 - **Novidades da 0.62.0 (lições para estudantes de engenharia civil e arquitetura):** o texto das seis lições do
   módulo Aprender foi reescrito para o público de graduação. Cada lição passou a ter **o que convém saber antes**,
   passos em dois tempos — **o que fazer** e **o que observar** (com o significado do que aparece) —, conceitos com a

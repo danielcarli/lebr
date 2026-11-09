@@ -544,6 +544,46 @@ familia({
   },
 });
 familia({
+  id: 'elemento-viga-secoes', nome: 'Viga com seção própria em cada vão (módulo completo)', modulo: 'concreto.viga',
+  fonte: 'Equilíbrio com o peso próprio vão a vão; reações iguais às do motor com EI de cada vão (método dos deslocamentos refeito por fora); nenhuma barra atravessa um apoio onde a sua face muda de nível; vãos iguais à seção da viga dão o mesmo resultado da seção constante.',
+  gerar(rng) {
+    const nv = rng.inteiro(2, 4);
+    const vaos = Array.from({ length: nv }, () => ({ L: rng.passo(3, 7, 0.5), b: rng.passo(14, 30, 1), h: rng.passo(35, 80, 5), invertida: rng.escolha([false, false, true]) }));
+    return { vaos, apoios: Array(nv + 1).fill('apoio'), g: rng.passo(5, 25, 0.5), q: rng.passo(2, 10, 0.5) };
+  },
+  verificar(e) {
+    const cargas = [{ id: 'c1', tipo: 'distribuida', natureza: 'g', vao: 'todos', valor: e.g, descricao: 'g' }, { id: 'c2', tipo: 'distribuida', natureza: 'q', vao: 'todos', valor: e.q, descricao: 'q' }];
+    const { r } = elemento('concreto.viga', { secao: { b: 20, h: 50 }, vaos: e.vaos, apoios: e.apoios, cargas, pesoProprio: true });
+    const out = basico(r, 'viga por vão');
+    if (r.erro) return out;
+    const pp = e.vaos.map((v) => (25 * v.b * v.h) / 1e4);
+    const G = e.vaos.reduce((s, v, k) => s + (pp[k] + e.g) * v.L, 0), Q = e.q * e.vaos.reduce((s, v) => s + v.L, 0);
+    out.push(chk('viga por vão: Σ Rg = Σ (pp do vão + g)·L', perto(r.apoios.reduce((s, a) => s + a.Rg, 0), G, 2e-3)));
+    out.push(chk('viga por vão: Σ Rq = q·ΣL', perto(r.apoios.reduce((s, a) => s + a.Rq, 0), Q, 2e-3)));
+    // reações do caso G refeitas pelo motor com a rigidez de cada vão (E se cancela)
+    const ref = analisarViga({ vaos: e.vaos.map((v) => v.L), apoios: e.apoios, q: pp.map((x) => x + e.g), P: [], EI: e.vaos.map((v) => (v.b * v.h ** 3) / 12) });
+    // a saída é arredondada a 0,01 kN: tolerância de 0,2 % ou meio centésimo, o que for maior
+    out.push(chk('viga por vão: reações = motor com EI por vão', ref.reacoes.every((x, k) => Math.abs(x.V - r.apoios[k].Rg) <= Math.max(0.0051, 2e-3 * Math.abs(x.V))), ref.reacoes.map((x, k) => `${x.V.toFixed(4)}/${r.apoios[k].Rg}`).join(' ')));
+    // barras não atravessam apoio com mudança de face
+    const det = r.detalhamento;
+    if (det?.X) {
+      const ss = det.secoes;
+      for (let k = 1; k < ss.length; k++) {
+        const muda = { superior: Math.abs(ss[k - 1].topo - ss[k].topo) > 0.5, inferior: Math.abs(ss[k - 1].base - ss[k].base) > 0.5 || ss[k - 1].b !== ss[k].b };
+        const lim = (det.larguras[k] / 2 - 3) / 100 + 1e-6;
+        const cruzam = det.posicoes.filter((q) => muda[q.face] && q.x0 < det.X[k] - lim && q.x1 > det.X[k] + lim);
+        out.push(chk('viga por vão: nenhuma barra atravessa apoio onde a face muda', !cruzam.length, cruzam.map((q) => q.N).join(', ')));
+      }
+    }
+    // metamórfico: todos os vãos com a mesma seção ≡ seção constante
+    const s0 = e.vaos[0];
+    const a = elemento('concreto.viga', { secao: { b: s0.b, h: s0.h }, invertida: s0.invertida, vaos: e.vaos.map((v) => ({ L: v.L })), apoios: e.apoios, cargas, pesoProprio: true }).r;
+    const b = elemento('concreto.viga', { secao: { b: 20, h: 50 }, vaos: e.vaos.map((v) => ({ L: v.L, b: s0.b, h: s0.h, invertida: s0.invertida })), apoios: e.apoios, cargas, pesoProprio: true }).r;
+    if (!a.erro && !b.erro) out.push(chk('viga por vão: vãos iguais ≡ seção constante', JSON.stringify(a.vaos) === JSON.stringify(b.vaos) && JSON.stringify(a.apoios) === JSON.stringify(b.apoios)));
+    return out;
+  },
+});
+familia({
   id: 'elemento-laje', nome: 'Lajes maciça, treliçada e nervurada (módulos completos)', modulo: 'concreto.laje.macica',
   fonte: 'Equilíbrio: Σ reações nas bordas = (g + q)·área; As ≥ As,mín; nenhum NaN.',
   gerar(rng) {

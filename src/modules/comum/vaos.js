@@ -16,8 +16,10 @@
  * de concreto e de madeira: [Apoio 1] [Vão 1] [Apoio 2] … + adicionar/remover vão.
  *
  * O elemento precisa ter `vaos: [{L}]`, `apoios: ['apoio'|'engaste'|'livre']` e `cargas`.
+ * Com `secaoPorVao`, cada vão mostra também a largura b, a altura h e se é normal ou invertido (vigas de concreto
+ * com seção própria em cada vão — `vaos: [{L, b, h, invertida}]`).
  */
-export function editorVaos(api, ctx, mudar) {
+export function editorVaos(api, ctx, mudar, { secaoPorVao = false } = {}) {
   const { h } = api.dom;
   const ui = api.ui;
   const el = ctx.elemento;
@@ -38,8 +40,20 @@ export function editorVaos(api, ctx, mudar) {
         aoMudar: (v) => mudar((e) => { e.apoios[k] = v; }, { estrutural: true }),
       })));
     if (k < n) {
-      sequencia.append(h('div', { class: 'vao-trecho' },
-        ui.campo({ rotulo: `Vão ${k + 1}`, valor: el.vaos[k].L, unidade: 'm', min: 0.2, max: 30, largura: '112px', aoMudar: (v) => mudar((e) => { e.vaos[k].L = v; }) })));
+      const vao = el.vaos[k];
+      sequencia.append(h('div', { class: ['vao-trecho', secaoPorVao && 'com-secao', secaoPorVao && vao.invertida && 'invertida'] },
+        ui.campo({ rotulo: `Vão ${k + 1}`, valor: vao.L, unidade: 'm', min: 0.2, max: 30, largura: '112px', aoMudar: (v) => mudar((e) => { e.vaos[k].L = v; }) }),
+        secaoPorVao ? h('div', { class: 'vao-secao' },
+          ui.campo({ rotulo: 'b', valor: vao.b ?? el.secao?.b, unidade: 'cm', casas: 1, min: 10, max: 200, largura: '78px', aoMudar: (v) => mudar((e) => { e.vaos[k].b = v; }, { estrutural: true }) }),
+          ui.campo({ rotulo: 'h', valor: vao.h ?? el.secao?.h, unidade: 'cm', casas: 1, min: 15, max: 300, largura: '78px', aoMudar: (v) => mudar((e) => { e.vaos[k].h = v; }, { estrutural: true }) })) : null,
+        secaoPorVao ? ui.segmentado({
+          valor: (vao.invertida ?? el.invertida) ? 'inv' : 'normal', compacto: true,
+          opcoes: [
+            { valor: 'normal', texto: 'Normal', dica: 'Topo da viga no piso; a laje se apoia em cima' },
+            { valor: 'inv', texto: 'Invertida', dica: 'A viga sobe acima do piso; a laje se apoia na face inferior e fica pendurada (estribos de suspensão, 18.3.6)' },
+          ],
+          aoMudar: (v) => mudar((e) => { e.vaos[k].invertida = v === 'inv'; }, { estrutural: true }),
+        }) : null));
     }
   });
 
@@ -47,7 +61,9 @@ export function editorVaos(api, ctx, mudar) {
     ui.botao({ texto: 'Adicionar vão', icone: 'mais', aoClicar: () => mudar((e) => {
       const ult = e.apoios.length - 1;
       if (e.apoios[ult] === 'livre') e.apoios[ult] = 'apoio';
-      e.vaos.push({ L: e.vaos[e.vaos.length - 1].L });
+      // o vão novo repete o último (comprimento e, na seção por vão, b, h e invertida)
+      const { L, b, h, invertida } = e.vaos[e.vaos.length - 1];
+      e.vaos.push(Object.fromEntries(Object.entries({ L, b, h, invertida }).filter(([, x]) => x !== undefined)));
       e.apoios.push('apoio');
     }, { estrutural: true }) }),
     n > 1 && ui.botao({ texto: 'Remover último vão', icone: 'lixeira', tipo: 'fantasma', aoClicar: () => mudar((e) => {

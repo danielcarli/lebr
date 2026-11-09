@@ -1,31 +1,31 @@
 {
- "versao": "0.61.0",
- "geradoEm": "2026-11-08T23:06:15.675Z",
+ "versao": "0.62.0",
+ "geradoEm": "2026-11-09T01:49:00.473Z",
  "semente": 20261108,
  "sorteiosPorFamilia": 1000,
  "banco": {
-  "casos": 322,
-  "aprovados": 322,
-  "grandezas": 913,
+  "casos": 323,
+  "aprovados": 323,
+  "grandezas": 917,
   "maiorDiferenca": 0.0980281613688425,
   "ok": true,
   "desvios": {
-   "grandezas": 870,
-   "media": 0.0016327963536208246,
-   "desvioPadrao": 0.006099762289667918,
-   "mediana": 0.000010700664245406665,
+   "grandezas": 874,
+   "media": 0.0016276743454173813,
+   "desvioPadrao": 0.006086326520334831,
+   "mediana": 0.00001097381647367538,
    "p90": 0.003933997893162832,
    "p95": 0.008571428571428516,
    "p99": 0.030130093310536538,
    "maximo": 0.0980281613688425,
    "ate": {
-    "0,1 %": 0.7885057471264367,
-    "1 %": 0.9597701149425287,
-    "2 %": 0.9850574712643678,
-    "5 %": 0.9977011494252873,
+    "0,1 %": 0.7883295194508009,
+    "1 %": 0.959954233409611,
+    "2 %": 0.9851258581235698,
+    "5 %": 0.9977116704805492,
     "10 %": 1
    },
-   "exatas": 530
+   "exatas": 531
   },
   "desviosBibliografia": {
    "grandezas": 368,
@@ -766,6 +766,65 @@
     "exemplosFalha": []
    },
    {
+    "id": "elemento-viga-secoes",
+    "nome": "Viga com seção própria em cada vão (módulo completo)",
+    "modulo": "concreto.viga",
+    "fonte": "Equilíbrio com o peso próprio vão a vão; reações iguais às do motor com EI de cada vão (método dos deslocamentos refeito por fora); nenhuma barra atravessa um apoio onde a sua face muda de nível; vãos iguais à seção da viga dão o mesmo resultado da seção constante.",
+    "sorteios": 1000,
+    "verificacoes": 10010,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "viga por vão: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: verificações sem NaN/undefined",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: memorial sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: Σ Rg = Σ (pp do vão + g)·L",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: Σ Rq = q·ΣL",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: reações = motor com EI por vão",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: nenhuma barra atravessa apoio onde a face muda",
+      "n": 2010,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga por vão: vãos iguais ≡ seção constante",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
     "id": "elemento-laje",
     "nome": "Lajes maciça, treliçada e nervurada (módulos completos)",
     "modulo": "concreto.laje.macica",
@@ -1171,12 +1230,12 @@
     "exemplosFalha": []
    }
   ],
-  "total": 19000,
+  "total": 20000,
   "falhas": 0,
-  "limite95": 0.00015789473684210527,
+  "limite95": 0.00015,
   "semente": 20261108,
   "n": 1000,
-  "verificacoes": 128259
+  "verificacoes": 138269
  },
  "fechamento": [
   {
@@ -1379,17 +1438,18 @@
  "cobertura": [
   {
    "modulo": "concreto.viga",
-   "casos": 114,
-   "grandezas": 296,
+   "casos": 115,
+   "grandezas": 300,
    "bibliografia": 46,
    "familias": [
     "viga-continua",
     "flexao-secao",
     "cisalhamento",
     "fissuracao",
-    "elemento-viga"
+    "elemento-viga",
+    "elemento-viga-secoes"
    ],
-   "sorteios": 5000
+   "sorteios": 6000
   },
   {
    "modulo": "concreto.laje.macica",
@@ -1575,7 +1635,7 @@
   "bancoOk": true,
   "invariantesOk": true,
   "fechamentoOk": true,
-  "limite95Invariantes": 0.00015789473684210527,
-  "totalVerificacoesIndependentes": 129179
+  "limite95Invariantes": 0.00015,
+  "totalVerificacoesIndependentes": 139193
  }
 }

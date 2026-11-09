@@ -20,6 +20,7 @@
 import { cargaParede } from '../engine/cargas.js';
 import { dimensoesLaje } from '../renderer/core/montagem.js';
 import { calcularElemento } from '../renderer/core/calculo.js';
+import { secaoDoVao } from '../engine/viga-secoes.js';
 import { MODULOS_CALCULO } from './calculos.js';
 
 const ORDEM = { sondagens: -1, telhados: -0.5, lajes: 0, escadas: 0.5, reservatorios: 0.6, vigas: 1, pilares: 2, fundacoes: 3 };
@@ -52,8 +53,9 @@ export function fechamentoDoCaminhoDasCargas(projeto) {
       if (r.cargas?.g != null) soma('lajes', r.cargas.g * A, (r.cargas.q ?? 0) * A);
       // cantos/bordas livres: toda a carga vai às bordas presas, nada se perde
     } else if (cat === 'vigas') {
-      const L = (e.vaos ?? []).reduce((s, v) => s + (Number(v.L) || 0), 0);
-      const pp = e.pesoProprio === false ? 0 : (e.modulo === 'madeira.viga' ? 0 : 25 * ((e.secao?.b ?? 0) * (e.secao?.h ?? 0)) / 1e4) * L;
+      // peso próprio vão a vão (cada vão com a sua seção)
+      const pp = e.pesoProprio === false || e.modulo === 'madeira.viga' ? 0
+        : (e.vaos ?? []).reduce((s, v, k) => { const sc = secaoDoVao(e, k); return s + (25 * sc.b * sc.h / 1e4) * (Number(v.L) || 0); }, 0);
       let g = pp, q = 0;
       for (const c of e.cargas ?? []) {
         const l = lin(c);

@@ -12,7 +12,7 @@ O LEBR é validado em **três camadas** independentes, todas automatizadas e rod
 
 ## Camada 1 — banco de casos
 
-322 casos e 913 grandezas (0.61). Metade vem de exercícios publicados: cada caso guarda a fonte (autor, título,
+323 casos e 917 grandezas (0.63). Metade vem de exercícios publicados: cada caso guarda a fonte (autor, título,
 instituição, ano, página), o endereço onde está publicada, o enunciado com os dados e uma nota com as hipóteses
 diferentes. O relatório mostra a distribuição dos desvios (média, mediana, percentis 90 e 95, máximo e a fração
 dentro de 1 %, 2 % e 5 %). Os desvios acima de 2 % são casos em que a fonte usa um coeficiente arredondado,
@@ -20,13 +20,13 @@ lê um ábaco a olho ou adota uma hipótese distinta — a diferença está expl
 
 Os módulos novos sem exercício publicado (tesoura, telhado, radier) entraram pela via analítica
 (`32-analiticos.json`): tesoura simples e Howe de 4 painéis resolvidas pelo método dos nós, Hankinson, viga de três
-vãos por Clapeyron, placa 1:2 pela série de Navier, terça do telhado pela resistência dos materiais e o radier rígido
+vãos por Clapeyron, viga de dois vãos com seções diferentes (Clapeyron com a inércia de cada vão), placa 1:2 pela série de Navier, terça do telhado pela resistência dos materiais e o radier rígido
 com quatro pilares simétricos.
 
 ## Camada 2 — varreduras de invariantes (testes metamórficos)
 
 Um gerador com semente (reprodutível) sorteia entradas válidas e o programa confere, por sorteio, de 3 a 12
-invariantes. As 19 famílias:
+invariantes. As 20 famílias:
 
 | Família | Invariantes (resumo) |
 |---|---|
@@ -43,11 +43,12 @@ invariantes. As 19 famílias:
 | Madeira | Xd = kmod·Xk/γw; kc não crescente e → 1/λ² (Euler); σ = 6M/bh²; τ = 1,5V/bh; interação cresce com Nd e com L0 |
 | Vento e combinações | q = 0,613V²; S2 cresce com z; arrasto ∝ V0²; envoltória contém γg·G + γq·Q |
 | Fissuração | estádio II: b·x²/2 = αe·As·(d − x), I₂ pela expressão; wk cresce com Ms |
+| Viga com seção por vão | Σ reações = peso próprio de cada vão + cargas; reações = motor refeito com o EI de cada vão; nenhuma barra atravessa um apoio onde a sua face muda de nível; todos os vãos iguais ≡ seção constante |
 | Módulos completos (viga, lajes, pilar, fundações, telhado e tesoura, escada e reservatório) | sem exceção e sem NaN; ok ⇔ todas as verificações ok; Σ reações = cargas (vigas, lajes, tesoura, telhado); Nd = γn·1,4·ΣNk no pilar; Blondel e n·e = desnível na escada; volume do reservatório |
 
 **Interpretação estatística.** Se n sorteios de uma família passam sem falha, a taxa de falha na população
 sorteada é menor que 3/n com 95 % de confiança (regra dos três; com falhas, usa-se o intervalo de Wilson). Com os
-1000 sorteios por família da campanha padrão, isso dá **< 0,3 % por família** e **< 0,02 % no conjunto** das 19 000
+1000 sorteios por família da campanha padrão, isso dá **< 0,3 % por família** e **< 0,02 % no conjunto** das 20 000
 entradas. O relatório traz o limite calculado para cada família.
 
 O que isso **não** cobre: entradas fora do domínio sorteado; erros que preservem equilíbrio, simetria e limites

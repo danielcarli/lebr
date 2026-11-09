@@ -20,6 +20,28 @@
  * (o peso próprio maior e, na grelha, a rigidez nova entram aí).
  */
 import { POSICOES_OTIMIZAVEIS } from './otimizacao.js';
+import { secaoDoVao } from '../../engine/viga-secoes.js';
+
+const secaoPorVao = (el) => (el.vaos ?? []).some((v) => v.b != null || v.h != null || v.invertida != null);
+/**
+ * Viga com seção própria em cada vão: primeiro só os vãos que não atendem (pelas verificações "— vão k" do último
+ * cálculo) ganham altura; depois todos os vãos juntos, em altura e em largura.
+ */
+function buscasPorVao(el) {
+  const ss = (el.vaos ?? []).map((_, k) => secaoDoVao(el, k));
+  const falhos = [...new Set((el.resultado?.verificacoes ?? []).filter((v) => !v.ok).map((v) => /vão (\d+)/.exec(v.nome)?.[1]).filter(Boolean).map((n) => Number(n) - 1))].filter((k) => k < ss.length);
+  const passos = [5, 10, 15, 20, 25, 30, 40, 50];
+  const area = (dh, db, quais) => ss.reduce((s, x, k) => s + (quais.includes(k) ? (x.b + db) * (x.h + dh) : x.b * x.h) * (el.vaos[k].L || 0), 0);
+  const todos = ss.map((_, k) => k);
+  const alt = (dh, quais) => quais.map((k) => ({ caminho: `vaos.${k}.h`, valor: ss[k].h + dh }));
+  const larg = (db, quais) => quais.map((k) => ({ caminho: `vaos.${k}.b`, valor: Math.min(ss[k].b + db, 80) }));
+  const nomes = (quais) => (quais.length === 1 ? `vão ${quais[0] + 1}` : `vãos ${quais.map((k) => k + 1).join(', ')}`);
+  const f = [];
+  if (falhos.length && falhos.length < ss.length) f.push({ nome: 'altura dos vãos que não atendem', itens: passos.map((dh) => ({ alteracoes: alt(dh, falhos), rotulo: `h + ${dh} cm no ${nomes(falhos)}`, area: area(dh, 0, falhos) })) });
+  f.push({ nome: 'altura', itens: passos.map((dh) => ({ alteracoes: alt(dh, todos), rotulo: `h + ${dh} cm em todos os vãos`, area: area(dh, 0, todos) })) });
+  f.push({ nome: 'largura', itens: [5, 10, 15, 20, 25, 30].map((db) => ({ alteracoes: larg(db, todos), rotulo: `b + ${db} cm em todos os vãos`, area: area(0, db, todos) })) });
+  return f;
+}
 import { bitolaFixa } from '../../engine/barras.js';
 
 const ler = (o, caminho) => caminho.split('.').reduce((x, k) => x?.[k], o);
@@ -35,6 +57,7 @@ const fx = (v) => String(Math.round(v * 10) / 10).replace('.', ',');
 /** Candidatos por módulo: listas de alterações, da mais leve para a mais pesada, em cada "família". */
 const BUSCAS = {
   'concreto.viga': (el) => {
+    if (secaoPorVao(el)) return buscasPorVao(el);
     const b = el.secao?.b ?? 20, h = el.secao?.h ?? 40;
     const hs = []; for (let v = h + 5; v <= Math.min(Math.max(2 * h, h + 40), 150); v += 5) hs.push(v);
     const bs = []; for (let v = b + 5; v <= Math.min(b + 30, 80); v += 5) bs.push(v);

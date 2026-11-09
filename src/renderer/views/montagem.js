@@ -48,6 +48,7 @@ import {
   ligacoesExistentes, avisosMontagem, dimensoesLaje, escadaNaPlanta, limparGeometria, girarElemento, distanciaAoPilar, vigaSobApoio,
 } from '../core/montagem.js';
 import { grelhaDoPavimento, modoDoPavimento } from '../../modules/comum/grelha.js';
+import { secaoDoVao, vaosInvertidos } from '../../engine/viga-secoes.js';
 import {
   camadaFundo, pontosDoFundo, camadaEixos, cruzamentosDosEixos, encaixarEmEixos, blocoFundo, passoMalha, plantaDoDxf, fundoInicial, plantaDe, transformacaoFundo,
 } from './montagem-fundo.js';
@@ -212,9 +213,13 @@ function renderizar(container, acoes) {
     } else if (t === 'viga') {
       const e = eixoViga(el);
       const [a, z] = [tela(e.a), tela(e.b)];
-      const larg = Math.max(4, (secaoViga(el).b / 100) * vista.esc);
       g.append(s('line', { x1: a[0], y1: a[1], x2: z[0], y2: z[1], class: 'mont-viga-alvo' }));
-      g.append(s('line', { x1: a[0], y1: a[1], x2: z[0], y2: z[1], class: `mont-viga-eixo${el.invertida ? ' invertida' : ''}`, 'stroke-width': larg }));
+      // vão a vão: a largura e a situação (normal ou invertida) de cada um
+      e.vaos.forEach(([s0, s1], k) => {
+        const sv = secaoDoVao(el, k), u = e.u;
+        const p0 = tela([e.a[0] + u[0] * s0, e.a[1] + u[1] * s0]), p1 = tela([e.a[0] + u[0] * s1, e.a[1] + u[1] * s1]);
+        g.append(s('line', { x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1], class: `mont-viga-eixo${sv.invertida ? ' invertida' : ''}`, 'stroke-width': Math.max(4, (sv.b / 100) * vista.esc) }));
+      });
       e.apoios.forEach((pt, k) => {
         const [x, y] = tela(pt);
         const tipoA = el.apoios?.[k];
@@ -1538,7 +1543,7 @@ function renderizar(container, acoes) {
       h('span', null, h('i', { class: 'lg-laje' }), 'Laje'), h('span', null, h('i', { class: 'lg-viga' }), 'Viga'), h('span', null, h('i', { class: 'lg-pilar' }), 'Pilar'),
       h('span', null, h('i', { class: 'lg-acima' }), 'Pilar do nível de cima'), h('span', null, h('i', { class: 'lg-livre' }), 'Borda livre'),
       modoDoPavimento(p, vista.pav) === 'grelha' ? h('span', null, h('i', { class: 'lg-no' }), 'Nó da grelha') : null,
-      p.elementos.some((e) => e.invertida && e.posicao?.pavimento === vista.pav) ? h('span', null, h('i', { class: 'lg-invertida' }), 'Viga invertida') : null,
+      p.elementos.some((e) => vaosInvertidos(e).algum && e.posicao?.pavimento === vista.pav) ? h('span', null, h('i', { class: 'lg-invertida' }), 'Viga invertida') : null,
       p.elementos.some((e) => e.modulo === 'concreto.sapata') ? h('span', null, h('i', { class: 'lg-sapata' }), 'Sapata') : null,
       p.elementos.some((e) => e.modulo === 'concreto.bloco') ? h('span', null, h('i', { class: 'lg-bloco' }), 'Bloco sobre estacas') : null,
       p.elementos.some((e) => e.modulo === 'geotecnia.sondagem' && e.local) ? h('span', null, h('i', { class: 'lg-furo' }), 'Furo de sondagem') : null,

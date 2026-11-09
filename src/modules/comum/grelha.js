@@ -38,6 +38,7 @@ import { analisarPortico, esforcosNaSecao, propriedadesMaterial } from '../../en
 import { contextoCalculo } from '../../renderer/core/calculo.js';
 import { eixoViga, tipoDe, secaoPilar, centroPilar, cantosLaje, pavimento, pavimentoAbaixo, pavimentosOrdenados, TOLERANCIA } from '../../renderer/core/montagem.js';
 import { montarCasos } from '../concreto-viga/calculo.js';
+import { secaoDoVao } from '../../engine/viga-secoes.js';
 import { cruzamentosDoPavimento } from '../../renderer/core/cruzamentos.js';
 
 export const FATOR_TORCAO_GRELHA = 0.15;
@@ -198,7 +199,6 @@ export function montarVigasDoPavimento(projeto, pavId, registro) {
     d.casos = casos;
     const x0 = d.sApoios;
     const vaoDe = (s) => { let v = 0; for (let k = 0; k < d.el.vaos.length; k++) if (s >= x0[k] - 1e-9) v = k; return v; };
-    const b = d.el.secao.b, h = d.el.secao.h;
     d.barras = [];
     for (let k = 0; k < d.pontos.length - 1; k++) {
       const P0 = d.pontos[k], P1 = d.pontos[k + 1];
@@ -209,6 +209,7 @@ export function montarVigasDoPavimento(projeto, pavId, registro) {
       if (casos.G.q[v]) cargas.push({ tipo: 'q', dir: 'Z', valor: -casos.G.q[v], caso: 'G' });
       if (casos.Q.q[v]) cargas.push({ tipo: 'q', dir: 'Z', valor: -casos.Q.q[v], caso: 'Q' });
       const id = `${d.el.codigo}·${d.barras.length + 1}`;
+      const { b, h } = secaoDoVao(d.el, v);   // cada vão com a própria seção
       const barra = { id, i: P0.no.id, j: P1.no.id, secao: { b, h }, fatorTorcao: FATOR_TORCAO_GRELHA, cargas, s0: P0.s, s1: P1.s, vao: v, Lb };
       const rot = rotulas.get(d.el.id);
       if (rot) { const ri = rot.has(P0.no.id), rj = rot.has(P1.no.id); if (ri || rj) barra.rotula = ri && rj ? 'ambas' : ri ? 'i' : 'j'; }

@@ -172,6 +172,7 @@ export const ROTEIRO = {
         ['Reservatórios', "Caixas d'água elevadas e enterradas: paredes como placas, empuxo hidrostático, fissuração mais rígida"],
         ['Marquises e balanços', 'Verificação de equilíbrio, tombamento e engaste na viga, com γn'],
         ['Consolos e dentes', 'Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5)'],
+        ['Seção própria em cada vão da viga', 'Largura, altura e situação (normal ou invertida) por vão: rigidez de cada vão na análise, dimensionamento com a seção do vão, barras ancoradas no apoio onde a face muda de nível, desenhos, 3D, DXF e quantitativos vão a vão — feito na 0.63.0'],
         ['Vigas T e L', 'Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0'],
         ['Telhado e tesouras de madeira', 'Telhado de duas águas com telhas, ripas, caibros e terças verificados, tesoura Howe ou Pratt com esforços nas barras, flambagem, entalhe do nó de apoio e flecha; cargas ligadas às vigas e o telhado completo na visualização 3D — feito na 0.60.0'],
         ['Dobras das barras pela Tabela 9.1', 'Armadura em 3D com as dobras em arco pelo pino da NBR 6118 (5ø ou 8ø no CA-50) e ganchos a 90° com ponta reta de 8ø depois da dobra — feito na 0.60.0'],
@@ -268,7 +269,7 @@ export const ESTADOS = {
   'Ferragem das fundações': 'feito',
   'Coberturas': 'parcial', 'Coberturas e treliças': 'parcial', 'Telhado e tesouras de madeira': 'feito', 'Dobras das barras pela Tabela 9.1': 'feito', 'Exemplo do sobrado': 'feito',
   'Sapata corrida': 'feito', 'Radier': 'parcial', 'Armadura 3D das fundações': 'feito', 'Memorial dos exercícios resolvidos': 'feito',
-  'Vigas T e L': 'feito',
+  'Vigas T e L': 'feito', 'Seção própria em cada vão da viga': 'feito',
   // lançamento da estrutura (plano L1 a L15)
   'Importar IFC': 'feito',
   'Paredes da arquitetura como cargas': 'feito',

@@ -140,7 +140,50 @@ export function detalharViga(p) {
   const posicoes = [], avisos = [], verificacoes = [];
   const pos = [...pts].sort((a, c) => a.x - c.x);
 
-  const adiciona = (q0) => {
+  // ---------------------------------------------------------------- seções por vão (b, h e níveis das faces, cm)
+  const secs = p.secoes?.length === L.length ? p.secoes : L.map(() => ({ b, h, base: -h, topo: 0 }));
+  const variavel = secs.some((s) => s.b !== secs[0].b || s.h !== secs[0].h || s.topo !== secs[0].topo || s.base !== secs[0].base);
+  const meia = (i) => (apoios[i] === 'livre' ? 0 : largs[i] / 200);          // m, do eixo à face do apoio
+  const dentro = (k) => largs[k] / 200 - cob / 100;                          // m, do eixo à face oposta menos o cobrimento
+  // em cada apoio interno: a face superior (nível do topo), a inferior (nível da base ou largura) e as laterais mudam?
+  const desc = Array.from({ length: nApoios }, (_, k) => {
+    if (k === 0 || k === nApoios - 1) return { superior: false, inferior: false, lateral: false };
+    const a = secs[k - 1], c = secs[k];
+    const superior = Math.abs(a.topo - c.topo) > 0.5;
+    const inferior = Math.abs(a.base - c.base) > 0.5 || Math.abs(a.b - c.b) > 0.5;
+    return { superior, inferior, lateral: superior || inferior || Math.abs(a.h - c.h) > 0.5 };
+  });
+  /** vãos cujo trecho livre (entre as faces dos apoios) a barra ocupa */
+  const vaosDe = (x0, x1) => L.map((_, v) => [v, Math.min(x1, X[v + 1] - meia(v + 1)) - Math.max(x0, X[v] + meia(v))]).filter(([, o]) => o > 0.01);
+  /** seção em que a barra fica: a menor largura e altura dos vãos que ela atravessa e os níveis do vão principal */
+  const secaoDaBarra = (x0, x1) => {
+    const vs = vaosDe(x0, x1);
+    if (!vs.length) { const v = Math.max(0, Math.min(L.length - 1, X.findIndex((x) => x > (x0 + x1) / 2) - 1)); return { ...secs[v] }; }
+    const [vp] = vs.reduce((m, q) => (q[1] > m[1] ? q : m));
+    return { b: Math.min(...vs.map(([v]) => secs[v].b)), h: Math.min(...vs.map(([v]) => secs[v].h)), topo: secs[vp].topo, base: secs[vp].base, vao: vp };
+  };
+  /**
+   * Barra que atravessaria um apoio onde a sua face muda: vira duas, cada uma ancorada dentro do apoio até a face
+   * oposta menos o cobrimento (com gancho nas faces superior e inferior). Pedaços que mal entram no vão são descartados.
+   */
+  const recortar = (q) => {
+    if (!variavel || q.face === 'transversal' || !desc.some((d) => d[q.face])) return [q];
+    let pecas = [{ ...q, gancho: [...(q.gancho ?? [false, false])] }];
+    const comGancho = q.face !== 'lateral';
+    for (let k = 1; k < nApoios - 1; k++) {
+      if (!desc[k][q.face]) continue;
+      const xe = X[k] - dentro(k), xd = X[k] + dentro(k);
+      pecas = pecas.flatMap((pc) => (pc.x0 < xe - 1e-6 && pc.x1 > xd + 1e-6
+        ? [{ ...pc, x1: xd, gancho: [pc.gancho[0], comGancho] }, { ...pc, x0: xe, gancho: [comGancho, pc.gancho[1]] }]
+        : [pc]));
+    }
+    if (pecas.length === 1) return pecas;
+    pecas = pecas.filter((pc) => vaosDe(pc.x0, pc.x1).some(([, o]) => o >= 0.05));
+    return pecas.map((pc, i) => ({ ...pc, id: pecas.length > 1 ? `${q.id}-${i + 1}` : q.id, reto: (pc.x1 - pc.x0) * 100, ganchos: comGancho ? undefined : 0, ancoradaNoApoio: true }));
+  };
+
+  const adiciona = (q) => { for (const pc of recortar(q)) adicionaPeca(pc); };
+  const adicionaPeca = (q0) => {
     const gancho = q0.gancho ?? [false, false];
     const q = { ...q0, gancho, ganchos: q0.ganchos ?? gancho.filter(Boolean).length };
     // emendas por traspasse nas barras mais longas que as comerciais
@@ -151,7 +194,7 @@ export function detalharViga(p) {
       l0t = traspasse({ lbNec: q.lb ?? 2.5 * q.phi, lb: q.lb ?? 2.5 * q.phi, phi: q.phi });
       comprimento += emendas * l0t;
     }
-    posicoes.push({ ...q, comprimento: arred5(comprimento), emendas, l0t: emendas ? Math.round(l0t) : 0 });
+    posicoes.push({ ...q, comprimento: arred5(comprimento), emendas, l0t: emendas ? Math.round(l0t) : 0, sec: secaoDaBarra(q.x0, q.x1) });
   };
 
   // ---------------------------------------------------------------- positivas (face inferior, boa aderência)
@@ -168,9 +211,19 @@ export function detalharViga(p) {
     const Mmax = Math.max(0, ...perfil.map((q) => q.v));
     // extremidades: apoio extremo → até a face externa menos o cobrimento, com gancho; apoio interno → 10ø além da face
     const extremo = [k === 0 && !livreIni, k === L.length - 1 && !livreFim];
+    // apoio interno em que a face inferior muda (nível ou largura): a barra entra 10ø no apoio, sem passar ao outro
+    // vão; se 10ø não cabe até a face oposta menos o cobrimento, para ali com gancho
+    const noApoio = (kk, lado) => {
+      const x10 = X[kk] + lado * (largs[kk] / 200 - phi / 100), xMax = X[kk] - lado * dentro(kk);
+      return lado > 0 ? Math.max(x10, xMax) : Math.min(x10, xMax);
+    };
+    const ganchoDesc = [
+      k > 0 && desc[k].inferior && X[k] - dentro(k) > X[k] + largs[k] / 200 - phi / 100 + 1e-9,
+      k < L.length - 1 && desc[k + 1].inferior && X[k + 1] + dentro(k + 1) < X[k + 1] - largs[k + 1] / 200 + phi / 100 - 1e-9,
+    ];
     const ponta = [
-      k === 0 ? lim[0] : X[k] - (largs[k] / 2 + phi) / 100,
-      k === L.length - 1 ? lim[1] : X[k + 1] + (largs[k + 1] / 2 + phi) / 100,
+      k === 0 ? lim[0] : desc[k].inferior ? noApoio(k, 1) : X[k] - (largs[k] / 2 + phi) / 100,
+      k === L.length - 1 ? lim[1] : desc[k + 1].inferior ? noApoio(k + 1, -1) : X[k + 1] + (largs[k + 1] / 2 + phi) / 100,
     ];
     const gr = grupos(n);
     // pontos de corte de cada grupo (diagrama deslocado de aℓ + lb)
@@ -208,7 +261,7 @@ export function detalharViga(p) {
     });
     gr.forEach((nb, gi) => {
       const [a, z] = cortes[gi];
-      const gancho = [extremo[0] && a === ponta[0], extremo[1] && z === ponta[1]];
+      const gancho = [(extremo[0] || ganchoDesc[0]) && a === ponta[0], (extremo[1] || ganchoDesc[1]) && z === ponta[1]];
       adiciona({ id: `pos-v${k + 1}-g${gi + 1}`, tipo: 'positiva', face: 'inferior', local: `Vão ${k + 1}`, phi, n: nb, x0: a, x1: z, reto: (z - a) * 100, gancho, lb: Math.round(lb), al: Math.round(al), corrida: gi === 0 });
     });
   });
@@ -216,8 +269,9 @@ export function detalharViga(p) {
   // vãos sem armadura positiva (balanços): duas barras construtivas na face inferior
   vaos.forEach((v, k) => {
     if (v.barras?.phi && v.barras?.n) return;
-    const phiC = b <= 25 ? 6.3 : 8;
-    const a = k === 0 ? lim[0] : X[k] - 0.1, z = k === L.length - 1 ? lim[1] : X[k + 1] + 0.1;
+    const phiC = secs[k].b <= 25 ? 6.3 : 8;
+    const a = k === 0 ? lim[0] : desc[k].inferior ? Math.max(X[k] - 0.1, X[k] - dentro(k)) : X[k] - 0.1;
+    const z = k === L.length - 1 ? lim[1] : desc[k + 1].inferior ? Math.min(X[k + 1] + 0.1, X[k + 1] + dentro(k + 1)) : X[k + 1] + 0.1;
     adiciona({ id: `inf-v${k + 1}`, tipo: 'construtiva', face: 'inferior', local: `Vão ${k + 1} (construtiva)`, phi: phiC, n: 2, x0: a, x1: z, reto: (z - a) * 100, ganchos: 0 });
   });
 
@@ -227,7 +281,8 @@ export function detalharViga(p) {
     const bar = ng?.barras;
     if (!bar?.phi || !bar?.n) return;
     const { phi, n } = bar;
-    const boa = boaAderencia({ h, distanciaFundo: h - cob });
+    const hAp = Math.min(...[secs[k - 1], secs[k]].filter(Boolean).map((s) => s.h));
+    const boa = boaAderencia({ h: hAp, distanciaFundo: hAp - cob });
     const f = fbd({ fctd, boa, phi });
     const lb = ancoragemBasica({ phi, fyd, fbd: f });
     const vizinhos = [vaos[k - 1], vaos[k]].filter(Boolean);
@@ -258,7 +313,7 @@ export function detalharViga(p) {
   });
 
   // ---------------------------------------------------------------- porta-estribos onde não há negativa
-  const phiP = b <= 25 ? 6.3 : 8;
+  const phiP = Math.min(...secs.map((s) => s.b)) <= 25 ? 6.3 : 8;
   const trechos = [];
   let cursor = lim[0];
   for (const [a, z] of [...cobertoTopo].sort((u, w) => u[0] - w[0])) {
@@ -274,21 +329,33 @@ export function detalharViga(p) {
   });
 
   // ---------------------------------------------------------------- armadura de pele (h > 60 cm) e longitudinal de torção
-  if (h > 60) {
-    const AsFace = 0.001 * b * h;
+  // pele por trecho de vãos seguidos com a mesma seção e h > 60 cm (com a seção constante, um trecho só)
+  const trechosPele = [];
+  secs.forEach((sc, v) => {
+    if (sc.h <= 60) return;
+    const ult = trechosPele.at(-1);
+    if (ult && ult[1] === v - 1 && !desc[v].lateral) ult[1] = v; else trechosPele.push([v, v]);
+  });
+  trechosPele.forEach(([v0, v1], i) => {
+    const sc = secs[v0];
+    const AsFace = 0.001 * sc.b * sc.h;
     const phiPele = 8;
-    const porFace = Math.max(Math.ceil(AsFace / areaBarra(phiPele)), Math.ceil((h - 2 * cob - 10) / 20) - 1, 1);
-    adiciona({ id: 'pele', tipo: 'pele', face: 'lateral', local: 'Pele (17.3.5.2.3)', phi: phiPele, n: 2 * porFace, x0: lim[0], x1: lim[1], reto: (lim[1] - lim[0]) * 100, ganchos: 0 });
-  }
+    const porFace = Math.max(Math.ceil(AsFace / areaBarra(phiPele)), Math.ceil((sc.h - 2 * cob - 10) / 20) - 1, 1);
+    const a = v0 === 0 ? lim[0] : X[v0] - dentro(v0), z = v1 === L.length - 1 ? lim[1] : X[v1 + 1] + dentro(v1 + 1);
+    const um = trechosPele.length === 1 && v0 === 0 && v1 === L.length - 1;
+    adiciona({ id: um ? 'pele' : `pele-${i + 1}`, tipo: 'pele', face: 'lateral', local: um ? 'Pele (17.3.5.2.3)' : `Pele (17.3.5.2.3) · vão ${v0 + 1}${v1 > v0 ? `–${v1 + 1}` : ''}`, phi: phiPele, n: 2 * porFace, x0: a, x1: z, reto: (z - a) * 100, ganchos: 0 });
+  });
   vaos.forEach((v, k) => {
     const t = v.torcao;
     if (!(t?.Asl > 0)) return;
     const phiT = 10;
     // parcela de Asl nas faces laterais (proporcional ao perímetro), em barras ø10 de cada lado
-    const lateral = (t.Asl * 2 * Math.max(0, h - 2 * t.c1)) / t.ue;
+    const lateral = (t.Asl * 2 * Math.max(0, secs[k].h - 2 * t.c1)) / t.ue;
     const porLado = Math.max(1, Math.ceil(lateral / 2 / areaBarra(phiT)));
     const lb = ancoragemBasica({ phi: phiT, fyd, fbd: fbd({ fctd, boa: false, phi: phiT }) });
-    const a = Math.max(lim[0], X[k] - lb / 100), z = Math.min(lim[1], X[k + 1] + lb / 100);
+    let a = Math.max(lim[0], X[k] - lb / 100), z = Math.min(lim[1], X[k + 1] + lb / 100);
+    if (desc[k].lateral) a = Math.max(a, X[k] - dentro(k));               // seção muda no apoio: ancora dentro dele
+    if (desc[k + 1].lateral) z = Math.min(z, X[k + 1] + dentro(k + 1));
     adiciona({ id: `torcao-v${k + 1}`, tipo: 'torção', face: 'lateral', local: `Vão ${k + 1} (Asl de torção)`, phi: phiT, n: 2 * porLado, x0: a, x1: z, reto: (z - a) * 100, ganchos: 0, lb: Math.round(lb) });
   });
 
@@ -301,16 +368,17 @@ export function detalharViga(p) {
     const livreVao = Math.max(0, L[k] * 100 - meia(k) - meia(k + 1));
     const qtd = Math.ceil(livreVao / e.s) + 1;
     const gancho = Math.max((8 * e.phi) / 10, 6);
-    const comp = 2 * (b - 2 * cob) + 2 * (h - 2 * cob) + 2 * gancho;
-    const chave = `${e.phi}|${b}|${h}`;
-    const atual = estribos.get(chave) ?? { qtd: 0, vaos: [], trechos: [], phi: e.phi, comp };
+    const { b: bv, h: hv } = secs[k];
+    const comp = 2 * (bv - 2 * cob) + 2 * (hv - 2 * cob) + 2 * gancho;
+    const chave = `${e.phi}|${bv}|${hv}`;
+    const atual = estribos.get(chave) ?? { qtd: 0, vaos: [], trechos: [], phi: e.phi, comp, b: bv, h: hv };
     atual.qtd += qtd; atual.vaos.push(`vão ${k + 1}: ${qtd} c/ ${String(e.s).replace('.', ',')}`);
     atual.trechos.push({ vao: k, s: e.s, qtd, x0: X[k] + meia(k) / 100, x1: X[k + 1] - meia(k + 1) / 100 });
     estribos.set(chave, atual);
   });
   let ie = 0;
   for (const e of estribos.values()) {
-    posicoes.push({ id: `estribo-${++ie}`, tipo: 'estribo', face: 'transversal', local: e.vaos.join('; '), phi: e.phi, n: e.qtd, comprimento: arred5(e.comp), reto: e.comp, ganchos: 2, forma: `${b - 2 * cob} × ${h - 2 * cob} cm`, trechos: e.trechos, emendas: 0 });
+    posicoes.push({ id: `estribo-${++ie}`, tipo: 'estribo', face: 'transversal', local: e.vaos.join('; '), phi: e.phi, n: e.qtd, comprimento: arred5(e.comp), reto: e.comp, ganchos: 2, forma: `${e.b - 2 * cob} × ${e.h - 2 * cob} cm`, trechos: e.trechos, emendas: 0, sec: { b: e.b, h: e.h } });
   }
 
   // barras iguais (mesma bitola, comprimento, ganchos e posição) viram uma só posição
@@ -331,7 +399,12 @@ export function detalharViga(p) {
   const ordem = { positiva: 0, construtiva: 0, negativa: 1, 'porta-estribo': 2, pele: 3, 'torção': 3, estribo: 4 };
   posicoes.sort((a, c) => (ordem[a.tipo] - ordem[c.tipo]) || ((a.x0 ?? 0) - (c.x0 ?? 0)));
   posicoes.forEach((q, i) => { q.N = `N${i + 1}`; });
-  return { posicoes, avisos, verificacoes, larguras: largs, comprimentoTotal: Ltot, limites: lim };
+  if (variavel) {
+    desc.forEach((d, k) => {
+      if (d.superior || d.inferior) avisos.push(`Apoio ${k + 1}: ${[d.superior && 'a face superior', d.inferior && 'a face inferior'].filter(Boolean).join(' e ')} muda${d.superior && d.inferior ? 'm' : ''} de um vão para o outro — as barras dessa face são ancoradas dentro do apoio (${Math.round(largs[k])} cm); confira se o apoio é um pilar capaz de recebê-las.`);
+    });
+  }
+  return { posicoes, avisos, verificacoes, larguras: largs, comprimentoTotal: Ltot, limites: lim, secoes: secs.map((s) => ({ b: s.b, h: s.h, topo: s.topo, base: s.base, invertida: !!s.invertida })), X };
 }
 
 /** Aplica as edições do usuário ({ [id]: { phi?, n?, comprimento? } }) e recalcula as massas. */

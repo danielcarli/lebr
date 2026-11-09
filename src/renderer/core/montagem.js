@@ -30,6 +30,9 @@
 
 import { geometriaDa } from '../../modules/concreto-escada/calculo.js';
 import { linhasDeApoioTelhado } from '../../modules/madeira-telhado/calculo.js';
+import { secaoEnvolvente, espessuraLaje } from '../../engine/viga-secoes.js';
+
+export { espessuraLaje };
 export const TOLERANCIA = 0.1; // m — distância máxima para considerar dois elementos ligados
 const RAD = Math.PI / 180;
 
@@ -83,15 +86,9 @@ export function dimensoesLaje(el) {
 }
 
 /** Espessura total da laje (cm), por tipo. */
-export function espessuraLaje(el) {
-  if (el.painel?.MRd != null) return (el.painel.h ?? 20) + (el.capa ?? 0);          // alveolar
-  if (el.vigota) return el.vigota.h + (el.painel?.espessura ?? 0) / 10;             // entrepiso de madeira
-  if (el.he != null) return el.he + (el.hf ?? 0);                                   // treliçada
-  return el.h ?? 10;                                                                // maciça e nervurada
-}
-
 export const comprimentoViga = (el) => (el.vaos ?? []).reduce((s, v) => s + (v.L ?? 0), 0);
-export const secaoViga = (el) => ({ b: el.secao?.b ?? 15, h: el.secao?.h ?? 40 });
+/** Seção da viga para folgas e desenhos em planta: a maior largura e a maior altura entre os vãos (cm). */
+export const secaoViga = (el) => secaoEnvolvente(el);
 export const secaoPilar = (el) => (el?.forma === 'circular'
   ? { bx: Number(el.D) || el.bx || 30, by: Number(el.D) || el.bx || 30, D: Number(el.D) || el.bx || 30, circular: true }
   : { bx: el.bx ?? el.b ?? 20, by: el.by ?? el.h ?? 20 });

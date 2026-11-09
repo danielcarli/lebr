@@ -30,6 +30,7 @@ import { estadoDoResultado } from './elemento.js';
 import {
   pavimentosOrdenados, pavimento, tipoDe, dimensoesLaje, espessuraLaje, eixoViga, secaoViga, secaoPilar, escadaNaPlanta,
 } from '../core/montagem.js';
+import { secoesDaViga, vaosInvertidos, espessuraApoiada as espessuraApoiadaViga } from '../../engine/viga-secoes.js';
 import { porticoDoEdificio, ventoDoProjeto, plantaDoEdificio, ROTULO_ACAO } from '../../modules/comum/portico-edificio.js';
 import { CASOS_VENTO } from '../../engine/combinacoes.js';
 import { deformadaBarra } from '../../engine/portico.js';
@@ -176,12 +177,8 @@ function renderizar(container, acoes) {
     const deslocamento = (pavId) => pavs.findIndex((x) => x.id === pavId) * vista.afastar;
     const corBorda = new THREE.Color(azul() ? CORES_AZUL.borda : corDoTema('--tinta', '#161514'));
 
-    /** Espessura (cm) das lajes que apoiam na viga — base da viga invertida; 10 cm sem laje ligada. */
-    const espessuraApoiada = (viga) => {
-      const ids = new Set((viga.cargas ?? []).filter((c) => c?.tipo === 'elemento').map((c) => c.elementoId));
-      const hs = proj.elementos.filter((e) => ids.has(e.id) && tipoDe(e, modulos) === 'laje').map((e) => espessuraLaje(e));
-      return hs.length ? Math.max(...hs) : 10;
-    };
+    /** Espessura (cm) das lajes que apoiam na viga — base dos vãos invertidos; 10 cm sem laje ligada. */
+    const espessuraApoiada = (viga) => espessuraApoiadaViga(viga, (id) => proj.elementos.find((e) => e.id === id));
     for (const el of proj.elementos) {
       const pos = el.posicao;
       const pav = pos && pavimento(proj, pos.pavimento);
@@ -201,12 +198,20 @@ function renderizar(container, acoes) {
         const c = [lx / 2, ly / 2];
         centro = [pos.x + c[0] * Math.cos(ang) - c[1] * Math.sin(ang), pos.y + c[0] * Math.sin(ang) + c[1] * Math.cos(ang), cota - e / 2];
       } else if (t === 'viga') {
+        // um bloco por vão, cada um com a sua seção e o seu nível (vão invertido: a face inferior na face inferior da
+        // laje, subindo acima do piso); com a seção constante, um bloco só
         const eixo = eixoViga(el);
-        const { b, h: hv } = secaoViga(el);
-        geo = new THREE.BoxGeometry(Math.max(eixo.L, 0.05), hv / 100, b / 100);
-        // invertida: a face inferior fica na face inferior da laje (a viga sobe acima do piso)
-        const hf = el.invertida ? espessuraApoiada(el) / 100 : 0;
-        centro = [(eixo.a[0] + eixo.b[0]) / 2, (eixo.a[1] + eixo.b[1]) / 2, el.invertida ? cota - hf + hv / 200 : cota - hv / 200];
+        const ss = secoesDaViga(el, { hLaje: vaosInvertidos(el).algum ? espessuraApoiada(el) : 10 });
+        const igual = ss.every((x) => x.b === ss[0].b && x.topo === ss[0].topo && x.base === ss[0].base);
+        if (igual) {
+          const x = ss[0];
+          geo = new THREE.BoxGeometry(Math.max(eixo.L, 0.05), x.h / 100, x.b / 100);
+          centro = [(eixo.a[0] + eixo.b[0]) / 2, (eixo.a[1] + eixo.b[1]) / 2, cota + (x.base + x.topo) / 200];
+        } else {
+          // caixas em cm no referencial da viga: x ao longo do eixo a partir do início, y transversal, z vertical
+          geo = juntarCaixas(eixo.vaos.map(([s0, s1], k) => ({ min: [s0 * 100, -ss[k].b / 2, ss[k].base], max: [Math.max(s1, s0 + 0.05) * 100, ss[k].b / 2, ss[k].topo] })));
+          centro = [eixo.a[0], eixo.a[1], cota];
+        }
       } else {
         const { bx, by, D } = secaoPilar(el);
         const L = el.comprimento ?? 2.8;

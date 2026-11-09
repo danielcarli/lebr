@@ -22,6 +22,7 @@
  * (definição implícita). Encontros em T (uma viga termina na outra) não são cruzamentos: a que termina se apoia.
  */
 import { tipoDe, eixoViga, secaoViga, distanciaAoPilar, pavimento, TOLERANCIA } from './montagem.js';
+import { secaoDoVao } from '../../engine/viga-secoes.js';
 
 export const SEM_TRANSFERENCIA = 'sem';
 export const chaveCruzamento = (a, b) => [a, b].sort().join('|');
@@ -88,7 +89,7 @@ function rigidezNoPonto(v, s) {
   const e = eixoViga(v);
   const k = Math.max(0, e.vaos.findIndex(([x0, x1]) => s >= x0 - 1e-9 && s <= x1 + 1e-9));
   const L = v.vaos[k]?.L ?? e.L;
-  const { b, h } = secaoViga(v);
+  const { b, h } = secaoDoVao(v, k);
   return (b * h ** 3) / L ** 3;
 }
 

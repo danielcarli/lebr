@@ -23,6 +23,7 @@ import { resumoComPerdas } from '../../engine/detalhamento.js';
 import { cantosPilar, cantosLaje, eixoViga, escadaNaPlanta, dimensoesLaje } from '../../renderer/core/montagem.js';
 import { posicoesDe, detalhamentoDe, baseDoPilar } from './detalhamento.js';
 import { perdasDoProjeto } from './quantitativos.js';
+import { secaoDoVao, secaoEnvolvente, secoesDaViga, rotuloSecao, vaosInvertidos, secaoVariavel } from '../../engine/viga-secoes.js';
 
 const VIGA = 'concreto.viga', PILAR = 'concreto.pilar', LAJE = 'concreto.laje.macica';
 const TIPOS_LAJE = ['concreto.laje.macica', 'concreto.laje.nervurada', 'concreto.laje.trelicada', 'concreto.laje.alveolar'];
@@ -164,17 +165,25 @@ export function plantaDeFormas(projeto, pav, { versao, escala = 50 } = {}) {
   // vigas: contorno ao longo do eixo
   for (const v of vigas) {
     const ex = eixoViga(v);
-    const b = (v.secao?.b ?? 15) / 2 / 100;
+    const b = secaoEnvolvente(v).b / 2 / 100;
     const nn = [-ex.u[1], ex.u[0]];
     const P = (p, s) => cm([p[0] + nn[0] * s, p[1] + nn[1] * s]);
-    d.polilinha('VIGAS', [P(ex.a, -b), P(ex.b, -b), P(ex.b, b), P(ex.a, b)], { fechada: true });
+    // contorno vão a vão (cada vão com a sua largura; com a seção constante, um retângulo só)
+    const larguras = (ex.vaos ?? []).map((_, k) => secaoDoVao(v, k).b / 2 / 100);
+    if (larguras.length > 1 && larguras.some((x) => x !== larguras[0])) {
+      const em = (s) => [ex.a[0] + ex.u[0] * s, ex.a[1] + ex.u[1] * s];
+      const ida = [], volta = [];
+      ex.vaos.forEach(([s0, s1], k) => { ida.push(P(em(s0), -larguras[k]), P(em(s1), -larguras[k])); volta.unshift(P(em(s1), larguras[k]), P(em(s0), larguras[k])); });
+      d.polilinha('VIGAS', [...ida, ...volta], { fechada: true });
+    } else d.polilinha('VIGAS', [P(ex.a, -b), P(ex.b, -b), P(ex.b, b), P(ex.a, b)], { fechada: true });
     // rótulo no meio do vão mais longo (no meio da viga ficaria sobre um pilar)
     const [s0, s1] = ex.vaos.reduce((a, q) => (q[1] - q[0] > a[1] - a[0] ? q : a), ex.vaos[0] ?? [0, ex.L]);
     const sm = (s0 + s1) / 2;
     const m = [ex.a[0] + ex.u[0] * sm, ex.a[1] + ex.u[1] * sm];
     const ang = legivel((Math.atan2(ex.u[1], ex.u[0]) * 180) / Math.PI);
     const lado = Math.abs(ang - (Math.atan2(ex.u[1], ex.u[0]) * 180) / Math.PI) < 1 ? 1 : -1;
-    d.texto('TEXTOS', P(m, lado * (b + 0.06)), `${v.codigo} (${f(v.secao?.b ?? 15, 0)}x${f(v.secao?.h ?? 40, 0)})${v.invertida ? ' INV.' : ''}`, { altura: t, alinhar: 'centro', vertical: 'baixo', angulo: ang });
+    const inv = vaosInvertidos(v);
+    d.texto('TEXTOS', P(m, lado * (b + 0.06)), `${v.codigo} (${rotuloSecao(v, { sep: 'x' }).replace(' cm', '').replace(/ inv\./g, ' INV.')})${inv.todos && !secaoVariavel(v) ? ' INV.' : ''}`, { altura: t, alinhar: 'centro', vertical: 'baixo', angulo: ang });
   }
   // pilares
   for (const p of pilares) {
@@ -283,13 +292,20 @@ export function plantaDeLocacao(projeto, { versao, escala = 50 } = {}) {
 
 function elevacaoViga(d, v, det, posicoes, [ox, oy]) {
   const t = 2.5 * d.mm;
-  const h = v.secao.h, b = v.secao.b;
+  // níveis por vão (cm): 0 na face mais baixa da viga; com a seção constante, de 0 a h
+  const ss = det.secoes?.length === v.vaos.length ? det.secoes : secoesDaViga(v);
+  const zMin = Math.min(...ss.map((x) => x.base));
+  const h = Math.max(...ss.map((x) => x.topo)) - zMin;
   const L = v.vaos.map((x) => x.L * 100);
   const X = [0]; for (const l of L) X.push(X.at(-1) + l);
   const larg = det.larguras ?? X.map(() => 20);
   const ini = v.apoios[0] === 'livre' ? 0 : -larg[0] / 2, fim = v.apoios.at(-1) === 'livre' ? X.at(-1) : X.at(-1) + larg.at(-1) / 2;
   const P = (x, y) => [ox + x, oy + y];
-  d.retangulo('CONCRETO', P(ini, 0), P(fim, h));
+  const variavel = ss.some((x) => x.topo !== ss[0].topo || x.base !== ss[0].base);
+  if (!variavel) d.retangulo('CONCRETO', P(ini, 0), P(fim, h));
+  else ss.forEach((x, k) => d.retangulo('CONCRETO', P(k === 0 ? ini : X[k], x.base - zMin), P(k === L.length - 1 ? fim : X[k + 1], x.topo - zMin)));
+  const zDe = (k) => ss[Math.max(0, Math.min(ss.length - 1, k))];
+  const secDe = (q) => (q.sec?.topo != null ? q.sec : zDe(X.findIndex((xx) => xx > ((q.x0 + q.x1) / 2) * 100) - 1));
   v.apoios.forEach((tp, k) => {
     if (tp === 'livre') return;
     d.retangulo('CONCRETO', P(X[k] - larg[k] / 2, -30), P(X[k] + larg[k] / 2, 0));
@@ -300,14 +316,16 @@ function elevacaoViga(d, v, det, posicoes, [ox, oy]) {
   for (const e of posicoes.filter((q) => q.tipo === 'estribo')) {
     for (const tr of e.trechos ?? []) {
       const n = Math.max(1, tr.qtd);
-      for (let i = 0; i < n; i++) { const x = tr.x0 * 100 + ((tr.x1 - tr.x0) * 100 * (n === 1 ? 0.5 : i / (n - 1))); d.linha('ARMADURA-TRANSVERSAL', P(x, cob), P(x, h - cob)); }
-      d.texto('TEXTOS', P(((tr.x0 + tr.x1) / 2) * 100, h / 2), `${e.N} ${tr.qtd} ${phiTxt(e.phi)} c/${f(tr.s, 0)}`, { altura: t * 0.8, alinhar: 'centro', vertical: 'meio' });
+      const sv = zDe(tr.vao ?? 0), z0 = sv.base - zMin, z1 = sv.topo - zMin;
+      for (let i = 0; i < n; i++) { const x = tr.x0 * 100 + ((tr.x1 - tr.x0) * 100 * (n === 1 ? 0.5 : i / (n - 1))); d.linha('ARMADURA-TRANSVERSAL', P(x, z0 + cob), P(x, z1 - cob)); }
+      d.texto('TEXTOS', P(((tr.x0 + tr.x1) / 2) * 100, (z0 + z1) / 2), `${e.N} ${tr.qtd} ${phiTxt(e.phi)} c/${f(tr.s, 0)}`, { altura: t * 0.8, alinhar: 'centro', vertical: 'meio' });
     }
   }
   const camada = (q) => (q.tipo === 'negativa' ? 'ARMADURA-NEGATIVA' : q.tipo === 'porta-estribo' || q.tipo === 'construtiva' ? 'ARMADURA-CONSTRUTIVA' : 'ARMADURA-LONGITUDINAL');
   const longas = posicoes.filter((q) => q.tipo !== 'estribo' && Number.isFinite(q.x0));
   for (const q of longas) {
-    const y = q.face === 'superior' ? h - cob - 1 : q.face === 'inferior' ? cob + 1 : h / 2;
+    const sq = secDe(q), z0 = sq.base - zMin, z1 = sq.topo - zMin;
+    const y = q.face === 'superior' ? z1 - cob - 1 : q.face === 'inferior' ? z0 + cob + 1 : (z0 + z1) / 2;
     d.linha(camada(q), P(q.x0 * 100, y), P(q.x1 * 100, y));
   }
   // barras extraídas, empacotadas em linhas
@@ -348,7 +366,7 @@ function elevacaoViga(d, v, det, posicoes, [ox, oy]) {
 
 function corteViga(d, v, res, k, [ox, oy]) {
   const t = 2.5 * d.mm;
-  const { b, h } = v.secao, cob = 3;
+  const { b, h, invertida } = secaoDoVao(v, k), cob = 3;
   const P = (x, y) => [ox + x, oy + y];
   d.retangulo('CONCRETO', P(0, 0), P(b, h));
   d.retangulo('ARMADURA-TRANSVERSAL', P(cob, cob), P(b - cob, h - cob));
@@ -363,7 +381,7 @@ function corteViga(d, v, res, k, [ox, oy]) {
   linha(ng?.barras ? { ...ng.barras, neg: true } : { n: 2, phi: 6.3 }, h - cob - 1.5);
   d.texto('TEXTOS', P(b / 2, -t * 1.6), `CORTE ${String.fromCharCode(65 + k)}-${String.fromCharCode(65 + k)}`, { altura: t * 0.8, alinhar: 'centro' });
   d.texto('TEXTOS', P(b / 2, -t * 3), `vão ${k + 1}`, { altura: t * 0.7, alinhar: 'centro' });
-  d.texto('TEXTOS', P(b / 2, h + t * 0.5), `${f(b, 0)}x${f(h, 0)}`, { altura: t * 0.8, alinhar: 'centro' });
+  d.texto('TEXTOS', P(b / 2, h + t * 0.5), `${f(b, 0)}x${f(h, 0)}${invertida ? ' INV.' : ''}`, { altura: t * 0.8, alinhar: 'centro' });
   return b;
 }
 
@@ -384,7 +402,8 @@ export function armacaoDeVigas(projeto, { versao, escala = 25 } = {}) {
     // reserva a altura das barras de cima antes de desenhar
     const prov = elevacaoViga(novoDxf(escala), v, det, posicoes.map((q) => ({ ...q })), [0, 0]);
     const oy = y - prov.topo;
-    d.texto('TEXTOS', [0, oy + prov.topo + t], `${v.codigo} (${f(v.secao.b, 0)}x${f(v.secao.h, 0)})${pav(v) ? ` — ${pav(v).nome}` : ''}${v.baldrame ? ' — baldrame' : ''}${v.invertida ? ' — invertida' : ''}`, { altura: t * 1.4 });
+    const inv = vaosInvertidos(v);
+    d.texto('TEXTOS', [0, oy + prov.topo + t], `${v.codigo} (${rotuloSecao(v, { sep: 'x' }).replace(' cm', '')})${pav(v) ? ` — ${pav(v).nome}` : ''}${v.baldrame ? ' — baldrame' : ''}${inv.todos && !secaoVariavel(v) ? ' — invertida' : ''}`, { altura: t * 1.4 });
     const e = elevacaoViga(d, v, det, posicoes, [0, oy]);
     let xc = e.xFim + 60;
     // espaço de cada corte: a seção ou o rótulo, o que for maior

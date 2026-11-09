@@ -1,532 +1,594 @@
 {
-  "grupo": "Soluções analíticas (0.61)",
-  "descricao": "Casos com solução fechada ou calculada à mão por outro caminho (equilíbrio dos nós, Clapeyron, série de Navier, Hankinson, método rígido) para os módulos sem exercício publicado: tesoura, telhado e radier, mais o motor de vigas e de placas.",
-  "casos": [
+ "grupo": "Soluções analíticas (0.61)",
+ "descricao": "Casos com solução fechada ou calculada à mão por outro caminho (equilíbrio dos nós, Clapeyron, série de Navier, Hankinson, método rígido) para os módulos sem exercício publicado: tesoura, telhado e radier, mais o motor de vigas e de placas.",
+ "casos": [
+  {
+   "id": "tesoura-simples-apice",
+   "titulo": "Tesoura simples (perna, linha e pendural), L = 8 m, 50 %, P = 10 kN na cumeeira",
+   "fonte": "Equilíbrio do nó da cumeeira: perna N = −P/(2·sen α); nó do apoio: linha N = P/(2·tg α); pendural sem esforço; R = P/2.",
+   "alvo": "motor",
+   "funcao": "tesoura.resolverTesoura",
+   "args": [
     {
-      "id": "tesoura-simples-apice",
-      "titulo": "Tesoura simples (perna, linha e pendural), L = 8 m, 50 %, P = 10 kN na cumeeira",
-      "fonte": "Equilíbrio do nó da cumeeira: perna N = −P/(2·sen α); nó do apoio: linha N = P/(2·tg α); pendural sem esforço; R = P/2.",
-      "alvo": "motor",
-      "funcao": "tesoura.resolverTesoura",
-      "args": [
-        {
-          "tipo": "howe",
-          "L": 8,
-          "inclinacao": 50,
-          "paineis": 2,
-          "Psup": [
-            0,
-            10,
-            0
-          ]
-        }
-      ],
-      "esperado": [
-        {
-          "grandeza": "Perna (banzo superior 1)",
-          "caminho": "N.Banzo superior 1",
-          "valor": -11.1803,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Linha (banzo inferior 1)",
-          "caminho": "N.Banzo inferior 1",
-          "valor": 10.0,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Pendural",
-          "caminho": "N.Pendural",
-          "valor": 0,
-          "unidade": "kN",
-          "tolerancia": 0.001,
-          "absoluta": true
-        },
-        {
-          "grandeza": "Reação A",
-          "caminho": "RA",
-          "valor": 5.0,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Altura",
-          "caminho": "H",
-          "valor": 2.0,
-          "unidade": "m",
-          "tolerancia": 0.001
-        }
-      ]
-    },
-    {
-      "id": "tesoura-howe-4-paineis",
-      "titulo": "Howe de 4 painéis, L = 12 m, 40 %, P = 10 kN nos 3 nós internos do banzo superior",
-      "fonte": "Método dos nós (Ritter): nó do apoio dá perna 1 e linha 1; o nó inferior 1 só tem linhas e o montante, logo montante 1 = 0 e linha 2 = linha 1; o nó superior 1 dá perna 2 e a diagonal; o nó da cumeeira dá o pendural.",
-      "alvo": "motor",
-      "funcao": "tesoura.resolverTesoura",
-      "args": [
-        {
-          "tipo": "howe",
-          "L": 12,
-          "inclinacao": 40,
-          "paineis": 4,
-          "Psup": [
-            0,
-            10,
-            10,
-            10,
-            0
-          ]
-        }
-      ],
-      "esperado": [
-        {
-          "grandeza": "Perna 1",
-          "caminho": "N.Banzo superior 1",
-          "valor": -40.3887,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Linha 1",
-          "caminho": "N.Banzo inferior 1",
-          "valor": 37.5,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Linha 2 = linha 1",
-          "caminho": "N.Banzo inferior 2",
-          "valor": 37.5,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Montante 1",
-          "caminho": "N.Montante 1",
-          "valor": 0,
-          "unidade": "kN",
-          "tolerancia": 0.001,
-          "absoluta": true
-        },
-        {
-          "grandeza": "Perna 2",
-          "caminho": "N.Banzo superior 2",
-          "valor": -26.9258,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Diagonal 1",
-          "caminho": "N.Diagonal 1",
-          "valor": -13.4629,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Pendural",
-          "caminho": "N.Pendural",
-          "valor": 10.0,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Reação A",
-          "caminho": "RA",
-          "valor": 15.0,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        }
-      ]
-    },
-    {
-      "id": "entalhe-hankinson-30",
-      "titulo": "Entalhe do nó de apoio: Nd = 50 kN, α = 30°, b = 6 cm, D40 (fc0,d = 18,0, fc90,d = 4,5 MPa)",
-      "fonte": "Hankinson: fc,α,d = fc0,d·fc90,d/(fc0,d·sen²α + fc90,d·cos²α); e = Nd·cos α/(b·fc,α,d). NBR 7190-1:2022 (compressão inclinada).",
-      "alvo": "motor",
-      "funcao": "tesoura.entalheApoio",
-      "args": [
-        {
-          "Nd": 50,
-          "alfa": 0.523599,
-          "b": 6,
-          "hInf": 16,
-          "m": {
-            "$madeira": "D40"
-          }
-        }
-      ],
-      "esperado": [
-        {
-          "grandeza": "fc,α,d",
-          "caminho": "fca",
-          "valor": 10.2857,
-          "unidade": "MPa",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Componente horizontal",
-          "caminho": "H",
-          "valor": 43.3013,
-          "unidade": "kN",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "Profundidade necessária",
-          "caminho": "eNec",
-          "valor": 7.0164,
-          "unidade": "cm",
-          "tolerancia": 0.001
-        }
-      ]
-    },
-    {
-      "id": "viga-tres-vaos-iguais-clapeyron",
-      "titulo": "Viga contínua de 3 vãos iguais, L = 5 m, q = 12 kN/m",
-      "fonte": "Equação dos três momentos (Clapeyron): M_B = M_C = −qL²/10; reações 0,4·qL, 1,1·qL, 1,1·qL, 0,4·qL; M no vão extremo = 0,08·qL².",
-      "alvo": "motor",
-      "funcao": "viga.analisarViga",
-      "args": [
-        {
-          "vaos": [
-            5,
-            5,
-            5
-          ],
-          "apoios": [
-            "apoio",
-            "apoio",
-            "apoio",
-            "apoio"
-          ],
-          "q": [
-            12,
-            12,
-            12
-          ],
-          "P": [],
-          "EI": [
-            10000,
-            10000,
-            10000
-          ]
-        }
-      ],
-      "esperado": [
-        {
-          "grandeza": "Momento no apoio B",
-          "caminho": "vaos.0.Mneg",
-          "valor": -30.0,
-          "unidade": "kN·m",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Reação A",
-          "caminho": "reacoes.0.V",
-          "valor": 24.0,
-          "unidade": "kN",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Reação B",
-          "caminho": "reacoes.1.V",
-          "valor": 66.0,
-          "unidade": "kN",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Momento positivo no vão 1",
-          "caminho": "vaos.0.Mpos",
-          "valor": 24.0,
-          "unidade": "kN·m",
-          "tolerancia": 0.002
-        }
-      ]
-    },
-    {
-      "id": "placa-navier-1-2",
-      "titulo": "Placa simplesmente apoiada 4 × 8 m, carga uniforme (p = 1, D = 1, ν = 0,2)",
-      "fonte": "Timoshenko & Woinowsky-Krieger, Theory of Plates and Shells, cap. 5: solução de Navier (série dupla, 101 termos por direção).",
-      "nota": "Elementos finitos (ACM, 24 divisões no menor lado) contra a série exata: tolerância de 3 %.",
-      "alvo": "motor",
-      "funcao": "placa.analisarPlaca",
-      "args": [
-        {
-          "lx": 4,
-          "ly": 8,
-          "bordas": {
-            "x0": "apoiada",
-            "x1": "apoiada",
-            "y0": "apoiada",
-            "y1": "apoiada"
-          }
-        }
-      ],
-      "esperado": [
-        {
-          "grandeza": "Flecha máxima (p = 1, D = 1)",
-          "caminho": "unit.wMax",
-          "valor": 2.592938,
-          "unidade": "m",
-          "tolerancia": 0.03
-        },
-        {
-          "grandeza": "mx no centro",
-          "caminho": "unit.mxPos",
-          "valor": 1.59907,
-          "unidade": "kN·m/m",
-          "tolerancia": 0.03
-        },
-        {
-          "grandeza": "my no centro",
-          "caminho": "unit.myPos",
-          "valor": 0.58727,
-          "unidade": "kN·m/m",
-          "tolerancia": 0.05
-        },
-        {
-          "grandeza": "Soma das reações = p·lx·ly",
-          "caminho": "totalReacoes",
-          "valor": 32,
-          "unidade": "kN",
-          "tolerancia": 0.005
-        }
-      ]
-    },
-    {
-      "id": "telhado-terca-biapoiada",
-      "titulo": "Telhado de fibrocimento, vão 10 m, 15 %, 4 painéis, tesouras a 3 m: terça 6 × 16 D40 biapoiada",
-      "fonte": "Resistência dos materiais: Md = (γg·g + γq·q)·L²/8, Vd = (γg·g + γq·q)·L/2, σ = 6·Md/(b·h²); g = telha 0,20 kN/m² × faixa na água + peso próprio (ρ = 750 kg/m³); q = 0,25 kN/m² × faixa × cos α (NBR 6120 em projeção). γg = 1,4 e γq = 1,5 (madeira).",
-      "alvo": "elemento",
-      "modulo": "madeira.telhado",
-      "elemento": {
-        "classe": "D40",
-        "vao": 10,
-        "comprimento": 9,
-        "inclinacao": 15,
-        "beiral": 0,
-        "beiralOitao": 0,
-        "telha": "fibrocimento",
-        "extremidades": "tesouras",
-        "paineis": 4,
-        "espacTesouras": 3.0,
-        "terca": {
-          "b": 6,
-          "h": 16
-        },
-        "cargas": {
-          "sobrecarga": 0.25,
-          "forro": 0,
-          "vento": 0
-        }
-      },
-      "esperado": [
-        {
-          "grandeza": "Faixa de influência na água",
-          "caminho": "geo.lp",
-          "valor": 2.52797,
-          "unidade": "m",
-          "tolerancia": 0.001
-        },
-        {
-          "grandeza": "g da terça",
-          "caminho": "terca.gL",
-          "valor": 0.57623,
-          "unidade": "kN/m",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "q da terça",
-          "caminho": "terca.qL",
-          "valor": 0.625,
-          "unidade": "kN/m",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Md da terça",
-          "caminho": "terca.Md",
-          "valor": 1.9622,
-          "unidade": "kN·m",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Vd da terça",
-          "caminho": "terca.Vd",
-          "valor": 2.6163,
-          "unidade": "kN",
-          "tolerancia": 0.002
-        },
-        {
-          "grandeza": "Número de tesouras",
-          "caminho": "geo.tesouras.length",
-          "valor": 4,
-          "tolerancia": 0.001
-        }
-      ]
-    },
-    {
-      "id": "radier-rigido-4-pilares",
-      "titulo": "Radier 8 × 6 × 0,30 m sob 4 pilares iguais (300 kN) nos cantos com balanço de 1 m",
-      "fonte": "Método rígido: σ = ΣN/A com ΣN = 4·(N + peso do pilar) + peso próprio do radier (25·h·A) + piso (g + q = 3 kN/m² padrão); carga simétrica → excentricidade nula e σmáx = σméd.",
-      "alvo": "elemento",
-      "modulo": "concreto.radier",
-      "pavimentos": [
-        {
-          "id": "p1",
-          "nome": "Térreo",
-          "cota": 3
-        }
-      ],
-      "outros": [
-        {
-          "id": "pl0",
-          "modulo": "concreto.pilar",
-          "codigo": "P1",
-          "nome": "P1",
-          "bx": 20,
-          "by": 30,
-          "comprimento": 3,
-          "pesoProprio": true,
-          "cargas": [
-            {
-              "id": "c1",
-              "tipo": "concentrada",
-              "natureza": "g",
-              "valor": 300,
-              "descricao": "g"
-            }
-          ],
-          "posicao": {
-            "pavimento": "p1",
-            "x": 1,
-            "y": 1,
-            "angulo": 0
-          }
-        },
-        {
-          "id": "pl1",
-          "modulo": "concreto.pilar",
-          "codigo": "P2",
-          "nome": "P2",
-          "bx": 20,
-          "by": 30,
-          "comprimento": 3,
-          "pesoProprio": true,
-          "cargas": [
-            {
-              "id": "c1",
-              "tipo": "concentrada",
-              "natureza": "g",
-              "valor": 300,
-              "descricao": "g"
-            }
-          ],
-          "posicao": {
-            "pavimento": "p1",
-            "x": 7,
-            "y": 1,
-            "angulo": 0
-          }
-        },
-        {
-          "id": "pl2",
-          "modulo": "concreto.pilar",
-          "codigo": "P3",
-          "nome": "P3",
-          "bx": 20,
-          "by": 30,
-          "comprimento": 3,
-          "pesoProprio": true,
-          "cargas": [
-            {
-              "id": "c1",
-              "tipo": "concentrada",
-              "natureza": "g",
-              "valor": 300,
-              "descricao": "g"
-            }
-          ],
-          "posicao": {
-            "pavimento": "p1",
-            "x": 1,
-            "y": 5,
-            "angulo": 0
-          }
-        },
-        {
-          "id": "pl3",
-          "modulo": "concreto.pilar",
-          "codigo": "P4",
-          "nome": "P4",
-          "bx": 20,
-          "by": 30,
-          "comprimento": 3,
-          "pesoProprio": true,
-          "cargas": [
-            {
-              "id": "c1",
-              "tipo": "concentrada",
-              "natureza": "g",
-              "valor": 300,
-              "descricao": "g"
-            }
-          ],
-          "posicao": {
-            "pavimento": "p1",
-            "x": 7,
-            "y": 5,
-            "angulo": 0
-          }
-        }
-      ],
-      "elemento": {
-        "geometria": {
-          "modo": "manual",
-          "lx": 8,
-          "ly": 6,
-          "h": 30,
-          "balanco": 1
-        },
-        "local": {
-          "x": 0,
-          "y": 0
-        },
-        "solo": {
-          "tensao": 100,
-          "gama": 18
-        }
-      },
-      "esperado": [
-        {
-          "grandeza": "Carga total N",
-          "caminho": "N",
-          "valor": 1722.0,
-          "unidade": "kN",
-          "tolerancia": 0.01
-        },
-        {
-          "grandeza": "σméd = N/A",
-          "caminho": "tensoes.med",
-          "valor": 35.875,
-          "unidade": "kPa",
-          "tolerancia": 0.01
-        },
-        {
-          "grandeza": "σmáx = σméd (carga centrada)",
-          "caminho": "tensoes.max",
-          "valor": 35.875,
-          "unidade": "kPa",
-          "tolerancia": 0.01
-        },
-        {
-          "grandeza": "Pilares sobre o radier",
-          "caminho": "pilares.length",
-          "valor": 4,
-          "tolerancia": 0.001
-        }
-      ]
+     "tipo": "howe",
+     "L": 8,
+     "inclinacao": 50,
+     "paineis": 2,
+     "Psup": [
+      0,
+      10,
+      0
+     ]
     }
-  ]
+   ],
+   "esperado": [
+    {
+     "grandeza": "Perna (banzo superior 1)",
+     "caminho": "N.Banzo superior 1",
+     "valor": -11.1803,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Linha (banzo inferior 1)",
+     "caminho": "N.Banzo inferior 1",
+     "valor": 10.0,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Pendural",
+     "caminho": "N.Pendural",
+     "valor": 0,
+     "unidade": "kN",
+     "tolerancia": 0.001,
+     "absoluta": true
+    },
+    {
+     "grandeza": "Reação A",
+     "caminho": "RA",
+     "valor": 5.0,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Altura",
+     "caminho": "H",
+     "valor": 2.0,
+     "unidade": "m",
+     "tolerancia": 0.001
+    }
+   ]
+  },
+  {
+   "id": "tesoura-howe-4-paineis",
+   "titulo": "Howe de 4 painéis, L = 12 m, 40 %, P = 10 kN nos 3 nós internos do banzo superior",
+   "fonte": "Método dos nós (Ritter): nó do apoio dá perna 1 e linha 1; o nó inferior 1 só tem linhas e o montante, logo montante 1 = 0 e linha 2 = linha 1; o nó superior 1 dá perna 2 e a diagonal; o nó da cumeeira dá o pendural.",
+   "alvo": "motor",
+   "funcao": "tesoura.resolverTesoura",
+   "args": [
+    {
+     "tipo": "howe",
+     "L": 12,
+     "inclinacao": 40,
+     "paineis": 4,
+     "Psup": [
+      0,
+      10,
+      10,
+      10,
+      0
+     ]
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "Perna 1",
+     "caminho": "N.Banzo superior 1",
+     "valor": -40.3887,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Linha 1",
+     "caminho": "N.Banzo inferior 1",
+     "valor": 37.5,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Linha 2 = linha 1",
+     "caminho": "N.Banzo inferior 2",
+     "valor": 37.5,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Montante 1",
+     "caminho": "N.Montante 1",
+     "valor": 0,
+     "unidade": "kN",
+     "tolerancia": 0.001,
+     "absoluta": true
+    },
+    {
+     "grandeza": "Perna 2",
+     "caminho": "N.Banzo superior 2",
+     "valor": -26.9258,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Diagonal 1",
+     "caminho": "N.Diagonal 1",
+     "valor": -13.4629,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Pendural",
+     "caminho": "N.Pendural",
+     "valor": 10.0,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Reação A",
+     "caminho": "RA",
+     "valor": 15.0,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    }
+   ]
+  },
+  {
+   "id": "entalhe-hankinson-30",
+   "titulo": "Entalhe do nó de apoio: Nd = 50 kN, α = 30°, b = 6 cm, D40 (fc0,d = 18,0, fc90,d = 4,5 MPa)",
+   "fonte": "Hankinson: fc,α,d = fc0,d·fc90,d/(fc0,d·sen²α + fc90,d·cos²α); e = Nd·cos α/(b·fc,α,d). NBR 7190-1:2022 (compressão inclinada).",
+   "alvo": "motor",
+   "funcao": "tesoura.entalheApoio",
+   "args": [
+    {
+     "Nd": 50,
+     "alfa": 0.523599,
+     "b": 6,
+     "hInf": 16,
+     "m": {
+      "$madeira": "D40"
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "fc,α,d",
+     "caminho": "fca",
+     "valor": 10.2857,
+     "unidade": "MPa",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Componente horizontal",
+     "caminho": "H",
+     "valor": 43.3013,
+     "unidade": "kN",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "Profundidade necessária",
+     "caminho": "eNec",
+     "valor": 7.0164,
+     "unidade": "cm",
+     "tolerancia": 0.001
+    }
+   ]
+  },
+  {
+   "id": "viga-tres-vaos-iguais-clapeyron",
+   "titulo": "Viga contínua de 3 vãos iguais, L = 5 m, q = 12 kN/m",
+   "fonte": "Equação dos três momentos (Clapeyron): M_B = M_C = −qL²/10; reações 0,4·qL, 1,1·qL, 1,1·qL, 0,4·qL; M no vão extremo = 0,08·qL².",
+   "alvo": "motor",
+   "funcao": "viga.analisarViga",
+   "args": [
+    {
+     "vaos": [
+      5,
+      5,
+      5
+     ],
+     "apoios": [
+      "apoio",
+      "apoio",
+      "apoio",
+      "apoio"
+     ],
+     "q": [
+      12,
+      12,
+      12
+     ],
+     "P": [],
+     "EI": [
+      10000,
+      10000,
+      10000
+     ]
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "Momento no apoio B",
+     "caminho": "vaos.0.Mneg",
+     "valor": -30.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Reação A",
+     "caminho": "reacoes.0.V",
+     "valor": 24.0,
+     "unidade": "kN",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Reação B",
+     "caminho": "reacoes.1.V",
+     "valor": 66.0,
+     "unidade": "kN",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Momento positivo no vão 1",
+     "caminho": "vaos.0.Mpos",
+     "valor": 24.0,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    }
+   ]
+  },
+  {
+   "id": "placa-navier-1-2",
+   "titulo": "Placa simplesmente apoiada 4 × 8 m, carga uniforme (p = 1, D = 1, ν = 0,2)",
+   "fonte": "Timoshenko & Woinowsky-Krieger, Theory of Plates and Shells, cap. 5: solução de Navier (série dupla, 101 termos por direção).",
+   "nota": "Elementos finitos (ACM, 24 divisões no menor lado) contra a série exata: tolerância de 3 %.",
+   "alvo": "motor",
+   "funcao": "placa.analisarPlaca",
+   "args": [
+    {
+     "lx": 4,
+     "ly": 8,
+     "bordas": {
+      "x0": "apoiada",
+      "x1": "apoiada",
+      "y0": "apoiada",
+      "y1": "apoiada"
+     }
+    }
+   ],
+   "esperado": [
+    {
+     "grandeza": "Flecha máxima (p = 1, D = 1)",
+     "caminho": "unit.wMax",
+     "valor": 2.592938,
+     "unidade": "m",
+     "tolerancia": 0.03
+    },
+    {
+     "grandeza": "mx no centro",
+     "caminho": "unit.mxPos",
+     "valor": 1.59907,
+     "unidade": "kN·m/m",
+     "tolerancia": 0.03
+    },
+    {
+     "grandeza": "my no centro",
+     "caminho": "unit.myPos",
+     "valor": 0.58727,
+     "unidade": "kN·m/m",
+     "tolerancia": 0.05
+    },
+    {
+     "grandeza": "Soma das reações = p·lx·ly",
+     "caminho": "totalReacoes",
+     "valor": 32,
+     "unidade": "kN",
+     "tolerancia": 0.005
+    }
+   ]
+  },
+  {
+   "id": "telhado-terca-biapoiada",
+   "titulo": "Telhado de fibrocimento, vão 10 m, 15 %, 4 painéis, tesouras a 3 m: terça 6 × 16 D40 biapoiada",
+   "fonte": "Resistência dos materiais: Md = (γg·g + γq·q)·L²/8, Vd = (γg·g + γq·q)·L/2, σ = 6·Md/(b·h²); g = telha 0,20 kN/m² × faixa na água + peso próprio (ρ = 750 kg/m³); q = 0,25 kN/m² × faixa × cos α (NBR 6120 em projeção). γg = 1,4 e γq = 1,5 (madeira).",
+   "alvo": "elemento",
+   "modulo": "madeira.telhado",
+   "elemento": {
+    "classe": "D40",
+    "vao": 10,
+    "comprimento": 9,
+    "inclinacao": 15,
+    "beiral": 0,
+    "beiralOitao": 0,
+    "telha": "fibrocimento",
+    "extremidades": "tesouras",
+    "paineis": 4,
+    "espacTesouras": 3.0,
+    "terca": {
+     "b": 6,
+     "h": 16
+    },
+    "cargas": {
+     "sobrecarga": 0.25,
+     "forro": 0,
+     "vento": 0
+    }
+   },
+   "esperado": [
+    {
+     "grandeza": "Faixa de influência na água",
+     "caminho": "geo.lp",
+     "valor": 2.52797,
+     "unidade": "m",
+     "tolerancia": 0.001
+    },
+    {
+     "grandeza": "g da terça",
+     "caminho": "terca.gL",
+     "valor": 0.57623,
+     "unidade": "kN/m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "q da terça",
+     "caminho": "terca.qL",
+     "valor": 0.625,
+     "unidade": "kN/m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Md da terça",
+     "caminho": "terca.Md",
+     "valor": 1.9622,
+     "unidade": "kN·m",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Vd da terça",
+     "caminho": "terca.Vd",
+     "valor": 2.6163,
+     "unidade": "kN",
+     "tolerancia": 0.002
+    },
+    {
+     "grandeza": "Número de tesouras",
+     "caminho": "geo.tesouras.length",
+     "valor": 4,
+     "tolerancia": 0.001
+    }
+   ]
+  },
+  {
+   "id": "radier-rigido-4-pilares",
+   "titulo": "Radier 8 × 6 × 0,30 m sob 4 pilares iguais (300 kN) nos cantos com balanço de 1 m",
+   "fonte": "Método rígido: σ = ΣN/A com ΣN = 4·(N + peso do pilar) + peso próprio do radier (25·h·A) + piso (g + q = 3 kN/m² padrão); carga simétrica → excentricidade nula e σmáx = σméd.",
+   "alvo": "elemento",
+   "modulo": "concreto.radier",
+   "pavimentos": [
+    {
+     "id": "p1",
+     "nome": "Térreo",
+     "cota": 3
+    }
+   ],
+   "outros": [
+    {
+     "id": "pl0",
+     "modulo": "concreto.pilar",
+     "codigo": "P1",
+     "nome": "P1",
+     "bx": 20,
+     "by": 30,
+     "comprimento": 3,
+     "pesoProprio": true,
+     "cargas": [
+      {
+       "id": "c1",
+       "tipo": "concentrada",
+       "natureza": "g",
+       "valor": 300,
+       "descricao": "g"
+      }
+     ],
+     "posicao": {
+      "pavimento": "p1",
+      "x": 1,
+      "y": 1,
+      "angulo": 0
+     }
+    },
+    {
+     "id": "pl1",
+     "modulo": "concreto.pilar",
+     "codigo": "P2",
+     "nome": "P2",
+     "bx": 20,
+     "by": 30,
+     "comprimento": 3,
+     "pesoProprio": true,
+     "cargas": [
+      {
+       "id": "c1",
+       "tipo": "concentrada",
+       "natureza": "g",
+       "valor": 300,
+       "descricao": "g"
+      }
+     ],
+     "posicao": {
+      "pavimento": "p1",
+      "x": 7,
+      "y": 1,
+      "angulo": 0
+     }
+    },
+    {
+     "id": "pl2",
+     "modulo": "concreto.pilar",
+     "codigo": "P3",
+     "nome": "P3",
+     "bx": 20,
+     "by": 30,
+     "comprimento": 3,
+     "pesoProprio": true,
+     "cargas": [
+      {
+       "id": "c1",
+       "tipo": "concentrada",
+       "natureza": "g",
+       "valor": 300,
+       "descricao": "g"
+      }
+     ],
+     "posicao": {
+      "pavimento": "p1",
+      "x": 1,
+      "y": 5,
+      "angulo": 0
+     }
+    },
+    {
+     "id": "pl3",
+     "modulo": "concreto.pilar",
+     "codigo": "P4",
+     "nome": "P4",
+     "bx": 20,
+     "by": 30,
+     "comprimento": 3,
+     "pesoProprio": true,
+     "cargas": [
+      {
+       "id": "c1",
+       "tipo": "concentrada",
+       "natureza": "g",
+       "valor": 300,
+       "descricao": "g"
+      }
+     ],
+     "posicao": {
+      "pavimento": "p1",
+      "x": 7,
+      "y": 5,
+      "angulo": 0
+     }
+    }
+   ],
+   "elemento": {
+    "geometria": {
+     "modo": "manual",
+     "lx": 8,
+     "ly": 6,
+     "h": 30,
+     "balanco": 1
+    },
+    "local": {
+     "x": 0,
+     "y": 0
+    },
+    "solo": {
+     "tensao": 100,
+     "gama": 18
+    }
+   },
+   "esperado": [
+    {
+     "grandeza": "Carga total N",
+     "caminho": "N",
+     "valor": 1722.0,
+     "unidade": "kN",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "σméd = N/A",
+     "caminho": "tensoes.med",
+     "valor": 35.875,
+     "unidade": "kPa",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "σmáx = σméd (carga centrada)",
+     "caminho": "tensoes.max",
+     "valor": 35.875,
+     "unidade": "kPa",
+     "tolerancia": 0.01
+    },
+    {
+     "grandeza": "Pilares sobre o radier",
+     "caminho": "pilares.length",
+     "valor": 4,
+     "tolerancia": 0.001
+    }
+   ]
+  },
+  {
+   "id": "viga-dois-vaos-secoes-diferentes-clapeyron",
+   "titulo": "Módulo Viga: dois vãos com seções diferentes (5 m com 20 × 60 cm e 4 m com 20 × 40 cm), só peso próprio",
+   "fonte": "Equação dos três momentos com inércia diferente em cada vão: 2·M_B·(L1/I1 + L2/I2) = −(q1·L1³/(4·I1) + q2·L2³/(4·I2)), com q = 25·b·h (3,0 e 2,0 kN/m) e I = b·h³/12 (360 000 e 106 667 cm⁴): M_B = −5,453 kN·m; R_A = q1·L1/2 + M_B/L1 = 6,409 kN; R_C = q2·L2/2 + M_B/L2 = 2,637 kN; R_B = 13,954 kN; Md,B = 1,4·M_B.",
+   "alvo": "elemento",
+   "modulo": "concreto.viga",
+   "elemento": {
+    "secao": {
+     "b": 20,
+     "h": 60
+    },
+    "vaos": [
+     {
+      "L": 5,
+      "b": 20,
+      "h": 60
+     },
+     {
+      "L": 4,
+      "b": 20,
+      "h": 40
+     }
+    ],
+    "apoios": [
+     "apoio",
+     "apoio",
+     "apoio"
+    ],
+    "pesoProprio": true,
+    "cargas": []
+   },
+   "esperado": [
+    {
+     "grandeza": "Reação permanente A",
+     "caminho": "apoios.0.Rg",
+     "valor": 6.4095,
+     "unidade": "kN",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Reação permanente B",
+     "caminho": "apoios.1.Rg",
+     "valor": 13.9537,
+     "unidade": "kN",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Reação permanente C",
+     "caminho": "apoios.2.Rg",
+     "valor": 2.6368,
+     "unidade": "kN",
+     "tolerancia": 0.005
+    },
+    {
+     "grandeza": "Momento de cálculo no apoio B",
+     "caminho": "apoios.1.Mdneg",
+     "valor": -7.6338,
+     "unidade": "kN·m",
+     "tolerancia": 0.005
+    }
+   ]
+  }
+ ]
 }

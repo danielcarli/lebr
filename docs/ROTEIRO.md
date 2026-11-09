@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 58 feitos, 23 parciais e 33 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 59 feitos, 23 parciais e 33 a fazer.
 
 ## O que existe hoje
 
@@ -211,6 +211,7 @@ Quase toda edificação tem pelo menos uma escada e um reservatório, então est
 | ✅ | Reservatórios | Caixas d'água elevadas e enterradas: paredes como placas, empuxo hidrostático, fissuração mais rígida |
 | ◐ | Marquises e balanços | Verificação de equilíbrio, tombamento e engaste na viga, com γn |
 | ○ | Consolos e dentes | Consolos curtos e muito curtos por bielas e tirantes (NBR 6118, 22.5) |
+| ✅ | Seção própria em cada vão da viga | Largura, altura e situação (normal ou invertida) por vão: rigidez de cada vão na análise, dimensionamento com a seção do vão, barras ancoradas no apoio onde a face muda de nível, desenhos, 3D, DXF e quantitativos vão a vão — feito na 0.63.0 |
 | ✅ | Vigas T e L | Laje moldada junto como mesa colaborante (NBR 6118, 14.6.2.2): largura bf por tramo, flexão com a linha neutra na mesa ou na alma, ligação mesa–alma (18.3.7), flechas e fissuras com a seção T — feito na 0.53.0 |
 | ✅ | Telhado e tesouras de madeira | Telhado de duas águas com telhas, ripas, caibros e terças verificados, tesoura Howe ou Pratt com esforços nas barras, flambagem, entalhe do nó de apoio e flecha; cargas ligadas às vigas e o telhado completo na visualização 3D — feito na 0.60.0 |
 | ✅ | Dobras das barras pela Tabela 9.1 | Armadura em 3D com as dobras em arco pelo pino da NBR 6118 (5ø ou 8ø no CA-50) e ganchos a 90° com ponta reta de 8ø depois da dobra — feito na 0.60.0 |
