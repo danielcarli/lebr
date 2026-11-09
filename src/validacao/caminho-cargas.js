@@ -99,6 +99,8 @@ export function fechamentoDoCaminhoDasCargas(projeto) {
     if (e.modulo === 'concreto.sapata' || e.modulo === 'concreto.bloco') { fundacao.g += r.Nk?.g ?? 0; fundacao.q += r.Nk?.q ?? 0; fundacao.n++; }
     if (e.modulo === 'concreto.radier') { for (const p of r.pilares ?? []) { fundacao.g += p.g ?? p.Nk; fundacao.q += p.q ?? 0; } fundacao.n++; }
     if (e.modulo === 'concreto.sapataCorrida' && r.viga) { fundacao.g += r.nk.g * r.L; fundacao.q += r.nk.q * r.L; fundacao.n++; }
+    // estaca isolada sob o pilar (sem bloco): a carga de trabalho é a do pilar
+    if (e.modulo === 'geotecnia.estaca' && e.pilarId && r.Nk && !els.some((b) => b.modulo === 'concreto.bloco' && b.pilarId === e.pilarId)) { fundacao.g += r.Nk; fundacao.n++; }
   }
   // pilares cujo lance mais baixo não tem fundação no projeto: contam como "chegam ao terreno" pela base
   const temFund = (id) => els.some((f) => (f.pilarId === id) || (f.modulo === 'concreto.radier' && (f.resultado?.pilares ?? []).some((p) => p.id === id)));

@@ -60,6 +60,7 @@ export function s(tag, props, ...filhos) {
     if (v == null || v === false) continue;
     if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
     else if (k === 'style' && typeof v === 'object') estilo(el, v);
+    else if (k === 'class' && Array.isArray(v)) { const c = v.filter(Boolean).join(' '); if (c) el.setAttribute('class', c); }
     else el.setAttribute(k, v);
   }
   anexar(el, filhos);

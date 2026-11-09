@@ -19,6 +19,7 @@ import { calcularEstaca, criarEstaca } from './calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
 import { pilaresDeFundacao } from '../concreto-sapata/calculo.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { vista3dFundacao } from '../comum/vista3d-fundacao.js';
 import { modeloEstaca } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
@@ -173,6 +174,10 @@ export default function moduloEstaca(api) {
           colunas: [{ titulo: 'L (m)', alinhar: 'dir' }, { titulo: 'Aoki-Velloso (kN)', alinhar: 'dir' }, { titulo: 'Décourt-Quaresma (kN)', alinhar: 'dir' }, { titulo: 'Adotada (kN)', alinhar: 'dir' }],
           linhas: r.curva.map((c) => [c.L === r.L ? h('b', null, num(c.L, 0)) : num(c.L, 0), num(c.av, 1), num(c.dq, 1), h('b', null, num(c.adotada, 1))]),
         })],
+      }));
+      if (r.detalhamento?.posicoes?.length) raiz.append(ui.secao({
+        numero: '05', titulo: 'Desenho', descricao: `${r.nomeTipo} ø ${num(r.D, 0)} cm · L = ${num(r.L, 1)} m · gaiola de armadura e espera para o bloco`,
+        filhos: [vista3dFundacao(api, ctx, r, (posicoes) => modeloEstaca(ctx.elemento, r, posicoes), { titulo: 'VISTA 3D · ESTACA E GAIOLA', altura: 460 })],
       }));
       const ae = r.armadura;
       if (ae) raiz.append(ui.secao({

@@ -248,6 +248,7 @@ function menuElemento(el) {
     '-',
     { rotulo: 'Editar código e nome…', icone: 'editar', tecla: 'F2', acao: () => comandos.executar('elemento.renomear', el.id) },
     { rotulo: 'Duplicar', icone: 'copiar', acao: () => comandos.executar('elemento.duplicar', el.id) },
+    /laje\.(macica|trelicada|nervurada|alveolar)$/.test(el.modulo) ? { rotulo: 'Converter em outro tipo de laje…', icone: 'laje', acao: () => comandos.executar('elemento.converterLaje', el.id) } : null,
     '-',
     { rotulo: 'Excluir', icone: 'lixeira', tecla: 'Delete', perigo: true, acao: () => comandos.executar('elemento.excluir', el.id) },
   ];

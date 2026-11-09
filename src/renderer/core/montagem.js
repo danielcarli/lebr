@@ -758,7 +758,8 @@ export const apoiosIntermediariosDaEscada = (projeto, esc) => new Set((escadaNaP
 
 /* ------------------------------------------------------------------ estado da montagem por elemento */
 
-export const FUNDACOES_PILAR = ['concreto.sapata', 'concreto.bloco'];
+/** Fundações ligadas a um pilar (0.65: também a estaca isolada, direto sob o pilar, sem bloco). */
+export const FUNDACOES_PILAR = ['concreto.sapata', 'concreto.bloco', 'geotecnia.estaca'];
 
 /**
  * Radier que recebe o pilar: o que o lista em `pilares`, ou — com a lista vazia — qualquer radier, desde que o pilar
@@ -781,7 +782,7 @@ export function radierDoPilar(projeto, pilar) {
   return null;
 }
 
-/** Fundação sob o pilar: sapata ou bloco ligados a ele, ou o radier que o recebe. */
+/** Fundação sob o pilar: sapata, bloco ou estaca isolada ligados a ele, ou o radier que o recebe. */
 export function fundacaoDoPilar(projeto, pilar) {
   return (projeto?.elementos ?? []).find((e) => FUNDACOES_PILAR.includes(e.modulo) && e.pilarId === pilar?.id) ?? radierDoPilar(projeto, pilar);
 }
@@ -821,7 +822,7 @@ export function estadoMontagem(projeto, registro) {
   for (const el of els) {
     const tipo = tipoDe(el, registro);
     if (FUNDACOES_PILAR.includes(el.modulo)) {
-      if (!el.pilarId) { mapa.set(el.id, { estado: 'sem-posicao', problemas: ['Sem pilar ligado.'] }); continue; }
+      if (!el.pilarId) { if (el.modulo !== 'geotecnia.estaca') mapa.set(el.id, { estado: 'sem-posicao', problemas: ['Sem pilar ligado.'] }); continue; }
       const p = porId.get(el.pilarId);
       const pr = problemas(el.id);
       if (!p) pr.push('O pilar ligado não existe mais.');
@@ -848,6 +849,8 @@ export function estadoMontagem(projeto, registro) {
       }
       // viga apoiada em outra viga: o apoio fica sobre o eixo de uma viga do mesmo pavimento (a grelha liga as duas)
       if (tipo === 'viga' && /^apoio-\d+$/.test(l.id) && sobreOutraViga(el, Number(l.id.split('-')[1]))) continue;
+      // viga sobre sapata corrida: a sapata recebe a viga inteira, não há pilar nos apoios
+      if (tipo === 'viga' && /^apoio-\d+$/.test(l.id) && els.some((s) => s.modulo === 'concreto.sapataCorrida' && s.vigaId === el.id)) continue;
       // patamar intermediário da escada: não há nível de piso ali (apoio em viga de patamar ou parede, fora da montagem)
       if (tipo === 'escada' && intermediarios(el).has(l.id)) continue;
       pr.push(`${l.nome ?? l.id}: sem elemento de apoio ligado.`);

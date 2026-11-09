@@ -50,11 +50,14 @@ import {
 import { grelhaDoPavimento, modoDoPavimento } from '../../modules/comum/grelha.js';
 import { secaoDoVao, vaosInvertidos } from '../../engine/viga-secoes.js';
 import {
-  camadaFundo, pontosDoFundo, camadaEixos, cruzamentosDosEixos, encaixarEmEixos, blocoFundo, passoMalha, plantaDoDxf, fundoInicial, plantaDe, transformacaoFundo,
+  camadaFundo, pontosDoFundo, blocoFundo, passoMalha, plantaDoDxf, fundoInicial, plantaDe, transformacaoFundo,
 } from './montagem-fundo.js';
+import * as nucleoEixos from '../core/eixos.js';
+import { listaEixos, nosDosEixos, cruzamentosDosEixos, eixoPerto, projetarNoEixo, distanciaAoEixo, cotasDosEixos } from '../core/eixos.js';
+import { camadaEixos, encaixarEmEixos, blocoEixos, cartaoEixo, eixosLevamElementos, distanciaDuplicar, eixosVisiveis, definirEixosVisiveis, passoDaSeta } from './montagem-eixos.js';
 
 /** Estado da vista (sobrevive aos redesenhos da aba). */
-const vista = { projeto: null, pav: null, cx: 4, cy: 2.5, esc: 60, sel: null, foco: null, marca: null, modo: null, subModo: null, pincel: null, lateralSobre: false, cadeia: [], cursor: null, enquadrar: true, conhecidos: null, novos: new Set(), ordem: 'alfabetica', moverFundo: false };
+const vista = { projeto: null, pav: null, cx: 4, cy: 2.5, esc: 60, sel: null, selEixo: null, foco: null, marca: null, modo: null, subModo: null, pincel: null, lateralSobre: false, cadeia: [], cursor: null, enquadrar: true, conhecidos: null, novos: new Set(), ordem: 'alfabetica', moverFundo: false };
 
 const GRADE = 0.05;               // m — passo do arrasto
 const IMA_PX = 12;                // distância de encaixe magnético na tela
@@ -97,7 +100,7 @@ const aberto = (k) => prefsUi()[k] ?? (k === 'cartaoMais' ? false : k === 'later
 /** Outro projeto aberto: a vista começa do zero (sem seleção, enquadrando o pavimento). */
 function reiniciarVistaSeOutroProjeto(p) {
   const chave = p?.meta?.criadoEm ?? p?.meta?.nome;
-  if (vista.projeto !== chave) Object.assign(vista, { projeto: chave, pav: null, sel: null, foco: null, marca: null, modo: null, subModo: null, pincel: null, cadeia: [], cursor: null, enquadrar: true, conhecidos: null, novos: new Set() });
+  if (vista.projeto !== chave) Object.assign(vista, { projeto: chave, pav: null, sel: null, selEixo: null, foco: null, marca: null, modo: null, subModo: null, pincel: null, cadeia: [], cursor: null, enquadrar: true, conhecidos: null, novos: new Set() });
 }
 
 /**
@@ -300,12 +303,15 @@ function renderizar(container, acoes) {
     const lim = IMA_PX / vista.esc;
     const pl = pilarPerto(estado.projeto, modulos, vista.pav, [x, y], Math.max(1.6 * lim, 0.2)) ?? doPav.find((e) => tipo(e) === 'pilar' && distanciaAoPilar([x, y], e).dentro);
     if (pl) return { p: centroPilar(pl), pilar: pl };
-    const alvos = doPav.flatMap((e) => pontosDeEncaixe(e, tipo(e)).concat(tipo(e) === 'laje' ? cantosLaje(e) : [])).concat(cruzamentosDosEixos(estado.projeto));
+    const alvos = doPav.flatMap((e) => pontosDeEncaixe(e, tipo(e)).concat(tipo(e) === 'laje' ? cantosLaje(e) : [])).concat(comEixos() ? cruzamentosDosEixos(estado.projeto) : []);
     let melhor = null;
     for (const a of alvos) { const d = Math.hypot(a[0] - x, a[1] - y); if (d < lim && (!melhor || d < melhor.d)) melhor = { d, a }; }
     if (melhor) return { p: melhor.a };
     const ult = vista.cadeia[vista.cadeia.length - 1];
     if (ortogonal && ult) return Math.abs(x - ult[0]) >= Math.abs(y - ult[1]) ? { p: [arred(x), ult[1]] } : { p: [ult[0], arred(y)] };
+    // perto de um eixo: o ponto encosta nele
+    const ex = comEixos() && eixoPerto(estado.projeto, [x, y], lim);
+    if (ex) { const q = projetarNoEixo([x, y], ex); return { p: [Math.round(q[0] * 1000) / 1000, Math.round(q[1] * 1000) / 1000] }; }
     const malha = passoMalha() || GRADE;
     return { p: [arred(x, malha), arred(y, malha)] };
   }
@@ -340,6 +346,19 @@ function renderizar(container, acoes) {
       }
       return;
     }
+    if (vista.modo === 'eixo') {
+      const a = vista.cadeia[0], b = vista.cursor;
+      if (a && b && Math.hypot(b[0] - a[0], b[1] - a[1]) > 1e-6) {
+        const L = Math.hypot(b[0] - a[0], b[1] - a[1]), u = [(b[0] - a[0]) / L, (b[1] - a[1]) / L], far = 2000 / vista.esc;
+        const p0 = tela([a[0] - u[0] * far, a[1] - u[1] * far]), p1 = tela([a[0] + u[0] * far, a[1] + u[1] * far]);
+        camadaModo.append(s('line', { x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1], class: 'mont-eixo previa' }));
+        const ang = ((Math.atan2(u[1], u[0]) * 180) / Math.PI + 180) % 180;
+        const m = tela(b);
+        camadaModo.append(s('text', { x: m[0] + 10, y: m[1] - 10, class: 'mont-cadeia-rot' }, `${num(ang, 1)}°`));
+      }
+      for (const p0 of vista.cadeia) { const [x, y] = tela(p0); camadaModo.append(s('circle', { cx: x, cy: y, r: 4, class: 'mont-cadeia-no' })); }
+      return;
+    }
     if (vista.modo !== 'cadeia') return;
     const pts = vista.cursor ? [...vista.cadeia, vista.cursor] : vista.cadeia;
     if (pts.length > 1) camadaModo.append(s('polyline', { points: pontos(pts), class: 'mont-cadeia-linha' }));
@@ -360,8 +379,48 @@ function renderizar(container, acoes) {
     for (const p of vista.cadeia) { const [x, y] = tela(p); camadaModo.append(s('circle', { cx: x, cy: y, r: 4, class: 'mont-cadeia-no' })); }
   }
 
+  /** Eixos à vista (ou o modo Desenhar eixo / Cota ligado): só então desenham e atraem os elementos. */
+  function comEixos() { return eixosVisiveis() || vista.modo === 'eixo' || vista.modo === 'cota'; }
+  /** Ocultar e reexibir os eixos, as cotas e os nós (Shift+E). */
+  function alternarEixosVisiveis() {
+    const v = !eixosVisiveis();
+    definirEixosVisiveis(v);
+    if (!v) vista.selEixo = null;
+    renderizarTudo();
+    notificar(v ? 'Eixos à vista.' : 'Eixos ocultos — não aparecem nem atraem os elementos. Shift+E mostra de novo.', 'info');
+  }
+  /** Mover todos os eixos de Δx e Δy. */
+  async function moverTodosEixos() {
+    let dx = 0, dy = 0;
+    const r = await dialogo({
+      rotulo: 'Eixos', titulo: 'Mover todos os eixos',
+      texto: `Todos os eixos andam o mesmo deslocamento${eixosLevamElementos() ? '; os elementos sobre eles vão junto (desligue “Elementos acompanham os eixos” para mover só os eixos)' : '; os elementos ficam onde estão'}.`,
+      corpo: () => [h('div', { class: 'mont-sel-campos' },
+        ui.campo({ rotulo: 'Δx', valor: 0, unidade: 'm', casas: 3, min: -10000, max: 10000, aoMudar: (v) => { dx = v; } }),
+        ui.campo({ rotulo: 'Δy', valor: 0, unidade: 'm', casas: 3, min: -10000, max: 10000, aoMudar: (v) => { dy = v; } }))],
+      botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: null }, { texto: 'Mover', tipo: 'primario', valor: () => 'ok', padrao: true }],
+      largura: '420px',
+    });
+    if (r !== 'ok' || (!dx && !dy)) return;
+    alterarEixos((pp, op, n) => {
+      const novos = {};
+      for (const e of n.listaEixos(pp)) novos[e.id] = Math.round((e.d + dx * e.n[0] + dy * e.n[1]) * 1e6) / 1e6;
+      return n.moverEixos(pp, novos, op);
+    }, `Mover todos os eixos (${num(dx, 2)}; ${num(dy, 2)}) m`);
+  }
+  /** Setas com um eixo selecionado: anda na perpendicular o passo de mover (Shift: 10 vezes). */
+  function moverEixoSel(sx, sy, fator) {
+    const ex = listaEixos(estado.projeto).find((x) => x.id === vista.selEixo);
+    if (!ex) return false;
+    const d = passoDaSeta(ex, sx, sy, passoMover() * fator);
+    if (!d) return true;
+    alterarEixos((pp, op, n) => n.moverEixo(pp, ex.id, Math.round((ex.d + d) * 1e6) / 1e6, op), `Mover o eixo ${ex.nome}`);
+    return true;
+  }
+
   function modoLancamento(modo) {
     vista.modo = vista.modo === modo ? null : modo;
+    if ((vista.modo === 'eixo' || vista.modo === 'cota') && !eixosVisiveis()) { definirEixosVisiveis(true); notificar('Eixos à vista de novo.', 'info'); }
     vista.cadeia = []; vista.cursor = null; vista.subModo = null;
     renderizarTudo();
   }
@@ -489,6 +548,15 @@ function renderizar(container, acoes) {
   function caixaDoModo() {
     if (vista.modo === 'pincel') return caixaDoPincel();
     if (vista.modo === 'laje') return caixaDaLaje();
+    if (vista.modo === 'eixo' || vista.modo === 'cota') {
+      const eixo = vista.modo === 'eixo';
+      return caixaRecolhivel(
+        h('div', { class: 'mont-modo-cab' }, icone(eixo ? 'eixo' : 'cota', { tamanho: 14 }), h('strong', null, eixo ? 'Desenhar eixo' : 'Cota entre eixos'), h('span', { style: { flex: '1' } }),
+          ui.botaoIcone({ icone: 'fechar', titulo: 'Sair (Esc)', aoClicar: () => modoLancamento(vista.modo) })),
+        h('p', { class: 'mont-dica' }, eixo
+          ? 'Clique em dois pontos: o eixo passa por eles e segue por toda a planta. Os pontos encaixam em pilares, cantos, nós e outros eixos; com Shift o eixo fica horizontal ou vertical. Para um eixo paralelo a outro, selecione o eixo e use Duplicar (D). Esc sai.'
+          : 'Pressione sobre um eixo e arraste até outro eixo paralelo: a cota fica na planta e o número abre a distância para digitar — o eixo de chegada e os seguintes vão para a nova distância. Esc sai.'));
+    }
     if (vista.modo !== 'cadeia') return null;
     const d = dadosAtuais(estado.projeto, 'viga');
     const mudar = (parcial, texto) => alterar((pp) => definirDadosAtuais(pp, 'viga', parcial), texto, { invalidar: false });
@@ -673,15 +741,25 @@ function renderizar(container, acoes) {
     // grade de 1 m (e eixos)
     const [mx0, my1] = mundo(0, 0), [mx1, my0] = mundo(W, H);
     const malha = passoMalha();
-    const passo = malha && malha * vista.esc >= 9 ? malha : vista.esc < 14 ? 5 : 1;
+    let passo = malha && malha * vista.esc >= 9 ? malha : vista.esc < 14 ? 5 : 1;
+    while (passo * vista.esc < 6) passo *= 5;   // muito afastado: linhas a cada 25 m, 125 m…
     const grade = s('g', { class: ['mont-grade', malha && passo === malha && 'malha'] });
-    for (let x = Math.ceil(mx0 / passo) * passo; x <= mx1; x += passo) { const [px] = tela([x, 0]); grade.append(s('line', { x1: px, y1: 0, x2: px, y2: H, class: Math.abs(x) < 1e-9 ? 'eixo' : '' })); }
-    for (let y = Math.ceil(my0 / passo) * passo; y <= my1; y += passo) { const [, py] = tela([0, y]); grade.append(s('line', { x1: 0, y1: py, x2: W, y2: py, class: Math.abs(y) < 1e-9 ? 'eixo' : '' })); }
+    // linhas presas às coordenadas da planta (múltiplos inteiros do passo): andam e aproximam junto com os elementos;
+    // a cada 5 passos, uma linha mais marcada
+    // de perto, uma quadrícula fina a cada 1/5 do passo (como o papel milimetrado do tema blueprint)
+    const fina = passo * vista.esc >= 50 ? 5 : 1, p0 = passo / fina;
+    const classe = (k) => (k === 0 ? 'eixo' : k % (5 * fina) === 0 ? 'maior' : k % fina === 0 ? '' : 'fina');
+    for (let k = Math.ceil(mx0 / p0 - 1e-9); k * p0 <= mx1; k++) { const [px] = tela([k * p0, 0]); grade.append(s('line', { x1: px, y1: 0, x2: px, y2: H, class: classe(k) })); }
+    for (let k = Math.ceil(my0 / p0 - 1e-9); k * p0 <= my1; k++) { const [, py] = tela([0, k * p0]); grade.append(s('line', { x1: 0, y1: py, x2: W, y2: py, class: classe(k) })); }
     svg.append(grade);
     // planta de arquitetura (DXF) e eixos do projeto
     const fundo = camadaFundo(estado.projeto, pavimento(estado.projeto, vista.pav), tela, vista.esc);
     if (fundo) { if (arrasto?.tipo === 'fundo') fundo.setAttribute('transform', `translate(${arrasto.dx * vista.esc} ${-arrasto.dy * vista.esc})`); svg.append(fundo); }
-    const eixos = camadaEixos(estado.projeto, tela, mundo, W, H);
+    const eixos = comEixos() && camadaEixos(estado.projeto, {
+      tela, W, H, sel: vista.selEixo,
+      previa: arrasto?.tipo === 'eixo' && arrasto.moveu ? { id: arrasto.id, d: arrasto.dNovo } : null,
+      cotaPrevia: arrasto?.tipo === 'cota' ? arrasto.previa : null,
+    });
     if (eixos) svg.append(eixos);
     const ordem = { laje: 0, reservatorio: 0.4, escada: 0.5, viga: 1, pilar: 2 };
     // pavimento de baixo, esmaecido, como referência para alinhar
@@ -736,13 +814,44 @@ function renderizar(container, acoes) {
 
   svg.addEventListener('click', (e) => {
     const cruz = e.target.closest?.('.mont-cruz');
-    if (cruz) { e.stopPropagation(); menuCruzamento(cruz.dataset.chave, e); }
+    if (cruz) { e.stopPropagation(); menuCruzamento(cruz.dataset.chave, e); return; }
+    if (vista.modo) return;
+    const cota = e.target.closest?.('.mont-cota-txt') && e.target.closest('.mont-cota');
+    if (cota?.dataset.cota) { e.stopPropagation(); editarCota(cota.dataset.cota); return; }
+    const no = e.target.closest?.('.mont-no');
+    if (no) { e.stopPropagation(); menuNo(no.dataset.no, e); }
   });
   svg.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     // gaveta aberta numa tela estreita: o clique na planta fecha a gaveta
     if (vista.lateralSobre) { vista.lateralSobre = false; raiz.classList.remove('lateral-aberta'); }
     if (e.target.closest?.('.mont-cruz')) return; // o menu do cruzamento abre no click
+    if (!vista.modo && (e.target.closest?.('.mont-no') || e.target.closest?.('.mont-cota-txt'))) return; // nó e cota: no click
+    // ferramenta Cota: arrastar de um eixo até outro paralelo
+    if (vista.modo === 'cota') {
+      const r0 = svg.getBoundingClientRect(), esc0 = W / r0.width;
+      const pm = mundo((e.clientX - r0.left) * esc0, (e.clientY - r0.top) * esc0);
+      const ex = eixoPerto(estado.projeto, pm, (IMA_PX * 1.5) / vista.esc);
+      if (!ex) { notificar('Comece a cota sobre um eixo e arraste até outro eixo paralelo.', 'info'); return; }
+      svg.setPointerCapture(e.pointerId);
+      const sAlong = (pm[0] - ex.p[0]) * ex.u[0] + (pm[1] - ex.p[1]) * ex.u[1];
+      arrasto = { tipo: 'cota', eixo: ex, s: sAlong, x0: e.clientX, y0: e.clientY, escala: esc0, moveu: false, previa: null, alvo: null };
+      return;
+    }
+    // eixo: selecionar e arrastar na perpendicular
+    const gEixo = !vista.modo && e.target.closest?.('[data-eixo]');
+    if (gEixo) {
+      const ex = listaEixos(estado.projeto).find((x) => x.id === gEixo.dataset.eixo);
+      if (ex) {
+        const r0 = svg.getBoundingClientRect();
+        svg.setPointerCapture(e.pointerId);
+        if (vista.selEixo !== ex.id || vista.sel) { vista.selEixo = ex.id; vista.sel = null; desenharPlanta(); desenharLateral(); }
+        // pontos dos elementos do pavimento e nós dos outros eixos: o eixo encosta neles ao ser arrastado
+        const alvosD = doPav.flatMap((x) => pontosDeEncaixe(x, tipo(x))).concat(nosDosEixos(estado.projeto).filter((n) => !n.eixos.includes(ex.id)).map((n) => n.p)).map((q) => q[0] * ex.n[0] + q[1] * ex.n[1]);
+        arrasto = { tipo: 'eixo', id: ex.id, eixo: ex, d0: ex.d, dNovo: ex.d, alvosD, x0: e.clientX, y0: e.clientY, escala: W / r0.width, moveu: false };
+        return;
+      }
+    }
     if (vista.modo === 'pincel') {
       const alvoEl = e.target.closest?.('.mont-el:not(.fantasma)');
       if (alvoEl) {
@@ -766,14 +875,14 @@ function renderizar(container, acoes) {
     svg.setPointerCapture(e.pointerId);
     if (alvo) {
       const el = estado.elemento(alvo.dataset.id);
-      if (vista.sel !== el.id) { vista.sel = el.id; desenharPlanta(); desenharLateral(); }
+      if (vista.sel !== el.id || vista.selEixo) { vista.sel = el.id; vista.selEixo = null; desenharPlanta(); desenharLateral(); }
       const g = camadaEls.querySelector(`[data-id="${el.id}"]`);
       const t = tipo(el);
       const meus = pontosDeEncaixe(el, t);
       const [vx0, vy1] = mundo(0, 0), [vx1, vy0] = mundo(W, H);
       const alvos = doPav.filter((x) => x.id !== el.id).concat(referencia).flatMap((x) => pontosDeEncaixe(x, tipo(x)))
         .concat(t === 'pilar' ? pilaresAcima.map(centroPilar) : [])
-        .concat(cruzamentosDosEixos(estado.projeto))
+        .concat(comEixos() ? cruzamentosDosEixos(estado.projeto) : [])
         .concat(pontosDoFundo(estado.projeto, pavimento(estado.projeto, vista.pav), [vx0, vy0, vx1, vy1]));
       arrasto = { tipo: 'el', el, g, x0: e.clientX, y0: e.clientY, escala, meus, alvos, dx: 0, dy: 0, moveu: false };
     } else if (vista.moverFundo && plantaDe(estado.projeto, pavimento(estado.projeto, vista.pav))) {
@@ -798,6 +907,28 @@ function renderizar(container, acoes) {
       desenharPlanta();
       return;
     }
+    if (arrasto.tipo === 'eixo') {
+      const ex = arrasto.eixo;
+      let d = arrasto.d0 + (dpx / vista.esc) * ex.n[0] + (-dpy / vista.esc) * ex.n[1];
+      const lim = IMA_PX / vista.esc;
+      const perto = arrasto.alvosD.reduce((m, q) => (Math.abs(q - d) < lim && (m == null || Math.abs(q - d) < Math.abs(m - d)) ? q : m), null);
+      arrasto.dNovo = perto ?? arred(d, passoMalha() || GRADE);
+      desenharPlanta();
+      return;
+    }
+    if (arrasto.tipo === 'cota') {
+      const r0 = svg.getBoundingClientRect();
+      const pm = mundo((e.clientX - r0.left) * arrasto.escala, (e.clientY - r0.top) * arrasto.escala);
+      const ex = arrasto.eixo;
+      const outro = listaEixos(estado.projeto).filter((x) => x.familia === ex.familia && x.id !== ex.id && distanciaAoEixo(pm, x) < (IMA_PX * 1.5) / vista.esc).sort((a, b) => distanciaAoEixo(pm, a) - distanciaAoEixo(pm, b))[0] ?? null;
+      const pa = [ex.p[0] + ex.u[0] * arrasto.s, ex.p[1] + ex.u[1] * arrasto.s];
+      const dd = outro ? outro.d - ex.d : (pm[0] - pa[0]) * ex.n[0] + (pm[1] - pa[1]) * ex.n[1];
+      const pb = [pa[0] + ex.n[0] * dd, pa[1] + ex.n[1] * dd];
+      arrasto.alvo = outro;
+      arrasto.previa = { previa: true, pa, pb, dist: Math.abs(dd), eixoA: ex, eixoB: outro ?? ex };
+      desenharPlanta();
+      return;
+    }
     if (arrasto.tipo === 'fundo') {
       arrasto.dx = dpx / vista.esc; arrasto.dy = -dpy / vista.esc;
       svg.querySelector('.mont-fundo')?.setAttribute('transform', `translate(${dpx} ${dpy})`);
@@ -816,7 +947,7 @@ function renderizar(container, acoes) {
     else {
       marcaIma.style.display = 'none';
       // sem ponto de encaixe por perto: encosta nos eixos ou, com a malha ligada, leva o ponto de inserção para a malha
-      const ei = encaixarEmEixos(estado.projeto, arrasto.meus, dpx / vista.esc, -dpy / vista.esc, lim);
+      const ei = comEixos() ? encaixarEmEixos(estado.projeto, arrasto.meus, dpx / vista.esc, -dpy / vista.esc, lim) : { eixo: false };
       if (ei.eixo) { dx = arred(ei.dx, 0.001); dy = arred(ei.dy, 0.001); }
       else {
         const malha = passoMalha();
@@ -831,9 +962,35 @@ function renderizar(container, acoes) {
     if (!arrasto) return;
     const a = arrasto;
     arrasto = null;
+    if (a.tipo === 'eixo') {
+      if (!a.moveu || Math.abs(a.dNovo - a.d0) < 1e-9) { desenharPlanta(); return; }
+      alterarEixos((pp, op, n) => n.moverEixo(pp, a.id, a.dNovo, op), `Mover o eixo ${a.eixo.nome}`);
+      return;
+    }
+    if (a.tipo === 'cota') {
+      const alvo = a.alvo;
+      if (!alvo) { desenharPlanta(); if (a.moveu) notificar('Solte a cota sobre um eixo paralelo ao de partida.', 'info'); return; }
+      let id = null;
+      alterar((pp) => { id = nucleoEixos.criarCota(pp, a.eixo.id, alvo.id, a.s); }, `Cota ${a.eixo.nome}–${alvo.nome}`, { invalidar: false });
+      if (id) editarCota(id);
+      return;
+    }
     if (a.tipo === 'pan' && a.modo) {
       if (a.moveu || vista.modo === 'pincel') return;
       if (vista.modo === 'laje') { cliqueDaLaje(mundo(a.px, a.py), a.shift, a.alvo); return; }
+      if (vista.modo === 'cota') return;
+      if (vista.modo === 'eixo') {
+        const { p } = pontoDoLancamento(mundo(a.px, a.py), a.shift);
+        if (!vista.cadeia.length) { vista.cadeia = [p]; desenharPrevia(); return; }
+        const p0 = vista.cadeia[0];
+        vista.cadeia = []; vista.cursor = null;
+        let id = null;
+        alterar((pp) => { id = nucleoEixos.criarEixoPorDoisPontos(pp, p0, p); }, 'Novo eixo', { invalidar: false });
+        if (!id) { notificar('Os dois pontos coincidem: clique em pontos diferentes.', 'info'); desenharPrevia(); return; }
+        vista.selEixo = id; vista.sel = null;
+        renderizarTudo();
+        return;
+      }
       const { p } = pontoDoLancamento(mundo(a.px, a.py), a.shift);
       const ult = vista.cadeia[vista.cadeia.length - 1];
       // clicar de novo no último ponto conclui
@@ -843,7 +1000,7 @@ function renderizar(container, acoes) {
       if (vista.cadeia.length === 1) desenharLateral();
       return;
     }
-    if (a.tipo === 'pan') { if (!a.moveu && (vista.sel || vista.marca)) { vista.sel = null; vista.marca = null; desenharPlanta(); desenharLateral(); } return; }
+    if (a.tipo === 'pan') { if (!a.moveu && (vista.sel || vista.marca || vista.selEixo)) { vista.sel = null; vista.marca = null; vista.selEixo = null; desenharPlanta(); desenharLateral(); } return; }
     if (a.tipo === 'fundo') {
       if (!a.moveu) return;
       alterar((proj) => { const pv = pavimento(proj, vista.pav); pv.fundo.dx = Math.round(((pv.fundo.dx ?? 0) + a.dx) * 1000) / 1000; pv.fundo.dy = Math.round(((pv.fundo.dy ?? 0) + a.dy) * 1000) / 1000; }, 'Mover a planta de fundo');
@@ -865,13 +1022,13 @@ function renderizar(container, acoes) {
   });
 
   /* ------------------------------------------------------------ ações */
-  function posicionar(el, pav = vista.pav) {
+  function posicionar(el, pav = vista.pav, ponto = null) {
     const t = tipo(el);
     vista.sel = el.id;
     vista.novos.delete(el.id);
     alterar((proj) => {
       const e = elDoProjeto(proj, el.id);
-      e.posicao = { pavimento: pav, x: arred(vista.cx, 0.5), y: arred(vista.cy, 0.5), angulo: 0 };
+      e.posicao = { pavimento: pav, x: ponto ? ponto[0] : arred(vista.cx, 0.5), y: ponto ? ponto[1] : arred(vista.cy, 0.5), angulo: 0 };
       const pd = peDireito(proj, pav);
       if (t === 'pilar' && pd > 0 && e.comprimento != null) e.comprimento = pd;
     }, `Posicionar ${el.codigo}`, { invalidar: tipo(el) === 'pilar', elementoId: el.id });
@@ -881,7 +1038,12 @@ function renderizar(container, acoes) {
     const grupos = modulos.categorias().map((c) => ({ c, mods: modulos.daCategoria(c.id).filter((m) => m.montagem !== false) })).filter((g) => g.mods.length);
     abrirMenu(grupos.flatMap((g, i) => [
       ...(i ? ['-'] : []), { cabecalho: g.c.nome },
-      ...g.mods.map((m) => ({ rotulo: m.nome, icone: m.icone, acao: () => {
+      ...g.mods.map((m) => ({ rotulo: m.nome, icone: m.icone, acao: () => criarNaPlanta(m) })),
+    ]), { ancora });
+  }
+
+  /** Cria um elemento do módulo com os dados atuais do tipo e o posiciona (no centro da vista ou num ponto). */
+  function criarNaPlanta(m, ponto = null) {
         const el = estado.criarElemento(m);
         // dados atuais do tipo (seção, critérios, cargas e o próximo código) já no elemento novo
         const tl = tipoDeLancamento(el, modulos);
@@ -898,13 +1060,92 @@ function renderizar(container, acoes) {
             }, { descricao: `Dados atuais em ${el.codigo}`, estrutural: true, invalidar: false });
           }
         }
-        posicionar(estado.elemento(el.id));
+        posicionar(estado.elemento(el.id), vista.pav, ponto);
         // laje nova: a carga padrão do pavimento (L13), se não veio cópia do conta-gotas
         if (tl === 'laje' && !Array.isArray(dadosAtuais(estado.projeto, 'laje').cargas) && (typeof dadosAtuais(estado.projeto, 'laje').cargas !== 'object' || dadosAtuais(estado.projeto, 'laje').cargas === null)) {
           estado.alterar((pp) => { aplicarCargaPadrao(pp, elDoProjeto(pp, el.id)); }, { descricao: `Carga padrão em ${el.codigo}`, estrutural: true, invalidar: false });
         }
-      } })),
-    ]), { ancora });
+        return estado.elemento(el.id);
+  }
+
+  /* ------------------------------------------------------------ eixos (0.65) */
+  /** Edição de eixos com a opção de os elementos acompanharem; os elementos movidos ficam desatualizados. */
+  function alterarEixos(fn, descricao) {
+    let r = null;
+    alterar((pp) => {
+      r = fn(pp, { elementos: eixosLevamElementos(), tipoDe: (el) => tipo(el) }, nucleoEixos);
+      for (const c of r?.elementos ?? []) { const el = pp.elementos.find((x) => (x.codigo ?? x.id) === c); if (el?.resultado) el.resultado.desatualizado = true; }
+    }, descricao, { invalidar: false });
+    if (r?.elementos?.length) acoes.registrarSaida?.(`Eixos: ${r.elementos.length} elemento(s) acompanharam (${r.elementos.slice(0, 12).join(', ')}${r.elementos.length > 12 ? '…' : ''}). Use Conectar para refazer as ligações.`);
+    return r;
+  }
+  function novoEixo(tipoE) {
+    const fam = listaEixos(estado.projeto).filter((e) => e.tipo === tipoE);
+    const ult = fam.at(-1), passo = fam.length > 1 ? fam.at(-1).d - fam.at(-2).d : 4;
+    let id = null;
+    alterar((pp) => {
+      if (ult && tipoE !== 'inclinado') id = nucleoEixos.duplicarEixo(pp, ult.id, passo > 0.05 ? passo : 4);
+      else id = nucleoEixos.criarEixo(pp, [arred(vista.cx, 0.5), arred(vista.cy, 0.5)], tipoE === 'vertical' ? 90 : tipoE === 'horizontal' ? 0 : 45);
+    }, `Novo eixo ${tipoE}`, { invalidar: false });
+    vista.selEixo = id; vista.sel = null;
+    renderizarTudo();
+  }
+  function duplicarEixoSel(lado = 1) {
+    const ex = listaEixos(estado.projeto).find((x) => x.id === vista.selEixo);
+    if (!ex) return false;
+    let id = null;
+    alterar((pp) => { id = nucleoEixos.duplicarEixo(pp, ex.id, lado * distanciaDuplicar(vista.esc)); }, `Duplicar o eixo ${ex.nome}`, { invalidar: false });
+    vista.selEixo = id;
+    renderizarTudo();
+    return true;
+  }
+  function excluirEixoSel() {
+    const ex = listaEixos(estado.projeto).find((x) => x.id === vista.selEixo);
+    if (!ex) return false;
+    alterar((pp) => nucleoEixos.excluirEixo(pp, ex.id), `Excluir o eixo ${ex.nome}`, { invalidar: false });
+    vista.selEixo = null;
+    renderizarTudo();
+    return true;
+  }
+  /** Distância de uma cota: digitada num diálogo; o eixo de chegada e os seguintes vão junto. */
+  async function editarCota(id) {
+    const c = cotasDosEixos(estado.projeto).find((x) => x.id === id);
+    if (!c) return;
+    let valor = c.dist;
+    const r = await dialogo({
+      rotulo: 'Cota', titulo: `Distância ${c.eixoA.nome} → ${c.eixoB.nome}`,
+      texto: `O eixo ${c.eixoB.nome} vai para essa distância de ${c.eixoA.nome}; os eixos depois dele acompanham${eixosLevamElementos() ? ', e os elementos sobre eles também' : ''}.`,
+      corpo: () => [ui.campo({ rotulo: 'Distância', valor, unidade: 'm', casas: 3, min: 0, max: 1000, aoMudar: (v) => { valor = v; } })],
+      botoes: [{ texto: 'Excluir a cota', tipo: 'fantasma', valor: 'excluir' }, { texto: 'Cancelar', tipo: 'fantasma', valor: null }, { texto: 'Aplicar', tipo: 'primario', valor: () => 'ok', padrao: true }],
+      largura: '420px',
+    });
+    if (r === 'excluir') { alterar((pp) => nucleoEixos.excluirCota(pp, id), 'Excluir cota', { invalidar: false }); return; }
+    if (r !== 'ok' || !(valor >= 0) || Math.abs(valor - c.dist) < 1e-9) { desenharPlanta(); return; }
+    alterarEixos((pp, op, n) => n.definirDistancia(pp, c.a, c.b, valor, op), `Distância ${c.eixoA.nome}–${c.eixoB.nome}: ${num(valor, 2)} m`);
+  }
+  /** Menu de um nó: pilar novo, pôr um pilar ainda não posicionado, levar o elemento selecionado ao nó. */
+  function menuNo(id, ev) {
+    const n = nosDosEixos(estado.projeto).find((x) => x.id === id);
+    if (!n) return;
+    const sel = vista.sel ? estado.elemento(vista.sel) : null;
+    const temPilar = doPav.some((e) => tipo(e) === 'pilar' && Math.hypot(e.posicao.x - n.p[0], e.posicao.y - n.p[1]) < 0.01);
+    const soltos = naoPosicionados.filter((e) => tipo(e) === 'pilar');
+    const modPilar = modulos.obter('concreto.pilar');
+    abrirMenu([
+      { cabecalho: `Nó ${n.nome} · (${fmt(n.p[0])}; ${fmt(n.p[1])}) m` },
+      modPilar ? { rotulo: temPilar ? 'Já há um pilar neste nó' : 'Novo pilar neste nó', icone: 'pilar', desabilitado: temPilar, acao: () => criarNaPlanta(modPilar, n.p) } : null,
+      ...(soltos.length && !temPilar ? soltos.slice(0, 8).map((e) => ({ rotulo: `Posicionar ${e.codigo} aqui`, icone: 'pilar', acao: () => posicionar(e, vista.pav, n.p) })) : []),
+      sel ? { rotulo: `Levar ${sel.codigo} para o nó (ponto de inserção)`, icone: 'direita', acao: () => alterar((pp) => { const e = elDoProjeto(pp, sel.id); e.posicao.x = n.p[0]; e.posicao.y = n.p[1]; }, `Mover ${sel.codigo} para o nó ${n.nome}`) } : null,
+      '-',
+      { rotulo: 'Pilares em todos os nós sem pilar', icone: 'mais', desabilitado: !modPilar, acao: pilaresNosNos },
+    ].filter(Boolean), { x: ev.clientX, y: ev.clientY });
+  }
+  function pilaresNosNos() {
+    const modPilar = modulos.obter('concreto.pilar');
+    const livres = nosDosEixos(estado.projeto).filter((n) => !doPav.some((e) => tipo(e) === 'pilar' && Math.hypot(e.posicao.x - n.p[0], e.posicao.y - n.p[1]) < 0.01));
+    if (!livres.length) { notificar('Todos os nós deste pavimento já têm pilar.', 'info'); return; }
+    for (const n of livres) criarNaPlanta(modPilar, n.p);
+    notificar(`${livres.length} pilar(es) criado(s) nos nós dos eixos.`, 'ok');
   }
 
   function conectar() {
@@ -1044,6 +1285,7 @@ function renderizar(container, acoes) {
           aoMudar: (v) => alterar((pp) => { const e = elDoProjeto(pp, sel.id); e.posicao.pavimento = v; const pd = peDireito(pp, v); if (t === 'pilar' && pd > 0) e.comprimento = pd; }, `Mudar ${sel.codigo} de pavimento`, { invalidar: t === 'pilar', elementoId: sel.id }) }),
         h('div', { class: 'mont-sel-acoes' },
           ui.botao({ texto: 'Retirar da planta', icone: 'fechar', tipo: 'fantasma', titulo: 'O elemento volta para "Não posicionados" (não é apagado)', aoClicar: () => { alterar((pp) => { delete elDoProjeto(pp, sel.id).posicao; }, `Retirar ${sel.codigo} da planta`); vista.sel = null; } }),
+          /laje\.(macica|trelicada|nervurada|alveolar)$/.test(sel.modulo) ? ui.botao({ texto: 'Converter tipo…', icone: 'laje', tipo: 'fantasma', titulo: 'Converter em outro tipo de laje: maciça, treliçada, nervurada ou alveolar', aoClicar: () => comandos.executar('elemento.converterLaje', sel.id) }) : null,
         ),
         // o resto (propriedades) fica recolhido para não ocupar a planta
         h('div', { class: 'mont-cartao-mais' },
@@ -1075,6 +1317,15 @@ function renderizar(container, acoes) {
   function desenharLateral() {
     limpar(lateral);
     const proj = estado.projeto;
+    // eixo selecionado: cartão no topo da lateral
+    if (vista.selEixo) {
+      const cartao = cartaoEixo({
+        projeto: proj, id: vista.selEixo, alterarEixos,
+        duplicar: (lado) => duplicarEixoSel(lado), excluir: excluirEixoSel,
+        fechar: () => { vista.selEixo = null; desenharPlanta(); desenharLateral(); },
+      });
+      if (cartao) lateral.append(cartao); else vista.selEixo = null;
+    }
     // pavimentos (de cima para baixo, como num corte)
     const lista = h('div', { class: 'mont-pavs' });
     for (const pv of [...pavimentosOrdenados(proj)].reverse()) {
@@ -1124,7 +1375,18 @@ function renderizar(container, acoes) {
         lista),
     );
 
-    // planta de fundo (DXF), eixos e malha
+    // eixos de projeto: famílias de paralelos e distâncias
+    const pilsPav = proj.elementos.filter((e) => e.posicao?.pavimento === vista.pav && tipo(e) === 'pilar');
+    lateral.append(blocoEixos({
+      projeto: proj, sel: vista.selEixo, alterarEixos, novoEixo, modo: vista.modo, alternarModo: (m) => modoLancamento(m),
+      selecionar: (id) => { vista.selEixo = id; vista.sel = null; desenharPlanta(); desenharLateral(); },
+      eixosDosPilares: pilsPav.length ? () => alterar((pp) => { nucleoEixos.eixosPelosPontos(pp, pilsPav.map((e) => [e.posicao.x, e.posicao.y])); }, 'Eixos pelos pilares', { invalidar: false }) : null,
+      pilaresNosNos: modulos.obter('concreto.pilar') ? pilaresNosNos : null,
+      redesenhar: () => { desenharPlanta(); desenharLateral(); },
+      alternarVisiveis: alternarEixosVisiveis, moverTodos: moverTodosEixos,
+    }));
+
+    // planta de fundo (DXF) e malha
     lateral.append(blocoFundo({
       projeto: proj, pav: pavimento(proj, vista.pav),
       alterar: (fn, descricao) => alterar((pp) => fn(pp, pavimento(pp, vista.pav)), descricao),
@@ -1132,11 +1394,6 @@ function renderizar(container, acoes) {
       paredes: () => paredesComoCargas(),
       mover: vista.moverFundo, alternarMover: (v) => { vista.moverFundo = v; desenharLateral(); },
       redesenhar: () => { desenharPlanta(); desenharLateral(); },
-      eixosDosPilares: proj.elementos.some((e) => e.posicao?.pavimento === vista.pav && tipo(e) === 'pilar') ? () => {
-        const pils = proj.elementos.filter((e) => e.posicao?.pavimento === vista.pav && tipo(e) === 'pilar');
-        const unicos = (vs) => vs.map((v) => Math.round(v * 100) / 100).sort((a, b) => a - b).filter((v, i, arr) => i === 0 || v - arr[i - 1] > 0.05);
-        alterar((pp) => { pp.eixos = { x: unicos(pils.map((e) => e.posicao.x)), y: unicos(pils.map((e) => e.posicao.y)) }; }, 'Eixos pelos pilares');
-      } : null,
     }));
 
     // ordem das listas
@@ -1507,6 +1764,8 @@ function renderizar(container, acoes) {
     txt(ui.botao({ texto: 'Adicionar', icone: 'mais', tipo: 'secundario', titulo: 'Adicionar um elemento novo na planta', aoClicar: (e) => adicionar(e.currentTarget) })),
     txt(ui.botao({ texto: 'Viga em cadeia', icone: 'viga', tipo: vista.modo === 'cadeia' ? 'primario' : 'secundario', titulo: 'Lançar vigas clicando de pilar em pilar (V)', aoClicar: () => modoLancamento('cadeia') })),
     txt(ui.botao({ texto: 'Laje no contorno', icone: 'laje', tipo: vista.modo === 'laje' ? 'primario' : 'secundario', titulo: 'Lançar lajes clicando dentro das regiões fechadas pelas vigas (L)', aoClicar: () => modoLancamento('laje') })),
+    txt(ui.botao({ texto: 'Eixo', icone: 'eixo', tipo: vista.modo === 'eixo' ? 'primario' : 'secundario', titulo: 'Desenhar um eixo por dois pontos (E) · Cota entre eixos: C', aoClicar: () => modoLancamento('eixo') })),
+    ui.botaoIcone({ icone: eixosVisiveis() ? 'olho' : 'olhoFechado', titulo: eixosVisiveis() ? 'Ocultar os eixos (Shift+E)' : 'Mostrar os eixos (Shift+E)', classe: eixosVisiveis() ? 'mont-eixos-ver' : 'mont-eixos-ver oculto', aoClicar: alternarEixosVisiveis }),
     txt(ui.botao({ texto: 'Conectar automaticamente', icone: 'check', tipo: 'secundario', titulo: 'Conectar automaticamente: aplica as ligações que a planta indica', aoClicar: conectar })),
     ...extras.map((x) => ui.botaoIcone({ icone: x.icone, titulo: x.titulo, classe: 'mont-extra', aoClicar: x.acao })),
     ui.botaoIcone({ icone: 'reticencias', titulo: 'Mais ações', classe: 'mont-mais', aoClicar: (e) => abrirMenu(extras.map((x) => ({ rotulo: x.rotulo, icone: x.icone, acao: x.acao })), { ancora: e.currentTarget }) }),
@@ -1569,6 +1828,14 @@ function renderizar(container, acoes) {
     if (!raiz.isConnected || !raiz.getClientRects().length) return;
     if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable]') || document.querySelector('.dialogo-fundo, .menu')) return;
     if (vista.modo === 'pincel' && e.key === 'Escape') { e.preventDefault(); vista.modo = null; vista.pincel = null; renderizarTudo(); return; }
+    // eixo selecionado: D duplica (Shift+D do outro lado), Delete exclui, Esc tira a seleção
+    if (vista.selEixo && !vista.modo) {
+      if (e.key === 'd' || e.key === 'D') { if (duplicarEixoSel(e.shiftKey ? -1 : 1)) e.preventDefault(); return; }
+      if (e.key === 'Delete' || e.key === 'Backspace') { if (excluirEixoSel()) e.preventDefault(); return; }
+      if (e.key === 'Escape') { e.preventDefault(); vista.selEixo = null; desenharPlanta(); desenharLateral(); return; }
+      const sEixo = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (sEixo) { if (moverEixoSel(...sEixo, e.shiftKey ? 10 : 1)) e.preventDefault(); return; }
+    }
     if (vista.modo) {
       if (e.key === 'Escape') { e.preventDefault(); if (vista.cadeia.length) { vista.cadeia = []; desenharPrevia(); } else modoLancamento(vista.modo); return; }
       if (e.key === 'Enter' && vista.modo === 'cadeia') { e.preventDefault(); concluirCadeia(); return; }
@@ -1582,6 +1849,9 @@ function renderizar(container, acoes) {
     }
     if (e.key === 'v' || e.key === 'V') { e.preventDefault(); modoLancamento('cadeia'); return; }
     if (e.key === 'l' || e.key === 'L') { e.preventDefault(); modoLancamento('laje'); return; }
+    if (e.key === 'E' && e.shiftKey) { e.preventDefault(); alternarEixosVisiveis(); return; }
+    if (e.key === 'e' || e.key === 'E') { e.preventDefault(); modoLancamento('eixo'); return; }
+    if (e.key === 'c' || e.key === 'C') { e.preventDefault(); modoLancamento('cota'); return; }
     if (e.key === 'r' || e.key === 'R') { if (girarSelecionado(e.shiftKey ? -1 : 1)) e.preventDefault(); return; }
     const setas = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
     if (setas && !vista.modo && moverSelecionado(...setas, e.shiftKey ? 10 : 1)) e.preventDefault();

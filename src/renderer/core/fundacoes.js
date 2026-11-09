@@ -26,7 +26,7 @@ import { criarSapata, pilaresDeFundacao, COBRIMENTO_SOLO } from '../../modules/c
 import { criarBloco } from '../../modules/concreto-bloco/calculo.js';
 
 /** Módulos que apoiam um pilar na fundação (um por pilar). */
-export const APOIOS_DE_FUNDACAO = ['concreto.sapata', 'concreto.bloco'];
+export const APOIOS_DE_FUNDACAO = ['concreto.sapata', 'concreto.bloco', 'geotecnia.estaca'];
 const temApoio = (projeto, pilarId) => projeto.elementos.some((e) => APOIOS_DE_FUNDACAO.includes(e.modulo) && e.pilarId === pilarId)
   || !!radierDoPilar(projeto, projeto.elementos.find((e) => e.id === pilarId));
 

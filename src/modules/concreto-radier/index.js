@@ -14,6 +14,7 @@
 /** Módulo de radier: entrada, planta com os pilares e as faixas, punção, lista de ferros e armadura em 3D. */
 import { calcularRadier, criarRadier, pilaresDoRadier, COBRIMENTO_SOLO } from './calculo.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { vista3dFundacao } from '../comum/vista3d-fundacao.js';
 import { modeloRadier } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
@@ -127,7 +128,8 @@ export default function moduloRadier(api) {
       ));
       raiz.append(ui.secao({
         numero: '04', titulo: 'Planta', descricao: `Tensões no solo: média ${num(r.tensoes.med, 0)}, máxima ${num(r.tensoes.max, 0)}, mínima ${num(r.tensoes.min, 0)} kPa`,
-        filhos: [h('div', { class: 'desenho-caixa centro' }, planta(r))],
+        filhos: [h('div', { class: 'desenho-caixa centro' }, planta(r)),
+          vista3dFundacao(api, ctx, r, (posicoes) => modeloRadier(r, posicoes), { titulo: 'VISTA 3D · RADIER, MALHAS E PILARES', altura: 460 })],
       }));
       raiz.append(ui.secao({
         numero: '05', titulo: 'Faixas e punção', descricao: 'Momentos de cálculo por metro e punção em cada pilar',

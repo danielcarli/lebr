@@ -51,7 +51,7 @@ export function criarRadier(projeto) {
   };
 }
 
-const OUTRAS = ['concreto.sapata', 'concreto.bloco'];
+const OUTRAS = ['concreto.sapata', 'concreto.bloco', 'geotecnia.estaca'];   // fundações próprias do pilar (fora do radier)
 
 /** Pilares apoiados no radier: os escolhidos ou os pilares de fundação sem sapata nem bloco (e dentro dele, se a geometria for informada). */
 export function pilaresDoRadier(el, projeto) {

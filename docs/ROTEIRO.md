@@ -132,7 +132,7 @@ Como o edifício entra no programa. TQS, Eberick e CYPECAD seguem a mesma filoso
 | | Prática | Como os programas consolidados fazem | No LEBR |
 |---|---|---|---|
 | ✅ | Arquitetura como fundo por pavimento | DXF/DWG como referência externa de cada pavimento, com camadas e opacidade | Planta DXF por pavimento, camadas, opacidade, deslocamento e rotação |
-| ✅ | Encaixes, eixos e malha | Capturas no desenho, eixos de locação e malha; coordenadas digitadas | Encaixe nos cantos e pontas da planta, nos eixos e na malha; coordenadas digitadas a fazer |
+| ✅ | Encaixes, eixos e malha | Capturas no desenho, eixos de locação e malha; coordenadas digitadas | Encaixe nos cantos e pontas da planta, nos eixos e na malha; eixos verticais, horizontais e inclinados com cotas, nós de ancoragem, duplicação, mover (arrastar, setas, todos de uma vez), ocultar e reexibir, e elementos que acompanham feitos na 0.65.0; coordenadas digitadas a fazer |
 | ✅ | Ligações pela geometria | Apoios reconhecidos pelas faces de vigas e pilares | Conectar automaticamente e aviso de ligação com problema no explorador |
 | ✅ | 3D durante o lançamento | Pórtico 3D sempre à mão, atualizado a cada mudança | Visualização 3D fixa à direita enquanto se edita |
 | ✅ | Critérios iniciais pela CAA | CAA define fck mínimo e cobrimentos, com exceção por elemento | Parâmetros do projeto pela CAA (Tabelas 6.1, 7.1 e 7.2); exceção de fck e cobrimento por elemento, com aviso abaixo do mínimo da CAA (etapa L7, 0.41.0) |

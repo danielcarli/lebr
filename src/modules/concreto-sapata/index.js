@@ -19,6 +19,7 @@
 import { calcularSapata, criarSapata, pilaresDeFundacao, COBRIMENTO_SOLO } from './calculo.js';
 import { criarDesenhoSapata } from './desenho.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { vista3dFundacao } from '../comum/vista3d-fundacao.js';
 import { modeloSapata } from '../comum/armadura3d-fundacoes.js';
 
 export default function moduloSapata(api) {
@@ -134,7 +135,8 @@ export default function moduloSapata(api) {
       ));
       raiz.append(ui.secao({
         numero: '04', titulo: 'Desenho', descricao: `Volume de concreto ${num(r.volume, 3)} m³ · cobrimento ${num(r.cobrimento, 1)} cm`,
-        filhos: [h('div', { class: 'sapata-desenhos' }, h('div', { class: 'desenho-caixa centro' }, des.planta(r)), h('div', { class: 'desenho-caixa centro' }, des.corte(r)))],
+        filhos: [h('div', { class: 'sapata-desenhos' }, h('div', { class: 'desenho-caixa centro' }, des.planta(r)), h('div', { class: 'desenho-caixa centro' }, des.corte(r))),
+          vista3dFundacao(api, ctx, r, (posicoes) => modeloSapata(r, posicoes), { titulo: 'VISTA 3D · SAPATA E MALHAS' })],
       }));
       raiz.append(ui.secao({
         numero: '05', titulo: 'Solo e estrutura', descricao: 'Tensões características no solo; esforços de cálculo na sapata',

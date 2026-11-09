@@ -20,6 +20,7 @@ import { calcularBloco, criarBloco } from './calculo.js';
 import { pilaresDeFundacao, COBRIMENTO_SOLO } from '../concreto-sapata/calculo.js';
 import { TIPOS_ESTACA } from '../../engine/estacas.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { vista3dFundacao } from '../comum/vista3d-fundacao.js';
 import { modeloBloco } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
@@ -169,7 +170,8 @@ export default function moduloBloco(api) {
       ));
       raiz.append(ui.secao({
         numero: '04', titulo: 'Desenho', descricao: `Reações características nas estacas · furo ${r.estaca.furo?.codigo ?? '—'} · Padm = ${num(r.Padm, 0)} kN (AV ${num(r.estaca.av, 0)}, DQ ${num(r.estaca.dq, 0)})`,
-        filhos: [h('div', { class: 'sapata-desenhos' }, h('div', { class: 'desenho-caixa centro' }, planta(r)), h('div', { class: 'desenho-caixa centro' }, corte(r)))],
+        filhos: [h('div', { class: 'sapata-desenhos' }, h('div', { class: 'desenho-caixa centro' }, planta(r)), h('div', { class: 'desenho-caixa centro' }, corte(r))),
+          vista3dFundacao(api, ctx, r, (posicoes) => modeloBloco(r, posicoes), { titulo: `VISTA 3D · BLOCO SOBRE ${r.n} ESTACA${r.n > 1 ? 'S' : ''}` })],
       }));
       const a = r.armadura;
       const linhasArm = a.tipo === 'fendilhamento'

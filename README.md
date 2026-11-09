@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.64.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.65.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -117,12 +117,18 @@ npm run validar  # banco de casos de validação: grava validacao/relatorio.html
 No Windows, rode os comandos dentro da pasta que contém o `package.json`. Se o PowerShell
 bloquear o `npm` ("a execução de scripts foi desabilitada"), use `npm.cmd install` e `npm.cmd start`.
 
-Na tela inicial há seis exemplos:
+Na tela inicial há oito exemplos:
 
 - **Abrir exemplo**: um pavimento com duas lajes, cinco vigas e seis pilares já ligados entre si.
 - **Exemplo térreo com baldrame** (`exemplos/residencia-terrea-baldrame.lebr.json`): a mesma casa de um pavimento com o
   nível de baldrame — arranques sob os pilares e vigas baldrame sob as vigas da cobertura, com a parede do térreo como
   carga —, um furo de sondagem SPT e sapatas isoladas sob os arranques, com a tensão admissível pelo SPT.
+- **Exemplo: radier, estacas e sapata corrida** (`exemplos/residencia-fundacoes.lebr.json`): três tipos de fundação
+  no mesmo terreno de argila mole — a casa de 8 × 6 m sobre um radier, a garagem com quatro pilares sobre estacas
+  isoladas (broca ø 25 cm, 8 m, uma por pilar, sem bloco) e o depósito com duas vigas baldrame sobre sapatas corridas,
+  com eixos de projeto já lançados.
+- **Exemplo: sobrado com garagem** (`exemplos/sobrado-garagem.lebr.json`): laje treliçada, nervurada, escada, caixa
+  d’água, telhado de madeira e sapatas.
 - **Exemplo de 3 pavimentos** (`exemplos/edificio-3-pavimentos.lebr.json`): edifício residencial com dois
   pavimentos-tipo e cobertura, 9 pilares por lance, 7 vigas e 5 lajes maciças por nível, sacada em balanço, uma viga
   apoiada em outras duas, as vigas calculadas como grelha, uma caixa de escada com duas escadas em U (térreo → 1º e
@@ -184,9 +190,28 @@ ser deslocada (pelos campos ou arrastando), girada, esmaecida e ter camadas esco
 pavimentos** repete o mesmo fundo nos outros níveis. Ao arrastar um elemento, ele **encaixa nos cantos e pontas das
 linhas da planta**. Os **eixos** do projeto (verticais numerados 1, 2, 3… e horizontais A, B, C…) são digitados em
 metros — ou criados pelos pilares do pavimento — e aparecem em traço-ponto com os rótulos nas bordas; os elementos
-encostam neles e nos cruzamentos. A **malha de encaixe** (10, 25, 50 cm ou 1 m) leva o ponto de inserção dos
+encostam neles e nos cruzamentos (desde a 0.65, ver **Eixos de projeto** abaixo). A **malha de encaixe** (10, 25, 50 cm ou 1 m) leva o ponto de inserção dos
 elementos para a malha quando não há outro encaixe por perto. A planta fica guardada no arquivo do projeto
 (`plantasFundo`, ver [docs/FORMATO.md](docs/FORMATO.md)).
+
+**Eixos de projeto (0.65).** O bloco **Eixos** da montagem cria eixos **verticais** (1, 2, 3…), **horizontais**
+(A, B, C…) e **inclinados** (D1, D2…, pelo ângulo ou desenhados com dois cliques no modo **Desenhar eixo**, `E`).
+Cada família de eixos paralelos mostra as **distâncias entre vizinhos** em campos editáveis; mudar uma distância
+leva junto todos os eixos seguintes. No modo **Cota** (`C`), arraste de um eixo até outro paralelo e digite a
+distância; a cota fica no desenho e um clique no número a edita. Os **cruzamentos** viram **nós** (A-1, B-3…) de
+controle e ancoragem: um clique no nó cria um pilar ali, posiciona um pilar ainda solto, leva o elemento
+selecionado para o nó ou cria pilares em todos os nós vazios, e os elementos arrastados encaixam nos eixos e nos
+nós. Com **Elementos acompanham os eixos** ligado, mover um eixo (arrastando-o, pelo cartão ou por uma cota) leva os
+pilares, os apoios das vigas e os cantos das lajes que estão sobre ele: as vigas reajustam os vãos, as lajes mudam
+de dimensão e os elementos alterados passam a **a calcular**. Todo eixo pode ser **duplicado** (`D`, ou `Shift+D`
+para o outro lado): a cópia fica paralela a cerca de 20 px do original, pronta para ser arrastada ou cotada. O
+cartão do eixo selecionado também troca nome, ângulo e posição, e `Delete` o exclui. Para **mover** um eixo, arraste-o
+na planta (ele encosta em pilares, cantos e nós) ou use as **setas** do teclado (`Shift`: 10 vezes o passo); **Mover
+todos os eixos…** desloca a malha inteira de Δx e Δy (por exemplo, para alinhar com a planta de arquitetura). O botão
+do **olho** (na barra da montagem e no bloco Eixos) ou `Shift+E` **oculta e reexibe** os eixos, as cotas e os nós;
+ocultos, eles não atraem os elementos e continuam guardados no projeto. Os eixos ficam em
+`eixos.lista` e as cotas em `eixos.cotas` no arquivo (os arquivos antigos, com `eixos.x` e `eixos.y`, continuam
+abrindo e passam ao formato novo na primeira edição).
 
 **Estrutura › Visualização 3D** (`F7`) mostra a estrutura montada com as dimensões reais, com
 cores por verificação (atende / não atende / não calculado), por material ou por tipo, pavimentos
@@ -615,7 +640,7 @@ vento e combinações, fissuração, viga com seção por vão e os módulos int
 equilíbrio, simetria, linearidade, limites da norma, coincidência entre dois caminhos de cálculo e com soluções exatas
 (Navier, Clapeyron, equilíbrio dos nós, Euler, Hankinson). Com 20 000 sorteios e 138 mil verificações sem falha, a taxa
 de falha fica abaixo de 0,02 % a 95 % de confiança (regra dos três). Em projetos inteiros, o peso somado elemento a
-elemento chega às fundações com desvio ≤ 0,22 % nos sete exemplos. Método, limites e o que a estatística **não**
+elemento chega às fundações com desvio ≤ 0,22 % nos oito exemplos. Método, limites e o que a estatística **não**
 garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado em
 [docs/CONFIABILIDADE-RELATORIO.md](docs/CONFIABILIDADE-RELATORIO.md).
 
@@ -628,6 +653,20 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.65.0 (eixos de projeto, 3D das fundações e exemplo com três fundações):** **eixos verticais,
+  horizontais e inclinados** na montagem, com distâncias entre paralelos, **cotas** arrastadas de eixo a eixo,
+  **nós** nos cruzamentos para lançar e ancorar pilares e apoios, elementos que **acompanham** o eixo movido e
+  **duplicar** eixo a ~20 px (ver **Eixos de projeto**). Atalho **I** abre a **tela inicial**. As páginas de
+  **sapata**, **bloco sobre estacas**, **estaca**, **sapata corrida** e **radier** ganham a **vista 3D** da peça com
+  as armaduras ao lado do desenho 2D. A **estaca isolada** (uma por pilar, sem bloco) passa a contar como fundação do
+  pilar na montagem, na consistência e no caminho das cargas, e a viga sobre **sapata corrida** é considerada apoiada.
+  Novo exemplo **Residência com radier, estacas e sapata corrida**. **Converter laje:** na página da laje (botão
+  **Converter**), no explorador e no cartão da montagem, a laje vira **maciça, treliçada, nervurada ou alveolar** —
+  escolhida numa lista —, mantendo contorno, código, nome, bordas e cargas, com a altura pré-dimensionada pelo vão e as
+  ligações com as vigas refeitas. A **quadrícula da montagem** agora fica presa às coordenadas da planta (linha a cada
+  passo, mais marcada a cada 5) e anda e aproxima junto com os elementos. **Versão nova na barra inferior:** a versão
+  do LEBR à direita da barra verifica o GitHub a um clique (e sozinha ao abrir e a cada 6 h); havendo versão nova, o
+  item fica destacado e, depois de confirmar (com a opção de salvar antes), o LEBR atualiza e reabre.
 - **Novidades da 0.64.0 (exportar IFC e exemplos com seção por vão):** **Arquivo › Exportar modelo IFC…** grava o
   projeto em **IFC4**: pavimentos, pilares, vigas (um sólido por vão, com a seção e o nível de cada um), lajes,
   escadas, reservatórios, telhado com as peças de madeira, fundações e estacas, com material, propriedades da norma
@@ -638,7 +677,7 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   e centrais dos dois pavimentos e nos baldrames (30 a 35 cm em vez de 35 a 50 cm), e a V202 e a V203 do forro têm o
   vão sobre o quarto 3 **invertido** (forro liso no quarto; o vão sob a caixa d'água continua normal); nos dois
   **aeroportos**, o balanço de 3 m da marquise tem 60 cm de altura, contra 85 cm nos vãos de 9 m. Tudo continua
-  atendendo e o caminho das cargas fecha nos sete exemplos.
+  atendendo e o caminho das cargas fecha nos oito exemplos.
 - **Novidades da 0.63.0 (seção própria em cada vão da viga):** cada vão da viga de concreto pode ter **largura e
   altura próprias** e ser **normal ou invertido** — só parte da viga invertida, ou a viga toda. A análise usa a rigidez
   de cada vão; peso próprio, flexão, cortante, torção, suspensão (só nos vãos invertidos), flechas e fissuras usam a

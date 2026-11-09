@@ -684,7 +684,7 @@ export class Workbench {
 }
 
 /** Item da barra de status. */
-export function itemStatus({ texto, icone: ic, titulo, aoClicar }) {
+export function itemStatus({ texto, icone: ic, titulo, aoClicar, classe = '' }) {
   const tag = aoClicar ? 'button' : 'span';
-  return h(tag, { class: 'status-item', title: titulo ?? '', onClick: aoClicar }, ic && icone(ic, { tamanho: 13, traco: 1.8 }), texto);
+  return h(tag, { class: ['status-item', classe], title: titulo ?? '', onClick: aoClicar }, ic && icone(ic, { tamanho: 13, traco: 1.8 }), texto);
 }

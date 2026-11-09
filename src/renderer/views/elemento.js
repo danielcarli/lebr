@@ -185,6 +185,7 @@ function renderizar(container, id, acoes) {
       })(),
       h('span', { style: { flex: '1' } }),
       ui.botaoIcone({ icone: 'reticencias', titulo: 'Ir para uma seção', classe: 'so-estreito', aoClicar: (ev) => abrirMenu(menuSecoes(), { ancora: ev.currentTarget }) }),
+      /laje\.(macica|trelicada|nervurada|alveolar)$/.test(e?.modulo ?? '') ? ui.botao({ texto: 'Converter', icone: 'laje', tipo: 'fantasma', titulo: 'Converter em outro tipo de laje (maciça, treliçada, nervurada ou alveolar)', aoClicar: () => comandos.executar('elemento.converterLaje', id) }) : '',
       r && !r.erro ? ui.botao({ texto: 'Memorial', icone: 'painel', tipo: 'fantasma', titulo: 'Memorial de cálculo no painel', aoClicar: () => acoes.mostrarMemorial(id) }) : '',
       ui.botao({ texto: 'PDF', icone: 'pdf', tipo: 'fantasma', titulo: 'Exportar o elemento em PDF', aoClicar: () => acoes.exportarPdf(id) }),
     );

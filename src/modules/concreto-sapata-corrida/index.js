@@ -14,6 +14,7 @@
 /** Módulo de sapata corrida: entrada, resultado, corte transversal, lista de ferros e armadura em 3D. */
 import { calcularSapataCorrida, criarSapataCorrida, COBRIMENTO_SOLO } from './calculo.js';
 import { secaoListaDeFerros } from '../comum/detalhamento-ui.js';
+import { vista3dFundacao } from '../comum/vista3d-fundacao.js';
 import { modeloSapataCorrida } from '../comum/armadura3d-fundacoes.js';
 
 const fmt = (v, c = 0) => (Number.isFinite(v) ? v.toFixed(c).replace('.', ',') : '—');
@@ -132,7 +133,8 @@ export default function moduloSapataCorrida(api) {
       ));
       raiz.append(ui.secao({
         numero: '04', titulo: 'Desenho', descricao: `Volume de concreto ${num(r.volume, 3)} m³ · seção ${num(r.area, 4)} m² · cobrimento ${num(r.cobrimento, 1)} cm`,
-        filhos: [h('div', { class: 'desenho-caixa centro' }, corte(r))],
+        filhos: [h('div', { class: 'sapata-desenhos' }, h('div', { class: 'desenho-caixa centro' }, corte(r)),
+          vista3dFundacao(api, ctx, r, (posicoes) => modeloSapataCorrida(r, posicoes), { titulo: 'VISTA 3D · TRECHO DA SAPATA CORRIDA', altura: 360 }))],
       }));
       raiz.append(ui.secao({
         numero: '05', titulo: 'Solo e estrutura', descricao: 'Por metro de sapata',

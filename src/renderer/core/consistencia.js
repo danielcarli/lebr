@@ -138,6 +138,9 @@ export function verificarConsistencia(projeto, registro) {
   for (const d of detectadas) { indicada.add(`${d.fonte.id}|${d.ligacao}`); ligado.add(d.fonte.id); ligado.add(d.receptor.id); }
   const recebida = (e, lig) => (recebe.get(`${e.id}|${lig}`) ?? []).length > 0 || indicada.has(`${e.id}|${lig}`);
   const temFundacao = els.some((e) => FUNDACOES_PILAR.includes(e.modulo) || e.modulo === 'concreto.radier');
+  // vigas sobre sapata corrida: a sapata recebe a viga inteira (apoios sem pilar)
+  const sobreSapataCorrida = new Set(els.filter((x) => x.modulo === 'concreto.sapataCorrida' && x.vigaId).map((x) => x.vigaId));
+  for (const id of sobreSapataCorrida) ligado.add(id);
 
   for (const e of validos) {
     const t = tipo(e);
@@ -150,7 +153,7 @@ export function verificarConsistencia(projeto, registro) {
     if (t === 'viga') {
       const eixo = eixoViga(e);
       for (const l of ligs) {
-        if (!/^apoio-\d+$/.test(l.id) || recebida(e, l.id)) continue;
+        if (!/^apoio-\d+$/.test(l.id) || recebida(e, l.id) || sobreSapataCorrida.has(e.id)) continue;
         const k = Number(l.id.split('-')[1]);
         if (sobViga.has(`${e.id}|${k}`)) continue;
         const pt = eixo.apoios[k];

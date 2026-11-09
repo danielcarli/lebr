@@ -70,6 +70,8 @@ class RegistroComandos extends Emissor {
         if (!c.tecla || normalizarTexto(c.tecla) !== tecla) continue;
         // em campos de texto, deixa o navegador tratar desfazer/refazer/copiar
         if (emCampo && c.respeitaCampo) continue;
+        // atalho de uma tecla só (ex.: I): nunca enquanto se digita, nem com um diálogo ou menu aberto
+        if (/^[a-z0-9]$/i.test(c.tecla) && (emCampo || document.querySelector?.('.dialogo-fundo, .menu'))) continue;
         e.preventDefault();
         this.executar(c.id);
         return;

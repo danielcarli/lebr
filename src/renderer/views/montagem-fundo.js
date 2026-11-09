@@ -17,7 +17,7 @@
  * Arquivo do projeto:
  *   projeto.plantasFundo = [{ id, nome, unidade, camadas, entidades, textos, limites }]   (geometria nas unidades do DXF)
  *   pavimento.fundo = { planta, unidade, dx, dy, rotacao, opacidade, ocultas: [camada], visivel }   (dx, dy em m)
- *   projeto.eixos = { x: [m…], y: [m…] }   (linhas de eixo verticais em x e horizontais em y)
+ *   projeto.eixos — ver core/eixos.js
  */
 import { h, s } from '../ui/dom.js';
 import * as ui from '../ui/componentes.js';
@@ -126,63 +126,16 @@ export function pontosDoFundo(projeto, pav, [x0, y0, x1, y1], limite = 60000) {
 }
 
 /* ------------------------------------------------------------------ eixos */
-const letra = (i) => { let t = '', n = i; do { t = String.fromCharCode(65 + (n % 26)) + t; n = Math.floor(n / 26) - 1; } while (n >= 0); return t; };
-/** Eixos do projeto com os nomes: verticais (em x) numerados 1, 2, 3…; horizontais (em y) A, B, C… */
-export function eixosDe(projeto) {
-  const ex = [...new Set((projeto.eixos?.x ?? []).map(Number).filter(Number.isFinite))].sort((a, b) => a - b);
-  const ey = [...new Set((projeto.eixos?.y ?? []).map(Number).filter(Number.isFinite))].sort((a, b) => a - b);
-  return { x: ex.map((v, i) => ({ nome: String(i + 1), v })), y: ey.map((v, i) => ({ nome: letra(i), v })) };
-}
-export const lerLista = (t) => String(t ?? '').split(/[;\s]+/).map((x) => Number(x.replace(',', '.'))).filter(Number.isFinite);
-export const listaTexto = (v) => (v ?? []).map((x) => String(Math.round(x * 1000) / 1000).replace('.', ',')).join('; ');
-
-export function camadaEixos(projeto, tela, mundo, W, H) {
-  const e = eixosDe(projeto);
-  if (!e.x.length && !e.y.length) return null;
-  const g = s('g', { class: 'mont-eixos' });
-  const R = 10;
-  for (const a of e.x) {
-    const [px] = tela([a.v, 0]);
-    if (px < -R || px > W + R) continue;
-    g.append(s('line', { x1: px, y1: 2 * R + 6, x2: px, y2: H, class: 'mont-eixo' }),
-      s('circle', { cx: px, cy: R + 4, r: R, class: 'mont-eixo-bola' }), s('text', { x: px, y: R + 8, 'text-anchor': 'middle', class: 'mont-eixo-rot' }, a.nome));
-  }
-  for (const a of e.y) {
-    const [, py] = tela([0, a.v]);
-    if (py < -R || py > H + R) continue;
-    g.append(s('line', { x1: 2 * R + 6, y1: py, x2: W, y2: py, class: 'mont-eixo' }),
-      s('circle', { cx: R + 4, cy: py, r: R, class: 'mont-eixo-bola' }), s('text', { x: R + 4, y: py + 4, 'text-anchor': 'middle', class: 'mont-eixo-rot' }, a.nome));
-  }
-  void mundo;
-  return g;
-}
-
-/** Interseções dos eixos (pontos de encaixe). */
-export function cruzamentosDosEixos(projeto) {
-  const e = eixosDe(projeto);
-  return e.x.flatMap((a) => e.y.map((b) => [a.v, b.v]));
-}
-
-/**
- * Ajuste de um deslocamento (dx, dy) do arrasto: encosta num eixo quando algum ponto do elemento passa perto dele.
- * @returns {{dx, dy, eixo: boolean}}
- */
-export function encaixarEmEixos(projeto, meus, dx, dy, lim) {
-  const e = eixosDe(projeto);
-  let mx = null, my = null;
-  for (const m of meus) {
-    for (const a of e.x) { const d = a.v - (m[0] + dx); if (Math.abs(d) < lim && (!mx || Math.abs(d) < Math.abs(mx))) mx = d; }
-    for (const b of e.y) { const d = b.v - (m[1] + dy); if (Math.abs(d) < lim && (!my || Math.abs(d) < Math.abs(my))) my = d; }
-  }
-  return { dx: dx + (mx ?? 0), dy: dy + (my ?? 0), eixo: mx != null || my != null };
-}
+// os eixos (0.65) ficam em core/eixos.js e views/montagem-eixos.js; reexportados aqui por compatibilidade
+export { cruzamentosDosEixos } from '../core/eixos.js';
+export { camadaEixos, encaixarEmEixos } from './montagem-eixos.js';
 
 /* ------------------------------------------------------------------ bloco da lateral */
 /**
  * @param {{projeto, pav, alterar, importar, mover:boolean, alternarMover}} op
  *   alterar(fn(proj, pavDoProjeto), descricao)
  */
-export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMover, redesenhar, eixosDosPilares, paredes }) {
+export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMover, redesenhar, paredes }) {
   const planta = plantaDe(projeto, pav);
   const fundo = pav?.fundo;
   const mudar = (fn, d) => alterar((pp, pv) => { pv.fundo ??= {}; fn(pv.fundo, pp, pv); }, d);
@@ -232,21 +185,14 @@ export function blocoFundo({ projeto, pav, alterar, importar, mover, alternarMov
     );
   }
 
-  // malha e eixos (para todos os pavimentos)
-  const e = eixosDe(projeto);
+  // malha de encaixe (para todos os pavimentos)
   corpo.push(
     h('div', { class: 'mont-sel-campos' },
       ui.selecao({ rotulo: 'Malha de encaixe', valor: String(passoMalha()), largura: '100%',
         opcoes: [{ valor: '0', texto: 'Sem malha (5 cm)' }, ...[0.1, 0.25, 0.5, 1].map((v) => ({ valor: String(v), texto: `${num(v * 100, 0)} cm` }))],
         aoMudar: (v) => { gravar(PREF_MALHA, v); redesenhar(); } })),
-    h('div', { class: 'mont-eixos-campos' },
-      ui.texto({ rotulo: `Eixos verticais x (m) · ${e.x.map((a) => a.nome).join(' ') || '—'}`, valor: listaTexto(projeto.eixos?.x), placeholder: 'ex.: 0; 4; 8', largura: '100%',
-        aoMudar: (v) => alterar((pp) => { pp.eixos = { ...(pp.eixos ?? {}), x: lerLista(v) }; }, 'Eixos x') }),
-      ui.texto({ rotulo: `Eixos horizontais y (m) · ${e.y.map((a) => a.nome).join(' ') || '—'}`, valor: listaTexto(projeto.eixos?.y), placeholder: 'ex.: 0; 5; 10', largura: '100%',
-        aoMudar: (v) => alterar((pp) => { pp.eixos = { ...(pp.eixos ?? {}), y: lerLista(v) }; }, 'Eixos y') }),
-      eixosDosPilares ? h('button', { class: 'link', onClick: eixosDosPilares }, 'Criar os eixos pelos pilares deste pavimento') : null),
   );
   return h('div', { class: 'mont-bloco mont-bloco-fundo' },
-    h('div', { class: 'mont-bloco-cab' }, h('span', null, 'Planta de fundo, eixos e malha')),
+    h('div', { class: 'mont-bloco-cab' }, h('span', null, 'Planta de fundo e malha')),
     ...corpo);
 }

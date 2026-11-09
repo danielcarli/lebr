@@ -43,6 +43,7 @@
 .mont-planta { position: relative; min-height: 0; overflow: hidden; background: var(--campo); }
 .mont-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; user-select: none; cursor: grab; }
 .mont-grade line { stroke: var(--filete); stroke-width: 0.6; opacity: 0.7; }
+.mont-grade line.maior { opacity: 1; stroke-width: 0.8; }
 .mont-grade line.eixo { stroke: var(--tenue); stroke-width: 1; opacity: 1; }
 .mont-el { cursor: move; }
 .mont-laje-area { fill: color-mix(in srgb, var(--tinta) 9%, transparent); stroke: none; }
@@ -203,6 +204,31 @@
 .mont-eixo { stroke: var(--acento); stroke-width: 0.8; stroke-dasharray: 14 4 2 4; opacity: 0.75; }
 .mont-eixo-bola { fill: var(--papel); stroke: var(--acento); stroke-width: 1.2; }
 .mont-eixo-rot { font-size: 10.5px; font-weight: 700; fill: var(--acento); }
+/* eixos (0.65): seleção, arrasto, nós e cotas */
+.mont-eixo-g { cursor: grab; }
+.mont-eixo-alvo { stroke: transparent; stroke-width: 12; pointer-events: stroke; }
+.mont-eixo.sel { stroke-width: 1.6; opacity: 1; stroke-dasharray: none; }
+.mont-eixo-bola.sel { fill: var(--acento); }
+.mont-eixo-g:hover .mont-eixo { opacity: 1; stroke-width: 1.4; }
+.mont-eixo-g .mont-eixo-bola.sel + .mont-eixo-rot, .mont-eixo-g.sel .mont-eixo-rot { fill: var(--acento-tinta, #fff); }
+.mont-eixo.previa { stroke-dasharray: 6 4; opacity: 0.9; }
+.mont-no { cursor: pointer; }
+.mont-no-alvo { fill: transparent; }
+.mont-no-ponto { fill: var(--papel); stroke: var(--acento); stroke-width: 1.4; }
+.mont-no:hover .mont-no-ponto { fill: var(--acento); }
+.mont-cota-linha, .mont-cota-tick { stroke: var(--tinta-2); stroke-width: 1; }
+.mont-cota-txt { font-size: 11px; font-weight: 650; fill: var(--tinta); cursor: pointer; paint-order: stroke; stroke: var(--papel); stroke-width: 3px; }
+.mont-cota-txt:hover { fill: var(--acento); text-decoration: underline; }
+.mont-cota.previa .mont-cota-linha { stroke: var(--acento); stroke-dasharray: 4 3; }
+.mont-bloco-eixos .mont-eixos-novos, .mont-bloco-eixos .mont-eixos-ferr { display: flex; flex-wrap: wrap; gap: 6px; }
+.mont-eixos-fam { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.mont-eixos-fam-rot { font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--suave); }
+.mont-eixos-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.mont-eixos-linha .campo { margin: 0; }
+.mont-eixo-chip { min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px; border: 1.2px solid var(--acento); background: var(--papel); color: var(--acento); font-weight: 700; font-size: 11.5px; cursor: pointer; }
+.mont-eixo-chip.sel { background: var(--acento); color: var(--acento-tinta, #fff); }
+.mont-cartao-eixo .mont-bloco-cab { display: flex; align-items: center; gap: 8px; }
+.mont-cartao-eixo .mont-eixo-tipo { font-size: 11px; color: var(--suave); flex: 1; }
 .mont-bloco-fundo { gap: 10px; }
 .mont-fundo-nome { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; }
 .mont-fundo-nome span { color: var(--suave); font-size: 11px; }
@@ -387,3 +413,9 @@
 .mont-cartao-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
 .mont-pav-tipo { display: flex; align-items: flex-end; gap: 10px; }
 .mont-pav-tipo .campo-rot { display: block; }
+
+/* eixos ocultos (0.65): o botão do olho fica marcado */
+.mont-eixos-ver.oculto { color: var(--acento, #2a6fdb); background: color-mix(in srgb, var(--acento, #2a6fdb) 14%, transparent); }
+.mont-bloco-eixos.oculto .mont-dica { margin: 4px 0 8px; }
+.mont-bloco-eixos .mont-bloco-cab .mont-eixo-tipo { margin-left: 6px; }
+.mont-grade line.fina { opacity: 0.3; stroke-width: 0.5; }

@@ -21,7 +21,7 @@ import { MODULOS_CALCULO } from '../src/validacao/calculos.js';
 
 const reg = { obter: (id) => MODULOS_CALCULO[id] };
 
-for (const arq of ['edificio-exemplo.lebr.json', 'edificio-3-pavimentos.lebr.json', 'residencia-terrea-baldrame.lebr.json', 'sobrado-garagem.lebr.json', 'edificio-18-pavimentos.lebr.json']) {
+for (const arq of ['edificio-exemplo.lebr.json', 'edificio-3-pavimentos.lebr.json', 'residencia-terrea-baldrame.lebr.json', 'sobrado-garagem.lebr.json', 'edificio-18-pavimentos.lebr.json', 'residencia-fundacoes.lebr.json']) {
   test(`exemplo ${arq}`, () => {
     const p = lerProjeto(fs.readFileSync(new URL(`../exemplos/${arq}`, import.meta.url), 'utf8'));
     for (const el of p.elementos) {

@@ -43,9 +43,11 @@ apagados na desinstalação.
 
 ## Atualizar
 
-- **Pelo programa:** ao abrir, o LEBR consulta a última release; havendo versão nova, aparece **Atualizar agora**
-  (também em **Ajuda → Verificar atualizações**). O LEBR fecha, o instalador monta a versão nova e reabre o
-  programa.
+- **Pelo programa:** ao abrir (e a cada 6 horas), o LEBR consulta a última release. A versão aparece no canto direito
+  da **barra inferior**: um clique verifica na hora; havendo versão nova, o item fica destacado (**Nova versão x.y.z**)
+  e, ao clicar e confirmar — com a opção de salvar o projeto antes —, o LEBR fecha, o instalador monta a versão nova e
+  reabre o programa (também em **Ajuda → Verificar atualizações**). No executável portátil e pelo código-fonte, o
+  aviso aparece igual, mas o clique abre a página de download.
 - **Pelo menu Iniciar:** atalho **Atualizar o LEBR**.
 - Rodar o `LEBR-Instalador.exe` de novo tem o mesmo efeito.
 
@@ -57,8 +59,8 @@ Cada release precisa de dois anexos: **`lebr-fonte.zip`** (o código-fonte) e **
 correspondente:
 
 ```bash
-git tag v0.64.0
-git push origin v0.64.0
+git tag v0.65.0
+git push origin v0.65.0
 ```
 
 O fluxo [`.github/workflows/release.yml`](../.github/workflows/release.yml) confere a versão, roda os testes, gera

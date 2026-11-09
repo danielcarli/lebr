@@ -133,8 +133,24 @@ A partir da 0.32, a planta de arquitetura importada de um DXF fica no arquivo, n
 
 `entidades` são linhas poligonais (`p`: x0, y0, x1, y1… — arcos, círculos e blocos já vêm em segmentos; `f`: 1 se
 fechada) e `c` é o índice da camada. No pavimento, `dx`/`dy` (m) e `rotacao` (°) levam o desenho, já convertido
-para metros, à posição da montagem. Os eixos são posições em metros: em `x`, as linhas verticais (1, 2, 3…); em `y`,
-as horizontais (A, B, C…).
+para metros, à posição da montagem. Até a 0.64 os eixos eram posições em metros: em `x`, as linhas verticais
+(1, 2, 3…); em `y`, as horizontais (A, B, C…). Esse formato continua sendo lido.
+
+Desde a 0.65 os eixos podem ser verticais, horizontais ou inclinados, e as cotas entre eixos ficam no arquivo:
+
+```json
+"eixos": {
+  "lista": [{ "id": "e1", "p": [0, 0], "ang": 90 }, { "id": "e2", "p": [4, 0], "ang": 90 },
+            { "id": "e3", "p": [0, 0], "ang": 0, "nome": "A" }, { "id": "e4", "p": [0, 0], "ang": 45 }],
+  "cotas": [{ "id": "c1", "a": "e1", "b": "e2", "s": 1.5 }]
+}
+```
+
+Cada eixo é uma reta pelo ponto `p` (m) com a direção `ang` (°, de 0 a 180: 0 horizontal, 90 vertical); `nome` é
+opcional (sem ele: verticais 1, 2, 3…, horizontais A, B, C…, inclinados D1, D2…, na ordem da posição). Uma cota liga
+dois eixos paralelos `a` e `b`, desenhada a `s` metros ao longo deles. Os cruzamentos (nós A-1, B-3…) são calculados,
+não gravados. A primeira edição de eixos num arquivo antigo grava a `lista` no lugar de `x`/`y`. Mostrar ou ocultar
+os eixos é preferência da tela, não vai para o arquivo.
 
 ### Otimização das bitolas (`otimizacao`)
 

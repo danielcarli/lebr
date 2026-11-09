@@ -184,7 +184,7 @@ function registrarIPC() {
     return r.filePath;
   });
 
-  const EXEMPLOS = { padrao: 'edificio-exemplo.lebr.json', '3-pavimentos': 'edificio-3-pavimentos.lebr.json', terreo: 'residencia-terrea-baldrame.lebr.json', sobrado: 'sobrado-garagem.lebr.json', '18-pavimentos': 'edificio-18-pavimentos.lebr.json', aeroporto: 'terminal-aeroporto.lebr.json', satelite: 'aeroporto-terminal-satelite.lebr.json' };
+  const EXEMPLOS = { padrao: 'edificio-exemplo.lebr.json', '3-pavimentos': 'edificio-3-pavimentos.lebr.json', terreo: 'residencia-terrea-baldrame.lebr.json', sobrado: 'sobrado-garagem.lebr.json', '18-pavimentos': 'edificio-18-pavimentos.lebr.json', aeroporto: 'terminal-aeroporto.lebr.json', satelite: 'aeroporto-terminal-satelite.lebr.json', fundacoes: 'residencia-fundacoes.lebr.json' };
   ipcMain.handle('projeto:exemplo', (_e, nome) => lerProjeto(path.join(RAIZ, 'exemplos', EXEMPLOS[nome] ?? EXEMPLOS.padrao)));
 
   ipcMain.handle('recentes:listar', () => recentes.listar());

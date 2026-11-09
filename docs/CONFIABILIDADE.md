@@ -8,7 +8,7 @@ O LEBR é validado em **três camadas** independentes, todas automatizadas e rod
 |---|---|---|
 | 1. Banco de casos | Cada resultado comparado com um valor que **não vem do programa**: expressão da norma, tabela clássica (Timoshenko, Bares, Czerny), solução fechada (Clapeyron, Navier, equilíbrio dos nós) ou **exercício resolvido publicado** (158 casos de apostilas, livros, TCCs e dissertações, com fonte, página e enunciado) | `validacao/casos/*.json`, [VALIDACAO.md](VALIDACAO.md), [VALIDACAO-BIBLIOGRAFIA.md](VALIDACAO-BIBLIOGRAFIA.md) |
 | 2. Varreduras de invariantes | Milhares de entradas sorteadas em domínios de projeto usuais; para cada uma, propriedades que o resultado tem de ter **qualquer que seja o método**: equilíbrio, simetria, superposição, monotonicidade, limites da norma, coincidência entre dois caminhos de cálculo e com soluções exatas | `src/validacao/invariantes.js` |
-| 3. Caminho das cargas | Em projetos inteiros (os sete exemplos), o peso somado elemento a elemento, sem passar pelas reações, tem de chegar às fundações pela cadeia laje → viga → pilar → fundação | `src/validacao/caminho-cargas.js` |
+| 3. Caminho das cargas | Em projetos inteiros (os oito exemplos), o peso somado elemento a elemento, sem passar pelas reações, tem de chegar às fundações pela cadeia laje → viga → pilar → fundação | `src/validacao/caminho-cargas.js` |
 
 ## Camada 1 — banco de casos
 
@@ -65,7 +65,7 @@ elemento isolado esteja certo.
 
 Foi ele que revelou, na 0.61, que uma laje apoiada em **meio vão** de uma viga carregava o vão inteiro
 (+20 % na carga daquela laje): a ligação passou a guardar o trecho em que a laje realmente apoia. Hoje o desvio
-nos sete exemplos fica entre 0,00 % e 0,22 % (o resto é o revestimento do reservatório, fora da soma independente).
+nos oito exemplos fica entre 0,00 % e 0,22 % (o resto é o revestimento do reservatório, fora da soma independente).
 
 ## Limites e responsabilidade
 

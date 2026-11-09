@@ -24,7 +24,7 @@ const abrir = (arq) => lerProjeto(fs.readFileSync(new URL(`../exemplos/${arq}`, 
 const de = (p, m, c) => m.get(p.elementos.find((e) => e.codigo === c).id);
 
 test('exemplos montados: todos os elementos posicionados ficam verdes', () => {
-  for (const arq of ['edificio-exemplo.lebr.json', 'residencia-terrea-baldrame.lebr.json', 'sobrado-garagem.lebr.json', 'edificio-3-pavimentos.lebr.json', 'terminal-aeroporto.lebr.json', 'aeroporto-terminal-satelite.lebr.json']) {
+  for (const arq of ['edificio-exemplo.lebr.json', 'residencia-terrea-baldrame.lebr.json', 'sobrado-garagem.lebr.json', 'edificio-3-pavimentos.lebr.json', 'terminal-aeroporto.lebr.json', 'aeroporto-terminal-satelite.lebr.json', 'residencia-fundacoes.lebr.json']) {
     const p = abrir(arq);
     const m = estadoMontagem(p, reg);
     const erros = [...m].filter(([, v]) => v.estado === 'erro');

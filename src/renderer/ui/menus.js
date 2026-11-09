@@ -36,6 +36,7 @@ export function fecharMenus() {
 }
 
 function resolver(item) {
+  if (!item) return null;
   if (item === '-' || item.cabecalho) return item;
   if (item.comando) {
     const c = comandos.obter(item.comando);

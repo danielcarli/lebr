@@ -64,6 +64,7 @@ estado.normalizadores.push(manterPontosFixos);
 import { criarSapatasNosPilares, criarBlocosNosPilares, criarNivelBaldrame, criarRadierNosPilares, criarSapatasCorridasNasVigas } from './core/fundacoes.js';
 import { criarTelhadoNaCobertura } from './core/telhados.js';
 import { limparGeometria, folgasGeometricas, toleranciaGeometrica, detectarLigacoes, aplicarLigacoes } from './core/montagem.js';
+import { converterLaje, tiposParaConverter, TIPOS_LAJE } from './core/converter-laje.js';
 import { proximoCodigo, novoId } from './core/projeto.js';
 import { lerIfc } from '../engine/ifc.js';
 import { planoIfc, aplicarIfc } from './core/importar-ifc.js';
@@ -78,7 +79,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.64.0';
+const VERSAO = '0.65.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -459,6 +460,50 @@ function duplicar(id) {
   if (orig?.posicao) partes.push('posicione a cópia na montagem');
   if (n) partes.push(`${n} reação(ões) de outros elementos não foram copiadas para não contar a mesma carga duas vezes — use "Conectar automaticamente" depois de posicionar`);
   notificar(`${c.codigo} criado a partir de ${orig?.codigo ?? ''}${partes.length ? `: ${partes.join('; ')}.` : '.'}`, 'ok', { duracao: n ? 8000 : 4000 });
+}
+
+/**
+ * Converter a laje em outro tipo (0.65): lista os tipos e o usuário escolhe; contorno, bordas, cargas e código ficam,
+ * as ligações com as vigas são refeitas e a aba da laje reabre no módulo novo.
+ */
+async function converterTipoLaje(id = elementoAtivo(), modulo = null) {
+  const el = estado.elemento(id);
+  if (!el || !TIPOS_LAJE.some((t) => t.modulo === el.modulo)) return notificar('Selecione uma laje (maciça, treliçada, nervurada ou alveolar).', 'info');
+  const opcoes = tiposParaConverter(el, modulos);
+  const atual = TIPOS_LAJE.find((t) => t.modulo === el.modulo);
+  if (!modulo) {
+    let escolha = opcoes[0]?.modulo;
+    const lista = h('div', { class: 'conv-laje-lista', role: 'radiogroup' });
+    const desenhar = () => lista.replaceChildren(...opcoes.map((t) => h('button', {
+      type: 'button', role: 'radio', 'aria-checked': String(t.modulo === escolha), class: ['conv-laje-op', t.modulo === escolha && 'sel'],
+      onClick: () => { escolha = t.modulo; desenhar(); },
+      onDblclick: () => { escolha = t.modulo; lista.closest('.dialogo-fundo')?.querySelector('.botao.primario')?.click(); },
+    }, icone(modulos.obter(t.modulo)?.icone ?? 'laje', { tamanho: 18 }), h('span', null, h('strong', null, t.nome), h('small', null, t.dica)))));
+    desenhar();
+    const r = await dialogo({
+      rotulo: 'Converter laje', titulo: `${el.codigo}: ${atual.nome.toLowerCase()} → ?`,
+      texto: 'Escolha o tipo novo. Ficam o contorno na planta, o código, o nome, as bordas e as cargas de uso; espessura e dados próprios do tipo começam pelo padrão, pré-dimensionados pelo vão. As ligações com as vigas são refeitas e a laje fica a calcular.',
+      corpo: () => [lista],
+      botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: null }, { texto: 'Converter', tipo: 'primario', valor: () => escolha, padrao: true }],
+      largura: '520px',
+    });
+    if (!r) return;
+    modulo = r;
+  }
+  const para = TIPOS_LAJE.find((t) => t.modulo === modulo);
+  let res = null;
+  try {
+    estado.alterar((p) => { res = converterLaje(p, id, modulo, modulos); }, { descricao: `Converter ${el.codigo} em ${para?.nome.toLowerCase() ?? modulo}`, estrutural: true, elementoId: id });
+  } catch (err) { return notificar(`Não foi possível converter: ${err.message}`, 'erro'); }
+  const aberta = wb.abas?.some?.((a) => a.id === `el:${id}`) ?? true;
+  wb.fecharAbasOnde((a) => a.id === `el:${id}`);
+  if (aberta) abrirElemento(id);
+  const partes = [`${el.codigo} agora é ${para?.nome.toLowerCase() ?? modulo}`];
+  if (res?.direcao === 'x' || res?.direcao === 'y') partes.push(modulo === 'concreto.laje.nervurada' ? 'nervuras em x' : `${modulo === 'concreto.laje.alveolar' ? 'painéis' : 'vigotas'} na direção ${res.direcao}`);
+  partes.push(`${res?.ligacoes ?? 0} ligação(ões) com as vigas refeitas${res?.receptores?.length ? ` (${res.receptores.join(', ')}, a recalcular)` : ''}`);
+  if (res?.concentradas) partes.push(`${res.concentradas} carga(s) concentrada(s) ficaram de fora (só a maciça as calcula)`);
+  notificar(`${partes.join('; ')}. Confira a espessura e calcule.`, 'ok', { duracao: 8000 });
+  registrarSaida(`Laje ${el.codigo}: ${atual.nome} → ${para?.nome ?? modulo}; ${res?.removidas ?? 0} ligação(ões) antiga(s) removida(s), ${res?.ligacoes ?? 0} criada(s).`);
 }
 
 /* Carimbos de edição: um resultado que chega depois de uma edição do elemento (ou do projeto) já nasce desatualizado. */
@@ -1116,6 +1161,7 @@ function registrarComandos() {
   C({ id: 'projeto.abrir', categoria: 'Arquivo', titulo: 'Abrir projeto…', icone: 'pasta', tecla: 'Ctrl+O', executar: abrirProjeto });
   C({ id: 'projeto.abrirExemplo', categoria: 'Arquivo', titulo: 'Abrir projeto de exemplo', icone: 'documento', executar: () => abrirExemplo('padrao') });
   C({ id: 'projeto.abrirExemploTerreo', categoria: 'Arquivo', titulo: 'Abrir exemplo: residência térrea com baldrame e sapatas', icone: 'sapata', executar: () => abrirExemplo('terreo') });
+  C({ id: 'projeto.abrirExemploFundacoes', categoria: 'Arquivo', titulo: 'Abrir exemplo: residência com radier, estacas e sapata corrida', icone: 'estaca', executar: () => abrirExemplo('fundacoes') });
   C({ id: 'projeto.abrirExemploSobrado', categoria: 'Arquivo', titulo: 'Abrir exemplo: sobrado com garagem (concreto e telhado de madeira)', icone: 'casa', executar: () => abrirExemplo('sobrado') });
   C({ id: 'projeto.abrirExemplo18', categoria: 'Arquivo', titulo: 'Abrir exemplo: edifício de 18 pavimentos (pórtico com vento)', icone: 'cubo', executar: () => abrirExemplo('18-pavimentos') });
   C({ id: 'projeto.abrirExemploAeroporto', categoria: 'Arquivo', titulo: 'Abrir exemplo: terminal de aeroporto de médio porte', icone: 'cubo', executar: () => abrirExemplo('aeroporto') });
@@ -1141,6 +1187,7 @@ function registrarComandos() {
   C({ id: 'elemento.abrir', titulo: 'Abrir elemento', ocultoNaPaleta: true, executar: (id) => abrirElemento(id) });
   C({ id: 'elemento.renomear', categoria: 'Estrutura', titulo: 'Editar código e nome do elemento…', icone: 'editar', tecla: 'F2', habilitado: temElemento, executar: (id) => renomear(id) });
   C({ id: 'elemento.duplicar', categoria: 'Estrutura', titulo: 'Duplicar elemento', icone: 'copiar', habilitado: temElemento, executar: (id = elementoAtivo()) => duplicar(id) });
+  C({ id: 'elemento.converterLaje', categoria: 'Estrutura', titulo: 'Converter em outro tipo de laje…', icone: 'laje', habilitado: (id) => TIPOS_LAJE.some((t) => t.modulo === estado.elemento(typeof id === 'string' ? id : elementoAtivo())?.modulo), executar: (id, modulo) => converterTipoLaje(typeof id === 'string' ? id : elementoAtivo(), modulo) });
   C({ id: 'elemento.excluir', categoria: 'Estrutura', titulo: 'Excluir elemento', icone: 'lixeira', habilitado: temElemento, executar: (id) => excluir(id) });
   C({ id: 'estrutura.montagem', categoria: 'Estrutura', titulo: 'Montagem da estrutura (pavimentos e planta)', icone: 'planta', tecla: 'F6', habilitado: temProjeto, executar: (id) => abrirMontagem(id) });
   C({ id: 'estrutura.limparGeometria', categoria: 'Estrutura', titulo: 'Limpar geometria (fundir nós próximos)…', icone: 'juntar', habilitado: temProjeto, executar: limparGeometriaProjeto });
@@ -1184,7 +1231,7 @@ function registrarComandos() {
   C({ id: 'paleta.abrir', categoria: 'Exibir', titulo: 'Paleta de comandos…', icone: 'busca', tecla: 'Ctrl+Shift+P', executar: () => abrirPaleta({ modo: 'comandos', fonteElementos }) });
   C({ id: 'paleta.abrirF1', titulo: 'Paleta de comandos', tecla: 'F1', ocultoNaPaleta: true, executar: () => abrirPaleta({ modo: 'comandos', fonteElementos }) });
   C({ id: 'paleta.elementos', categoria: 'Exibir', titulo: 'Ir para elemento…', icone: 'busca', tecla: 'Ctrl+P', executar: () => abrirPaleta({ modo: 'elementos', fonteElementos }) });
-  C({ id: 'exibir.inicio', categoria: 'Exibir', titulo: 'Tela inicial', icone: 'lebr', executar: mostrarInicio });
+  C({ id: 'exibir.inicio', categoria: 'Exibir', titulo: 'Tela inicial', icone: 'lebr', tecla: 'I', executar: mostrarInicio });
   C({ id: 'exibir.soPendencias', categoria: 'Exibir', titulo: 'Explorador: mostrar só os elementos com pendências', icone: 'filtro', marcado: () => soPendencias(), executar: (v) => { alternarPendencias(typeof v === 'boolean' ? v : undefined); wb.mostrarVisao('explorador'); } });
   C({ id: 'exibir.legendaExplorador', titulo: 'Legenda do explorador', ocultoNaPaleta: true, executar: () => wb.mostrarVisao('explorador') });
   C({ id: 'exibir.agruparPavimento', categoria: 'Exibir', titulo: 'Agrupar elementos por pavimento no explorador', icone: 'camadas', executar: () => { alternarAgrupamento(); wb.mostrarVisao('explorador'); notificar(agruparPorPavimento() ? 'Explorador agrupado por pavimento.' : 'Explorador em lista única por categoria.', 'info', { duracao: 2000 }); } });
@@ -1250,7 +1297,7 @@ function registrarComandos() {
   for (const l of LICOES) C({ id: `aprender.${l.id}`, categoria: 'Aprender', titulo: `${l.numero} · ${l.titulo}`, icone: ICONE_LICAO[l.id] ?? 'aprender', executar: () => abrirLicao(l.id) });
   C({ id: 'ajuda.roteiro', categoria: 'Ajuda', titulo: 'Roteiro (road map)', icone: 'roteiro', executar: () => wb.abrirAba(abaRoteiro({ versao: VERSAO })) });
   C({ id: 'ajuda.sobre', categoria: 'Ajuda', titulo: 'Sobre o LEBR', icone: 'info', executar: mostrarSobre });
-  C({ id: 'ajuda.atualizar', categoria: 'Ajuda', titulo: 'Verificar atualizações', icone: 'atualizar', executar: () => lebr?.atualizacao?.verificar() });
+  C({ id: 'ajuda.atualizar', categoria: 'Ajuda', titulo: 'Verificar atualizações', icone: 'atualizar', executar: () => (atualizacao.fase === 'disponivel' || atualizacao.fase === 'pronto' ? confirmarAtualizacao() : verificarAtualizacao()) });
 }
 
 /** Abas abertas, na ordem da barra, para a lista rápida (Alt+0). */
@@ -1276,13 +1323,13 @@ function definirMenus() {
   const novos = () => modulos.lista().map((m) => ({ comando: `elemento.novo.${m.id}` }));
   wb.definirMenus([
     { rotulo: 'Arquivo', itens: [
-      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
+      { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploFundacoes' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
       { cabecalho: 'Recentes' }, ...recentesMenu,
       '-', { comando: 'projeto.salvar' }, { comando: 'projeto.salvarComo' }, { comando: 'projeto.mostrarArquivo' },
       '-', { comando: 'projeto.importarIFC' }, { comando: 'projeto.exportarIFC' }, { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
       '-', { comando: 'projeto.parametros' }, '-', { comando: 'projeto.fechar' },
     ] },
-    { rotulo: 'Editar', itens: [{ comando: 'editar.desfazer' }, { comando: 'editar.refazer' }, '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Editar', itens: [{ comando: 'editar.desfazer' }, { comando: 'editar.refazer' }, '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.converterLaje' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Exibir', itens: [
       { comando: 'paleta.abrir' }, { comando: 'paleta.elementos' }, '-',
       { comando: 'exibir.explorador' }, { comando: 'exibir.agruparPavimento' }, { comando: 'exibir.soPendencias' }, { comando: 'exibir.modulos' }, { comando: 'exibir.inicio' }, '-',
@@ -1291,7 +1338,7 @@ function definirMenus() {
       { comando: 'aba.dividir' }, { comando: 'aba.juntar' }, { comando: 'aba.focarOutroLado' }, { comando: 'exibir.fixar3D' }, { comando: 'exibir.painel3D' }, '-',
       { comando: 'exibir.tema' }, { comando: 'exibir.tema.claro' }, { comando: 'exibir.tema.escuro' }, { comando: 'exibir.tema.blueprint' }, '-', { comando: 'exibir.zoomMais' }, { comando: 'exibir.zoomMenos' }, { comando: 'exibir.zoomPadrao' },
     ] },
-    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.radier' }, { comando: 'estrutura.sapatasCorridas' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.telhado' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },
+    { rotulo: 'Estrutura', itens: () => [{ comando: 'estrutura.montagem' }, { comando: 'estrutura.limparGeometria' }, { comando: 'estrutura.definirCruzamentos' }, { comando: 'estrutura.resolverProblemas' }, { comando: 'estrutura.renumerar' }, { comando: 'estrutura.3d' }, { comando: 'estrutura.vento' }, { comando: 'estrutura.estabilidade' }, { comando: 'estrutura.quantitativos' }, { comando: 'projeto.memorial' }, { comando: 'projeto.cargasFundacao' }, '-', { comando: 'estrutura.sapatas' }, { comando: 'estrutura.blocos' }, { comando: 'estrutura.radier' }, { comando: 'estrutura.sapatasCorridas' }, { comando: 'estrutura.baldrame' }, { comando: 'estrutura.telhado' }, { comando: 'estrutura.vigaBaldrame' }, { comando: 'ajuda.cargas' }, '-', ...novos(), '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.converterLaje' }, { comando: 'elemento.excluir', perigo: true }] },
     { rotulo: 'Calcular', itens: [{ comando: 'elemento.calcular' }, { comando: 'elemento.calcularTodos' }, '-', { comando: 'elemento.otimizarBitolas' }, { comando: 'elemento.otimizarAco' }, { comando: 'elemento.otimizarSegmentos' }, { comando: 'elemento.semOtimizacao' }, '-', { comando: 'projeto.otimizarBitolas' }, { comando: 'projeto.otimizarAco' }, { comando: 'projeto.otimizarSegmentos' }, { comando: 'projeto.semOtimizacao' }, '-', { comando: 'elemento.memorial' }] },
     { rotulo: 'Módulos', itens: () => [
       ...modulos.lista().map((m) => ({ rotulo: `${m.nome} · v${m.versao}`, icone: m.icone, acao: () => wb.mostrarVisao('modulos') })),
@@ -1301,7 +1348,7 @@ function definirMenus() {
       { comando: 'ajuda.aprender', rotulo: 'Todas as lições' }, '-',
       ...LICOES.map((l) => ({ comando: `aprender.${l.id}` })), '-',
       { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-',
-      { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, '-',
+      { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploFundacoes' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, '-',
       { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.cargas' },
     ] },
     { rotulo: 'Ajuda', itens: [{ comando: 'paleta.abrir', rotulo: 'Mostrar todos os comandos' }, { comando: 'ajuda.aprender' }, { comando: 'ajuda.tutorialCasa' }, { comando: 'ajuda.tutoriais' }, '-', { comando: 'ajuda.atalhos' }, { comando: 'ajuda.modulos' }, '-', { comando: 'ajuda.cargas' }, { comando: 'ajuda.roteiro' }, { comando: 'ajuda.validacao' }, { comando: 'ajuda.bibliografia' }, { comando: 'ajuda.colaborar' }, { comando: 'ajuda.atualizar' }, { comando: 'ajuda.sobre' }] },
@@ -1397,6 +1444,52 @@ function configurarPainel() {
   ]);
 }
 
+/* ---------------------------------------------------------------- atualização (0.65) */
+/** Estado da verificação de versão nova, vindo do processo principal (fase, versao, progresso, erro). */
+let atualizacao = { fase: 'ocioso' };
+
+/** Item da versão na barra inferior: verifica a pedido, mostra a versão nova e atualiza depois de confirmar. */
+function itemStatusVersao() {
+  const st = atualizacao;
+  if (st.fase === 'disponivel' || st.fase === 'pronto') {
+    return itemStatus({ texto: `Nova versão ${st.versao}`, icone: 'atualizar', classe: 'status-novidade', titulo: `Você usa o LEBR ${VERSAO}; a versão ${st.versao} está disponível.\nClique para atualizar.`, aoClicar: () => confirmarAtualizacao() });
+  }
+  if (st.fase === 'baixando') return itemStatus({ texto: `Baixando ${st.versao ?? ''} · ${st.progresso ?? 0} %`, icone: 'atualizar', classe: 'status-baixando', titulo: 'A versão nova está sendo baixada; ao terminar, o botão oferece reiniciar e atualizar.' });
+  if (st.fase === 'verificando') return itemStatus({ texto: `LEBR ${VERSAO} · verificando…`, icone: 'atualizar', classe: 'status-baixando', titulo: 'Procurando versão nova no GitHub' });
+  const titulo = {
+    atualizado: `LEBR ${VERSAO} — esta é a versão mais recente.\nClique para verificar de novo.`,
+    erro: `Não foi possível verificar atualizações (${st.erro ?? 'sem resposta'}).\nClique para tentar de novo.`,
+    indisponivel: `LEBR ${VERSAO}. A atualização automática funciona no LEBR instalado pelo instalador do Windows; clique para verificar se há versão nova.`,
+  }[st.fase] ?? `LEBR ${VERSAO} — clique para verificar se há versão nova`;
+  return itemStatus({ texto: `LEBR ${VERSAO}`, icone: st.fase === 'atualizado' ? 'check' : st.fase === 'erro' ? 'alerta' : undefined, titulo, aoClicar: () => verificarAtualizacao() });
+}
+
+/** Verificação a pedido (Ajuda › Verificar atualizações ou clique na versão da barra inferior). */
+function verificarAtualizacao() {
+  if (!lebr?.atualizacao) return notificar(`LEBR ${VERSAO}. A verificação de versão nova só funciona no programa instalado.`, 'info');
+  lebr.atualizacao.verificar();
+}
+
+/** Confirma e atualiza: oferece salvar antes, porque o LEBR fecha para o instalador trocar a versão. */
+async function confirmarAtualizacao() {
+  const st = atualizacao;
+  if (!(st.fase === 'disponivel' || st.fase === 'pronto') || !lebr?.atualizacao) return verificarAtualizacao();
+  const sujo = !!(estado.projeto && estado.sujo);
+  const r = await dialogo({
+    rotulo: 'Atualização', titulo: `Atualizar o LEBR para a versão ${st.versao}?`,
+    texto: st.instalavel === false && st.fase === 'disponivel' ? `Você usa a versão ${VERSAO}. Esta cópia (código-fonte ou portátil) não se atualiza sozinha: a página de download da versão ${st.versao} abre no navegador. Pelo código-fonte, use git pull e npm install.` : `Você usa a versão ${VERSAO}. ${st.fase === 'pronto' ? 'A versão nova já foi baixada: o LEBR reinicia e abre atualizado.' : 'O LEBR fecha, o instalador baixa e monta a versão nova e o programa abre de novo — leva alguns minutos.'} ${sujo ? `O projeto “${estado.projeto.meta.nome}” tem alterações não salvas.` : 'Os projetos salvos não são alterados.'} As novidades estão no README e nas releases do GitHub.`,
+    botoes: [
+      { texto: 'Agora não', tipo: 'fantasma', valor: null },
+      st.instalavel === false && st.fase === 'disponivel' ? { texto: 'Abrir a página de download', tipo: 'primario', valor: 'ok', padrao: true } : sujo ? { texto: 'Salvar e atualizar', tipo: 'primario', valor: 'salvar', padrao: true } : { texto: 'Atualizar agora', tipo: 'primario', valor: 'ok', padrao: true },
+    ],
+    largura: '480px',
+  });
+  if (!r) return;
+  if (r === 'salvar' && !(await salvar())) return;
+  registrarSaida(`Atualização: LEBR ${VERSAO} → ${st.versao}.`);
+  lebr.atualizacao.instalar();
+}
+
 function atualizarStatus() {
   const p = estado.projeto;
   const errosMont = errosDeMontagem().length;
@@ -1433,7 +1526,7 @@ function atualizarStatus() {
   }
   direita.push(
     itemStatus({ texto: nomeTema(), icone: 'tema', titulo: 'Alternar tema (claro, escuro, blueprint)', aoClicar: () => comandos.executar('exibir.tema') }),
-    itemStatus({ texto: `LEBR ${VERSAO}`, titulo: 'Laboratório de Estruturas Brasil' }),
+    itemStatusVersao(),
   );
   wb.definirStatus({ esquerda, direita, situacao: sit.situacao, titulo: sit.titulo });
 }
@@ -1604,15 +1697,20 @@ function ligarEventos() {
 
   lebr?.janela.aoComandoDoMenu((id) => comandos.executar(id));
   // atualização automática pelo GitHub: avisa quando a nova versão já está baixada; a pedido, diz também o resto
+  // a barra inferior mostra o estado; a versão nova também avisa uma vez por versão
+  lebr?.atualizacao?.estado?.().then((st) => { if (st) { atualizacao = st; atualizarStatus(); } }).catch(() => {});
+  let avisada = null;
+  // console e testes: ver a barra com um estado de atualização (ex.: { fase: 'disponivel', versao: '9.9.9' })
+  globalThis.__lebrAtualizacao = { simular: (st) => { atualizacao = st; atualizarStatus(); }, confirmar: () => confirmarAtualizacao() };
   lebr?.atualizacao?.aoMudar((st) => {
-    if (st.fase === 'disponivel') {
-      notificar(`A versão ${st.versao} do LEBR está disponível no GitHub.`, 'info', { duracao: 0, acoes: [{ texto: 'Atualizar agora', aoClicar: () => lebr.atualizacao.instalar() }] });
-    } else if (st.fase === 'pronto') {
-      notificar(`A versão ${st.versao} do LEBR já foi baixada.`, 'ok', { duracao: 0, acoes: [{ texto: 'Reiniciar e atualizar', aoClicar: () => lebr.atualizacao.instalar() }] });
+    atualizacao = st;
+    atualizarStatus();
+    if ((st.fase === 'disponivel' || st.fase === 'pronto') && avisada !== `${st.fase}:${st.versao}`) {
+      avisada = `${st.fase}:${st.versao}`;
+      notificar(st.fase === 'pronto' ? `A versão ${st.versao} do LEBR já foi baixada.` : `A versão ${st.versao} do LEBR está disponível no GitHub.`, st.fase === 'pronto' ? 'ok' : 'info', { duracao: 0, acoes: [{ texto: 'Atualizar…', aoClicar: () => confirmarAtualizacao() }] });
     } else if (st.manual) {
       if (st.fase === 'atualizado') notificar(`O LEBR já está na versão mais recente (${VERSAO}).`, 'ok');
       else if (st.fase === 'baixando' && st.progresso === 0) notificar(`Baixando a versão ${st.versao}…`, 'info');
-      else if (st.fase === 'indisponivel') notificar('A atualização automática só funciona no LEBR instalado pelo instalador do Windows. Baixe a versão nova em github.com/danielcarli/lebr.', 'info', { duracao: 9000 });
       else if (st.fase === 'erro') notificar(`Não foi possível verificar atualizações: ${st.erro}`, 'erro', { duracao: 8000 });
     }
   });

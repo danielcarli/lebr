@@ -20,11 +20,13 @@
  *   código-fonte novo, confere, testa, monta e reabre o programa).
  * - **Instalador com o programa pronto** (electron-builder, quando houver app-update.yml nos recursos): o
  *   electron-updater baixa a versão nova em segundo plano e oferece "Reiniciar e atualizar".
- * - Código-fonte (npm start) e executável portátil: sem atualização automática.
  *
- * Ao abrir, a verificação é silenciosa; o comando ajuda.atualizar faz a verificação a pedido.
+ * - Código-fonte (npm start) e executável portátil: a verificação só avisa da versão nova e abre a página de download.
+ *
+ * Ao abrir (e a cada 6 h), a verificação é silenciosa; a versão aparece na barra inferior, onde um clique verifica
+ * a pedido e, havendo versão nova, atualiza depois de confirmar (comando ajuda.atualizar).
  */
-const { app, ipcMain, net } = require('electron');
+const { app, ipcMain, net, shell } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
@@ -32,8 +34,10 @@ const { spawn } = require('node:child_process');
 const REPOSITORIO = 'danielcarli/lebr';
 let autoUpdater = null;
 let atualizador = null;   // caminho do LEBR-Instalador.exe (modo instalador)
+let soAviso = false;      // código-fonte ou portátil: só avisa da versão nova e abre a página de download
 let janela = null;
 let estado = { fase: 'ocioso', versao: null, progresso: 0, erro: null };
+const SEIS_HORAS = 6 * 3600 * 1000;   // com o programa aberto por muito tempo, verifica de novo
 
 function enviar() { janela?.webContents.send('atualizacao:estado', estado); }
 function mudar(parcial) { estado = { ...estado, ...parcial }; enviar(); }
@@ -76,7 +80,7 @@ async function verificarNoGitHub(manual) {
     const tag = await ultimaTag();
     const versao = tag.replace(/^v/, '');
     if (!/^\d+\.\d+\.\d+$/.test(versao)) throw new Error(`tag inesperada: ${tag}`);
-    mudar(compararVersoes(versao, app.getVersion()) > 0 ? { fase: 'disponivel', versao } : { fase: 'atualizado', versao });
+    mudar(compararVersoes(versao, app.getVersion()) > 0 ? { fase: 'disponivel', versao, instalavel: !!atualizador } : { fase: 'atualizado', versao });
   } catch (err) {
     mudar({ fase: 'erro', erro: String(err?.message ?? err) });
   }
@@ -90,11 +94,15 @@ function iniciar(j) {
     atualizador = exe;
     registrar();
     setTimeout(() => verificarNoGitHub(false), 8000);
+    setInterval(() => { if (estado.fase !== 'disponivel') verificarNoGitHub(false); }, SEIS_HORAS);
     return;
   }
   if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !fs.existsSync(yml)) {
     estado = { ...estado, fase: 'indisponivel' };
+    soAviso = true;
     registrar();
+    // portátil: avisa sozinho; pelo código-fonte (npm start) só a pedido
+    if (app.isPackaged) setTimeout(() => verificarNoGitHub(false), 8000);
     return;
   }
   try {
@@ -116,10 +124,11 @@ function iniciar(j) {
   registrar();
   // verificação silenciosa alguns segundos depois de abrir (não atrasa a janela)
   setTimeout(() => verificar(false), 8000);
+  setInterval(() => { if (!['baixando', 'pronto'].includes(estado.fase)) verificar(false); }, SEIS_HORAS);
 }
 
 function verificar(manual) {
-  if (atualizador) { verificarNoGitHub(manual); return; }
+  if (atualizador || soAviso) { verificarNoGitHub(manual); return; }
   if (!autoUpdater) { mudar({ fase: 'indisponivel', manual }); return; }
   mudar({ manual });
   autoUpdater.checkForUpdates().catch((err) => mudar({ fase: 'erro', erro: String(err?.message ?? err) }));
@@ -134,6 +143,7 @@ function registrar() {
       spawn(atualizador, ['/ATUALIZAR', '/SP-'], { detached: true, stdio: 'ignore' }).unref();
       setTimeout(() => app.quit(), 300);
     } else if (autoUpdater && estado.fase === 'pronto') autoUpdater.quitAndInstall(false, true);
+    else if (soAviso && estado.fase === 'disponivel') shell.openExternal(`https://github.com/${REPOSITORIO}/releases/latest`);
   });
 }
 
