@@ -27,7 +27,7 @@ import { COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 
 const CORES = {
   positiva: 0xb85438, construtiva: 0xc98a6e, negativa: 0x2f5fa3, 'porta-estribo': 0x7b8fae, pele: 0x6f8f3a, 'torção': 0x8c5fb0,
-  estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae,
+  estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae, 'treliça': 0x5f6b7a,
 };
 /**
  * Linha poligonal para o TubeGeometry: o parâmetro u anda de vértice em vértice (u·(n−1) = índice), e a tangente num
@@ -83,7 +83,7 @@ export function dobrasArredondadas(pts, R) {
 /** Tema blueprint: cores claras e saturadas, com contraste sobre o papel azul. */
 const CORES_AZUL = {
   positiva: 0xffb347, construtiva: 0xffd9a8, negativa: 0x7fe3ff, 'porta-estribo': 0xd6e2f3, pele: 0xbdf08c, 'torção': 0xe6b3ff,
-  estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3,
+  estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3, 'treliça': 0xffffff,
 };
 const corBarra = (t) => ((document.documentElement.dataset.tema === 'blueprint' ? CORES_AZUL : CORES)[t] ?? 0x888888);
 /** Peças de madeira e de vedação (telhado e tesoura): cor, opacidade e nome. */
@@ -94,7 +94,7 @@ const PECAS = {
 };
 const NOMES = {
   positiva: 'Positiva', construtiva: 'Construtiva', negativa: 'Negativa', 'porta-estribo': 'Porta-estribo', pele: 'Pele', 'torção': 'Torção',
-  estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição',
+  estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição', 'treliça': 'Treliça (CA-60)',
 };
 
 let renderer = null;   // compartilhado

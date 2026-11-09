@@ -79,7 +79,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.65.0';
+const VERSAO = '0.66.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -1186,7 +1186,7 @@ function registrarComandos() {
   }));
   C({ id: 'elemento.abrir', titulo: 'Abrir elemento', ocultoNaPaleta: true, executar: (id) => abrirElemento(id) });
   C({ id: 'elemento.renomear', categoria: 'Estrutura', titulo: 'Editar código e nome do elemento…', icone: 'editar', tecla: 'F2', habilitado: temElemento, executar: (id) => renomear(id) });
-  C({ id: 'elemento.duplicar', categoria: 'Estrutura', titulo: 'Duplicar elemento', icone: 'copiar', habilitado: temElemento, executar: (id = elementoAtivo()) => duplicar(id) });
+  C({ id: 'elemento.duplicar', categoria: 'Estrutura', titulo: 'Duplicar elemento', icone: 'copiar', tecla: 'Ctrl+D', habilitado: temElemento, executar: (id = elementoAtivo()) => duplicar(id) });
   C({ id: 'elemento.converterLaje', categoria: 'Estrutura', titulo: 'Converter em outro tipo de laje…', icone: 'laje', habilitado: (id) => TIPOS_LAJE.some((t) => t.modulo === estado.elemento(typeof id === 'string' ? id : elementoAtivo())?.modulo), executar: (id, modulo) => converterTipoLaje(typeof id === 'string' ? id : elementoAtivo(), modulo) });
   C({ id: 'elemento.excluir', categoria: 'Estrutura', titulo: 'Excluir elemento', icone: 'lixeira', habilitado: temElemento, executar: (id) => excluir(id) });
   C({ id: 'estrutura.montagem', categoria: 'Estrutura', titulo: 'Montagem da estrutura (pavimentos e planta)', icone: 'planta', tecla: 'F6', habilitado: temProjeto, executar: (id) => abrirMontagem(id) });

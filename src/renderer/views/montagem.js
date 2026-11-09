@@ -53,10 +53,15 @@ import {
   camadaFundo, pontosDoFundo, blocoFundo, passoMalha, plantaDoDxf, fundoInicial, plantaDe, transformacaoFundo,
 } from './montagem-fundo.js';
 import * as nucleoEixos from '../core/eixos.js';
+import { copiaDoElemento, copiaDoEixo, colarElemento, colarEixo } from '../core/copiar-colar.js';
 import { listaEixos, nosDosEixos, cruzamentosDosEixos, eixoPerto, projetarNoEixo, distanciaAoEixo, cotasDosEixos } from '../core/eixos.js';
 import { camadaEixos, encaixarEmEixos, blocoEixos, cartaoEixo, eixosLevamElementos, distanciaDuplicar, eixosVisiveis, definirEixosVisiveis, passoDaSeta } from './montagem-eixos.js';
 
 /** Estado da vista (sobrevive aos redesenhos da aba). */
+/** Área de transferência da montagem (elemento ou eixo copiado) e quantas vezes já foi colada sem cursor. */
+const areaTransf = { item: null, vezes: 0 };
+const ponteiro = { dentro: false, p: null };
+
 const vista = { projeto: null, pav: null, cx: 4, cy: 2.5, esc: 60, sel: null, selEixo: null, foco: null, marca: null, modo: null, subModo: null, pincel: null, lateralSobre: false, cadeia: [], cursor: null, enquadrar: true, conhecidos: null, novos: new Set(), ordem: 'alfabetica', moverFundo: false };
 
 const GRADE = 0.05;               // m — passo do arrasto
@@ -891,7 +896,13 @@ function renderizar(container, acoes) {
       arrasto = { tipo: 'pan', x0: e.clientX, y0: e.clientY, cx: vista.cx, cy: vista.cy, escala, moveu: false };
     }
   });
+  svg.addEventListener('pointerleave', () => { ponteiro.dentro = false; });
   svg.addEventListener('pointermove', (e) => {
+    {
+      const r1 = svg.getBoundingClientRect();
+      ponteiro.dentro = true;
+      ponteiro.p = mundo((e.clientX - r1.left) * (W / r1.width), (e.clientY - r1.top) * (W / r1.width));
+    }
     if (vista.modo && (!arrasto || !arrasto.moveu)) {
       const r0 = svg.getBoundingClientRect();
       const esc0 = W / r0.width;
@@ -1090,6 +1101,63 @@ function renderizar(container, acoes) {
     vista.selEixo = id; vista.sel = null;
     renderizarTudo();
   }
+  /* ---------------------------------------------------- copiar, colar e duplicar (0.66) */
+  /** Deslocamento de uma cópia sem cursor: uns 30 px na escala atual, em múltiplos de 5 cm (mínimo 20 cm). */
+  const deslocCopia = () => Math.max(0.2, arred(30 / vista.esc, 0.05));
+  /** Ctrl+C: guarda o elemento ou o eixo selecionado. */
+  function copiarSel() {
+    if (vista.selEixo) {
+      const ex = listaEixos(estado.projeto).find((x) => x.id === vista.selEixo);
+      if (!ex) return false;
+      areaTransf.item = copiaDoEixo(ex); areaTransf.vezes = 0;
+      notificar(`Eixo ${ex.nome} copiado — Ctrl+V cola um paralelo no cursor.`, 'info', { duracao: 2500 });
+      return true;
+    }
+    const el = vista.sel && estado.elemento(vista.sel);
+    if (!el) return false;
+    const c = copiaDoElemento(el);
+    if (!c) { notificar(`${el.codigo} acompanha o seu apoio e não é copiado; use os comandos de fundação.`, 'info'); return true; }
+    areaTransf.item = c; areaTransf.vezes = 0;
+    notificar(`${el.codigo} copiado — Ctrl+V cola com o ponto de inserção no cursor (em qualquer pavimento).`, 'info', { duracao: 2500 });
+    return true;
+  }
+  /**
+   * Cola um item: com o cursor sobre a planta, o ponto de inserção (ou o eixo) vai para o cursor, com encaixe; sem
+   * cursor, a cópia fica deslocada da anterior. `item` vazio usa a área de transferência.
+   */
+  function colarItem(item = areaTransf.item, { noCursor = true } = {}) {
+    if (!item) { notificar('Nada copiado: selecione um elemento ou eixo e use Ctrl+C.', 'info'); return false; }
+    const alvo = noCursor && ponteiro.dentro && ponteiro.p ? pontoDoLancamento(ponteiro.p, false).p : null;
+    if (!alvo && item === areaTransf.item) areaTransf.vezes++;
+    const k = item === areaTransf.item ? Math.max(1, areaTransf.vezes) : 1;
+    if (item.tipo === 'eixo') {
+      let id = null;
+      alterar((pp) => { id = colarEixo(pp, item, alvo ? { ponto: alvo } : { desloc: k * distanciaDuplicar(vista.esc) }); }, 'Colar eixo', { invalidar: false });
+      if (!eixosVisiveis()) definirEixosVisiveis(true);
+      vista.selEixo = id; vista.sel = null;
+      renderizarTudo();
+      return true;
+    }
+    const pos = item.el.posicao;
+    const d = deslocCopia() * k;
+    const [dx, dy] = alvo ? [alvo[0] - pos.x, alvo[1] - pos.y] : [d, -d];
+    let r = null;
+    alterar((pp) => { r = colarElemento(pp, item, { pavimento: vista.pav, dx, dy, peDireito: peDireito(pp, vista.pav) }); }, `Colar ${item.el.codigo}`, { invalidar: tipo(item.el) === 'pilar' });
+    vista.sel = r.el.id; vista.selEixo = null;
+    renderizarTudo();
+    notificar(`${r.el.codigo} criado a partir de ${item.el.codigo}${r.ligacoesRemovidas ? ' — as ligações não vêm junto: use Conectar automaticamente' : ''}.`, 'ok', { duracao: 3500 });
+    return true;
+  }
+  /** Ctrl+D: duplica o selecionado (elemento ou eixo) ao lado, sem mexer no que foi copiado. */
+  function duplicarSel() {
+    if (vista.selEixo) return duplicarEixoSel(1);
+    const el = vista.sel && estado.elemento(vista.sel);
+    if (!el) return false;
+    const c = copiaDoElemento(el);
+    if (!c) { notificar(`${el.codigo} acompanha o seu apoio e não é duplicado aqui.`, 'info'); return true; }
+    return colarItem(c, { noCursor: false });
+  }
+
   function duplicarEixoSel(lado = 1) {
     const ex = listaEixos(estado.projeto).find((x) => x.id === vista.selEixo);
     if (!ex) return false;
@@ -1285,6 +1353,8 @@ function renderizar(container, acoes) {
           aoMudar: (v) => alterar((pp) => { const e = elDoProjeto(pp, sel.id); e.posicao.pavimento = v; const pd = peDireito(pp, v); if (t === 'pilar' && pd > 0) e.comprimento = pd; }, `Mudar ${sel.codigo} de pavimento`, { invalidar: t === 'pilar', elementoId: sel.id }) }),
         h('div', { class: 'mont-sel-acoes' },
           ui.botao({ texto: 'Retirar da planta', icone: 'fechar', tipo: 'fantasma', titulo: 'O elemento volta para "Não posicionados" (não é apagado)', aoClicar: () => { alterar((pp) => { delete elDoProjeto(pp, sel.id).posicao; }, `Retirar ${sel.codigo} da planta`); vista.sel = null; } }),
+          ui.botao({ texto: 'Copiar', icone: 'copiar', tipo: 'fantasma', titulo: 'Copiar (Ctrl+C); Ctrl+V cola com o ponto de inserção no cursor', aoClicar: () => copiarSel() }),
+          ui.botao({ texto: 'Duplicar', icone: 'copiar', tipo: 'fantasma', titulo: 'Duplicar ao lado (Ctrl+D)', aoClicar: () => duplicarSel() }),
           /laje\.(macica|trelicada|nervurada|alveolar)$/.test(sel.modulo) ? ui.botao({ texto: 'Converter tipo…', icone: 'laje', tipo: 'fantasma', titulo: 'Converter em outro tipo de laje: maciça, treliçada, nervurada ou alveolar', aoClicar: () => comandos.executar('elemento.converterLaje', sel.id) }) : null,
         ),
         // o resto (propriedades) fica recolhido para não ocupar a planta
@@ -1321,7 +1391,7 @@ function renderizar(container, acoes) {
     if (vista.selEixo) {
       const cartao = cartaoEixo({
         projeto: proj, id: vista.selEixo, alterarEixos,
-        duplicar: (lado) => duplicarEixoSel(lado), excluir: excluirEixoSel,
+        duplicar: (lado) => duplicarEixoSel(lado), excluir: excluirEixoSel, copiar: () => copiarSel(),
         fechar: () => { vista.selEixo = null; desenharPlanta(); desenharLateral(); },
       });
       if (cartao) lateral.append(cartao); else vista.selEixo = null;
@@ -1747,6 +1817,7 @@ function renderizar(container, acoes) {
   const pavAtual = pavimento(p, vista.pav);
   // ações de menos uso: na barra em telas largas; no menu "…" em telas estreitas
   const extras = [
+    ...(areaTransf.item ? [{ icone: 'copiar', rotulo: `Colar ${areaTransf.item.tipo === 'eixo' ? `eixo ${areaTransf.item.nome}` : areaTransf.item.el.codigo} (Ctrl+V)`, titulo: 'Colar o que foi copiado', acao: () => colarItem(areaTransf.item, { noCursor: false }) }] : []),
     { icone: 'juntar', rotulo: 'Limpar geometria', titulo: 'Limpar geometria: funde nós próximos e encosta apoios na face dos pilares', acao: () => comandos.executar('estrutura.limparGeometria') },
     { icone: 'quantitativos', rotulo: 'Pré-dimensionar o pavimento', titulo: 'Pré-dimensionar o pavimento: sugere h das vigas e lajes pelo vão e a seção dos pilares pela área de influência', acao: () => predimensionarPavimento() },
     { icone: 'carga', rotulo: 'Paredes da planta de fundo como cargas', titulo: 'Paredes da planta de fundo como cargas nas vigas e lajes deste pavimento (revisão antes de aplicar)', acao: () => paredesComoCargas() },
@@ -1857,11 +1928,26 @@ function renderizar(container, acoes) {
     if (setas && !vista.modo && moverSelecionado(...setas, e.shiftKey ? 10 : 1)) e.preventDefault();
   };
   window.addEventListener('keydown', teclas);
+  // Ctrl+C, Ctrl+V e Ctrl+D na montagem: em captura, para valerem antes dos atalhos gerais (Ctrl+D duplica o elemento
+  // da aba aberta); com o foco num campo, num diálogo ou com texto selecionado, ficam com o sistema
+  const teclasCtrl = (e) => {
+    if (!raiz.isConnected || !raiz.getClientRects().length) return;
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+    const k = { KeyC: 'c', KeyV: 'v', KeyD: 'd' }[e.code];
+    if (!k) return;
+    if (e.target.closest?.('input, textarea, select, [contenteditable]') || document.querySelector('.dialogo-fundo, .menu')) return;
+    const foco = document.activeElement;
+    if (!(ponteiro.dentro || !foco || foco === document.body || raiz.contains(foco))) return;
+    if (k === 'c' && String(window.getSelection?.() ?? '').trim()) return;
+    const feito = k === 'c' ? copiarSel() : k === 'v' ? colarItem() : duplicarSel();
+    if (feito) { e.preventDefault(); e.stopImmediatePropagation(); }
+  };
+  window.addEventListener('keydown', teclasCtrl, true);
 
   // console e testes: importar uma planta a partir do texto do DXF
   globalThis.__lebrMontagem = { aplicarDxf, vista, specsDaCadeia };
   return {
-    destruir() { obs.disconnect(); window.removeEventListener('keydown', teclas); container.classList.remove('editor-cheio'); },
+    destruir() { obs.disconnect(); window.removeEventListener('keydown', teclas); window.removeEventListener('keydown', teclasCtrl, true); container.classList.remove('editor-cheio'); },
     aoAlterar() { return false; },
   };
 }

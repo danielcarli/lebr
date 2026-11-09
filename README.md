@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.65.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.66.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -205,7 +205,8 @@ nós. Com **Elementos acompanham os eixos** ligado, mover um eixo (arrastando-o,
 pilares, os apoios das vigas e os cantos das lajes que estão sobre ele: as vigas reajustam os vãos, as lajes mudam
 de dimensão e os elementos alterados passam a **a calcular**. Todo eixo pode ser **duplicado** (`D`, ou `Shift+D`
 para o outro lado): a cópia fica paralela a cerca de 20 px do original, pronta para ser arrastada ou cotada. O
-cartão do eixo selecionado também troca nome, ângulo e posição, e `Delete` o exclui. Para **mover** um eixo, arraste-o
+cartão do eixo selecionado também troca nome, ângulo e posição, e `Delete` o exclui. `Ctrl+C` e `Ctrl+V` copiam e colam
+um eixo (paralelo, passando pelo cursor) e `Ctrl+D` o duplica. Para **mover** um eixo, arraste-o
 na planta (ele encosta em pilares, cantos e nós) ou use as **setas** do teclado (`Shift`: 10 vezes o passo); **Mover
 todos os eixos…** desloca a malha inteira de Δx e Δy (por exemplo, para alinhar com a planta de arquitetura). O botão
 do **olho** (na barra da montagem e no bloco Eixos) ou `Shift+E` **oculta e reexibe** os eixos, as cotas e os nós;
@@ -653,6 +654,15 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.66.0 (copiar, colar e duplicar na montagem; laje treliçada em 3D):** na montagem, **`Ctrl+C`**
+  copia o elemento selecionado (pilar, viga, laje, escada, reservatório…) ou o **eixo** selecionado, e **`Ctrl+V`**
+  cola: com o cursor sobre a planta, o ponto de inserção (ou o eixo, paralelo ao original) vai para o cursor, com os
+  encaixes; senão, a cópia fica deslocada. Cola em qualquer pavimento (o pilar ganha o pé-direito do novo), com o
+  código seguinte na mesma numeração (P210 → P211) e sem as ligações do original — **Conectar automaticamente** refaz
+  as da cópia. **`Ctrl+D`** duplica o selecionado ao lado (elemento ou eixo); fora da montagem, `Ctrl+D` duplica o
+  elemento da aba aberta. Os cartões do elemento e do eixo ganham os botões **Copiar** e **Duplicar**. A **laje
+  treliçada** ganha a seção **Vista 3D**: as vigotas com a treliça CA-60 (banzos e diagonais), as barras adicionais,
+  o enchimento, a capa com a armadura de distribuição e as negativas sobre os apoios engastados ou o balanço.
 - **Novidades da 0.65.0 (eixos de projeto, 3D das fundações e exemplo com três fundações):** **eixos verticais,
   horizontais e inclinados** na montagem, com distâncias entre paralelos, **cotas** arrastadas de eixo a eixo,
   **nós** nos cruzamentos para lançar e ancorar pilares e apoios, elementos que **acompanham** o eixo movido e

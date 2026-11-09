@@ -187,7 +187,7 @@ export function blocoEixos({ projeto, alterarEixos, novoEixo, selecionar, sel, e
 /**
  * Cartão do eixo selecionado: nome, direção, posição, distâncias aos vizinhos paralelos, duplicar e excluir.
  */
-export function cartaoEixo({ projeto, id, alterarEixos, duplicar, excluir, fechar }) {
+export function cartaoEixo({ projeto, id, alterarEixos, duplicar, excluir, fechar, copiar }) {
   const l = listaEixos(projeto);
   const e = l.find((x) => x.id === id);
   if (!e) return null;
@@ -208,7 +208,8 @@ export function cartaoEixo({ projeto, id, alterarEixos, duplicar, excluir, fecha
       prox ? ui.campo({ rotulo: `Distância a ${prox.nome}`, valor: Math.round((prox.d - e.d) * 1e6) / 1e6, unidade: 'm', casas: 2, min: 0, max: 1000, dica: `${prox.nome} e os seguintes vão para essa distância deste eixo`, aoMudar: (v) => alterarEixos((pp, op, n) => n.definirDistancia(pp, id, prox.id, v, op), `Distância ${e.nome}–${prox.nome}: ${num(v, 2)} m`) }) : null) : null,
     h('p', { class: 'mont-dica' }, 'Para mover: arraste o eixo na planta (encosta nos pilares, cantos e nós) ou use as setas do teclado (Shift: 10 vezes o passo).'),
     h('div', { class: 'mont-sel-acoes' },
-      ui.botao({ texto: 'Duplicar', icone: 'copiar', tipo: 'secundario', titulo: 'Cópia paralela a uns 20 px deste eixo (D)', aoClicar: () => duplicar(1) }),
+      ui.botao({ texto: 'Duplicar', icone: 'copiar', tipo: 'secundario', titulo: 'Cópia paralela a uns 20 px deste eixo (D ou Ctrl+D)', aoClicar: () => duplicar(1) }),
+      copiar ? ui.botao({ texto: 'Copiar', icone: 'copiar', tipo: 'fantasma', titulo: 'Copiar o eixo (Ctrl+C); Ctrl+V cola um paralelo passando pelo cursor', aoClicar: copiar }) : null,
       ui.botao({ texto: 'Duplicar do outro lado', icone: 'copiar', tipo: 'fantasma', titulo: 'Cópia paralela do outro lado (Shift+D)', aoClicar: () => duplicar(-1) }),
       ui.botao({ texto: 'Excluir', icone: 'lixeira', tipo: 'fantasma', titulo: 'Exclui o eixo e as cotas presas a ele (Delete); os elementos ficam onde estão', aoClicar: excluir })),
   );

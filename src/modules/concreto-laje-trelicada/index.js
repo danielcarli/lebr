@@ -20,6 +20,8 @@ import { calcularLajeTrelicada, cargasTransmitidas, ligacoes, criarLajeTrelicada
 import { criarDesenhosLajes } from '../comum/desenho-lajes.js';
 import { criarPlantaLaje } from '../comum/planta-laje.js';
 import { bordasFaixa, faixaNaPlanta } from '../comum/bordas.js';
+import { modeloTrelicada } from '../comum/armadura3d.js';
+import { vistaArmadura3D } from '../../renderer/ui/armadura3d.js';
 
 export default function moduloLajeTrelicada(api) {
   const { h } = api.dom;
@@ -143,7 +145,7 @@ export default function moduloLajeTrelicada(api) {
       }));
     },
 
-    renderResultado(raiz, res) {
+    renderResultado(raiz, res, ctx) {
       const fl = res.flecha;
       raiz.append(h('div', { class: 'instrumentos' },
         res.balanco
@@ -164,8 +166,23 @@ export default function moduloLajeTrelicada(api) {
           ],
         })],
       }));
+      // vista 3D: vigotas com a treliça, adicionais, enchimento, capa com a distribuição e as negativas
+      const el3d = ctx?.elemento;
+      if (el3d) {
+        let vista;
+        try {
+          const modelo = modeloTrelicada(el3d, res, trelicaAdotada(el3d), { cob: ctx.projeto?.parametros?.cobrimento?.laje ?? 2.5 });
+          vista = h('div', { class: 'desenho-caixa desenho-3d' },
+            h('div', { class: 'desenho-3d-tit' }, `VISTA 3D · VIGOTAS ${res.trelica} E CAPA`),
+            vistaArmadura3D(modelo, { altura: 440 }),
+            h('p', { class: 'combinacoes-nota a3d-legenda' }, `${modelo.legenda}. Desenhada no sentido das vigotas (x = vão L). Arraste para girar; o botão Concreto mostra ou esconde a capa, as nervuras e o enchimento.`));
+        } catch (err) {
+          vista = h('p', { class: 'combinacoes-nota' }, `Não foi possível montar a vista 3D: ${err.message}`);
+        }
+        raiz.append(ui.secao({ numero: '06', titulo: 'Vista 3D', descricao: `Vigotas treliçadas (${res.trelica}), enchimento e capa · armaduras do cálculo`, filhos: [vista] }));
+      }
       raiz.append(ui.secao({
-        numero: '06', titulo: 'Reações nas vigas', descricao: res.balanco ? 'Por metro de viga · a borda livre e as laterais não recebem carga' : 'Por metro de viga · as bordas laterais não recebem carga',
+        numero: el3d ? '07' : '06', titulo: 'Reações nas vigas', descricao: res.balanco ? 'Por metro de viga · a borda livre e as laterais não recebem carga' : 'Por metro de viga · as bordas laterais não recebem carga',
         filhos: [ui.tabela({
           colunas: [{ titulo: 'Borda' }, { titulo: 'Vínculo' }, { titulo: 'g,k (kN/m)', alinhar: 'dir' }, { titulo: 'q,k (kN/m)', alinhar: 'dir' }, { titulo: 'Cálculo (kN/m)', alinhar: 'dir' }],
           linhas: res.reacoes.map((r) => [r.nome, r.tipo ?? 'apoiada', num(r.g), num(r.q), num(r.d)]),

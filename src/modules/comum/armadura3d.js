@@ -439,6 +439,89 @@ export function modeloNervurada(el, det, posicoes, { cob = 2.5, maxEstribos = 40
   return { caixas, barras, legenda, eixos: { x: 'lx', y: 'ly', z: 'h' }, vista: { teta: -Math.PI / 3, fi: 2.05 } };
 }
 
+/**
+ * Laje treliçada (0.66): vigotas pré-moldadas (placa de concreto com a treliça CA-60 — banzo inferior com 2 barras,
+ * banzo superior com 1 e as diagonais em zigue-zague), as barras adicionais junto ao banzo inferior, o enchimento entre
+ * as nervuras, a capa com a armadura de distribuição e as negativas sobre os apoios engastados ou o balanço.
+ * Coordenadas em cm no referencial das vigotas: x ao longo do vão L, y na largura, z = 0 no fundo da vigota.
+ * @param {object} el   laje treliçada (L, largura, he, hf, bw, intereixo, enchimento)
+ * @param {object} res  resultado do cálculo (trelica, adicional {n, phi}, negativa {phi, s}, distribuicaoBarras, bordas)
+ * @param {object} tr   treliça adotada ({ nome, altura, sup, diag, inf } em cm e mm)
+ */
+export function modeloTrelicada(el, res, tr, { cob = 2.5, maxVigotas = 40 } = {}) {
+  const L = (el.L ?? 4) * 100, W = (el.largura ?? 4) * 100, he = el.he ?? 12, hf = el.hf ?? 4, bw = el.bw ?? 9, e = el.intereixo ?? 42;
+  const h = he + hf, placa = 3, meiaPlaca = 6;
+  const caixas = [{ min: [0, 0, he], max: [L, W, h], tipo: 'concreto', parte: 'capa' }];
+  const barras = [];
+  // eixos das vigotas: a primeira a meio intereixo da borda, as outras de e em e
+  const eixosY = [];
+  for (let y = e / 2; y < W - 1e-6; y += e) eixosY.push(y);
+  if (!eixosY.length) eixosY.push(W / 2);
+  const passoV = Math.max(1, Math.ceil(eixosY.length / maxVigotas));
+  const inf = (tr?.inf ?? 5) / 10, sup = (tr?.sup ?? 6) / 10, diag = (tr?.diag ?? 4.2) / 10, Ht = tr?.altura ?? 12;
+  const zInf = 1.5 + inf / 2, zSup = Math.min(h - cob - sup / 2, zInf + Ht - inf / 2 - sup / 2);
+  const larguraTr = 8;                      // abertura usual da base da treliça (cm)
+  const pasoDiag = 20;                      // passo das diagonais (sinusoide de 20 cm)
+  const x0 = 1, x1 = L - 1;
+  eixosY.forEach((y, i) => {
+    // placa da vigota e a nervura moldada no local
+    caixas.push({ min: [0, y - meiaPlaca, 0], max: [L, y + meiaPlaca, placa], tipo: 'concreto', parte: 'vigota' });
+    caixas.push({ min: [0, y - bw / 2, placa], max: [L, y + bw / 2, he], tipo: 'concreto', parte: 'nervura' });
+    // enchimento até a próxima vigota (ou até a borda)
+    const yProx = eixosY[i + 1] ?? null;
+    if (el.enchimento && yProx != null) caixas.push({ min: [0, y + bw / 2, placa], max: [L, yProx - bw / 2, he], tipo: 'enchimento', parte: 'enchimento', material: el.enchimento });
+    if (i % passoV) return;
+    // treliça: banzos e diagonais
+    const yA = y - larguraTr / 2, yB = y + larguraTr / 2;
+    for (const yb of [yA, yB]) barras.push({ id: 'banzo-inf', N: 'T', tipo: 'treliça', phi: tr?.inf ?? 5, pts: [[x0, yb, zInf], [x1, yb, zInf]] });
+    barras.push({ id: 'banzo-sup', N: 'T', tipo: 'treliça', phi: tr?.sup ?? 6, pts: [[x0, y, zSup], [x1, y, zSup]] });
+    for (const yb of [yA, yB]) {
+      const pts = [];
+      for (let x = x0, k = 0; x <= x1 + 1e-6; x += pasoDiag / 2, k++) pts.push(k % 2 ? [x, y, zSup - sup / 2 - diag / 2] : [x, yb, zInf + inf / 2 + diag / 2]);
+      barras.push({ id: 'diagonal', N: 'T', tipo: 'treliça', phi: tr?.diag ?? 4.2, pts });
+    }
+    // barras adicionais junto ao banzo inferior, entre as duas barras dele
+    const ad = res?.adicional;
+    if (ad?.n > 0 && ad.phi) {
+      const p = ad.phi / 10;
+      const ys = ad.n === 1 ? [y] : espalhar(ad.n, y - larguraTr / 2 + inf + p / 2 + 0.3, y + larguraTr / 2 - inf - p / 2 - 0.3);
+      for (const yy of ys) barras.push({ id: 'adicional', N: 'A', tipo: 'positiva', phi: ad.phi, pts: [[cob, yy, zInf + inf / 2 + p / 2], [L - cob, yy, zInf + inf / 2 + p / 2]] });
+    }
+  });
+  // distribuição na capa: perpendicular às vigotas (ao longo de y), no meio da capa
+  const db = res?.distribuicaoBarras ?? { phi: 5, s: 20 };
+  const zDist = he + hf / 2;
+  for (const x of espalhar(Math.max(2, Math.floor((L - 2 * cob) / db.s) + 1), cob, L - cob)) {
+    barras.push({ id: 'distribuicao', N: 'D', tipo: 'distribuição', phi: db.phi, pts: [[x, cob, zDist], [x, W - cob, zDist]] });
+  }
+  // negativas sobre as extremidades engastadas (ou o balanço), no topo da capa
+  const neg = res?.negativa;
+  const bordas = res?.bordas ?? {};
+  if (neg?.phi && neg?.s) {
+    const p = neg.phi / 10, z = h - cob - p / 2;
+    const balanco = bordas.x0 === 'livre' || bordas.x1 === 'livre';
+    const a = Math.min(0.25 * L, 150);
+    const trechos = [];
+    if (bordas.x0 === 'engastada') trechos.push([-a, a]);
+    if (bordas.x1 === 'engastada') trechos.push([L - a, L + a]);
+    if (balanco && !trechos.length) trechos.push(bordas.x0 === 'livre' ? [cob, L + a] : [-a, L - cob]);
+    for (const [u0, u1] of trechos) {
+      for (const y of espalhar(Math.max(2, Math.floor((W - 2 * cob) / neg.s) + 1), cob, W - cob)) {
+        barras.push({ id: 'negativa', N: 'N', tipo: 'negativa', phi: neg.phi, pts: [[u0, y, z], [u1, y, z]] });
+      }
+    }
+  }
+  const legenda = [
+    `${eixosY.length} vigota${eixosY.length > 1 ? 's' : ''} com ${tr?.nome ?? 'treliça'}${passoV > 1 ? ` (treliças mostradas de ${passoV} em ${passoV})` : ''}`,
+    `H${virg(h, 0)} (${virg(he, 0)} + ${virg(hf, 0)}) · intereixo ${virg(e, 0)} cm · bw ${virg(bw)} cm`,
+    res?.adicional?.rotulo ? `adicional ${res.adicional.rotulo} por vigota` : 'sem barra adicional',
+    res?.negativa?.rotulo && res.negativa.rotulo !== '—' ? `negativa ${res.negativa.rotulo}` : '',
+    `distribuição na capa ${res?.distribuicao ?? 'ø 5 c/ 20'}`,
+    el.enchimento ? `enchimento: ${{ eps: 'EPS', ceramico: 'lajota cerâmica', concreto: 'bloco de concreto' }[el.enchimento] ?? el.enchimento}` : '',
+  ].filter(Boolean).join(' · ');
+  return { caixas, barras, legenda, eixos: { x: 'L', y: 'largura', z: 'h' }, vista: { teta: -Math.PI / 3, fi: 2.05 } };
+}
+
 /** Caixa que envolve o modelo (para enquadrar a câmera). */
 export function limitesDoModelo(m) {
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
