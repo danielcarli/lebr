@@ -176,7 +176,7 @@ export const ROTEIRO = {
         ['Telhado e tesouras de madeira', 'Telhado de duas águas com telhas, ripas, caibros e terças verificados, tesoura Howe ou Pratt com esforços nas barras, flambagem, entalhe do nó de apoio e flecha; cargas ligadas às vigas e o telhado completo na visualização 3D — feito na 0.60.0'],
         ['Dobras das barras pela Tabela 9.1', 'Armadura em 3D com as dobras em arco pelo pino da NBR 6118 (5ø ou 8ø no CA-50) e ganchos a 90° com ponta reta de 8ø depois da dobra — feito na 0.60.0'],
         ['Memorial dos exercícios resolvidos', 'Em cada exercício da bibliografia, o memorial de cálculo do LEBR recolhido, com os passos, as fórmulas com os números e um desenho que explica a solução (seção, bielas, tensões no solo, contornos de punção, diagramas, curvas) — feito na 0.58.0'],
-        ['Módulo educacional (Aprender)', 'Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0'],
+        ['Módulo educacional (Aprender)', 'Ajuda › Aprender cálculo estrutural: seis lições (caminho das cargas, esforços na viga, flexão na seção, viga completa, laje maciça e pilar) com controles, gráficos animados explicados e, nas de viga, laje e pilar, o cálculo, a lista de ferros e a armadura em 3D dos módulos — feito na 0.57.0; textos reescritos para estudantes de engenharia civil e arquitetura (o que saber antes, fazer/observar, fórmulas, na prática para a arquitetura e a engenharia, erros comuns, resposta da pergunta e referências da norma) na 0.62.0'],
         ['Laje nervurada em 3D', 'Geometria completa na visualização 3D (capa, nervuras, faixas maciças de borda, travamentos e blocos de enchimento) e lista de ferros editável com a armadura em 3D: barras de cada nervura, negativas e distribuição na capa, malha da capa e estribos — feito na 0.56.0'],
         ['Vigas de transição', 'Vigas que recebem pilares (pilar nascendo em viga), com carga concentrada vinda do pavimento de cima'],
         ['Piscinas e caixas enterradas', 'Empuxo de terra com e sem água, subpressão'],
@@ -231,6 +231,7 @@ export const ROTEIRO = {
       descricao: 'Um programa de cálculo estrutural só serve para obra se for possível provar que ele calcula certo; esta área vale mais que qualquer módulo novo.',
       itens: [
         ['Banco de casos de validação', 'exemplos resolvidos dos livros de referência de concreto, madeira e aço e das normas, rodados automaticamente a cada versão, com a tolerância aceita em cada resultado'],
+        ['Varreduras de invariantes e relatório estatístico', 'milhares de entradas sorteadas por família (viga, treliça, seção, pilar, placa, punção, fundações, madeira, vento, módulos inteiros) conferindo equilíbrio, simetria, linearidade, limites da norma e soluções exatas, com a taxa de falha limitada a 95 % de confiança; fechamento do caminho das cargas nos projetos de exemplo; npm run confiabilidade — feito na 0.61.0'],
         ['Comparação com programas comerciais', 'em edifícios de teste, com as diferenças explicadas no relatório'],
         ['Revisão técnica externa', 'de cada módulo por engenheiro estrutural, registrada no repositório'],
         ['Rastreabilidade no memorial', 'cada verificação com a fórmula, os valores usados e o item da norma; hipóteses e simplificações declaradas'],
@@ -309,7 +310,7 @@ export const ESTADOS = {
   // interoperabilidade
   'Importar DXF da arquitetura': 'feito', 'Esquema JSON público e versionado': 'parcial', 'Catálogos de fabricantes': 'parcial', 'Planilhas': 'parcial',
   // confiabilidade
-  'Banco de casos de validação': 'feito', 'Rastreabilidade no memorial': 'feito', 'Validação de entradas': 'parcial',
+  'Banco de casos de validação': 'feito', 'Varreduras de invariantes e relatório estatístico': 'feito', 'Rastreabilidade no memorial': 'feito', 'Validação de entradas': 'parcial',
   'Versão do programa e das normas': 'feito', 'Termo de uso claro': 'feito',
   // produto
   'Lançamento gráfico direto': 'parcial', 'Gabaritos de projeto': 'parcial', 'Instalador assinado e atualização automática': 'parcial',

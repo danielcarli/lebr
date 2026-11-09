@@ -6,7 +6,7 @@
     "autor": "LEBR",
     "descricao": "Edifício residencial com dois pavimentos-tipo e cobertura: 9 pilares por lance, vigas em grelha, lajes maciças, caixa de escada com duas escadas em U e o reservatório elevado sobre ela, nível de baldrame com vigas baldrame e as lajes de piso do térreo, dois furos de sondagem SPT e fundação em blocos sobre estacas hélice contínua.",
     "criadoEm": "2026-11-02T12:00:00.000Z",
-    "modificadoEm": "2026-11-03T18:01:11.846Z",
+    "modificadoEm": "2026-11-08T22:41:38.296Z",
     "aplicativo": "LEBR 0.25.0"
   },
   "parametros": {
@@ -66,6 +66,10 @@
       "rigidez": "separada",
       "contraventamento": "porticos",
       "majorar": true
+    },
+    "montagem": {
+      "tolerancia": 1,
+      "erros": "perguntar"
     },
     "madeira": {
       "classe": "C24",
@@ -859,7 +863,11 @@
           "elementoId": "e030",
           "ligacao": "y0",
           "descricao": "Quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdcps5",
@@ -942,7 +950,11 @@
           "elementoId": "e030",
           "ligacao": "y1",
           "descricao": "Quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdc404",
@@ -2171,7 +2183,11 @@
           "elementoId": "e062",
           "ligacao": "y0",
           "descricao": "Quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdcv5j",
@@ -2245,7 +2261,11 @@
           "elementoId": "e062",
           "ligacao": "y1",
           "descricao": "Quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdczb2",
@@ -3260,7 +3280,11 @@
           "elementoId": "e089",
           "ligacao": "y0",
           "descricao": "Cobertura — quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdc8vk",
@@ -3337,7 +3361,11 @@
           "elementoId": "e089",
           "ligacao": "y1",
           "descricao": "Cobertura — quarto 2",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmvzyspdcknv",
@@ -5032,7 +5060,11 @@
           "elementoId": "l004",
           "ligacao": "y0",
           "descricao": "Quarto (térreo)",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmw0ykz92v1q",
@@ -5107,7 +5139,11 @@
           "elementoId": "l004",
           "ligacao": "y1",
           "descricao": "Quarto (térreo)",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmw0ykz92yt4",

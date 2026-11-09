@@ -37,6 +37,31 @@
 .apr-conceitos dt:first-child { margin-top: 0; }
 .apr-conceitos dd { margin: 2px 0 0; color: var(--tinta-2); }
 
+/* didática: antes de começar, passos faça/observe, na prática, fórmulas, erros, resposta e norma */
+.apr-antes { font-size: 12.5px; line-height: 1.5; color: var(--tinta-2); margin: 6px 0 0; max-width: 860px; }
+.apr-h3 { font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--tinta-2); margin: 0 0 8px; font-weight: 700; }
+.apr-passos li { padding-left: 2px; }
+.apr-passo-faca { font-weight: 650; color: var(--tinta); }
+.apr-passo-obs { color: var(--tinta-2); }
+.apr-pratica { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .apr-pratica { grid-template-columns: 1fr; } }
+.apr-cartao { border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; border: 1px solid var(--filete); background: var(--campo); }
+.apr-cartao strong { display: flex; align-items: center; gap: 6px; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--acento); }
+.apr-cartao p { margin: 6px 0 0; color: var(--tinta-2); }
+.apr-cartao.arq { background: var(--acento-suave); border-color: transparent; }
+.apr-formulas { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 12.5px; line-height: 1.45; }
+.apr-formulas td { padding: 6px 8px; border-top: 1px solid var(--filete); vertical-align: top; color: var(--tinta-2); }
+.apr-formulas tr:first-child td { border-top: 0; }
+.apr-formula { font-family: var(--fonte-mono, ui-monospace, monospace); font-size: 11.5px; color: var(--tinta); width: 50%; overflow-wrap: anywhere; }
+.apr-erros { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.5; color: var(--tinta-2); }
+.apr-erros li::marker { color: var(--erro); }
+.apr-resposta { margin-top: 8px; }
+.apr-resposta summary { cursor: pointer; font-size: 12.5px; font-weight: 650; color: var(--acento); }
+.apr-resposta p { margin: 6px 0 0; color: var(--tinta-2); }
+.apr-norma { font-size: 12.5px; line-height: 1.5; color: var(--tinta-2); }
+.apr-norma strong { display: block; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--tinta-2); margin-bottom: 6px; }
+.apr-norma ul { margin: 0; padding-left: 18px; }
+
 /* controles */
 .apr-controles { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; padding: 14px 16px; border: 1px solid var(--filete); border-radius: 10px; }
 .apr-desls { display: flex; flex-wrap: wrap; gap: 12px 22px; }

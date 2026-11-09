@@ -57,8 +57,8 @@ Cada release precisa de dois anexos: **`lebr-fonte.zip`** (o código-fonte) e **
 correspondente:
 
 ```bash
-git tag v0.60.1
-git push origin v0.60.1
+git tag v0.62.0
+git push origin v0.62.0
 ```
 
 O fluxo [`.github/workflows/release.yml`](../.github/workflows/release.yml) confere a versão, roda os testes, gera

@@ -57,6 +57,7 @@ import { degraus, cargasEscada, tramoBiapoiado } from '../engine/escada.js';
 import { placaUnitaria, compatibilizar, bracoVigaParede } from '../engine/reservatorio.js';
 import { quantitativosDoElemento, massaLinear, lerBarras } from '../modules/comum/quantitativos.js';
 import * as detalhamento from '../engine/detalhamento.js';
+import { resolverTesoura, entalheApoio, geometriaTesoura } from '../engine/tesoura.js';
 import { criarProjeto } from '../renderer/core/projeto.js';
 import { calcularElemento } from '../renderer/core/calculo.js';
 import { MODULOS_CALCULO } from './calculos.js';
@@ -64,6 +65,9 @@ import { MODULOS_CALCULO } from './calculos.js';
 /** Funções dos motores que os casos podem chamar. */
 export const MOTORES = {
   'materiais.concreto': concreto,
+  'tesoura.resolverTesoura': resolverTesoura,
+  'tesoura.entalheApoio': entalheApoio,
+  'tesoura.geometriaTesoura': geometriaTesoura,
   'materiais.aco': aco,
   'flexao.dimensionarFlexao': dimensionarFlexao,
   'flexao.armaduraMinima': armaduraMinima,

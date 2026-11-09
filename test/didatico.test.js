@@ -102,5 +102,7 @@ test('lições: identificador único, título, objetivo, passos e explicação d
     assert.ok(!ids.has(l.id), l.id); ids.add(l.id);
     assert.ok(l.titulo && l.objetivo && l.passos?.length, l.id);
     for (const g of l.graficos ?? []) assert.ok(g.titulo && g.paraQueServe && g.comoLer, `${l.id}: ${g.id}`);
+    assert.ok(l.antes && l.naPratica?.arquitetura && l.naPratica?.engenharia && l.formulas?.length >= 3 && l.erros?.length >= 2 && l.pergunta && l.resposta && l.norma?.length >= 2, `${l.id}: blocos didáticos`);
+    for (const p of l.passos) assert.ok(typeof p === 'string' || (p.faca && p.observe), `${l.id}: passo`);
   }
 });

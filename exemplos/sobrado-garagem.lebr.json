@@ -6,7 +6,7 @@
     "autor": "LEBR",
     "descricao": "Sobrado de dois pavimentos em terreno de 10 × 25 m, com 8,0 × 13,5 m de projeção. Térreo com garagem para dois carros, lavabo, cozinha e sala de estar e jantar integrada sem pilar no meio (laje nervurada de 8 × 5 m no teto); pavimento superior com três quartos (uma suíte com sacada em balanço), banheiro e suíte master com sala íntima. Lajes treliçadas nos quartos e no forro, laje maciça no banheiro e na sacada, escada em U, caixa d’água elevada sobre a escada, telhado cerâmico em duas águas com tesouras Howe de madeira, terças, caibros e ripas, oitões de alvenaria nas pontas (tesouras Howe de 13,5 m, terças, caibros e ripas, com oitões nas pontas), dois furos de sondagem SPT, nível de baldrame e sapatas isoladas pela tensão admissível do SPT.",
     "criadoEm": "2026-11-08T21:34:18.216Z",
-    "modificadoEm": "2026-11-08T21:34:20.880Z",
+    "modificadoEm": "2026-11-08T22:41:38.280Z",
     "aplicativo": "LEBR 0.59.0"
   },
   "parametros": {
@@ -1507,7 +1507,11 @@
           "elementoId": "l1g",
           "ligacao": "y0",
           "descricao": "Banheiro social",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmw8co6t26gg",
@@ -1581,7 +1585,11 @@
           "elementoId": "l1g",
           "ligacao": "y1",
           "descricao": "Banheiro social",
-          "vao": 0
+          "vao": 0,
+          "trecho": [
+            2,
+            4
+          ]
         },
         {
           "id": "cmw8co6t2aif",

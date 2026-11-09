@@ -1,7 +1,7 @@
 {
   "name": "lebr",
   "productName": "LEBR",
-  "version": "0.60.1",
+  "version": "0.62.0",
   "description": "LEBR — Laboratório de Estruturas Brasil: sistema aberto e modular para cálculo de estruturas de concreto armado e de madeira segundo as normas brasileiras.",
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -16,7 +16,8 @@
     "dist:win:portatil": "electron-builder --win portable --x64",
     "dist:win:completo": "electron-builder --win nsis --x64",
     "fonte": "git archive --format=zip --prefix=lebr/ -o lebr-fonte.zip HEAD",
-    "instalador": "iscc instalador/lebr.iss"
+    "instalador": "iscc instalador/lebr.iss",
+    "confiabilidade": "node scripts/confiabilidade.mjs"
   },
   "devDependencies": {
     "electron": "^45.2.1",

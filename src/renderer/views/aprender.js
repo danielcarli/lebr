@@ -787,7 +787,7 @@ export function abaAprender() {
           linha1: 'Aprender cálculo estrutural', linha2: `${LICOES.length} lições com animações, gráficos explicados e armadura em 3D`,
           titulo: 'Aprender', subtitulo: 'Do caminho das cargas à armadura: mexa nos valores e veja a estrutura responder', compacto: true,
         }),
-        h('p', { class: 'apr-intro' }, 'Cada lição tem um objetivo, controles para mudar os dados, gráficos animados — cada um com "para que serve" e "como ler" — e, nas lições de viga, laje e pilar, o cálculo feito pelos mesmos módulos da página de edição, com a lista de ferros e a armadura em 3D. Os valores são para estudo: ', h('b', null, 'não use as lições para projetar'), '.'),
+        h('p', { class: 'apr-intro' }, 'Lições pensadas para estudantes de engenharia civil e de arquitetura. Cada uma traz o objetivo, o que convém saber antes, passos com ', h('b', null, 'o que fazer'), ' e ', h('b', null, 'o que observar'), ', os conceitos e as fórmulas, um bloco "na prática" para a arquitetura e outro para a engenharia, gráficos animados — cada um com "para que serve" e "como ler" —, os erros mais comuns, uma pergunta para pensar (com a resposta escondida) e onde o assunto está na norma. Nas lições de viga, laje e pilar o cálculo é feito pelos mesmos módulos da página de edição, com a lista de ferros e a armadura em 3D. Os valores são para estudo: ', h('b', null, 'não use as lições para projetar'), '.'),
         h('div', { class: 'apr-layout' }, indice, corpo));
       container.append(pagina);
 
@@ -801,19 +801,35 @@ export function abaAprender() {
         const ctx = { limpezas };
         let conteudo;
         try { conteudo = RENDER[id](l, ctx); } catch (err) { console.error(err); conteudo = h('p', { class: 'apr-aviso' }, `Não foi possível montar a lição: ${err.message}`); }
-        limpar(corpo).append(
+        const passo = (p) => (typeof p === 'string' ? h('li', null, p) : h('li', null, h('span', { class: 'apr-passo-faca' }, p.faca), ' ', h('span', { class: 'apr-passo-obs' }, p.observe)));
+        const titulo = (txt) => h('h3', { class: 'apr-h3' }, txt);
+        limpar(corpo).append(...[
           h('header', { class: 'apr-cab' },
             h('span', { class: 'apr-num-licao' }, l.numero),
-            h('div', null, h('h2', null, l.titulo), h('p', { class: 'apr-objetivo' }, h('b', null, 'Objetivo: '), l.objetivo))),
+            h('div', null,
+              h('h2', null, l.titulo),
+              h('p', { class: 'apr-objetivo' }, h('b', null, 'Objetivo: '), l.objetivo),
+              l.antes ? h('p', { class: 'apr-antes' }, h('b', null, 'Antes de começar: '), l.antes) : null)),
           h('div', { class: 'apr-duas' },
-            h('ol', { class: 'apr-passos' }, l.passos.map((p) => h('li', null, p))),
-            h('dl', { class: 'apr-conceitos' }, l.conceitos.flatMap(([t, d]) => [h('dt', null, t), h('dd', null, d)]))),
+            h('div', null, titulo('Passo a passo'), h('ol', { class: 'apr-passos' }, l.passos.map(passo))),
+            h('div', null, titulo('Conceitos'), h('dl', { class: 'apr-conceitos' }, l.conceitos.flatMap(([t, d]) => [h('dt', null, t), h('dd', null, d)])))),
+          l.naPratica ? h('div', { class: 'apr-pratica' },
+            h('div', { class: 'apr-cartao arq' }, h('strong', null, icone('planta', { tamanho: 14, traco: 2 }), 'Na prática · arquitetura'), h('p', null, l.naPratica.arquitetura)),
+            h('div', { class: 'apr-cartao eng' }, h('strong', null, icone('viga', { tamanho: 14, traco: 2 }), 'Na prática · engenharia'), h('p', null, l.naPratica.engenharia))) : null,
           ...[conteudo].flat(),
-          h('aside', { class: 'apr-pergunta' }, h('strong', null, icone('info', { tamanho: 14, traco: 2 }), 'Para pensar'), h('p', null, l.pergunta)),
+          (l.formulas?.length || l.erros?.length) ? h('div', { class: 'apr-duas' },
+            l.formulas?.length ? h('div', null, titulo('Fórmulas da lição'),
+              h('table', { class: 'apr-formulas' }, h('tbody', null, l.formulas.map(([f, d]) => h('tr', null, h('td', { class: 'apr-formula' }, f), h('td', null, d)))))) : h('span'),
+            l.erros?.length ? h('div', null, titulo('Erros comuns'), h('ul', { class: 'apr-erros' }, l.erros.map((e) => h('li', null, e)))) : h('span')) : null,
+          h('aside', { class: 'apr-pergunta' },
+            h('strong', null, icone('info', { tamanho: 14, traco: 2 }), 'Para pensar'),
+            h('p', null, l.pergunta),
+            l.resposta ? h('details', { class: 'apr-resposta' }, h('summary', null, 'Ver uma resposta'), h('p', null, l.resposta)) : null),
+          l.norma?.length ? h('div', { class: 'apr-norma' }, h('strong', null, 'Onde está na norma'), h('ul', null, l.norma.map((n) => h('li', null, n)))) : null,
           h('div', { class: 'apr-nav' },
             k > 0 ? ui.botao({ texto: `← ${LICOES[k - 1].titulo}`, tipo: 'fantasma', aoClicar: () => abrir(LICOES[k - 1].id) }) : h('span'),
             k < LICOES.length - 1 ? ui.botao({ texto: `${LICOES[k + 1].titulo} →`, tipo: 'secundario', aoClicar: () => abrir(LICOES[k + 1].id) }) : h('span')),
-        );
+        ].filter(Boolean));
         corpo.closest('.pagina')?.parentElement?.scrollTo?.({ top: 0, behavior: 'smooth' });
       };
       if (licaoPedida) { atual = licaoPedida; licaoPedida = null; }

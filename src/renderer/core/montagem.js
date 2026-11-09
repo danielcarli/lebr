@@ -243,6 +243,27 @@ function vaosCobertos(eixo, [s0, s1]) {
 }
 
 /**
+ * Vãos da viga tocados por um trecho [s0, s1], com o trecho parcial de cada um (relativo ao início do vão) quando a
+ * sobreposição não cobre o vão inteiro — a carga linear fica só onde o elemento realmente apoia (0.61). Um pedaço
+ * menor que `minimo` não conta. Devolve 'todos' quando cobre a viga inteira.
+ */
+function vaosComTrecho(eixo, [s0, s1], minimo = 0.2) {
+  const lista = [];
+  eixo.vaos.forEach(([a, b], k) => {
+    const t0 = Math.max(a, s0), t1 = Math.min(b, s1);
+    if (t1 - t0 < minimo) return;
+    const parcial = t1 - t0 < b - a - 0.05;
+    lista.push({ vao: k, trecho: parcial ? [Math.round((t0 - a) * 1000) / 1000, Math.round((t1 - a) * 1000) / 1000] : null });
+  });
+  if (!lista.length) {
+    // trecho muito curto: fica no vão com maior sobreposição, inteiro
+    const melhor = eixo.vaos.map(([a, b], k) => ({ k, ov: Math.min(b, s1) - Math.max(a, s0) })).sort((x, y) => y.ov - x.ov)[0];
+    return melhor && melhor.ov > 0 ? [{ vao: melhor.k, trecho: null }] : [];
+  }
+  return lista.length === eixo.vaos.length && lista.every((x) => !x.trecho) ? 'todos' : lista;
+}
+
+/**
  * Ligações sugeridas pela geometria.
  * @returns {{tipo:'laje-viga'|'viga-pilar'|'pilar-pilar', receptor:object, fonte:object, ligacao:string, vao?:number|'todos', texto:string}[]}
  */
@@ -265,11 +286,11 @@ export function detectarLigacoes(projeto, registro, { tol = TOLERANCIA, tolGeo =
         const eixo = eixoViga(viga);
         const ov = sobreposicao(seg, eixo, tol);
         if (!ov) continue;
-        const vaos = vaosCobertos(eixo, ov);
-        const lista = vaos === 'todos' ? ['todos'] : vaos;
-        for (const vao of lista) {
-          out.push({ tipo: 'laje-viga', receptor: viga, fonte: laje, ligacao: lig.id, vao,
-            texto: `${laje.codigo} · ${lig.nome} → ${viga.codigo}${vao === 'todos' ? '' : ` (vão ${vao + 1})`}` });
+        const vaos = vaosComTrecho(eixo, ov);
+        const lista = vaos === 'todos' ? [{ vao: 'todos', trecho: null }] : vaos;
+        for (const { vao, trecho } of lista) {
+          out.push({ tipo: 'laje-viga', receptor: viga, fonte: laje, ligacao: lig.id, vao, trecho,
+            texto: `${laje.codigo} · ${lig.nome} → ${viga.codigo}${vao === 'todos' ? '' : ` (vão ${vao + 1}${trecho ? `, ${fmt(trecho[0])} a ${fmt(trecho[1])} m` : ''})`}` });
         }
       }
     }
@@ -427,6 +448,9 @@ export function aplicarLigacoes(projeto, ligacoes) {
       // escada deslocada: a ligação existe, mas a posição na viga muda junto
       const c = lig.posicao != null && rec.cargas.find((x) => mesmaLigacao(x, lig) && x.vao === lig.vao);
       if (c && Math.abs((c.posicao ?? -1) - lig.posicao) > 1e-6) { c.posicao = lig.posicao; if (rec.resultado) rec.resultado.desatualizado = true; n++; }
+      // laje que apoia só em parte do vão: a ligação existente ganha (ou perde) o trecho conforme a planta
+      const ct = lig.tipo === 'laje-viga' && lig.vao !== 'todos' && rec.cargas.find((x) => mesmaLigacao(x, lig) && x.vao === lig.vao);
+      if (ct && JSON.stringify(ct.trecho ?? null) !== JSON.stringify(lig.trecho ?? null)) { if (lig.trecho) ct.trecho = lig.trecho; else delete ct.trecho; if (rec.resultado) rec.resultado.desatualizado = true; n++; }
       continue;
     }
     if (!Array.isArray(rec.cargas)) rec.cargas = [];

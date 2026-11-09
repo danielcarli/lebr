@@ -16,12 +16,37 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Protótipo 0.60.1 — fase inicial de desenvolvimento.** O software ainda encontra-se em estágio inicial de
-> desenvolvimento e **não deve ser utilizado para cálculos reais de estruturas.**
+> **Versão alpha 0.62.0.** O LEBR está em fase inicial de desenvolvimento e **não deve ser utilizado para cálculos
+> reais de estruturas.** Ainda falta a **validação independente** de cada função, com dados e cálculos feitos **à mão
+> ou em planilha** por engenheiros, caso a caso. O que já existe é um conjunto grande de **testes automatizados que
+> validam o software** a cada versão — a metodologia está logo abaixo.
+
+### Como o software é testado
+
+Três camadas de validação rodam em `npm test` (amostra) e em `npm run confiabilidade` (campanha completa, que gera
+[docs/CONFIABILIDADE-RELATORIO.md](docs/CONFIABILIDADE-RELATORIO.md)):
+
+1. **Banco de casos — 322 casos e 913 grandezas.** Cada resultado é comparado com um valor que não vem do programa:
+   expressão da norma, tabela clássica (Timoshenko, Bares, Czerny), solução fechada (Clapeyron, Navier, equilíbrio
+   dos nós) ou **exercício resolvido publicado** — 158 casos de apostilas, livros, TCCs e dissertações, cada um com a
+   fonte, a página, o enunciado e a tolerância. Nos exercícios publicados, a mediana do desvio é 0,04 % e 93 % das
+   grandezas ficam dentro de 1 %; os desvios acima de 2 % têm a hipótese diferente explicada no próprio caso.
+2. **Varreduras aleatórias de invariantes — 19 famílias, 1000 sorteios cada.** Um gerador com semente sorteia
+   entradas em domínios de projeto usuais e confere propriedades que valem para qualquer método: equilíbrio (soma das
+   reações = cargas, nó a nó na treliça), simetria, linearidade, monotonicidade, limites da norma e a coincidência
+   entre dois caminhos de cálculo do próprio programa e com soluções exatas. São 128 mil verificações sem falha, o
+   que limita a taxa de falha a menos de 0,02 % com 95 % de confiança — **dentro do domínio sorteado**.
+3. **Caminho das cargas em projetos inteiros.** Nos sete projetos de exemplo, o peso somado elemento a elemento
+   (lajes, vigas, paredes, pilares, escadas, reservatórios e telhado) tem de chegar às fundações pela cadeia laje →
+   viga → pilar → fundação; o desvio fica entre 0,00 % e 0,22 %.
+
+Esses testes medem **consistência interna** e **aderência às fontes**; não substituem a conferência por um
+engenheiro habilitado, que a NBR 6118 e a NBR 7190 exigem. Método, limites e o que a estatística não garante:
+[docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md).
 
 > [!IMPORTANT]
-> **Procuramos colaboradores** para criar **estudos de caso** e fazer a **validação independente de cada função**,
-> com cálculos feitos **à mão ou em planilhas** comparados com os resultados do programa. Veja
+> **Procuramos colaboradores** para a validação que ainda falta: **estudos de caso** e a **conferência independente de
+> cada função**, com cálculos feitos **à mão ou em planilhas** comparados com os resultados do programa. Veja
 > [CONTRIBUTING.md](CONTRIBUTING.md) e a [apresentação do projeto](docs/APRESENTACAO.md), com capturas de tela.
 
 ![Sobrado com garagem em 3D no tema Blueprint](docs/imagens/blueprint-sobrado-3d.png)
@@ -37,10 +62,14 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 
 ### Aprender cálculo estrutural
 
-O menu **Aprender** (também na tela inicial) tem seis lições: o caminho das cargas, os esforços na viga, a flexão na
-seção, a viga completa, a laje maciça e o pilar. Cada uma tem controles que refazem o cálculo na hora, gráficos animados
-com as caixas *Para que serve* e *Como ler* e, nas de viga, laje e pilar, o cálculo feito pelos mesmos módulos do
-programa, com a lista de ferros e a armadura em 3D.
+O menu **Aprender** (também na tela inicial) tem seis lições pensadas para estudantes de engenharia civil e de
+arquitetura: o caminho das cargas, os esforços na viga, a flexão na seção, a viga completa, a laje maciça e o pilar.
+Cada uma traz o objetivo e o que convém saber antes, passos em dois tempos (*o que fazer* e *o que observar*),
+conceitos e fórmulas com o item da norma, um bloco *Na prática* para a arquitetura (pré-dimensionamento, proporções
+de planta, o que cabe onde) e outro para a engenharia (o roteiro de cálculo), controles que refazem o cálculo na
+hora, gráficos animados com as caixas *Para que serve* e *Como ler*, os erros mais comuns, uma pergunta para pensar
+com resposta escondida e as referências da NBR. Nas lições de viga, laje e pilar o cálculo é feito pelos mesmos
+módulos do programa, com a lista de ferros e a armadura em 3D.
 
 | | |
 |---|---|
@@ -545,12 +574,22 @@ abrem no LibreCAD, QCAD e AutoCAD. Detalhes em [docs/DXF.md](docs/DXF.md).
 Os resultados do LEBR são conferidos com valores que não vêm do próprio programa: tabelas e
 expressões da NBR 6118:2023, tabelas clássicas (Timoshenko e Woinowsky-Krieger, vigas contínuas)
 e cálculo manual, e também com **158 exercícios resolvidos publicados** (apostilas da UNESP, EESC-USP, UFPR e PUC Goiás,
-livros e TCCs), cada um com a fonte, o link e o enunciado. São 315 casos e 879 grandezas na versão 0.34.0, cada um
+livros e TCCs), cada um com a fonte, o link e o enunciado. São 322 casos e 913 grandezas na versão 0.61.0, cada um
 com a fonte e a tolerância.
 `npm run validar` mostra o resumo no terminal e grava `validacao/relatorio.html`; no programa,
 **Ajuda › Relatório de validação** roda os mesmos casos. Os casos também entram no `npm test`.
 Formato e como incluir exemplos de livros: [docs/VALIDACAO.md](docs/VALIDACAO.md); fontes e divergências encontradas
 nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBLIOGRAFIA.md).
+
+**Confiabilidade estatística (0.61).** Além do banco, `npm run confiabilidade` sorteia 1000 entradas por família
+(19 famílias: viga contínua, treliça, flexão da seção, cortante, pilar, placa, punção, sapata, bloco, estacas, madeira,
+vento e combinações, fissuração e os módulos inteiros) e confere invariantes que valem para qualquer método —
+equilíbrio, simetria, linearidade, limites da norma, coincidência entre dois caminhos de cálculo e com soluções exatas
+(Navier, Clapeyron, equilíbrio dos nós, Euler, Hankinson). Com 19 000 sorteios e 128 mil verificações sem falha, a taxa
+de falha fica abaixo de 0,02 % a 95 % de confiança (regra dos três). Em projetos inteiros, o peso somado elemento a
+elemento chega às fundações com desvio ≤ 0,22 % nos sete exemplos. Método, limites e o que a estatística **não**
+garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado em
+[docs/CONFIABILIDADE-RELATORIO.md](docs/CONFIABILIDADE-RELATORIO.md).
 
 ## Interface
 
@@ -561,6 +600,26 @@ nos exercícios publicados: [docs/VALIDACAO-BIBLIOGRAFIA.md](docs/VALIDACAO-BIBL
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.62.0 (lições para estudantes de engenharia civil e arquitetura):** o texto das seis lições do
+  módulo Aprender foi reescrito para o público de graduação. Cada lição passou a ter **o que convém saber antes**,
+  passos em dois tempos — **o que fazer** e **o que observar** (com o significado do que aparece) —, conceitos com a
+  definição em linguagem simples e o item da norma, uma tabela de **fórmulas da lição**, dois blocos **Na prática**
+  (o que o arquiteto decide: pré-dimensionamento de vigas, lajes e pilares, proporções de planta, onde a armadura
+  precisa caber; e o roteiro de cálculo do engenheiro), as caixas *Para que serve* e *Como ler* com unidades e
+  convenções de sinal, uma lista de **erros comuns**, a pergunta *Para pensar* agora com a **resposta escondida** e
+  a seção **Onde está na norma**.
+- **Novidades da 0.61.0 (confiabilidade estatística):** campanha de validação em três camadas, automatizada em
+  `npm test` e `npm run confiabilidade`: (1) sete casos analíticos novos no banco (tesoura simples e Howe pelo
+  equilíbrio dos nós, Hankinson, viga de três vãos por Clapeyron, placa 1:2 pela série de Navier, terça do telhado,
+  radier rígido) — 322 casos e 913 grandezas; (2) **varreduras aleatórias de invariantes** em 19 famílias (viga,
+  treliça, flexão, cortante, pilar, placa, punção, sapata, bloco, estacas, madeira, vento e combinações, fissuração e
+  módulos inteiros), com 1000 sorteios por família conferindo equilíbrio, simetria, linearidade, limites da norma e
+  soluções exatas — 128 mil verificações sem falha, taxa de falha < 0,02 % a 95 %; (3) **fechamento do caminho das
+  cargas** nos sete projetos de exemplo (peso somado elemento a elemento × cargas nas fundações). Relatório
+  estatístico com a distribuição dos desvios em relação às fontes, cobertura por módulo e a interpretação honesta do
+  que a estatística garante ([docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md)). **Correção encontrada pela
+  campanha:** laje apoiada em parte de um vão de viga carregava o vão inteiro (até +20 % na carga daquela laje);
+  a ligação agora guarda o trecho em que a laje apoia, e os exemplos foram atualizados.
 - **Novidades da 0.60.1:** o telhado ganhou a seção **Estrutura em 3D** na página do elemento — tesouras, terças,
   caibros, ripas, telhas, oitões e apoios nas seções do cálculo, com um botão para mostrar ou esconder cada camada e o
   nome e a seção da peça sob o mouse. A tesoura ganhou a **Tesoura em 3D**, com as barras coloridas pelo esforço que
@@ -832,6 +891,8 @@ docs/
   FORMATO.md          esquema do arquivo .lebr.json
   VALIDACAO.md        banco de casos de validação: formato e como incluir casos
   VALIDACAO-BIBLIOGRAFIA.md  exercícios resolvidos publicados: fontes e divergências encontradas
+  CONFIABILIDADE.md          método das três camadas de validação e o que a estatística garante
+  CONFIABILIDADE-RELATORIO.md relatório gerado por npm run confiabilidade
   LANCAMENTO.md       boas práticas de lançamento da estrutura (TQS, Eberick, CYPECAD) e o plano L1–L15
   VENTO.md            vento (NBR 6123): dados, Ca, aplicação no pórtico e limitações
   ESTABILIDADE.md     desaprumo, α, γz, rigidez reduzida e majoração por 0,95·γz

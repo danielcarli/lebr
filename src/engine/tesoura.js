@@ -145,3 +145,19 @@ export function entalheApoio({ Nd, alfa, b, hInf, m }) {
   const fNec = (H / (b * m.fvd)) * 10;                              // cm
   return { fca, H, eNec, eMax, ok: eNec <= eMax + 1e-9, fNec, e: Math.max(2, Math.ceil(eNec * 2) / 2), f: Math.max(15, Math.ceil(fNec / 5) * 5) };
 }
+
+/**
+ * Tesoura inteira resolvida: geometria + treliça com cargas verticais nos nós do banzo superior (kN, para baixo) e,
+ * opcionalmente, nos do inferior. Devolve os esforços por nome de barra — útil para validação com soluções fechadas.
+ */
+export function resolverTesoura({ tipo = 'howe', L, inclinacao, paineis, Psup = 0, Pinf = 0, EA = 1e5 }) {
+  const g = geometriaTesoura({ tipo, L, inclinacao, paineis });
+  const cargas = {};
+  const vSup = Array.isArray(Psup) ? Psup : g.sup.map((_, k) => (k === 0 || k === g.n ? Psup / 2 : Psup));
+  const vInf = Array.isArray(Pinf) ? Pinf : g.inf.map((_, k) => (k === 0 || k === g.n ? Pinf / 2 : Pinf));
+  g.sup.forEach((no, k) => { cargas[no] = [0, -(vSup[k] ?? 0)]; });
+  g.inf.forEach((no, k) => { if (k > 0 && k < g.n) cargas[no] = [(cargas[no]?.[0] ?? 0), (cargas[no]?.[1] ?? 0) - (vInf[k] ?? 0)]; });
+  const r = resolverTrelica({ nos: g.nos, barras: g.barras.map((b) => ({ ...b, EA })), apoios: { [g.inf[0]]: [true, true], [g.inf[g.n]]: [false, true] }, cargas });
+  const N = Object.fromEntries(g.barras.map((b, k) => [b.nome, r.N[k]]));
+  return { H: g.H, alfa: g.alfa, N, RA: r.reacoes[g.inf[0]][1], RB: r.reacoes[g.inf[g.n]][1], barras: g.barras.map((b, k) => ({ nome: b.nome, grupo: b.grupo, L: b.L, N: r.N[k] })) };
+}

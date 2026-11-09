@@ -1,0 +1,1581 @@
+{
+ "versao": "0.61.0",
+ "geradoEm": "2026-11-08T23:06:15.675Z",
+ "semente": 20261108,
+ "sorteiosPorFamilia": 1000,
+ "banco": {
+  "casos": 322,
+  "aprovados": 322,
+  "grandezas": 913,
+  "maiorDiferenca": 0.0980281613688425,
+  "ok": true,
+  "desvios": {
+   "grandezas": 870,
+   "media": 0.0016327963536208246,
+   "desvioPadrao": 0.006099762289667918,
+   "mediana": 0.000010700664245406665,
+   "p90": 0.003933997893162832,
+   "p95": 0.008571428571428516,
+   "p99": 0.030130093310536538,
+   "maximo": 0.0980281613688425,
+   "ate": {
+    "0,1 %": 0.7885057471264367,
+    "1 %": 0.9597701149425287,
+    "2 %": 0.9850574712643678,
+    "5 %": 0.9977011494252873,
+    "10 %": 1
+   },
+   "exatas": 530
+  },
+  "desviosBibliografia": {
+   "grandezas": 368,
+   "media": 0.0030781300823101844,
+   "desvioPadrao": 0.00864252783300703,
+   "mediana": 0.000397553525256123,
+   "p90": 0.007972938473349163,
+   "p95": 0.014475271560093657,
+   "p99": 0.04509793956184777,
+   "maximo": 0.0980281613688425,
+   "ate": {
+    "0,1 %": 0.6195652173913043,
+    "1 %": 0.9266304347826086,
+    "2 %": 0.967391304347826,
+    "5 %": 0.9945652173913043,
+    "10 %": 1
+   },
+   "exatas": 126
+  },
+  "falhas": []
+ },
+ "invariantes": {
+  "familias": [
+   {
+    "id": "viga-continua",
+    "nome": "Viga contínua (motor de vigas)",
+    "modulo": "concreto.viga",
+    "fonte": "Estática: ΣV = 0, linearidade do método dos deslocamentos, M = qL²/8 e f = 5qL⁴/(384EI) na biapoiada.",
+    "sorteios": 1000,
+    "verificacoes": 4165,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "equilíbrio vertical ΣR = Σ cargas",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "superposição (linearidade)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "simetria (viga espelhada)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "biapoiada: M = qL²/8",
+      "n": 55,
+      "falhas": 0
+     },
+     {
+      "invariante": "biapoiada: f = 5qL⁴/(384EI)",
+      "n": 55,
+      "falhas": 0
+     },
+     {
+      "invariante": "biapoiada: R = qL/2",
+      "n": 55,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "trelica",
+    "nome": "Treliça da tesoura (equilíbrio dos nós)",
+    "modulo": "madeira.tesoura",
+    "fonte": "Estática: ΣFx = ΣFy = 0 em cada nó com os esforços obtidos; simetria; Howe com montantes tracionados.",
+    "sorteios": 1000,
+    "verificacoes": 5617,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "equilíbrio em cada nó",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "equilíbrio global",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "simetria sob carga simétrica",
+      "n": 539,
+      "falhas": 0
+     },
+     {
+      "invariante": "banzo superior comprimido e inferior tracionado",
+      "n": 539,
+      "falhas": 0
+     },
+     {
+      "invariante": "Pratt: montantes comprimidos, diagonais tracionadas",
+      "n": 287,
+      "falhas": 0
+     },
+     {
+      "invariante": "Hankinson: fc90,d ≤ fc,α,d ≤ fc0,d",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "entalhe: e dobra com a força",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Howe: montantes tracionados, diagonais comprimidas",
+      "n": 252,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "flexao-secao",
+    "nome": "Flexão simples da seção retangular",
+    "modulo": "concreto.viga",
+    "fonte": "NBR 6118 17.2.2 e 17.2.3: equilíbrio da seção (conferido com o motor de flexocompressão, N = 0), x/d ≤ 0,45 (C20–C50) ou 0,35, As ≥ As,mín, As cresce com Md.",
+    "sorteios": 1000,
+    "verificacoes": 7563,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "x/d ≤ ξ,lim (ductilidade)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "As ≥ As,mín",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "ok ⇔ As ≤ 4 % Ac e Kmd ≤ 2·Kmd,lim",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "MRd(As) ≥ Md pelo motor de flexocompressão",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "MRd(As) ≈ Md (mínima não governa)",
+      "n": 563,
+      "falhas": 0
+     },
+     {
+      "invariante": "As não diminui com Md maior",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "domínio coerente com ξ",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "cisalhamento",
+    "nome": "Cortante em vigas (modelo I)",
+    "modulo": "concreto.viga",
+    "fonte": "NBR 6118 17.4.2.2: VRd2 = 0,27·αv2·fcd·bw·d; Vc = 0,6·fctd·bw·d; Asw/s = (Vd − Vc)/(0,9·d·fywd) e ≥ mínima (17.4.1.1.1).",
+    "sorteios": 1000,
+    "verificacoes": 6000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Asw/s ≥ (Vd − Vc)/(0,9·d·fywd)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Asw/s ≥ mínima",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "VRd2 do motor = fórmula",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Vc do motor = fórmula",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "ok ⇔ Vd ≤ VRd2",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "pilar",
+    "nome": "Pilar retangular (flexocompressão)",
+    "modulo": "concreto.pilar",
+    "fonte": "NBR 6118 17.2.5 e 18.4.2.1: As,mín = máx(0,15·Nd/fyd; 0,4 % Ac), As ≤ 4 % Ac; o momento resistente a θ = 0 da curva oblíqua coincide com o da flexão normal; a curva de interação encolhe com Nd crescente.",
+    "sorteios": 1000,
+    "verificacoes": 3994,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "As,mín do motor = máx(0,15·Nd/fyd; 0,4 % Ac)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "As,mín ≤ As ≤ 4 % Ac",
+      "n": 994,
+      "falhas": 0
+     },
+     {
+      "invariante": "todos os pontos de cálculo dentro da curva",
+      "n": 994,
+      "falhas": 0
+     },
+     {
+      "invariante": "M1d,mín = Nd·(1,5 + 0,03h)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "sem arranjo ⇒ seção 10 cm maior resolve",
+      "n": 6,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "placa",
+    "nome": "Placa por elementos finitos",
+    "modulo": "concreto.laje.macica",
+    "fonte": "Timoshenko & Woinowsky-Krieger: série de Navier da placa simplesmente apoiada (ν = 0,2); equilíbrio: soma das reações = carga; simetria lx ↔ ly.",
+    "sorteios": 1000,
+    "verificacoes": 7000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "equilíbrio: Σ reações = p·lx·ly",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "apoiada: w máx = Navier (±3 %)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "apoiada: mx = Navier (±5 %)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "apoiada: my = Navier (±5 %)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "simetria lx ↔ ly",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "engastar uma borda não aumenta a flecha",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "puncao",
+    "nome": "Punção (contornos C e C′)",
+    "modulo": "concreto.laje.macica",
+    "fonte": "NBR 6118 19.5.2: u0 = 2(c1 + c2), u1 = u0 + 4πd (pilar interno); τSd = FSd/(u·d); τRd2 = 0,27·αv2·fcd; K da Tabela 19.2 entre 0,45 e 0,80.",
+    "sorteios": 1000,
+    "verificacoes": 10000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "u0 = 2(c1 + c2)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "u1 = u0 + 4πd",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τSd em C ≥ FSd/(u0·d)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τSd em C′ ≥ FSd/(u1·d)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τSd em C > τSd em C′",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τRd2 = 0,27·αv2·fcd",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τSd em C = FSd/(u0·d) sem momento",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "C não atende ⇒ ok falso; ok ⇒ C atende",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "K entre 0,45 e 0,80 e cresce com c1/c2",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τSd em C′ diminui com d maior",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "sapata",
+    "nome": "Sapata isolada",
+    "modulo": "concreto.sapata",
+    "fonte": "NBR 6122: σ = N/(A·B) (e com momento σmáx = N/A·(1 + 6e/B) dentro do núcleo), balanços iguais, h rígida ≥ (A − ap)/3; dimensões em múltiplos de 5 cm.",
+    "sorteios": 1000,
+    "verificacoes": 13973,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "A·B ≥ área necessária",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "balanços iguais: A − ap ≈ B − bp (±5 cm), salvo a dimensão mínima de 60 cm",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "σméd = N/(A·B)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "σmáx = σméd·(1 + 6e/A) dentro do núcleo",
+      "n": 973,
+      "falhas": 0
+     },
+     {
+      "invariante": "σmáx ≥ σméd ≥ σmín",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapataRigida ⇔ h ≥ (A − ap)/3",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: σméd ≤ σadm",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: σméd = Ntot/(A·B)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: Ntot = Nk + PP + terra",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: balanços iguais sem momento (A − ap = B − bp), salvo a dimensão mínima",
+      "n": 614,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: sapata rígida automática",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: As ≥ As,mín nas duas direções",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "módulo: com momento, a base fica inteiramente comprimida ou avisa",
+      "n": 386,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "bloco",
+    "nome": "Bloco sobre estacas (bielas e tirantes)",
+    "modulo": "concreto.bloco",
+    "fonte": "Estática: ΣR = N e ΣR·x = M; Blévot: 2 estacas Rst = Nd·(2e − ap)/(8d), biela entre 45° e 55°.",
+    "sorteios": 1000,
+    "verificacoes": 2506,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "ΣR = N",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "ΣR·x = Mx",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Blévot 2 estacas: Rst = Nd(2e − ap)/(8d)",
+      "n": 253,
+      "falhas": 0
+     },
+     {
+      "invariante": "biela entre 40° e 60°",
+      "n": 253,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "estacas",
+    "nome": "Capacidade de carga de estacas",
+    "modulo": "geotecnia.estaca",
+    "fonte": "Aoki-Velloso (1975): rp = K·Np/F1, rl = α·K·Nl/F2 — em perfil uniforme Rl é proporcional a L e Rp não depende de L; Décourt-Quaresma cresce com L; carga admissível com FS = 2.",
+    "sorteios": 1000,
+    "verificacoes": 7000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Aoki-Velloso: Rl(2L) = 2·Rl(L) em perfil uniforme",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Aoki-Velloso: Rp não depende de L em perfil uniforme",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Décourt-Quaresma: R cresce com L",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "F2 = 2·F1",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "rp = K·N/F1",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Rp = rp·Ap",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "madeira",
+    "nome": "Madeira (NBR 7190-1:2022)",
+    "modulo": "madeira.viga",
+    "fonte": "Xd = kmod·Xk/γw; kc(λrel) não crescente e = 1 para λrel < 0,3; σ = 6M/(bh²); τ = 1,5V/(bh); com λrel grande kc → 1/λrel² (Euler).",
+    "sorteios": 1000,
+    "verificacoes": 9000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "fc0,d = kmod·fc0,k/γw",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "fv,d = kmod·fv,k/1,8",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "kc(0,29) = 1 e kc não cresce com λrel",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "kc → 1/λrel² (Euler) para λrel grande",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "σM = 6·Md/(b·h²)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "τ = 1,5·Vd/(b·h)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "λy = L0/(b/√12)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "interação cresce com Nd",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "interação cresce com L0",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "vento-combinacoes",
+    "nome": "Vento (NBR 6123) e combinações (NBR 8681)",
+    "modulo": "concreto.pilar",
+    "fonte": "q = 0,613·Vk² (Pa); S2 cresce com z; a força de arrasto é proporcional a V0²; envoltória contém todas as combinações; ELU normal = γg·G + γq·Q.",
+    "sorteios": 1000,
+    "verificacoes": 7000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "q = 0,613·Vk²/1000",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "S2 cresce com z",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "força de arrasto ∝ V0²",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "Σ forças por nível = total",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pressão por nível cresce com z (S2)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "envoltória ELU contém γg·G + γq·Q",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "envoltória: mín ≤ máx e mín ≤ G",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "fissuracao",
+    "nome": "Estádio II e abertura de fissuras",
+    "modulo": "concreto.viga",
+    "fonte": "Estádio II: b·x²/2 = αe·As·(d − x); I₂ = b·x³/3 + αe·As·(d − x)²; wk cresce com Ms (17.3.3.2).",
+    "sorteios": 1000,
+    "verificacoes": 5000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "b·x²/2 = αe·As·(d − x)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "I₂ = b·x³/3 + αe·As·(d − x)²",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "x < d",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "wk cresce com Ms",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "wk = mín(w1, w2)",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-viga",
+    "nome": "Viga de concreto (módulo completo)",
+    "modulo": "concreto.viga",
+    "fonte": "Equilíbrio: Σ reações características = peso próprio + cargas; detalhamento com As,ef ≥ As,calc; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 6000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "viga: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga: verificações sem NaN/undefined",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga: memorial sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga: Σ Rg = pp + g",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "viga: Σ Rq = q·L",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-laje",
+    "nome": "Lajes maciça, treliçada e nervurada (módulos completos)",
+    "modulo": "concreto.laje.macica",
+    "fonte": "Equilíbrio: Σ reações nas bordas = (g + q)·área; As ≥ As,mín; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 5000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "nervurada: sem erro",
+      "n": 329,
+      "falhas": 0
+     },
+     {
+      "invariante": "nervurada: verificações sem NaN/undefined",
+      "n": 329,
+      "falhas": 0
+     },
+     {
+      "invariante": "nervurada: ok ⇔ todas as verificações ok",
+      "n": 329,
+      "falhas": 0
+     },
+     {
+      "invariante": "nervurada: memorial sem NaN",
+      "n": 329,
+      "falhas": 0
+     },
+     {
+      "invariante": "nervurada: Σ reações nas bordas = (g + q)·área (±3 %)",
+      "n": 329,
+      "falhas": 0
+     },
+     {
+      "invariante": "macica: sem erro",
+      "n": 332,
+      "falhas": 0
+     },
+     {
+      "invariante": "macica: verificações sem NaN/undefined",
+      "n": 332,
+      "falhas": 0
+     },
+     {
+      "invariante": "macica: ok ⇔ todas as verificações ok",
+      "n": 332,
+      "falhas": 0
+     },
+     {
+      "invariante": "macica: memorial sem NaN",
+      "n": 332,
+      "falhas": 0
+     },
+     {
+      "invariante": "macica: Σ reações nas bordas = (g + q)·área (±3 %)",
+      "n": 332,
+      "falhas": 0
+     },
+     {
+      "invariante": "trelicada: sem erro",
+      "n": 339,
+      "falhas": 0
+     },
+     {
+      "invariante": "trelicada: verificações sem NaN/undefined",
+      "n": 339,
+      "falhas": 0
+     },
+     {
+      "invariante": "trelicada: ok ⇔ todas as verificações ok",
+      "n": 339,
+      "falhas": 0
+     },
+     {
+      "invariante": "trelicada: memorial sem NaN",
+      "n": 339,
+      "falhas": 0
+     },
+     {
+      "invariante": "trelicada: Σ reações nas bordas = (g + q)·área (±3 %)",
+      "n": 339,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-pilar",
+    "nome": "Pilar de concreto (módulo completo)",
+    "modulo": "concreto.pilar",
+    "fonte": "Nd = 1,4·(Nk + peso próprio); As entre as taxas mínima e máxima; λ ≤ 90 nas seções usuais; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 5824,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "pilar: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pilar: verificações sem NaN/undefined",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pilar: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pilar: memorial sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pilar: Nd = γn·1,4·(Ng + pp + Nq)",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "pilar: 0,4 % Ac ≤ As ≤ 4 % Ac",
+      "n": 824,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-fundacoes",
+    "nome": "Bloco, estaca, sapata corrida e radier (módulos completos)",
+    "modulo": "concreto.bloco",
+    "fonte": "Equilíbrio e coerência: Σ reações das estacas = Nd; carga da estaca ≤ admissível quando ok; pressão do radier = N/A; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 5613,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "sapata corrida: sem erro",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: verificações sem NaN/undefined",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: ok ⇔ todas as verificações ok",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: memorial sem NaN",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: σ ≤ σadm",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: B múltiplo de 5 e ≥ 60",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "sapata corrida: σ = (n + pp + terra)/B",
+      "n": 264,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: sem erro",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: verificações sem NaN/undefined",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: ok ⇔ todas as verificações ok",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: memorial sem NaN",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: σméd = N/A",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: pega os 4 pilares",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "radier: N = Σ Nk dos pilares + peso próprio + piso",
+      "n": 267,
+      "falhas": 0
+     },
+     {
+      "invariante": "bloco: sem erro",
+      "n": 233,
+      "falhas": 0
+     },
+     {
+      "invariante": "bloco: verificações sem NaN/undefined",
+      "n": 233,
+      "falhas": 0
+     },
+     {
+      "invariante": "bloco: ok ⇔ todas as verificações ok",
+      "n": 233,
+      "falhas": 0
+     },
+     {
+      "invariante": "bloco: memorial sem NaN",
+      "n": 233,
+      "falhas": 0
+     },
+     {
+      "invariante": "estaca: sem erro",
+      "n": 236,
+      "falhas": 0
+     },
+     {
+      "invariante": "estaca: verificações sem NaN/undefined",
+      "n": 236,
+      "falhas": 0
+     },
+     {
+      "invariante": "estaca: ok ⇔ todas as verificações ok",
+      "n": 236,
+      "falhas": 0
+     },
+     {
+      "invariante": "estaca: memorial sem NaN",
+      "n": 236,
+      "falhas": 0
+     },
+     {
+      "invariante": "estaca: carga de trabalho ≤ admissível quando ok",
+      "n": 20,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-madeira-telhado",
+    "nome": "Telhado e tesoura de madeira (módulos completos)",
+    "modulo": "madeira.telhado",
+    "fonte": "Equilíbrio: Σ cargas nos nós da tesoura = peso do telhado por tesoura; reações da tesoura = Σ nós + peso próprio; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 11000,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "telhado: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "telhado: verificações sem NaN/undefined",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "telhado: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "telhado: memorial sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: sem erro",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: verificações sem NaN/undefined",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: ok ⇔ todas as verificações ok",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: memorial sem NaN",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: Σ Rg = Σ G nos nós + peso próprio",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "tesoura: Σ Rq = Σ Q nos nós",
+      "n": 1000,
+      "falhas": 0
+     },
+     {
+      "invariante": "telhado: Σ cargas nos apoios = peso total",
+      "n": 1000,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   },
+   {
+    "id": "elemento-escada-reservatorio",
+    "nome": "Escada e reservatório (módulos completos)",
+    "modulo": "concreto.escada",
+    "fonte": "Blondel 63 ≤ 2e + p ≤ 65 quando ok; volume de água = a·b·hAgua; nenhum NaN.",
+    "sorteios": 1000,
+    "verificacoes": 6004,
+    "excecoes": 0,
+    "falhas": 0,
+    "invariantes": [
+     {
+      "invariante": "escada: sem erro",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: verificações sem NaN/undefined",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: ok ⇔ todas as verificações ok",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: memorial sem NaN",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: Blondel 2e + p entre 60 e 66 cm",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: n·e = desnível",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "escada: 16 ≤ e ≤ 18,5 cm (NBR 9050)",
+      "n": 502,
+      "falhas": 0
+     },
+     {
+      "invariante": "reservatório: sem erro",
+      "n": 498,
+      "falhas": 0
+     },
+     {
+      "invariante": "reservatório: verificações sem NaN/undefined",
+      "n": 498,
+      "falhas": 0
+     },
+     {
+      "invariante": "reservatório: ok ⇔ todas as verificações ok",
+      "n": 498,
+      "falhas": 0
+     },
+     {
+      "invariante": "reservatório: memorial sem NaN",
+      "n": 498,
+      "falhas": 0
+     },
+     {
+      "invariante": "reservatório: volume = a·b·hAgua",
+      "n": 498,
+      "falhas": 0
+     }
+    ],
+    "limite95": 0.003,
+    "exemplosFalha": []
+   }
+  ],
+  "total": 19000,
+  "falhas": 0,
+  "limite95": 0.00015789473684210527,
+  "semente": 20261108,
+  "n": 1000,
+  "verificacoes": 128259
+ },
+ "fechamento": [
+  {
+   "nome": "aeroporto-terminal-satelite",
+   "elementos": 466,
+   "entra": 90916.65993392174,
+   "chega": 90914.79,
+   "desvio": -0.0000205675606990069,
+   "partes": {
+    "pilares": {
+     "g": 4633.412433921541,
+     "q": 0
+    },
+    "vigas": {
+     "g": 20368.417499999996,
+     "q": 0
+    },
+    "lajes": {
+     "g": 44800.83000000008,
+     "q": 21114
+    }
+   },
+   "perdas": [],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "edificio-18-pavimentos",
+   "elementos": 612,
+   "entra": 37752.221100000024,
+   "chega": 37752.259999999995,
+   "desvio": 0.0000010304029494692106,
+   "partes": {
+    "pilares": {
+     "g": 4415.0399999999945,
+     "q": 0
+    },
+    "vigas": {
+     "g": 13289.68109999999,
+     "q": 0
+    },
+    "lajes": {
+     "g": 14681.25,
+     "q": 5366.25
+    }
+   },
+   "perdas": [],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "edificio-3-pavimentos",
+   "elementos": 96,
+   "entra": 3223.906,
+   "chega": 3231.1000000000004,
+   "desvio": 0.002231454639186259,
+   "partes": {
+    "pilares": {
+     "g": 145,
+     "q": 0
+    },
+    "escadas": {
+     "g": 42.66,
+     "q": 16.236
+    },
+    "reservatórios": {
+     "g": 282.21,
+     "q": 10
+    },
+    "vigas": {
+     "g": 1270.4,
+     "q": 0
+    },
+    "lajes": {
+     "g": 1018.4000000000001,
+     "q": 439
+    }
+   },
+   "perdas": [
+    "ES1: Tramo 1 · fundo do patamar sem viga (13.1 kN vão para alvenaria ou terreno)",
+    "ES1: Tramo 2 · fundo do patamar sem viga (13.1 kN vão para alvenaria ou terreno)",
+    "ES2: Tramo 1 · fundo do patamar sem viga (13.1 kN vão para alvenaria ou terreno)",
+    "ES2: Tramo 2 · fundo do patamar sem viga (13.1 kN vão para alvenaria ou terreno)"
+   ],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "edificio-exemplo",
+   "elementos": 13,
+   "entra": 1286.705,
+   "chega": 1286.7,
+   "desvio": -0.00000388589459113143,
+   "partes": {
+    "lajes": {
+     "g": 131.25,
+     "q": 56.25
+    },
+    "vigas": {
+     "g": 198.625,
+     "q": 0
+    },
+    "pilares": {
+     "g": 900.5799999999999,
+     "q": 0
+    }
+   },
+   "perdas": [],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "residencia-terrea-baldrame",
+   "elementos": 31,
+   "entra": 1475.8549999999998,
+   "chega": 1475.84,
+   "desvio": -0.000010163600082577674,
+   "partes": {
+    "lajes": {
+     "g": 131.25,
+     "q": 56.25
+    },
+    "vigas": {
+     "g": 380.425,
+     "q": 0
+    },
+    "pilares": {
+     "g": 907.9299999999998,
+     "q": 0
+    }
+   },
+   "perdas": [],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "sobrado-garagem",
+   "elementos": 90,
+   "entra": 2256.2408938678973,
+   "chega": 2258.3,
+   "desvio": 0.000912626899769089,
+   "partes": {
+    "pilares": {
+     "g": 93.44999999999997,
+     "q": 0
+    },
+    "vigas": {
+     "g": 888.4355000000002,
+     "q": 0
+    },
+    "lajes": {
+     "g": 696.1299999999999,
+     "q": 264.5
+    },
+    "escadas": {
+     "g": 20.826,
+     "q": 7.901999999999999
+    },
+    "reservatórios": {
+     "g": 150.29,
+     "q": 7
+    },
+    "telhado": {
+     "g": 95.36739386789803,
+     "q": 32.34
+    }
+   },
+   "perdas": [
+    "ES1: Tramo 1 · fundo do patamar sem viga (12.8 kN vão para alvenaria ou terreno)",
+    "ES1: Tramo 2 · fundo do patamar sem viga (12.8 kN vão para alvenaria ou terreno)"
+   ],
+   "falhas": [],
+   "ok": true
+  },
+  {
+   "nome": "terminal-aeroporto",
+   "elementos": 292,
+   "entra": 59003.9993254412,
+   "chega": 59003.04000000001,
+   "desvio": -0.00001625865114493641,
+   "partes": {
+    "pilares": {
+     "g": 2958.434325441156,
+     "q": 0
+    },
+    "vigas": {
+     "g": 12775.365000000002,
+     "q": 0
+    },
+    "lajes": {
+     "g": 29824.19999999998,
+     "q": 13446
+    }
+   },
+   "perdas": [],
+   "falhas": [],
+   "ok": true
+  }
+ ],
+ "cobertura": [
+  {
+   "modulo": "concreto.viga",
+   "casos": 114,
+   "grandezas": 296,
+   "bibliografia": 46,
+   "familias": [
+    "viga-continua",
+    "flexao-secao",
+    "cisalhamento",
+    "fissuracao",
+    "elemento-viga"
+   ],
+   "sorteios": 5000
+  },
+  {
+   "modulo": "concreto.laje.macica",
+   "casos": 49,
+   "grandezas": 114,
+   "bibliografia": 31,
+   "familias": [
+    "placa",
+    "puncao",
+    "elemento-laje"
+   ],
+   "sorteios": 3000
+  },
+  {
+   "modulo": "concreto.pilar",
+   "casos": 72,
+   "grandezas": 228,
+   "bibliografia": 41,
+   "familias": [
+    "pilar",
+    "vento-combinacoes",
+    "elemento-pilar"
+   ],
+   "sorteios": 3000
+  },
+  {
+   "modulo": "concreto.laje.trelicada",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [
+    "elemento-laje"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "concreto.laje.nervurada",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [
+    "elemento-laje"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "concreto.laje.alveolar",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [],
+   "sorteios": 0
+  },
+  {
+   "modulo": "madeira.viga",
+   "casos": 8,
+   "grandezas": 30,
+   "bibliografia": 5,
+   "familias": [
+    "madeira"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "madeira.pilar",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [],
+   "sorteios": 0
+  },
+  {
+   "modulo": "madeira.entrepiso",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [],
+   "sorteios": 0
+  },
+  {
+   "modulo": "geotecnia.sondagem",
+   "casos": 11,
+   "grandezas": 21,
+   "bibliografia": 0,
+   "familias": [],
+   "sorteios": 0
+  },
+  {
+   "modulo": "concreto.sapata",
+   "casos": 15,
+   "grandezas": 39,
+   "bibliografia": 7,
+   "familias": [
+    "sapata"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "geotecnia.estaca",
+   "casos": 5,
+   "grandezas": 27,
+   "bibliografia": 2,
+   "familias": [
+    "estacas",
+    "elemento-fundacoes"
+   ],
+   "sorteios": 2000
+  },
+  {
+   "modulo": "concreto.bloco",
+   "casos": 22,
+   "grandezas": 72,
+   "bibliografia": 15,
+   "familias": [
+    "bloco",
+    "elemento-fundacoes"
+   ],
+   "sorteios": 2000
+  },
+  {
+   "modulo": "concreto.escada",
+   "casos": 7,
+   "grandezas": 36,
+   "bibliografia": 3,
+   "familias": [
+    "elemento-escada-reservatorio"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "concreto.reservatorio",
+   "casos": 14,
+   "grandezas": 24,
+   "bibliografia": 8,
+   "familias": [
+    "elemento-escada-reservatorio"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "concreto.sapataCorrida",
+   "casos": 0,
+   "grandezas": 0,
+   "bibliografia": 0,
+   "familias": [
+    "elemento-fundacoes"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "concreto.radier",
+   "casos": 1,
+   "grandezas": 4,
+   "bibliografia": 0,
+   "familias": [
+    "elemento-fundacoes"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "madeira.telhado",
+   "casos": 1,
+   "grandezas": 6,
+   "bibliografia": 0,
+   "familias": [
+    "elemento-madeira-telhado"
+   ],
+   "sorteios": 1000
+  },
+  {
+   "modulo": "madeira.tesoura",
+   "casos": 3,
+   "grandezas": 16,
+   "bibliografia": 0,
+   "familias": [
+    "trelica",
+    "elemento-madeira-telhado"
+   ],
+   "sorteios": 2000
+  }
+ ],
+ "conclusao": {
+  "bancoOk": true,
+  "invariantesOk": true,
+  "fechamentoOk": true,
+  "limite95Invariantes": 0.00015789473684210527,
+  "totalVerificacoesIndependentes": 129179
+ }
+}

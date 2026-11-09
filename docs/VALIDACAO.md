@@ -4,6 +4,9 @@ O banco de validação compara resultados do LEBR com valores de referência que
 programa**: a norma (tabelas e expressões), tabelas clássicas (Timoshenko, vigas contínuas) e cálculo
 manual. É o critério de saída da Fase 1 do [roteiro](ROTEIRO.md): cada etapa nova acrescenta os seus casos.
 
+Além do banco, há as **varreduras aleatórias de invariantes** e o **fechamento do caminho das cargas** nos projetos de
+exemplo, descritos em [CONFIABILIDADE.md](CONFIABILIDADE.md) (`npm run confiabilidade`).
+
 ## Como rodar
 
 ```bash
