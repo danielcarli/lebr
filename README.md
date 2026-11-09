@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.63.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.64.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -580,6 +580,23 @@ tabela de **cargas na fundação**, e a **armação das vigas, dos pilares e das
 com perdas. As camadas vêm separadas (eixos, pilares, vigas, lajes, cotas, textos, armaduras por tipo…). Os arquivos
 abrem no LibreCAD, QCAD e AutoCAD. Detalhes em [docs/DXF.md](docs/DXF.md).
 
+### Modelo BIM em IFC (0.64)
+
+**Arquivo › Exportar modelo IFC…** grava o projeto em **IFC4** (formato aberto do BIM, ISO 16739), com os pavimentos
+(`IfcBuildingStorey`) e os elementos posicionados na montagem, na mesma geometria da visualização 3D: pilares
+(`IfcColumn`), vigas (`IfcBeam`, um sólido por vão, com a seção e o nível de cada um — vãos invertidos sobem acima do
+piso), lajes maciças, treliçadas, alveolares e nervuradas (`IfcSlab`, a nervurada com capa e nervuras), escadas
+(`IfcStair`), reservatórios, telhado (`IfcRoof` com tesouras, terças, caibros e ripas como `IfcMember`, as telhas como
+`IfcCovering` e os oitões como `IfcWall`) e fundações (sapatas, sapatas corridas e blocos como `IfcFooting`, estacas
+como `IfcPile`, radier como `IfcSlab`). Cada elemento leva o material (concreto com a classe, aço, madeira), os
+conjuntos de propriedades da norma IFC (`Pset_ColumnCommon`, `Pset_ConcreteElementGeneral` com a classe do concreto e
+a de agressividade…) e um conjunto `LEBR_Calculo` com o módulo, a norma, o resumo, a situação (atende / não atende),
+o volume de concreto, a área de fôrma e a massa de aço. Opcionalmente, as **barras do detalhamento** de vigas,
+pilares, lajes maciças, sapatas e blocos vão como `IfcReinforcingBar` agregadas ao elemento (uma por posição N1,
+N2…, cada barra com o traçado real, dobras e ganchos). Os identificadores (`GlobalId`) se repetem a cada
+exportação, para a coordenação BIM reconhecer o mesmo elemento. O arquivo passa na validação de esquema do
+IfcOpenShell e abre no BIMcollab Zoom, Solibri, Navisworks, Revit, Archicad, BlenderBIM e similares.
+
 ### Banco de casos de validação
 
 Os resultados do LEBR são conferidos com valores que não vêm do próprio programa: tabelas e
@@ -611,6 +628,17 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.64.0 (exportar IFC e exemplos com seção por vão):** **Arquivo › Exportar modelo IFC…** grava o
+  projeto em **IFC4**: pavimentos, pilares, vigas (um sólido por vão, com a seção e o nível de cada um), lajes,
+  escadas, reservatórios, telhado com as peças de madeira, fundações e estacas, com material, propriedades da norma
+  IFC e do cálculo (situação, concreto, fôrma e aço) e, se quiser, as **barras de aço do detalhamento** como
+  `IfcReinforcingBar`. Identificadores estáveis entre exportações. Conferido com o IfcOpenShell (esquema IFC4 sem
+  erros, geometria de todos os elementos) e lido de volta pelo importador IFC do próprio LEBR. Os **exemplos** passaram
+  a usar a seção por vão: no **sobrado**, o vão central de 3,5 m entre vãos de 5 m ficou mais baixo nas vigas laterais
+  e centrais dos dois pavimentos e nos baldrames (30 a 35 cm em vez de 35 a 50 cm), e a V202 e a V203 do forro têm o
+  vão sobre o quarto 3 **invertido** (forro liso no quarto; o vão sob a caixa d'água continua normal); nos dois
+  **aeroportos**, o balanço de 3 m da marquise tem 60 cm de altura, contra 85 cm nos vãos de 9 m. Tudo continua
+  atendendo e o caminho das cargas fecha nos sete exemplos.
 - **Novidades da 0.63.0 (seção própria em cada vão da viga):** cada vão da viga de concreto pode ter **largura e
   altura próprias** e ser **normal ou invertido** — só parte da viga invertida, ou a viga toda. A análise usa a rigidez
   de cada vão; peso próprio, flexão, cortante, torção, suspensão (só nos vãos invertidos), flechas e fissuras usam a

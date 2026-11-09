@@ -63,6 +63,7 @@ contextBridge.exposeInMainWorld('lebr', {
   },
   ifc: {
     abrir: (caminhoProjeto) => ipcRenderer.invoke('ifc:abrir', { caminhoProjeto }),
+    salvar: (conteudo, nomeSugerido, caminhoProjeto) => ipcRenderer.invoke('ifc:salvar', { conteudo, nomeSugerido, caminhoProjeto }),
   },
   tutorial: {
     abrir: (nome) => ipcRenderer.invoke('tutorial:abrir', nome),

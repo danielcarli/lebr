@@ -51,6 +51,7 @@ import { abaVento } from './views/vento.js';
 import { abaEstabilidade } from './views/estabilidade.js';
 import { abaQuantitativos } from './views/quantitativos.js';
 import { gerarPranchas } from '../modules/comum/pranchas.js';
+import { exportarIfc } from '../modules/comum/modelo-ifc.js';
 import { montagemDoProjeto, problemasDoProjeto } from './core/situacao-montagem.js';
 import { REGRAS, problemasPorPavimento, contarProblemas, errosDoElemento, correcaoDe, corrigiveis, resolverAutomaticamente } from './core/consistencia.js';
 import { definirCruzamento, definirTodosCruzamentos, sugerirCruzamento } from './core/cruzamentos.js';
@@ -77,7 +78,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.63.0';
+const VERSAO = '0.64.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -918,6 +919,7 @@ function abrirVento() {
 
 /* ---------------------------------------------------------------- exportação DXF */
 const PREF_DXF = 'lebr.dxf.opcoes';
+const PREF_IFC = 'lebr.ifc.opcoes';
 /** Importar modelo IFC (etapa L15): pavimentos, pilares e lajes; paredes e vigas na planta de fundo. */
 async function importarIfc(dado) {
   let arq = dado?.texto ? dado : null; // { nome, texto } já lido (arrastar e soltar, testes)
@@ -971,6 +973,49 @@ async function importarIfc(dado) {
   notificar(`${arq.nome}: ${r.pavimentos} pavimento(s) novo(s), ${r.pilares} pilar(es), ${r.lajes} laje(s), ${r.plantas} planta(s) de fundo.`, 'ok', { duracao: 9000 });
   registrarSaida(`IFC importado: ${arq.nome} (${modelo.esquema}, ${modelo.aplicativo || '—'}) — ${r.pilares} pilares, ${r.lajes} lajes, ${r.plantas} plantas de fundo.`);
   abrirMontagem();
+}
+
+/** Exportar o modelo estrutural em IFC4 (0.64): elementos com a geometria do 3D, propriedades do cálculo e armaduras. */
+async function exportarIFC() {
+  if (!estado.projeto) return notificar('Crie ou abra um projeto primeiro.');
+  let op = { armaduras: true, telhas: true };
+  try { op = { ...op, ...JSON.parse(localStorage.getItem(PREF_IFC) ?? '{}') }; } catch { /* ignora */ }
+  const pendentes = estado.projeto.elementos.filter((e) => !e.resultado || e.resultado.desatualizado).length;
+  const r = await dialogo({
+    rotulo: 'Exportar', titulo: 'Modelo BIM em IFC',
+    texto: 'Um arquivo IFC4 com os pavimentos e os elementos posicionados na montagem — pilares, vigas (com a seção de cada vão), lajes, escadas, reservatórios, telhado e fundações —, o material, as propriedades do cálculo (situação, volume de concreto, fôrma e aço) e, se quiser, as barras de aço do detalhamento. Abre no BIMcollab Zoom, Solibri, Navisworks, Revit, Archicad, BlenderBIM e similares; os identificadores se mantêm entre exportações.',
+    corpo: () => [
+      h('div', { class: 'dxf-opcao' }, ui.alternar({ rotulo: 'Armaduras (IfcReinforcingBar)', valor: op.armaduras, aoMudar: (v) => { op.armaduras = v; } }), h('span', { class: 'dxf-dica' }, 'barras de vigas, pilares, lajes maciças, sapatas e blocos, uma por posição N1, N2… — deixa o arquivo maior')),
+      h('div', { class: 'dxf-opcao' }, ui.alternar({ rotulo: 'Telhas do telhado', valor: op.telhas, aoMudar: (v) => { op.telhas = v; } }), h('span', { class: 'dxf-dica' }, 'as águas do telhado como IfcCovering; sem elas, só a estrutura de madeira')),
+      pendentes ? h('p', { class: 'combinacoes-nota' }, `${pendentes} elemento(s) sem cálculo atual serão calculados antes.`) : null,
+    ],
+    botoes: [{ texto: 'Cancelar', tipo: 'fantasma', valor: null }, { texto: 'Exportar IFC', tipo: 'primario', valor: () => true, padrao: true }],
+    largura: '600px',
+  });
+  if (!r) return;
+  try { localStorage.setItem(PREF_IFC, JSON.stringify(op)); } catch { /* ignora */ }
+  if (pendentes) calcularTodos();
+  let res;
+  const nome = (estado.projeto.meta?.nome || 'modelo').replace(/[\\/:*?"<>|]+/g, '-');
+  try { res = exportarIfc(estado.projeto, modulos, { ...op, versao: VERSAO, arquivo: `${nome}.ifc` }); } catch (err) { console.error(err); return notificar(`Erro ao gerar o IFC: ${err.message}`, 'erro'); }
+  const total = Object.values(res.contagem).reduce((s, n) => s + n, 0);
+  if (!total) return notificar('Nada para exportar: posicione os elementos na montagem.', 'erro');
+  const resumo = Object.entries(res.contagem).map(([k, n]) => `${n} ${k.replace('IFC', 'Ifc')}`).join(', ');
+  for (const a of res.avisos) registrarSaida(`IFC: ${a}`);
+  if (!lebr?.ifc?.salvar) {
+    const url = URL.createObjectURL(new Blob([res.texto], { type: 'application/x-step' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: `${nome}.ifc` });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    return;
+  }
+  try {
+    const caminho = await lebr.ifc.salvar(res.texto, nome, estado.caminho);
+    if (!caminho) return;
+    notificar(`Modelo IFC exportado: ${total} objetos.`, 'ok', { duracao: 7000, acoes: [{ texto: 'Mostrar na pasta', aoClicar: () => lebr.sistema.mostrarArquivo(caminho) }] });
+    registrarSaida(`IFC4: ${caminho} — ${res.entidades} entidades (${resumo})${res.avisos.length ? ` · ${res.avisos.length} aviso(s)` : ''}`);
+  } catch (err) {
+    notificar(`Erro ao gravar o IFC: ${err.message}`, 'erro');
+  }
 }
 
 async function exportarDXF() {
@@ -1079,6 +1124,7 @@ function registrarComandos() {
   C({ id: 'projeto.salvar', categoria: 'Arquivo', titulo: 'Salvar', icone: 'salvar', tecla: 'Ctrl+S', habilitado: temProjeto, executar: salvar });
   C({ id: 'projeto.salvarComo', categoria: 'Arquivo', titulo: 'Salvar como…', tecla: 'Ctrl+Shift+S', habilitado: temProjeto, executar: salvarComo });
   C({ id: 'projeto.importarIFC', categoria: 'Arquivo', titulo: 'Importar modelo IFC…', icone: 'cubo', executar: (arq) => importarIfc(arq) });
+  C({ id: 'projeto.exportarIFC', categoria: 'Arquivo', titulo: 'Exportar modelo IFC…', icone: 'cubo', habilitado: temProjeto, executar: exportarIFC });
   C({ id: 'projeto.exportarDXF', categoria: 'Arquivo', titulo: 'Exportar pranchas em DXF…', icone: 'planta', tecla: 'Ctrl+Shift+D', habilitado: temProjeto, executar: exportarDXF });
   C({ id: 'projeto.mostrarArquivo', categoria: 'Arquivo', titulo: 'Mostrar arquivo na pasta', habilitado: () => !!estado.caminho, executar: () => lebr.sistema.mostrarArquivo(estado.caminho) });
   C({ id: 'projeto.fechar', categoria: 'Arquivo', titulo: 'Fechar projeto', habilitado: temProjeto, executar: fecharProjeto });
@@ -1233,7 +1279,7 @@ function definirMenus() {
       { comando: 'projeto.novo' }, { comando: 'projeto.abrir' }, { comando: 'projeto.abrirExemplo' }, { comando: 'projeto.abrirExemploTerreo' }, { comando: 'projeto.abrirExemploSobrado' }, { comando: 'projeto.abrirExemplo3' }, { comando: 'projeto.abrirExemplo18' }, { comando: 'projeto.abrirExemploAeroporto' }, { comando: 'projeto.abrirExemploSatelite' },
       { cabecalho: 'Recentes' }, ...recentesMenu,
       '-', { comando: 'projeto.salvar' }, { comando: 'projeto.salvarComo' }, { comando: 'projeto.mostrarArquivo' },
-      '-', { comando: 'projeto.importarIFC' }, { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
+      '-', { comando: 'projeto.importarIFC' }, { comando: 'projeto.exportarIFC' }, { comando: 'elemento.exportarPdf' }, { comando: 'projeto.exportarDXF' },
       '-', { comando: 'projeto.parametros' }, '-', { comando: 'projeto.fechar' },
     ] },
     { rotulo: 'Editar', itens: [{ comando: 'editar.desfazer' }, { comando: 'editar.refazer' }, '-', { comando: 'elemento.renomear' }, { comando: 'elemento.duplicar' }, { comando: 'elemento.excluir', perigo: true }] },

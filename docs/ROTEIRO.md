@@ -6,7 +6,7 @@ O LEBR já monta e calcula um edifício pequeno de concreto armado das cargas à
 
 As seções abaixo listam os módulos e as funcionalidades por área, cada um marcado como feito, parcial ou a fazer. As fases, logo no início, ordenam tudo da mais urgente para um primeiro projeto residencial real até os materiais e sistemas menos comuns.
 
-Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 59 feitos, 23 parciais e 33 a fazer.
+Legenda: ✅ feito · ◐ parcial · ○ a fazer. Nas áreas abaixo: 60 feitos, 23 parciais e 32 a fazer.
 
 ## O que existe hoje
 
@@ -85,7 +85,7 @@ O edifício é analisado no pórtico espacial e na grelha de cada pavimento; cad
 - ◐ Radier, arrimo e cortinas
 - ✅ Plantas de fôrmas e armação
 - ✅ Memorial do projeto inteiro
-- ◐ Importar DXF; IFC (BIM)
+- ✅ Importar DXF; IFC (BIM)
 - ◐ Lançamento gráfico na planta
 - ○ Consistência, apoios e pavimento tipo no lançamento
 
@@ -257,7 +257,7 @@ O que a obra recebe são pranchas e listas de materiais; hoje o LEBR entrega cá
 O projeto estrutural nasce da arquitetura e volta para ela; trocar arquivos com outros programas evita redesenhar tudo à mão.
 
 - ✅ **Importar DXF da arquitetura:** como fundo da montagem, para lançar pilares e vigas sobre a planta
-- ○ **Importar e exportar IFC:** (BIM aberto): ler paredes e pavimentos de um modelo de arquitetura e devolver o modelo estrutural com elementos e armaduras
+- ✅ **Importar e exportar IFC:** (BIM aberto): ler paredes e pavimentos de um modelo de arquitetura e devolver o modelo estrutural com elementos e armaduras — importar feito na 0.50.0; exportar IFC4 com elementos, propriedades do cálculo e armaduras feito na 0.64.0
 - ○ **Exportar o modelo de cálculo:** para programas de análise (nós, barras, cargas) e conferir os resultados em outro software
 - ◐ **Esquema JSON público e versionado:** do arquivo .lebr.json, para scripts e outras ferramentas lerem o projeto
 - ◐ **Catálogos de fabricantes:** como arquivos abertos: treliças, lajotas e EPS, painéis alveolares, perfis de aço, madeiras comerciais, estacas

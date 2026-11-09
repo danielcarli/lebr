@@ -260,6 +260,17 @@ function registrarIPC() {
     return { nome: path.basename(r.filePaths[0]), texto };
   });
 
+  // Exportar modelo IFC4 (0.64): o texto vem pronto da interface (STEP em ASCII, acentos em \X2\); o usuário escolhe o destino
+  ipcMain.handle('ifc:salvar', async (_e, { conteudo, nomeSugerido, caminhoProjeto }) => {
+    const pasta = caminhoProjeto && fss.existsSync(path.dirname(caminhoProjeto)) ? path.dirname(caminhoProjeto) : app.getPath('documents');
+    const nome = String(nomeSugerido || 'modelo').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'modelo';
+    const r = await dialog.showSaveDialog(janela, { title: 'Exportar modelo IFC', defaultPath: path.join(pasta, `${nome}.ifc`), filters: [{ name: 'Modelo IFC', extensions: ['ifc'] }] });
+    if (r.canceled || !r.filePath) return null;
+    const destino = r.filePath.toLowerCase().endsWith('.ifc') ? r.filePath : `${r.filePath}.ifc`;
+    await fs.writeFile(destino, String(conteudo), 'utf8');
+    return destino;
+  });
+
   // Exportar PDF em duas etapas: a interface pede o destino, prepara a página e só então
   // pede a gravação. O caminho fica guardado aqui, então a interface nunca escolhe onde gravar.
   ipcMain.handle('pdf:escolher-destino', async (_e, { nomeSugerido, caminhoProjeto }) => {

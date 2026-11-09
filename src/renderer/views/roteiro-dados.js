@@ -220,7 +220,7 @@ export const ROTEIRO = {
       descricao: 'O projeto estrutural nasce da arquitetura e volta para ela; trocar arquivos com outros programas evita redesenhar tudo à mão.',
       itens: [
         ['Importar DXF da arquitetura', 'como fundo da montagem, para lançar pilares e vigas sobre a planta'],
-        ['Importar e exportar IFC', '(BIM aberto): ler paredes e pavimentos de um modelo de arquitetura e devolver o modelo estrutural com elementos e armaduras'],
+        ['Importar e exportar IFC', '(BIM aberto): ler paredes e pavimentos de um modelo de arquitetura e devolver o modelo estrutural com elementos e armaduras — importar feito na 0.50.0; exportar IFC4 com elementos, propriedades do cálculo e armaduras feito na 0.64.0'],
         ['Exportar o modelo de cálculo', 'para programas de análise (nós, barras, cargas) e conferir os resultados em outro software'],
         ['Esquema JSON público e versionado', 'do arquivo .lebr.json, para scripts e outras ferramentas lerem o projeto'],
         ['Catálogos de fabricantes', 'como arquivos abertos: treliças, lajotas e EPS, painéis alveolares, perfis de aço, madeiras comerciais, estacas'],
@@ -271,7 +271,7 @@ export const ESTADOS = {
   'Sapata corrida': 'feito', 'Radier': 'parcial', 'Armadura 3D das fundações': 'feito', 'Memorial dos exercícios resolvidos': 'feito',
   'Vigas T e L': 'feito', 'Seção própria em cada vão da viga': 'feito',
   // lançamento da estrutura (plano L1 a L15)
-  'Importar IFC': 'feito',
+  'Importar IFC': 'feito', 'Importar e exportar IFC': 'feito',
   'Paredes da arquitetura como cargas': 'feito',
   'Cópia e pavimento tipo': 'feito',
   'Pilar com ponto fixo e lance': 'feito',
@@ -286,7 +286,7 @@ export const ESTADOS = {
   'Torção, fissuras e punção': 'feito', 'Flexão oblíqua nos pilares': 'feito', 'Sapatas, blocos e estacas': 'feito',
   'Escadas e reservatórios': 'feito', 'Detalhamento e DXF': 'feito', 'Quantitativos de materiais': 'feito',
   'Pilares-parede e seção L': 'parcial', 'Plantas de fôrmas e armação': 'feito', 'Memorial do projeto inteiro': 'feito',
-  'Importar DXF; IFC (BIM)': 'parcial', 'Lançamento gráfico na planta': 'parcial', 'Madeira: ligações, MLC, CLT': 'parcial',
+  'Importar DXF; IFC (BIM)': 'feito', 'Lançamento gráfico na planta': 'parcial', 'Madeira: ligações, MLC, CLT': 'parcial',
   // lançamento
   'Arquitetura como fundo por pavimento': 'feito', 'Encaixes, eixos e malha': 'feito', 'Ligações pela geometria': 'feito',
   '3D durante o lançamento': 'feito', 'Critérios iniciais pela CAA': 'feito',
