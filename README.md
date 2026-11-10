@@ -16,7 +16,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.66.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.67.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -654,6 +654,11 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.67.0 (3D fixado à direita por padrão):** ao abrir ou criar um projeto, a **visualização 3D já vem
+  fixada à direita**, com os elementos abrindo à esquerda. Quem preferir sem ela usa **Soltar da direita** (menu da aba,
+  painel do 3D ou **Exibir › Fixar a visualização 3D à direita**), e a escolha fica lembrada. O enquadramento
+  automático passa a caber no painel estreito (usa a menor abertura da câmera) e enquadra de novo quando o painel muda
+  de largura, até você girar ou aproximar a vista.
 - **Novidades da 0.66.0 (copiar, colar e duplicar na montagem; laje treliçada em 3D):** na montagem, **`Ctrl+C`**
   copia o elemento selecionado (pilar, viga, laje, escada, reservatório…) ou o **eixo** selecionado, e **`Ctrl+V`**
   cola: com o cursor sobre a planta, o ponto de inserção (ou o eixo, paralelo ao original) vai para o cursor, com os
@@ -939,7 +944,7 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
 - Desfazer/refazer (`Ctrl+Z` / `Ctrl+Y`) em todas as alterações do projeto.
 - **Navegar entre as abas abertas:** `Ctrl+Tab` / `Ctrl+Shift+Tab` (ou `Ctrl+PageDown` / `Ctrl+PageUp`) passam para a próxima / anterior, dando a volta no fim; `Alt+1` a `Alt+8` vão direto para a aba naquela posição e `Alt+9` para a última; `Alt+0` lista as abas abertas para escolher pelo nome; `Ctrl+W` fecha e `Ctrl+Shift+T` reabre a última aba fechada, no mesmo lugar (abas de elementos excluídos são puladas). Os atalhos com `Ctrl`/`Alt` também funcionam com o cursor no console. No macOS, `Ctrl+Tab` usa a tecla Control; os demais trocam `Ctrl` por `⌘`.
 - **Duas abas lado a lado:** `Ctrl+\` (ou o ícone de divisão no fim da barra de abas) leva a aba ativa para um segundo grupo à direita; arrastar uma aba para a metade direita do editor faz o mesmo, e arrastá-la para a barra do outro lado move-a para lá (ou muda a ordem na mesma barra). O divisor entre os lados é arrastável e a largura é lembrada; `Ctrl+K` passa o foco de um lado para o outro e o menu de contexto da aba tem **Mover para a direita/esquerda** e **Juntar os lados**. Um lado que fica sem abas se fecha. Os atalhos de navegação (`Ctrl+Tab`, `Alt+1`…) valem para o lado com o foco, e com o editor dividido o que se abre a partir do 3D ou da montagem (duplo clique, "Abrir elemento") vai para o outro lado.
-- **3D fixado à direita:** **Exibir › Fixar a visualização 3D à direita** (ou a chave **Fixar à direita** no painel do 3D, ou o menu de contexto da aba) mantém a visualização 3D num lado próprio, à direita, enquanto os elementos abrem à esquerda — o 3D acompanha cada alteração. A escolha é lembrada: ao abrir um projeto, o 3D já aparece à direita.
+- **3D fixado à direita:** desde a 0.67 a visualização 3D **já vem fixada** num lado próprio, à direita, enquanto os elementos abrem à esquerda — o 3D acompanha cada alteração e aparece sozinho ao abrir ou criar um projeto. Para soltar (ou fixar de novo): **Exibir › Fixar a visualização 3D à direita**, a chave **Fixar à direita** no painel do 3D ou o menu de contexto da aba (**Soltar da direita**). A escolha é lembrada.
 - **Painel de controles do 3D:** o botão de recolher no canto do painel (pavimentos, cores, deformada, vento, vistas) esconde-o e a cena ocupa a área toda; o botão **Controles**, no canto superior esquerdo, traz o painel de volta. O estado fica lembrado, e o comando **Exibir › Mostrar / ocultar o painel de controles do 3D** faz o mesmo pela paleta.
 - Tema **Claro** e tema **Escuro** (item da barra de status ou **Exibir › Alternar tema claro / escuro**).
 - Em todos os tipos de laje, cada borda alterna entre apoiada, engastada e livre com um clique na planta (nas lajes em uma direção, as bordas laterais alternam entre apoiada e livre).

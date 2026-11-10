@@ -661,7 +661,12 @@ function renderizar(container, acoes) {
     const c = limites.getCenter(new THREE.Vector3());
     const r = limites.getSize(new THREE.Vector3()).length() / 2;
     vista.alvo = [c.x, c.y, c.z];
-    vista.raio = Math.max(4, (r / Math.sin((camera.fov * Math.PI) / 360)) * 1.05);
+    // cabe na menor abertura: num painel estreito (o 3D fixado à direita) quem limita é a horizontal
+    const w = palco.clientWidth, hh = palco.clientHeight;
+    const meiaV = (camera.fov * Math.PI) / 360;
+    const meia = w && hh ? Math.min(meiaV, Math.atan(Math.tan(meiaV) * (w / hh))) : meiaV;
+    vista.raio = Math.max(4, (r / Math.sin(meia)) * 1.05);
+    vista.automatica = true;
   }
   function posicionarCamera() {
     const [ax, ay, az] = vista.alvo;
@@ -841,7 +846,9 @@ function renderizar(container, acoes) {
       const [ax, ay, az] = vista.alvo;
       const novo = new THREE.Vector3(ax, ay, az).addScaledVector(dirX, -dx * k).addScaledVector(dirY, dy * k);
       vista.alvo = [novo.x, novo.y, novo.z];
+      vista.automatica = false;
     } else {
+      vista.automatica = false;
       vista.teta -= dx * 0.008;
       vista.fi = Math.max(0.0001, Math.min(Math.PI / 2 - 0.0001 + 0.6, vista.fi - dy * 0.008));
     }
@@ -859,6 +866,7 @@ function renderizar(container, acoes) {
   tela.addEventListener('dblclick', (e) => { const m = pegar(e); if (m) acoes.abrirElemento(idOriginal(m.el.id)); });
   tela.addEventListener('wheel', (e) => {
     e.preventDefault();
+    vista.automatica = false;
     vista.raio = Math.max(1.5, Math.min(800, vista.raio * Math.exp(e.deltaY * 0.0012)));
     desenhar();
   }, { passive: false });
@@ -879,6 +887,7 @@ function renderizar(container, acoes) {
       // perto o bastante para ver o elemento e o entorno (vizinhos, apoios)
       vista.raio = Math.max(4, tam * 2.2 + 3);
       vista.teta = -0.75; vista.fi = 1.0;
+      vista.automatica = false;
     }
     destacar();
     desenhar();
@@ -888,7 +897,8 @@ function renderizar(container, acoes) {
   construir();
   if (!vista.alvo) enquadrar();
   if (vista.focar) { const id = vista.focar; vista.focar = null; requestAnimationFrame(() => focarElemento(id)); }
-  const obs = new ResizeObserver(() => desenhar());
+  // enquanto a câmera é a do enquadramento automático, mudar o tamanho do painel enquadra de novo
+  const obs = new ResizeObserver(() => { if (vista.automatica) enquadrar(); desenhar(); });
   obs.observe(palco);
   // troca de tema claro/escuro: refaz as cores
   const obsTema = new MutationObserver(() => construir());

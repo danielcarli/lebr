@@ -79,7 +79,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.66.0';
+const VERSAO = '0.67.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -919,9 +919,10 @@ const acoesMontagem = {
 };
 
 /* ---------------------------------------------------------------- 3D fixado à direita */
-const PREF_FIXAR3D = 'lebr.fixar3D';
+// desde a 0.67 o 3D já vem fixado à direita: a chave nova começa ligada e só um "Soltar da direita" a desliga
+const PREF_FIXAR3D = 'lebr.fixar3D.v2';
 function fixar3DLigado() {
-  try { return localStorage.getItem(PREF_FIXAR3D) === '1'; } catch { return false; }
+  try { return localStorage.getItem(PREF_FIXAR3D) !== '0'; } catch { return true; }
 }
 /** Liga/desliga a visualização 3D fixa no lado direito do editor (lembrado entre sessões). */
 function fixar3D(ligar = !fixar3DLigado()) {
