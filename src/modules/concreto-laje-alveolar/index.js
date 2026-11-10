@@ -19,6 +19,8 @@ import { calcularLajeAlveolar, cargasTransmitidas, ligacoes, criarLajeAlveolar, 
 import { criarDesenhosLajes } from '../comum/desenho-lajes.js';
 import { criarPlantaLaje } from '../comum/planta-laje.js';
 import { bordasFaixa } from '../comum/bordas.js';
+import { modeloAlveolar } from '../comum/armadura3d.js';
+import { vistaArmadura3D } from '../../renderer/ui/armadura3d.js';
 
 export default function moduloLajeAlveolar(api) {
   const { h } = api.dom;
@@ -36,9 +38,9 @@ export default function moduloLajeAlveolar(api) {
     sigla: 'CL4',
     icone: 'laje',
     material: 'Concreto protendido',
-    norma: 'NBR 14861 · NBR 6118:2023',
-    versao: '0.2.0',
-    descricao: 'Painéis protendidos: verifica o vão contra MRd, VRd e EI do catálogo do fabricante; extremidades apoiadas, engastadas ou em balanço.',
+    norma: 'NBR 14861:2022 · NBR 9062:2017 · NBR 6118:2023',
+    versao: '0.3.0',
+    descricao: 'Painéis protendidos: verifica o vão contra MRd, VRd e EI do catálogo do fabricante, as flechas da Tabela 13.3 (vibração, aceitabilidade sensorial e paredes), o apoio e a capa; extremidades apoiadas, engastadas ou em balanço.',
 
     criar: criarLajeAlveolar,
     calcular: calcularLajeAlveolar,
@@ -76,6 +78,7 @@ export default function moduloLajeAlveolar(api) {
               ui.linhaCampos(
                 ui.campo({ rotulo: 'Comprimento de apoio', valor: el.apoio, unidade: 'cm', casas: 1, min: 0, max: 40, largura: '160px', aoMudar: (v) => ctx.alterar((e) => { e.apoio = v; }) }),
                 ui.campo({ rotulo: 'Capa', valor: el.capa, unidade: 'cm', casas: 1, min: 0, max: 15, dica: '0 = sem capa', aoMudar: (v) => mudar((e) => { e.capa = v; }) }),
+                ui.campo({ rotulo: 'Fluência φ', valor: el.fluencia ?? 2, casas: 1, min: 0, max: 4, largura: '120px', dica: 'Coeficiente de fluência para a flecha final (NBR 6118, 8.2.11); usual 2,0 a 2,5', aoMudar: (v) => ctx.alterar((e) => { e.fluencia = v; }) }),
               ),
               pl.seletores(bordasFaixa(el), mudarBorda, { umaDirecao: true }),
               pl.aviso(bordasFaixa(el), { umaDirecao: true, textoBalanco: 'Balanço em laje alveolar: informe o MRd− da armadura negativa (capa armada ou alvéolos preenchidos) e confirme com o fabricante.' }),
@@ -102,6 +105,11 @@ export default function moduloLajeAlveolar(api) {
             ui.campo({ rotulo: 'VRd', valor: P.VRd, unidade: 'kN/m', min: 1, largura: '150px', dica: 'Cortante resistente de cálculo por metro', aoMudar: (v) => ctx.alterar((e) => { e.painel.VRd = v; }) }),
             ui.campo({ rotulo: 'Rigidez EI', valor: P.EI, unidade: 'kN·m²/m', casas: 0, min: 100, largura: '170px', aoMudar: (v) => ctx.alterar((e) => { e.painel.EI = v; }) }),
           ),
+          ui.linhaCampos(
+            ui.campo({ rotulo: 'Contraflecha', valor: P.contraflecha ?? 0, unidade: 'mm', casas: 1, min: 0, max: 100, largura: '150px', dica: 'Contraflecha líquida na montagem (protensão − peso do painel), do fabricante; 0 = não desconta', aoMudar: (v) => ctx.alterar((e) => { e.painel.contraflecha = v; }) }),
+            ui.campo({ rotulo: 'Cordoalhas por painel', valor: P.cordoalhas ?? P.alveolos + 1, casas: 0, min: 0, max: 30, largura: '170px', dica: 'Do catálogo — para o desenho e a vista 3D', aoMudar: (v) => ctx.alterar((e) => { e.painel.cordoalhas = Math.round(v); }) }),
+            ui.campo({ rotulo: 'ø cordoalha', valor: P.phiCordoalha ?? 9.5, unidade: 'mm', casas: 1, min: 3, max: 16, largura: '140px', aoMudar: (v) => ctx.alterar((e) => { e.painel.phiCordoalha = v; }) }),
+          ),
           corte,
         ],
       }));
@@ -123,17 +131,33 @@ export default function moduloLajeAlveolar(api) {
       }));
     },
 
-    renderResultado(raiz, res) {
+    renderResultado(raiz, res, ctx) {
       raiz.append(h('div', { class: 'instrumentos' },
         res.balanco || (res.MdNeg < 0 && -res.MdNeg / Math.max(res.MRdNeg, 1e-9) > res.Md / res.MRd)
           ? ui.arco({ rotulo: 'Momento negativo', valor: res.MRdNeg > 0 ? `${num((-res.MdNeg / res.MRdNeg) * 100, 0)}%` : 'sem MRd−', fracao: res.MRdNeg > 0 ? -res.MdNeg / res.MRdNeg : 1.2, legenda: `Md− ${num(-res.MdNeg, 1)} / MRd− ${num(res.MRdNeg, 1)}` })
           : ui.arco({ rotulo: 'Momento fletor', valor: `${num((res.Md / res.MRd) * 100, 0)}%`, fracao: res.Md / res.MRd, legenda: `Md ${num(res.Md, 1)} / MRd ${num(res.MRd, 1)}` }),
         ui.arco({ rotulo: 'Cortante no apoio', valor: `${num((res.Vd / res.VRd) * 100, 0)}%`, fracao: res.Vd / res.VRd, legenda: `VSd ${num(res.Vd, 1)} / VRd ${num(res.VRd, 1)}` }),
         ui.medidor({ rotulo: 'Vibração (flecha de q)', valor: `${num(res.flecha.q, 1)} mm`, fracao: res.flecha.q / res.flecha.lim, legenda: `limite ${res.balanco ? '2L' : 'L'}/350 = ${num(res.flecha.lim, 1)} mm` }),
+        res.flecha.limFinal ? ui.medidor({ rotulo: 'Flecha final − contraflecha', valor: `${num(res.flecha.final, 1)} mm`, fracao: Math.max(0, res.flecha.final) / res.flecha.limFinal, legenda: `limite ${res.balanco ? '2L' : 'L'}/250 = ${num(res.flecha.limFinal, 1)} mm` }) : '',
         ui.numeroGrande({ rotulo: 'Painéis', valor: String(res.nPaineis), unidade: 'un', linhas: [`vão/altura ${num(res.esbeltez, 0)}`, `pd ${num(res.cargas.pd)} kN/m²`] }),
       ));
+      // vista 3D: painéis com os alvéolos, chavetas, capa, cordoalhas e o apoio nas vigas
+      const el3d = ctx?.elemento;
+      if (el3d) {
+        let vista;
+        try {
+          const modelo = modeloAlveolar(el3d, res);
+          vista = h('div', { class: 'desenho-caixa desenho-3d' },
+            h('div', { class: 'desenho-3d-tit' }, `VISTA 3D · ${res.nPaineis} PAINÉIS ALVEOLARES`),
+            vistaArmadura3D(modelo, { altura: 440 }),
+            h('p', { class: 'combinacoes-nota a3d-legenda' }, `${modelo.legenda}. Desenhada no sentido dos painéis (x = vão L). Arraste para girar; o botão Concreto mostra ou esconde os painéis, a capa e os apoios.`));
+        } catch (err) {
+          vista = h('p', { class: 'combinacoes-nota' }, `Não foi possível montar a vista 3D: ${err.message}`);
+        }
+        raiz.append(ui.secao({ numero: '05', titulo: 'Vista 3D', descricao: 'Painéis protendidos com os alvéolos, chavetas, capa, cordoalhas e apoios', filhos: [vista] }));
+      }
       raiz.append(ui.secao({
-        numero: '05', titulo: 'Reações nas vigas', descricao: res.balanco ? 'Por metro de viga · a borda livre e as laterais não recebem carga' : 'Por metro de viga · as bordas laterais não recebem carga',
+        numero: el3d ? '06' : '05', titulo: 'Reações nas vigas', descricao: res.balanco ? 'Por metro de viga · a borda livre e as laterais não recebem carga' : 'Por metro de viga · as bordas laterais não recebem carga',
         filhos: [ui.tabela({
           colunas: [{ titulo: 'Borda' }, { titulo: 'Vínculo' }, { titulo: 'g,k (kN/m)', alinhar: 'dir' }, { titulo: 'q,k (kN/m)', alinhar: 'dir' }, { titulo: 'Cálculo (kN/m)', alinhar: 'dir' }],
           linhas: res.reacoes.map((r) => [r.nome, r.tipo ?? 'apoiada', num(r.g), num(r.q), num(r.d)]),

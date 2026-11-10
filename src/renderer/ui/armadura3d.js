@@ -27,7 +27,7 @@ import { COR_ENCHIMENTO } from '../../modules/comum/nervurada-geometria.js';
 
 const CORES = {
   positiva: 0xb85438, construtiva: 0xc98a6e, negativa: 0x2f5fa3, 'porta-estribo': 0x7b8fae, pele: 0x6f8f3a, 'torção': 0x8c5fb0,
-  estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae, 'treliça': 0x5f6b7a,
+  estribo: 0x6d6a66, longitudinal: 0xb85438, arranque: 0x2f5fa3, suplementar: 0x8c5fb0, 'distribuição': 0x7b8fae, 'treliça': 0x5f6b7a, 'protensão': 0x1f8a70,
 };
 /**
  * Linha poligonal para o TubeGeometry: o parâmetro u anda de vértice em vértice (u·(n−1) = índice), e a tangente num
@@ -83,7 +83,7 @@ export function dobrasArredondadas(pts, R) {
 /** Tema blueprint: cores claras e saturadas, com contraste sobre o papel azul. */
 const CORES_AZUL = {
   positiva: 0xffb347, construtiva: 0xffd9a8, negativa: 0x7fe3ff, 'porta-estribo': 0xd6e2f3, pele: 0xbdf08c, 'torção': 0xe6b3ff,
-  estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3, 'treliça': 0xffffff,
+  estribo: 0xffffff, longitudinal: 0xffb347, arranque: 0x7fe3ff, suplementar: 0xe6b3ff, 'distribuição': 0xd6e2f3, 'treliça': 0xffffff, 'protensão': 0x7dffc4,
 };
 const corBarra = (t) => ((document.documentElement.dataset.tema === 'blueprint' ? CORES_AZUL : CORES)[t] ?? 0x888888);
 /** Peças de madeira e de vedação (telhado e tesoura): cor, opacidade e nome. */
@@ -94,7 +94,7 @@ const PECAS = {
 };
 const NOMES = {
   positiva: 'Positiva', construtiva: 'Construtiva', negativa: 'Negativa', 'porta-estribo': 'Porta-estribo', pele: 'Pele', 'torção': 'Torção',
-  estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição', 'treliça': 'Treliça (CA-60)',
+  estribo: 'Estribo', longitudinal: 'Longitudinal', arranque: 'Arranque', suplementar: 'Grampo', 'distribuição': 'Distribuição', 'treliça': 'Treliça (CA-60)', 'protensão': 'Cordoalhas (CP)',
 };
 
 let renderer = null;   // compartilhado
@@ -149,13 +149,21 @@ export function vistaArmadura3D(modelo, { altura = 440, aoDestacar } = {}) {
     } else if (c.forma === 'tronco') {
       // tronco de pirâmide (sapata): base min/max em z = min[2], topo [x0, y0, x1, y1] em z = max[2]
       g = troncoGeometria(c);
+    } else if (c.forma === 'alveolar') {
+      // painel alveolar: seção (y, z) com os furos circulares, extrudada ao longo de x
+      const sec = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(d[1], 0), new THREE.Vector2(d[1], d[2]), new THREE.Vector2(0, d[2])]);
+      for (const f of c.furos ?? []) { const furo = new THREE.Path(); furo.absarc(f.y, f.z, f.r, 0, Math.PI * 2, false); sec.holes.push(furo); }
+      g = new THREE.ExtrudeGeometry(sec, { depth: d[0], bevelEnabled: false, curveSegments: 20 });
+      // (u, v, w) da extrusão → (x, y, z) = (w, u, v), a partir do canto mínimo
+      g.applyMatrix4(new THREE.Matrix4().set(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1));
     } else g = new THREE.BoxGeometry(...d);
     const apoio = c.tipo !== 'concreto';
     const enchimento = c.tipo === 'enchimento';                          // blocos da laje nervurada
     const azul = document.documentElement.dataset.tema === 'blueprint';   // tema blueprint: arestas brancas no papel azul
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: azul ? 0xe8f0fb : enchimento ? (COR_ENCHIMENTO[c.material] ?? 0xcfc8bd) : apoio ? 0xb9b2a8 : 0xd8d2c8, transparent: true, opacity: enchimento ? 0.22 : apoio ? 0.07 : 0.14, depthWrite: false }));
-    if (c.forma !== 'tronco') m.position.set(...c.min.map((v, i) => v + d[i] / 2));
-    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' ? 30 : 1), new THREE.LineBasicMaterial({ color: azul ? 0xffffff : apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
+    if (c.forma === 'alveolar') m.position.set(...c.min);
+    else if (c.forma !== 'tronco') m.position.set(...c.min.map((v, i) => v + d[i] / 2));
+    const arestas = new THREE.LineSegments(new THREE.EdgesGeometry(g, c.forma === 'cilindro' || c.forma === 'alveolar' ? 30 : 1), new THREE.LineBasicMaterial({ color: azul ? 0xffffff : apoio ? 0xa69c8e : 0x857664, transparent: true, opacity: apoio ? 0.4 : 0.9 }));
     arestas.position.copy(m.position);
     grupoConcreto.add(m, arestas);
   }

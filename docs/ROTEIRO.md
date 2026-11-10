@@ -285,7 +285,7 @@ Estas funcionalidades não mudam o cálculo, mas decidem se um escritório conse
 - ○ **Criação de lajes pelo contorno das vigas:** clicar dentro de um vazio entre vigas gera a laje com as dimensões certas
 - ○ **Edição em lote:** mudar seção, fck ou carga de vários elementos de uma vez
 - ◐ **Gabaritos de projeto:** residencial térreo, sobrado, prédio de 4 pavimentos, galpão, com parâmetros e cargas típicos
-- ◐ **Instalador assinado e atualização automática:** para Windows, macOS e Linux
+- ◐ **Instalador assinado e atualização automática:** para Windows, macOS e Linux — instaladores e atualização pelo programa nos três sistemas feitos (Windows na 0.33.3; AppImage, .deb e .dmg na 0.68.0); falta a assinatura com certificado (Windows e Apple)
 - ○ **Ajuda contextual e tutoriais:** em cada módulo, com o trecho da norma e um exemplo
 - ○ **Repositório de módulos externos:** com versionamento e verificação, para a comunidade publicar módulos
 - ○ **Acessibilidade e idiomas:** navegação por teclado completa, alto contraste, textos traduzíveis

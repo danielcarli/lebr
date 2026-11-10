@@ -1,11 +1,12 @@
 {
   "name": "lebr",
   "productName": "LEBR",
-  "version": "0.67.0",
+  "version": "0.69.0",
   "description": "LEBR — Laboratório de Estruturas Brasil: sistema aberto e modular para cálculo de estruturas de concreto armado e de madeira segundo as normas brasileiras.",
   "license": "AGPL-3.0-only",
   "type": "module",
   "main": "src/main/main.cjs",
+  "desktopName": "lebr.desktop",
   "author": "Daniel Michelon De Carli",
   "scripts": {
     "start": "electron .",
@@ -15,6 +16,8 @@
     "dist:win": "electron-builder --win nsis-web --x64 --publish never && node tools/preparar-release.mjs",
     "dist:win:portatil": "electron-builder --win portable --x64",
     "dist:win:completo": "electron-builder --win nsis --x64",
+    "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never",
+    "dist:mac": "electron-builder --mac dmg --x64 --arm64 --publish never",
     "fonte": "git archive --format=zip --prefix=lebr/ -o lebr-fonte.zip HEAD",
     "instalador": "iscc instalador/lebr.iss",
     "confiabilidade": "node scripts/confiabilidade.mjs"
@@ -89,6 +92,68 @@
     },
     "portable": {
       "artifactName": "LEBR-${version}-portatil-win-x64.${ext}"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "Science",
+      "synopsis": "Cálculo de estruturas de concreto armado e de madeira pelas normas brasileiras",
+      "maintainer": "Daniel Michelon De Carli",
+      "executableName": "lebr",
+      "desktop": {
+        "entry": {
+          "Name": "LEBR",
+          "GenericName": "Cálculo estrutural",
+          "Comment": "Laboratório de Estruturas Brasil",
+          "Keywords": "estrutura;concreto;madeira;NBR;engenharia;",
+          "StartupWMClass": "LEBR"
+        }
+      },
+      "artifactName": "LEBR-linux-${arch}.${ext}",
+      "syncDesktopName": true
+    },
+    "appImage": {
+      "artifactName": "LEBR-linux-x86_64.AppImage"
+    },
+    "deb": {
+      "artifactName": "LEBR-linux-amd64.deb",
+      "packageCategory": "science",
+      "priority": "optional"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.education",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true,
+      "artifactName": "LEBR-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "LEBR ${version}",
+      "artifactName": "LEBR-mac-${arch}.dmg"
     },
     "electronLanguages": [
       "pt-BR",

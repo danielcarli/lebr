@@ -522,6 +522,57 @@ export function modeloTrelicada(el, res, tr, { cob = 2.5, maxVigotas = 40 } = {}
   return { caixas, barras, legenda, eixos: { x: 'L', y: 'largura', z: 'h' }, vista: { teta: -Math.PI / 3, fi: 2.05 } };
 }
 
+/**
+ * Laje alveolar (0.69): os painéis protendidos com os alvéolos (seção extrudada com furos circulares, como no corte),
+ * as chavetas entre painéis, a capa, as cordoalhas na face inferior e as faixas de apoio nas extremidades vinculadas.
+ * O último painel é cortado na largura que sobra. Coordenadas em cm: x ao longo do vão L, y na largura, z = 0 no
+ * fundo dos painéis.
+ * @param {object} el   laje alveolar (L, largura, capa, apoio, painel { h, larguraPainel, alveolos, cordoalhas, phiCordoalha })
+ * @param {object} [res] resultado do cálculo (bordas)
+ */
+export function modeloAlveolar(el, res = null, { junta = 1, maxPaineis = 60 } = {}) {
+  const P = el.painel ?? {};
+  const L = (el.L ?? 7) * 100, W = (el.largura ?? 5) * 100, h = P.h ?? 20, capa = el.capa ?? 0;
+  const bp = P.larguraPainel ?? 125, nAlv = Math.max(1, Math.round(P.alveolos ?? 6));
+  const passo = bp / nAlv, r = Math.min(passo * 0.36, h * 0.34);
+  const caixas = [], barras = [];
+  const nP = Math.max(1, Math.ceil(W / bp - 1e-9));
+  const nCord = Math.max(0, Math.round(P.cordoalhas ?? nAlv + 1)), phiC = P.phiCordoalha ?? 9.5;
+  const zC = Math.max(2.5 + phiC / 20, 3.5);
+  let cortado = false;
+  for (let i = 0; i < Math.min(nP, maxPaineis); i++) {
+    const y0 = i * bp, y1 = Math.min(W, (i + 1) * bp);
+    const larg = y1 - y0 - (y1 < W ? junta : 0);
+    if (larg < 5) continue;
+    if (larg < bp - junta - 1e-6) cortado = true;
+    // alvéolos que cabem inteiros (com 2 cm de parede) no painel, centrados como no painel inteiro
+    const furos = [];
+    for (let k = 0; k < nAlv; k++) { const yc = (k + 0.5) * passo; if (yc + r + 2 <= larg) furos.push({ y: yc, z: h / 2, r }); }
+    caixas.push({ min: [0, y0, 0], max: [L, y0 + larg, h], tipo: 'concreto', parte: 'painel', forma: 'alveolar', furos });
+    if (y1 < W) caixas.push({ min: [0, y0 + larg, 0], max: [L, y1, h], tipo: 'enchimento', parte: 'chaveta', material: 'concreto' });
+    // cordoalhas nas almas, junto à face inferior
+    const almas = [];
+    for (let k = 0; k <= nAlv; k++) { const y = k === 0 ? 4 : k === nAlv ? larg - 4 : k * passo; if (y <= larg - 3) almas.push(y); }
+    const ys = nCord === almas.length ? almas : espalhar(Math.min(nCord, Math.max(1, Math.floor(larg / 8))), 4, larg - 4);
+    for (const y of ys) barras.push({ id: 'cordoalha', N: 'CP', tipo: 'protensão', phi: phiC, pts: [[0, y0 + y, zC], [L, y0 + y, zC]] });
+  }
+  if (capa > 0) caixas.push({ min: [0, 0, h], max: [L, W, h + capa], tipo: 'concreto', parte: 'capa' });
+  // faixas de apoio (o comprimento de apoio sobre a viga), só nas extremidades vinculadas
+  const b = res?.bordas ?? el.bordas ?? {};
+  // a viga (topo de 12 cm mostrado) avança `ap` sob o painel e tem pelo menos 20 cm de largura
+  const ap = el.apoio ?? 10, bv = Math.max(ap + 5, 20);
+  if (b.x0 !== 'livre') caixas.push({ min: [ap - bv, 0, -12], max: [ap, W, 0], tipo: 'apoio', parte: 'apoio' });
+  if (b.x1 !== 'livre') caixas.push({ min: [L - ap, 0, -12], max: [L - ap + bv, W, 0], tipo: 'apoio', parte: 'apoio' });
+  const legenda = [
+    `${nP} painé${nP > 1 ? 'is' : 'l'} de ${virg(bp, 0)} cm${cortado ? ' (o último cortado na largura)' : ''} · h ${virg(h, 0)} cm com ${nAlv} alvéolos ø ${virg(2 * r, 1)} cm (forma do desenho)`,
+    `${nCord} cordoalha${nCord === 1 ? '' : 's'} ø ${virg(phiC, 1)} mm por painel (do catálogo)`,
+    capa > 0 ? `capa de ${virg(capa, 1)} cm` : 'sem capa',
+    `apoio de ${virg(ap, 1)} cm nas extremidades vinculadas`,
+    nP > maxPaineis ? `mostrados ${maxPaineis} painéis` : '',
+  ].filter(Boolean).join(' · ');
+  return { caixas, barras, legenda, eixos: { x: 'L', y: 'largura', z: 'h' }, vista: { teta: -Math.PI / 3, fi: 2.05 } };
+}
+
 /** Caixa que envolve o modelo (para enquadrar a câmera). */
 export function limitesDoModelo(m) {
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];

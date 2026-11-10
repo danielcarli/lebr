@@ -6,17 +6,28 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 **JSON aberto**.
 
 <p align="center">
-  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar o instalador para Windows" src="https://img.shields.io/badge/Windows-Baixar%20o%20instalador%20%28LEBR--Instalador.exe%29-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar para Windows" src="https://img.shields.io/badge/Windows-LEBR--Instalador.exe-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-arm64.dmg"><img alt="Baixar para Mac com chip Apple" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%28.dmg%29-B85438?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-x64.dmg"><img alt="Baixar para Mac Intel" src="https://img.shields.io/badge/macOS-Intel%20%28.dmg%29-B85438?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-x86_64.AppImage"><img alt="Baixar para Linux (AppImage)" src="https://img.shields.io/badge/Linux-AppImage-B85438?style=for-the-badge&logo=linux&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-amd64.deb"><img alt="Baixar para Debian e Ubuntu (.deb)" src="https://img.shields.io/badge/Debian%20%2F%20Ubuntu-.deb-B85438?style=for-the-badge&logo=debian&logoColor=white"></a>
 </p>
 
 > [!TIP]
-> **Instalar no Windows:** baixe o **[LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe)**
-> (cerca de 2 MB) e execute. Ele monta o LEBR no seu computador a partir da última versão publicada no GitHub e
-> serve também para atualizar. Detalhes e requisitos em [INSTALACAO.md](docs/INSTALACAO.md). Outras versões na
-> [página de releases](https://github.com/danielcarli/lebr/releases).
+> **Baixar o LEBR** (última versão publicada):
+> - **Windows 10 e 11:** [LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe) (cerca de 2 MB) — monta o LEBR no seu
+>   computador a partir da última versão do GitHub e serve também para atualizar.
+> - **macOS:** [LEBR-mac-arm64.dmg](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-arm64.dmg) para Macs com chip Apple (M1 a M4) ou
+>   [LEBR-mac-x64.dmg](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-x64.dmg) para Macs Intel — arraste o LEBR para Aplicativos; como ainda não tem a
+>   assinatura da Apple, libere na primeira vez em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.
+> - **Linux (x64):** [LEBR-linux-x86_64.AppImage](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-x86_64.AppImage) para qualquer distribuição
+>   (`chmod +x` e abrir) ou [LEBR-linux-amd64.deb](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-amd64.deb) para Debian, Ubuntu e Mint
+>   (`sudo apt install ./LEBR-linux-amd64.deb`).
+>
+> Detalhes e requisitos em [INSTALACAO.md](docs/INSTALACAO.md). Outras versões na [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.67.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.69.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -157,7 +168,7 @@ Tipografia: [Livvic](https://fonts.google.com/specimen/Livvic) (Fonthausen, lice
 | **Laje maciça** (`concreto.laje.macica`) | Teoria das placas por elementos finitos (elemento ACM); cada borda apoiada, engastada ou **livre** (lajes em balanço e varandas); armaduras mínimas da Tabela 19.1; cortante sem armadura (VRd1); flecha (limite 2·l/250 na borda livre); balanço com h ≥ 10 cm e γn (13.2.4.1); reações pelo processo das áreas ou, com borda livre, pelo modelo de placa. |
 | **Laje treliçada** (`concreto.laje.trelicada`) | Vigotas com treliça TR (8644 a 25856) e lajota cerâmica, EPS ou bloco; nervura T com mesa colaborante (14.6.2.2); armadura da treliça (CA-60) + barras adicionais; momento negativo na capa; cortante na nervura como laje (13.2.4.2); flecha com Branson para seção T e contraflecha limitada a L/350; capa mínima; aviso de nervura de travamento; extremidades apoiadas, engastadas ou **livres** (balanço com armadura negativa na capa) e bordas laterais livres; **sentido das vigotas** em x ou em y na planta. |
 | **Laje nervurada** (`concreto.laje.nervurada`) | Nervuras em uma ou duas direções com cubetas ou blocos; em duas direções, esforços de placa equivalente (14.7.7) × intereixo; nervuras T; mesa verificada à flexão para intereixo entre 65 e 110 cm; cortante como laje ou como viga conforme 13.2.4.2; flecha com rigidez equivalente; bordas apoiadas, engastadas ou **livres** (varandas), com reações pelas áreas ou, com borda livre, pelo modelo de placa. |
-| **Laje alveolar** (`concreto.laje.alveolar`) | Painéis protendidos apoiados, com continuidade ou em **balanço**: verifica Md e VSd contra MRd e VRd do catálogo do fabricante e o momento negativo contra o MRd− da armadura na capa ou nos alvéolos preenchidos, vibração pela flecha das cargas acidentais (L/350, Tabela 13.3), capa como carga, número de painéis e reações nas vigas. |
+| **Laje alveolar** (`concreto.laje.alveolar`) | Painéis protendidos apoiados, com continuidade ou em **balanço**: verifica Md e VSd contra MRd e VRd do catálogo do fabricante e o momento negativo contra o MRd− da armadura na capa ou nos alvéolos preenchidos, deslocamentos da Tabela 13.3 da NBR 6118 — vibração (L/350, cargas acidentais), aceitabilidade sensorial (L/250, flecha final com a fluência menos a contraflecha do fabricante, esta até L/350) e, com paredes sobre a laje, L/500 e 10 mm —, comprimento de apoio (10 cm até h 20, 15 cm acima, prática dos fabricantes), capa como carga, número de painéis, **vista 3D** dos painéis com alvéolos, chavetas, capa, cordoalhas e apoios, e reações nas vigas. O painel em si (protensão, perdas, transferência, fissuração e fogo) é do fabricante (NBR 14861:2022). |
 | **Viga de madeira** (`madeira.viga`) | NBR 7190-1:2022: classes nativas D20–D60 e estruturais C14–C50 / D18–D70, kmod1·kmod2, vigas contínuas, flexão, cisalhamento, estabilidade lateral, compressão normal no apoio e flecha final com fluência. |
 | **Pilar / montante de madeira** (`madeira.pilar`) | Esbeltez relativa, kc (βc 0,2 ou 0,1), flexocompressão com kM = 0,7, limite L0 ≤ 40·dimensão, montante de light wood frame travado pelo painel (NBR 16936:2023). |
 | **Entrepiso de madeira** (`madeira.entrepiso`) | Light wood frame (NBR 16936:2023): vigotas sob painel OSB ou compensado, flexão, cisalhamento, estabilidade com bloqueadores, apoio, flecha com fluência e frequência natural; vigotas apoiadas, engastadas ou em **balanço**. Detalhes em [docs/MADEIRA.md](docs/MADEIRA.md). |
@@ -654,6 +665,23 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.69.0 (laje alveolar conferida com as normas e em 3D; downloads dos três sistemas):** revisão da
+  laje alveolar contra a NBR 14861:2022, a NBR 9062:2017 e a NBR 6118:2023. Entraram as verificações que faltavam da
+  **Tabela 13.3**: **aceitabilidade sensorial** (L/250; flecha final das cargas aplicadas depois da montagem com a
+  fluência, 1 + φ, menos a **contraflecha** do fabricante, considerada até L/350) e, com paredes sobre a laje,
+  **L/500 e 10 mm** após a parede; o **comprimento de apoio** (10 cm até h = 20 cm e 15 cm acima, prática dos
+  fabricantes) e avisos de capa fina (< 5 cm), laje sem capa (chavetas), paredes paralelas aos painéis, furos,
+  recortes, cargas concentradas e resistência ao fogo. Novos campos: fluência φ, contraflecha, cordoalhas por painel e
+  ø. Nova seção **Vista 3D**: painéis com os alvéolos (seção extrudada com os furos), o último painel cortado na
+  largura, chavetas, capa, cordoalhas e os apoios nas vigas. No README e na apresentação, os links de download do
+  **Windows**, do **macOS** (Apple Silicon e Intel) e do **Linux** (AppImage e .deb) ficam juntos.
+- **Novidades da 0.68.0 (Linux e macOS):** instaladores para **Linux** — **AppImage** (qualquer distribuição x64,
+  com atualização automática pelo programa) e pacote **.deb** (Debian, Ubuntu, Mint; entra no menu de aplicativos e
+  se atualiza pedindo a senha) — e para **macOS** — imagens **.dmg** para Apple Silicon e Intel, com assinatura ad hoc
+  (sem certificado da Apple: na primeira vez, **Abrir Mesmo Assim** em Privacidade e Segurança); no Mac, o programa
+  avisa da versão nova e abre a página de download. O fluxo de release passou a ter três jobs em paralelo (Windows,
+  Linux e macOS), cada um com os testes, e o do Linux abre o AppImage sem tela para conferir. Comandos
+  `npm run dist:linux` e `npm run dist:mac`. Ver [docs/INSTALACAO.md](docs/INSTALACAO.md).
 - **Novidades da 0.67.0 (3D fixado à direita por padrão):** ao abrir ou criar um projeto, a **visualização 3D já vem
   fixada à direita**, com os elementos abrindo à esquerda. Quem preferir sem ela usa **Soltar da direita** (menu da aba,
   painel do 3D ou **Exibir › Fixar a visualização 3D à direita**), e a escolha fica lembrada. O enquadramento
@@ -1040,7 +1068,7 @@ para a pasta aberta em **Módulos → Abrir pasta de módulos externos** e reini
 - Laje alveolar com engaste ou balanço: o MRd− da armadura negativa é informado pelo usuário; o fabricante deve confirmar a solução.
 - Laje treliçada e nervurada em uma direção: um vão (sem continuidade entre lajes vizinhas); nervura transversal só como aviso.
 - Laje nervurada em duas direções: esforços de placa isótropa equivalente (14.7.7).
-- Laje alveolar: depende dos valores MRd, VRd e EI do fabricante; os valores iniciais do painel são apenas exemplo.
+- Laje alveolar: depende dos valores MRd, VRd, EI e contraflecha do fabricante; os valores iniciais do painel são apenas exemplo. O LEBR verifica a aplicação do painel, não dimensiona a protensão; cargas concentradas, furos e recortes, a distribuição transversal entre painéis (chavetas) e a resistência ao fogo ficam com o fabricante. O apoio mínimo usado é a prática dos catálogos, não um valor da NBR 14861.
 - Pilares: flexão oblíqua pela curva de interação (passo de 5° na direção da linha neutra, interpolação linear entre pontos); fator 0,9 da tensão do bloco com linha neutra inclinada a conferir no texto da NBR 6118:2023; λ > 90 fora do escopo.
 - Punção: as cargas concentradas entram só na punção (não nos momentos e flechas da laje); momento transferido só no motor (pilar interno), ainda sem campo na laje; k = 1 + √(20/d) limitado a 2 e ρ ≤ 2 % (critério do EC2, a conferir no texto da NBR 6118:2023); sem limite superior de τRd3 além de τRd2 em C; ρ e d tomados das barras inferiores da laje (uma carga sob pilar que apoia a laje usaria as superiores).
 - Sem ancoragem e detalhamento de dobras. Abertura de fissuras só nas vigas (lajes ainda não).

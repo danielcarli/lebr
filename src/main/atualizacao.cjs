@@ -18,8 +18,11 @@
  *   última release em api.github.com/repos/danielcarli/lebr e, havendo versão mais nova, oferece "Atualizar agora",
  *   que fecha o LEBR e roda de novo o instalador guardado em %LOCALAPPDATA%\LEBR-Instalador (/ATUALIZAR: baixa o
  *   código-fonte novo, confere, testa, monta e reabre o programa).
- * - **Instalador com o programa pronto** (electron-builder, quando houver app-update.yml nos recursos): o
- *   electron-updater baixa a versão nova em segundo plano e oferece "Reiniciar e atualizar".
+ * - **Instalador com o programa pronto** (electron-builder, quando houver app-update.yml nos recursos — no Linux, o
+ *   AppImage e o pacote .deb): o electron-updater baixa a versão nova em segundo plano e oferece "Reiniciar e
+ *   atualizar" (no .deb, o sistema pede a senha de administrador para instalar o pacote novo).
+ * - **macOS** (.dmg sem assinatura da Apple): o atualizador automático do macOS exige app assinado, então a
+ *   verificação avisa da versão nova e abre a página de download, como no código-fonte.
  *
  * - Código-fonte (npm start) e executável portátil: a verificação só avisa da versão nova e abre a página de download.
  *
@@ -97,11 +100,14 @@ function iniciar(j) {
     setInterval(() => { if (estado.fase !== 'disponivel') verificarNoGitHub(false); }, SEIS_HORAS);
     return;
   }
-  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !fs.existsSync(yml)) {
+  // macOS sem assinatura não se atualiza sozinho; no Linux, o electron-updater só trata o AppImage e o .deb
+  const semAutomatico = process.platform === 'darwin'
+    || (process.platform === 'linux' && !process.env.APPIMAGE && !fs.existsSync(path.join(process.resourcesPath ?? '', 'package-type')));
+  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !fs.existsSync(yml) || semAutomatico) {
     estado = { ...estado, fase: 'indisponivel' };
     soAviso = true;
     registrar();
-    // portátil: avisa sozinho; pelo código-fonte (npm start) só a pedido
+    // portátil e macOS: avisam sozinhos; pelo código-fonte (npm start) só a pedido
     if (app.isPackaged) setTimeout(() => verificarNoGitHub(false), 8000);
     return;
   }

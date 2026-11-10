@@ -79,7 +79,7 @@ import { MODULOS_INTERNOS, MODULOS_PLANEJADOS } from '../modules/index.js';
 
 const lebr = window.lebr;
 const plataforma = lebr?.plataforma ?? 'web';
-const VERSAO = '0.67.0';
+const VERSAO = '0.69.0';
 
 /* ====================================================================== tema */
 function aplicarTema(tema) {
@@ -1478,7 +1478,7 @@ async function confirmarAtualizacao() {
   const sujo = !!(estado.projeto && estado.sujo);
   const r = await dialogo({
     rotulo: 'Atualização', titulo: `Atualizar o LEBR para a versão ${st.versao}?`,
-    texto: st.instalavel === false && st.fase === 'disponivel' ? `Você usa a versão ${VERSAO}. Esta cópia (código-fonte ou portátil) não se atualiza sozinha: a página de download da versão ${st.versao} abre no navegador. Pelo código-fonte, use git pull e npm install.` : `Você usa a versão ${VERSAO}. ${st.fase === 'pronto' ? 'A versão nova já foi baixada: o LEBR reinicia e abre atualizado.' : 'O LEBR fecha, o instalador baixa e monta a versão nova e o programa abre de novo — leva alguns minutos.'} ${sujo ? `O projeto “${estado.projeto.meta.nome}” tem alterações não salvas.` : 'Os projetos salvos não são alterados.'} As novidades estão no README e nas releases do GitHub.`,
+    texto: st.instalavel === false && st.fase === 'disponivel' ? `Você usa a versão ${VERSAO}. Esta cópia (código-fonte, portátil ou no Mac, que exige app assinado para se atualizar sozinho) não troca a versão sozinha: a página de download da versão ${st.versao} abre no navegador. Pelo código-fonte, use git pull e npm install.` : `Você usa a versão ${VERSAO}. ${st.fase === 'pronto' ? 'A versão nova já foi baixada: o LEBR reinicia e abre atualizado.' : 'O LEBR fecha, o instalador baixa e monta a versão nova e o programa abre de novo — leva alguns minutos.'} ${sujo ? `O projeto “${estado.projeto.meta.nome}” tem alterações não salvas.` : 'Os projetos salvos não são alterados.'} As novidades estão no README e nas releases do GitHub.`,
     botoes: [
       { texto: 'Agora não', tipo: 'fantasma', valor: null },
       st.instalavel === false && st.fase === 'disponivel' ? { texto: 'Abrir a página de download', tipo: 'primario', valor: 'ok', padrao: true } : sujo ? { texto: 'Salvar e atualizar', tipo: 'primario', valor: 'salvar', padrao: true } : { texto: 'Atualizar agora', tipo: 'primario', valor: 'ok', padrao: true },

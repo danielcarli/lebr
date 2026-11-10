@@ -9,14 +9,25 @@ Linux, com interface no modelo do VS Code e projetos gravados em **JSON aberto**
 ![Colaboradores procurados](https://img.shields.io/badge/procuramos-colaboradores-brightgreen)
 
 <p align="center">
-  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar o instalador para Windows" src="https://img.shields.io/badge/Windows-Baixar%20o%20instalador%20%28LEBR--Instalador.exe%29-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe"><img alt="Baixar para Windows" src="https://img.shields.io/badge/Windows-LEBR--Instalador.exe-B85438?style=for-the-badge&logo=windows&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-arm64.dmg"><img alt="Baixar para Mac com chip Apple" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%28.dmg%29-B85438?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-x64.dmg"><img alt="Baixar para Mac Intel" src="https://img.shields.io/badge/macOS-Intel%20%28.dmg%29-B85438?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-x86_64.AppImage"><img alt="Baixar para Linux (AppImage)" src="https://img.shields.io/badge/Linux-AppImage-B85438?style=for-the-badge&logo=linux&logoColor=white"></a>
+  <a href="https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-amd64.deb"><img alt="Baixar para Debian e Ubuntu (.deb)" src="https://img.shields.io/badge/Debian%20%2F%20Ubuntu-.deb-B85438?style=for-the-badge&logo=debian&logoColor=white"></a>
 </p>
 
 > [!TIP]
-> **Instalar no Windows:** baixe o **[LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe)**
-> (cerca de 2 MB) e execute. Ele monta o LEBR no seu computador a partir da última versão publicada no GitHub e
-> serve também para atualizar. Detalhes e requisitos em [INSTALACAO.md](INSTALACAO.md). Outras versões na
-> [página de releases](https://github.com/danielcarli/lebr/releases).
+> **Baixar o LEBR** (última versão publicada):
+> - **Windows 10 e 11:** [LEBR-Instalador.exe](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-Instalador.exe) (cerca de 2 MB) — monta o LEBR no seu
+>   computador a partir da última versão do GitHub e serve também para atualizar.
+> - **macOS:** [LEBR-mac-arm64.dmg](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-arm64.dmg) para Macs com chip Apple (M1 a M4) ou
+>   [LEBR-mac-x64.dmg](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-mac-x64.dmg) para Macs Intel — arraste o LEBR para Aplicativos; como ainda não tem a
+>   assinatura da Apple, libere na primeira vez em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.
+> - **Linux (x64):** [LEBR-linux-x86_64.AppImage](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-x86_64.AppImage) para qualquer distribuição
+>   (`chmod +x` e abrir) ou [LEBR-linux-amd64.deb](https://github.com/danielcarli/lebr/releases/latest/download/LEBR-linux-amd64.deb) para Debian, Ubuntu e Mint
+>   (`sudo apt install ./LEBR-linux-amd64.deb`).
+>
+> Detalhes e requisitos em [INSTALACAO.md](INSTALACAO.md). Outras versões na [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
 > **O LEBR está em fase inicial de desenvolvimento e não deve ser usado para calcular estruturas reais.**

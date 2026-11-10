@@ -1,10 +1,10 @@
-# Publica uma versão do LEBR quando uma tag vX.Y.Z é enviada:
-#   1. confere a versão e roda os testes;
-#   2. gera o código-fonte da release (lebr-fonte.zip) e o instalador do Windows (LEBR-Instalador.exe, Inno Setup);
-#   3. cria a release com os dois anexos — o GitHub calcula o SHA-256 de cada anexo, que o instalador confere;
-#   4. testa o instalador de ponta a ponta: roda o instalar-lebr.ps1, que baixa esta release, confere, testa e
-#      monta o LEBR num Windows limpo.
-name: Release Windows
+# Publica uma versão do LEBR quando uma tag vX.Y.Z é enviada. Três jobs em paralelo, cada um confere a versão e
+# roda os testes antes de gerar os seus anexos (tools/anexar-release.sh cria a release ou anexa à que já existe):
+#   - windows: código-fonte (lebr-fonte.zip) e instalador (LEBR-Instalador.exe, Inno Setup) — o GitHub calcula o
+#     SHA-256 de cada anexo, que o instalador confere; no fim, testa a instalação de ponta a ponta num Windows limpo;
+#   - linux: AppImage e pacote .deb (x64) com o latest-linux.yml, que o atualizador automático lê;
+#   - mac: imagens .dmg para Intel (x64) e Apple Silicon (arm64), sem assinatura da Apple.
+name: Release
 
 on:
   push:
@@ -51,15 +51,85 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ARQS="instalador/LEBR-Instalador.exe lebr-fonte.zip"
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" $ARQS --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" $ARQS --title "LEBR ${GITHUB_REF_NAME#v}" --generate-notes --latest
-          fi
+        run: bash tools/anexar-release.sh instalador/LEBR-Instalador.exe lebr-fonte.zip
 
       - name: Testar a instalação de ponta a ponta
         if: startsWith(github.ref, 'refs/tags/v')
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File instalador\instalar-lebr.ps1
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Conferir a versão da tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          if [ "v$VERSAO" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não corresponde à versão do package.json ($VERSAO)."; exit 1
+          fi
+
+      - run: npm ci
+      - run: npm test
+
+      - name: AppImage e .deb (electron-builder)
+        run: npm run dist:linux
+
+      - name: Testar o AppImage (abre o programa sem tela e confere a janela)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
+          APP=dist/LEBR-linux-x86_64.AppImage
+          APPIMAGE_EXTRACT_AND_RUN=1 timeout 60 xvfb-run -a "$APP" --no-sandbox --remote-debugging-port=9333 > app.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -s http://127.0.0.1:9333/json | grep -q 'LEBR'; then echo "O LEBR abriu."; exit 0; fi
+            sleep 2
+          done
+          cat app.log; echo "O AppImage não abriu a janela do LEBR."; exit 1
+
+      - name: Publicar na release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash tools/anexar-release.sh dist/LEBR-linux-x86_64.AppImage dist/LEBR-linux-amd64.deb dist/latest-linux.yml
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Conferir a versão da tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          if [ "v$VERSAO" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não corresponde à versão do package.json ($VERSAO)."; exit 1
+          fi
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Imagens .dmg (Intel e Apple Silicon, assinatura ad hoc, sem certificado da Apple)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run dist:mac
+
+      - name: Conferir as imagens
+        run: |
+          for d in dist/LEBR-mac-*.dmg; do hdiutil verify "$d"; done
+          ls -la dist/*.dmg
+
+      - name: Publicar na release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash tools/anexar-release.sh dist/LEBR-mac-x64.dmg dist/LEBR-mac-arm64.dmg
