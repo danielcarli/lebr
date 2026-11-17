@@ -126,8 +126,8 @@ Cada release tem os anexos **`lebr-fonte.zip`** (o código-fonte) e **`LEBR-Inst
 correspondente:
 
 ```bash
-git tag v0.69.0
-git push origin v0.69.0
+git tag v0.69.1
+git push origin v0.69.1
 ```
 
 O fluxo [`.github/workflows/release.yml`](../.github/workflows/release.yml) roda três jobs em paralelo — Windows,

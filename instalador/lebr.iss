@@ -12,7 +12,9 @@
 #define Nome "LEBR"
 #define NomeLongo "LEBR — Laboratório de Estruturas Brasil"
 #define Repositorio "danielcarli/lebr"
-#define VersaoInstalador "1.0.0"
+#define VersaoInstalador "1.0.1"
+; chave de desinstalação do Windows: o AppId (com uma chave só) + "_is1"
+#define ChaveDesinstalacao "Software\Microsoft\Windows\CurrentVersion\Uninstall\{E3A3337D-22FB-4322-8B98-148D363E6F6A}_is1"
 
 [Setup]
 AppId={{E3A3337D-22FB-4322-8B98-148D363E6F6A}
@@ -216,9 +218,50 @@ begin
   end;
 end;
 
+{ Tamanho de uma pasta e de tudo o que está nela, em KB (arquivos inteiros; até 4 TB). }
+function FolderKB(const Dir: String): Cardinal;
+var
+  F: TFindRec;
+begin
+  Result := 0;
+  if FindFirst(AddBackslash(Dir) + '*', F) then
+  try
+    repeat
+      if (F.Name <> '.') and (F.Name <> '..') then
+      begin
+        // $10 = FILE_ATTRIBUTE_DIRECTORY
+        if (F.Attributes and $10) <> 0 then
+          Result := Result + FolderKB(AddBackslash(Dir) + F.Name)
+        else
+          Result := Result + F.SizeHigh * 4194304 + F.SizeLow div 1024;
+      end;
+    until not FindNext(F);
+  finally
+    FindClose(F);
+  end;
+end;
+
+{ Os arquivos vêm de uma pasta montada na hora (Flags: external), cujo tamanho o Setup não conhece: sem isto, o
+  "EstimatedSize" da desinstalação fica errado e o Windows mostra um tamanho absurdo (~164 GB) em Configurações >
+  Aplicativos. Mede a pasta instalada e grava o valor (em KB) na chave de desinstalação do usuário (HKCU, porque a
+  instalação é por usuário: PrivilegesRequired=lowest). }
+procedure WriteEstimatedSize;
+var
+  KB: Cardinal;
+begin
+  KB := FolderKB(ExpandConstant('{app}'));
+  Log(Format('Installed size: %d KB', [KB]));
+  if KB > 0 then
+    RegWriteDWordValue(HKCU, '{#ChaveDesinstalacao}', 'EstimatedSize', KB);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  { a pasta de montagem (código, node_modules, dist) ocupa centenas de MB: apaga depois de instalar }
   if CurStep = ssPostInstall then
+  begin
+    { a pasta de montagem (código, node_modules, dist) ocupa centenas de MB: apaga depois de instalar }
     DelTree(ExpandConstant('{localappdata}\LEBR-Instalador\compilacao'), True, True, True);
+    { a chave de desinstalação já existe aqui: grava o tamanho real da pasta instalada }
+    WriteEstimatedSize;
+  end;
 end;

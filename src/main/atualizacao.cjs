@@ -96,6 +96,8 @@ function iniciar(j) {
   if (app.isPackaged && process.platform === 'win32' && !fs.existsSync(yml) && fs.existsSync(exe)) {
     atualizador = exe;
     registrar();
+    // tamanho certo em Configurações › Aplicativos (o instalador antigo gravava um valor errado): mede depois de abrir
+    setTimeout(() => { require('./tamanho-instalado.cjs').corrigirTamanhoInstalado().catch(() => {}); }, 20000);
     setTimeout(() => verificarNoGitHub(false), 8000);
     setInterval(() => { if (estado.fase !== 'disponivel') verificarNoGitHub(false); }, SEIS_HORAS);
     return;

@@ -27,7 +27,7 @@ JavaScript com Electron, interface no modelo do VS Code e projetos salvos em
 > Detalhes e requisitos em [INSTALACAO.md](docs/INSTALACAO.md). Outras versões na [página de releases](https://github.com/danielcarli/lebr/releases).
 
 > [!WARNING]
-> **Versão alpha 0.69.0.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
+> **Versão alpha 0.69.1.** O LEBR está em versão alpha. Os testes de cálculo e de confiabilidade foram feitos de
 > forma **automatizada**. Ainda falta a **validação independente** e, por isso, o software **ainda não pode ser usado
 > em casos reais**.
 
@@ -665,6 +665,13 @@ garante em [docs/CONFIABILIDADE.md](docs/CONFIABILIDADE.md); o relatório gerado
   **estado sempre à vista** (Atende; "2 verificações não atendidas" — clique para ir às verificações; Não calculado;
   Calculando…). Em telas largas, um **índice das seções** ao lado da página mostra onde se está e leva a cada seção;
   em telas estreitas, o botão **…** da barra lista as seções.
+- **Novidades da 0.69.1 (tamanho certo em Configurações › Aplicativos no Windows):** o Windows mostrava cerca de
+  164 GB para o LEBR, embora a pasta instalada tenha cerca de 350 MB. O instalador copia arquivos montados na hora
+  (`Flags: external`), cujo tamanho o Inno Setup não conhece, e o `EstimatedSize` da desinstalação ficava errado. O
+  **LEBR-Instalador 1.0.1** mede a pasta instalada depois de instalar e grava o valor real (em KB) na chave de
+  desinstalação do usuário (o log do Setup, em `%TEMP%`, mostra `Installed size: N KB`). Como a atualização pelo
+  programa roda a cópia do instalador já guardada no computador, o próprio LEBR também confere esse valor ao abrir e o
+  corrige quando estiver errado — as instalações existentes se acertam sem reinstalar.
 - **Novidades da 0.69.0 (laje alveolar conferida com as normas e em 3D; downloads dos três sistemas):** revisão da
   laje alveolar contra a NBR 14861:2022, a NBR 9062:2017 e a NBR 6118:2023. Entraram as verificações que faltavam da
   **Tabela 13.3**: **aceitabilidade sensorial** (L/250; flecha final das cargas aplicadas depois da montagem com a
